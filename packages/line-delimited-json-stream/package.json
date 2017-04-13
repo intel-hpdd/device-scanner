@@ -7,5 +7,11 @@
   },
   "repository": "https://github.intel.com:IML/device-scanner/packages/line-delimited-json-stream",
   "author": "IML Team",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "fable-jest": "2.4.1",
+    "fable-node6": "2.1.1",
+    "fable-powerpack": "next",
+    "stream-to-promise": "2.2.0"
+  }
 }

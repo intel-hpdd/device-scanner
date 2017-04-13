@@ -1,7 +1,10 @@
 coverage
 node_modules
 *.log
+*.userprefs
 .vscode
+.vagrant
 dist
 obj
 bin
+tmp

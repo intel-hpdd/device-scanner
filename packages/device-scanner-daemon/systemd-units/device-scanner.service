@@ -1,0 +1,9 @@
+[Unit]
+Description=IML Device Scanner Daemon
+RefuseManualStart=true
+DefaultDependencies=false
+
+[Service]
+Restart=always
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /root/dist/device-scanner.js

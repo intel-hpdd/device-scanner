@@ -4,6 +4,7 @@ open Jest
 open Fable.Import.JS
 open Fable.Core
 open BlockDeviceListener.Listener
+open UdevEventTypes.EventTypes
 
 [<Pojo>]
 type MockSocket = {
@@ -14,12 +15,6 @@ type MockSocket = {
 [<Pojo>]
 type MockNet = {
   connect: (NetPath -> MockSocket)
-}
-
-[<Pojo>]
-type MockEnv = {
-  foo: string;
-  bar: int;
 }
 
 let createMocks () =
@@ -37,21 +32,30 @@ let createMocks () =
 test "should call connect with NetPath" <| fun () ->
   let (_, mockNet) = createMocks()
 
-  run (unbox mockNet) { foo = "foo"; bar = 3; }
+  let action = JsInterop.createEmpty<IAction>
+  action.ACTION <- Actions.Add
+
+  run (unbox mockNet) action
 
   toBeCalledWith mockNet.connect { path = "/var/run/device-scanner.sock"; }
 
 test "should call connect" <| fun () ->
   let (mockSocket, mockNet) = createMocks()
 
-  run (unbox mockNet) { foo = "foo"; bar = 3; }
+  let action = JsInterop.createEmpty<IAction>
+  action.ACTION <- Actions.Add
+
+  run (unbox mockNet) action
 
   toBeCalledWith2 mockSocket.once "connect" (expect.any Function)
 
 test "should call end with process data" <| fun () ->
   let (mockSocket, mockNet) = createMocks()
 
-  run (unbox mockNet) { foo = "foo"; bar = 3; }
+  let action = JsInterop.createEmpty<IAction>
+  action.ACTION <- Actions.Add
+
+  run (unbox mockNet) action
 
   mockSocket.once
   |> getMock
@@ -60,4 +64,4 @@ test "should call end with process data" <| fun () ->
   |> snd
   |> fun fn -> fn()
 
-  toBeCalledWith mockSocket.``end`` "{\"foo\":\"foo\",\"bar\":3}"
+  toBeCalledWith mockSocket.``end`` """{"Add":{"ACTION":"add"}}"""

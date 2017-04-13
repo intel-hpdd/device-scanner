@@ -39,7 +39,7 @@ let private adjustBuff (buff:string) (index:int) =
 
 let private tryJson (onSuccess:obj -> unit) onFail (x:string)  =
   try
-    let result = ofJson x
+    let result = JSON.parse x
     onSuccess(result)
   with
   | ex ->

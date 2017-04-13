@@ -1,4 +1,5 @@
 {
+  "name": "device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
   "private": true,
@@ -6,22 +7,18 @@
     "prejest": "sendProjFile",
     "jest": "jest",
     "test": "dotnet fable npm-run jest",
-    "bootstrap": "lerna bootstrap",
-    "restore": "dotnet restore && lerna exec -- dotnet restore",
-    "clean": "lerna clean",
     "eslint": "eslint ./",
-    "rollup": "rollup -c rollup-config.js"
+    "prerollup": "sendProjFile",
+    "rollup": "rollup -c rollup-config.js",
+    "restore": "dotnet restore",
+    "cleanDist": "rm -rf packages/*/dist"
   },
   "pre-commit": [
     "eslint",
     "test"
   ],
-  "fable": {
-    "projLocation": "./DeviceScanner.fsproj"
-  },
   "jest": {
     "testEnvironment": "node",
-    "setupTestFrameworkScriptFile": "./setup-jasmine-env.js",
     "moduleFileExtensions": [
       "js",
       "fs",
@@ -36,26 +33,30 @@
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!fable.+)/"
-    ]
+    ],
+    "setupTestFrameworkScriptFile": "./setup-jasmine-env.js"
+  },
+  "fable": {
+    "projLocation": "./device-scanner.fsproj"
   },
   "devDependencies": {
     "babel-core": "6.24.1",
-    "babel-preset-env": "1.3.3",
+    "babel-preset-env": "1.4.0",
     "eslint": "3.19.0",
-    "eslint-config-prettier": "1.6.0",
+    "eslint-config-prettier": "1.7.0",
     "eslint-plugin-prettier": "2.0.1",
-    "fable-core": "next",
+    "fable-core": "1.0.0-narumi-910",
     "fable-jest": "2.4.1",
-    "fable-node6": "2.1.0",
+    "fable-node6": "2.1.1",
     "fable-powerpack": "next",
     "jasmine-reporters": "2.2.1",
     "jest": "19.0.2",
-    "jest-fable-preprocessor": "1.1.0",
-    "lerna": "2.0.0-rc.1",
+    "jest-fable-preprocessor": "1.1.2",
+    "lerna": "2.0.0-rc.3",
     "pre-commit": "1.2.2",
-    "prettier": "0.22.0",
+    "prettier": "1.1.0",
     "rollup": "0.41.6",
-    "rollup-plugin-fable": "1.0.0",
+    "rollup-plugin-fable": "1.0.3",
     "stream-to-promise": "2.2.0"
   }
 }

@@ -6,4 +6,4 @@ DefaultDependencies=false
 [Service]
 Restart=always
 Environment=NODE_ENV=production
-ExecStart=/usr/bin/node /root/dist/device-scanner.js
+ExecStart=/usr/bin/node /sbin/device-scanner-daemon

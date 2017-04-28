@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Shared Event type definitions from udev.",
   "publishConfig": {
-    "registry": "https://ubit-artifactory-or.intel.com/artifactory/api/npm/iml-npm-local"
+    "access": "public"
   },
   "repository": "https://github.intel.com:IML/device-scanner/packages/udev-event-types",
   "author": "IML Team",

@@ -18,6 +18,7 @@
     <Compile Include="packages/block-device-listener/lib/main.fs" />
     <Compile Include="packages/line-delimited-json-stream/lib/stream.test.fs" />
     <Compile Include="packages/block-device-listener/lib/listener.test.fs" />
+    <Compile Include="packages/device-scanner-daemon/lib/device-fns.fs" />
     <Compile Include="packages/device-scanner-daemon/lib/handlers.fs" />
     <Compile Include="packages/device-scanner-daemon/lib/server.fs" />
   </ItemGroup>

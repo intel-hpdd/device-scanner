@@ -1,1 +1,1 @@
-ACTION=="add|remove", SUBSYSTEM=="block", ENV{IML_SIZE}="$attr{size}", RUN+="/root/dist/bundle.js"
+ACTION=="add|remove", SUBSYSTEM=="block", ENV{IML_SIZE}="$attr{size}", RUN+="/lib/udev/block-device-listener"

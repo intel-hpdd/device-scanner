@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A Transform stream that buffers JSON objects. It will emit a completed object on a newline.",
   "publishConfig": {
-    "registry": "https://ubit-artifactory-or.intel.com/artifactory/api/npm/iml-npm-local"
+    "access": "public"
   },
   "repository": "https://github.intel.com:IML/device-scanner/packages/line-delimited-json-stream",
   "author": "IML Team",

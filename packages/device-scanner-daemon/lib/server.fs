@@ -8,10 +8,11 @@ open Node.Net
 open Fable.Core
 open LineDelimitedJsonStream.Stream
 open DeviceScannerDaemon.Handlers
+open UdevEventTypes.EventTypes
 
 let serverHandler (c:net_types.Socket) =
   c
-    .pipe(getJsonStream())
+    .pipe(getJsonStream<Events>())
     .on("data", (dataHandler c)) |> ignore
 
 let private server = net.createServer serverHandler

@@ -26,7 +26,6 @@ type IDevType =
   | Disk
 
 type IAdd =
-  inherit IAction
   abstract ACTION: Add with get
   abstract MAJOR: string with get
   abstract MINOR: string with get
@@ -42,7 +41,6 @@ type IAdd =
   abstract IML_SIZE: string
 
 type IRemove =
-  inherit IAction
   abstract ACTION: Remove with get
   abstract DEVLINKS: string with get
   abstract DEVPATH: string with get

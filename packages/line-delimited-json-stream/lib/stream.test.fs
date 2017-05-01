@@ -6,25 +6,29 @@ open Fable.Import
 open Fable.Core
 open Fable.Core.JsInterop
 open Fable.PowerPack
+open Node.Stream.stream_types
 
-[<Pojo>]
 type TestRec = {
   bar:string;
   foo:string;
 }
 
-[<Pojo>]
 type TestRec2 = {
   baz:string;
 }
 
+type Test1or2 =
+  | TestRec of TestRec
+  | TestRec2 of TestRec2
+
+
 [<Import("default", "stream-to-promise")>]
-let private streamToPromise: obj -> Fable.Import.JS.Promise<obj> = jsNative
+let streamToPromise (a:Transform<string, 'a>) : Fable.Import.JS.Promise<'a[]> = jsNative
 
 testDone "should handle errors from the stream" <| fun d ->
   expect.assertions(1)
 
-  let jsonStream = getJsonStream()
+  let jsonStream = getJsonStream<TestRec>()
   let err = JS.Error.Create "Unexpected end of JSON input"
 
   jsonStream
@@ -37,7 +41,7 @@ testDone "should handle errors from the stream" <| fun d ->
   jsonStream.``end``()
 
 testAsync "should handle JSON in a single chunk" <| fun () ->
-  let jsonStream = getJsonStream()
+  let jsonStream = getJsonStream<TestRec>()
 
   jsonStream.``end``("{ \"foo\": \"bar\", \"bar\": \"baz\" }\n");
 
@@ -48,7 +52,7 @@ testAsync "should handle JSON in a single chunk" <| fun () ->
   }
 
 testAsync "should handle chunks of JSON" <| fun () ->
-  let jsonStream = getJsonStream()
+  let jsonStream = getJsonStream<TestRec>()
 
   jsonStream.write("{ \"foo\": \"bar\", ") |> ignore
   jsonStream.``end``("\"bar\": \"baz\" }\n")
@@ -60,7 +64,7 @@ testAsync "should handle chunks of JSON" <| fun () ->
   }
 
 testAsync "should handle newlines in a string" <| fun () ->
-  let jsonStream = getJsonStream()
+  let jsonStream = getJsonStream<TestRec>()
 
   jsonStream.``end``(toJson({ foo = "bar\n"; bar = "baz" }) + "\n")
 
@@ -71,7 +75,7 @@ testAsync "should handle newlines in a string" <| fun () ->
   }
 
 testAsync "should handle the final json line without a newline" <| fun () ->
-  let jsonStream = getJsonStream()
+  let jsonStream = getJsonStream<TestRec>()
 
   jsonStream.``end``(toJson({ foo = "bar"; bar = "baz"; }))
 
@@ -82,15 +86,18 @@ testAsync "should handle the final json line without a newline" <| fun () ->
   }
 
 testAsync "should handle multiple records correctly" <| fun () ->
-  let jsonStream = getJsonStream()
-  jsonStream.write("""{ "foo": "bar", """) |> ignore
-  jsonStream.write("\"bar\": \"baz\" }\n") |> ignore
-  jsonStream.``end``("""{"baz": "bap"}""")
+  let jsonStream = getJsonStream<Test1or2>()
+  jsonStream.write("""{"TestRec": { "foo": "bar", """) |> ignore
+  jsonStream.write("\"bar\": \"baz\" }}\n") |> ignore
+  jsonStream.``end``("""{"TestRec2": {"baz": "bap"}}""")
 
   promise {
     let! res = streamToPromise jsonStream
 
-    let exp = ({ bar = "baz"; foo = "bar"; }, { baz = "bap"; })
+    let exp = [|
+      TestRec { bar = "baz"; foo = "bar"; };
+      TestRec2 { baz = "bap"; };
+    |]
 
     toEqual res exp
   }

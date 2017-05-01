@@ -1485,9 +1485,9 @@ fable-jest@2.4.1:
   dependencies:
     fable-core next
 
-fable-node6@2.1.1:
-  version "2.1.1"
-  resolved "https://registry.yarnpkg.com/fable-node6/-/fable-node6-2.1.1.tgz#cdda1fe30fed32465db12efb264f890c0db0a378"
+fable-node6@2.1.2:
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/fable-node6/-/fable-node6-2.1.2.tgz#c5785b97a21a6c516cdbfcfedec4cb2d585bbf4e"
   dependencies:
     fable-core next
 

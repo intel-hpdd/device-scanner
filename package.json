@@ -1,7 +1,7 @@
 {
   "name": "device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
-  "author": "IML Team",
+  "author": "MFL Team",
   "private": true,
   "scripts": {
     "prejest": "sendProjFile",
@@ -38,6 +38,10 @@
   "fable": {
     "projLocation": "./device-scanner.fsproj"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:intel-hpdd/device-scanner.git"
+  },
   "devDependencies": {
     "babel-core": "6.24.1",
     "babel-preset-env": "1.4.0",
@@ -46,13 +50,13 @@
     "eslint-plugin-prettier": "2.0.1",
     "fable-core": "1.0.0-narumi-914",
     "fable-jest": "2.4.1",
-    "fable-node6": "2.1.2",
+    "fable-node6": "2.1.3",
     "fable-powerpack": "next",
     "jest": "19.0.2",
     "jest-fable-preprocessor": "1.1.2",
     "lerna": "2.0.0-rc.4",
     "pre-commit": "1.2.2",
-    "prettier": "1.2.2",
+    "prettier": "1.3.1",
     "rollup": "0.41.6",
     "rollup-plugin-fable": "1.0.3",
     "stream-to-promise": "2.2.0"

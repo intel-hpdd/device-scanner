@@ -5,7 +5,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "https://github.intel.com:IML/device-scanner/packages/line-delimited-json-stream",
+  "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/line-delimited-json-stream",
   "author": "IML Team",
   "license": "MIT",
   "devDependencies": {

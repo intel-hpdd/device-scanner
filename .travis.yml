@@ -1,0 +1,14 @@
+language: csharp
+sudo: false
+dist: trusty
+addons:
+    apt:
+        packages:
+            - libunwind8
+before_script:
+  - nvm install 6
+  - nvm use 6
+script:
+  - npm run restore
+  - npm run test
+

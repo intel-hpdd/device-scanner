@@ -13,6 +13,11 @@ open UdevEventTypes.EventTypes
 let deviceMap:IDictionary<string, IAdd> = dict[||]
 
 let dataHandler (c:net_types.Socket) = function
-  | Info -> c.write(Fable.Core.JsInterop.toJson deviceMap) |> ignore
-  | Add(x) -> deviceMap.Add (x.DEVPATH, x)
-  | Remove(x) -> deviceMap.Remove x.DEVPATH |> ignore
+  | Info ->
+    c.``end``(Fable.Core.JsInterop.toJson deviceMap)
+  | Add(x) ->
+    deviceMap.Add (x.DEVPATH, x)
+    c.``end``()
+  | Remove(x) ->
+    deviceMap.Remove x.DEVPATH |> ignore
+    c.``end``()

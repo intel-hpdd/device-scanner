@@ -9,7 +9,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "repository": "https://github.intel.com:IML/device-scanner/packages/block-device-listener",
+  "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/block-device-listener",
   "author": "IML Team",
   "license": "MIT"
 }

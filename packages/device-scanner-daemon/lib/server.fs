@@ -6,6 +6,8 @@ module rec DeviceScannerDaemon.Server
 
 open Node.Net
 open Fable.Core
+open Fable.Import.JS
+open Fable.Core.JsInterop
 open LineDelimitedJsonStream.Stream
 open DeviceScannerDaemon.Handlers
 open UdevEventTypes.EventTypes
@@ -13,12 +15,17 @@ open UdevEventTypes.EventTypes
 let serverHandler (c:net_types.Socket) =
   c
     .pipe(getJsonStream<Events>())
+    .on("error", fun (e:Error) -> printfn "Unable to parse message %s" e.message)
     .on("data", (dataHandler c)) |> ignore
 
-let private server = net.createServer serverHandler
+let opts = createEmpty<net_types.CreateServerOptions>
+opts.allowHalfOpen <- Some true
+
+let private server = net.createServer(opts, serverHandler)
 
 server.on("error", raise) |> ignore
 
-[<Pojo>]
-type Rec = { fd: int; }
-server.listen({ fd = 3; }) |> ignore
+let fd = createEmpty<net_types.Fd>
+fd.fd <- 3
+
+server.listen(fd) |> ignore

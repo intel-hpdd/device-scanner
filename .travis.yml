@@ -5,7 +5,8 @@ dotnet: 1.0.3
 mono: none
 before_script:
   - nvm install 6
-  - nvm use 6
+  - npm install -g yarn
+cache: yarn
 script:
   - yarn
   - yarn run restore

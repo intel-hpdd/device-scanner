@@ -1,5 +1,5 @@
 {
-  "name": "@iml/block-device-listener",
+  "name": "@mfl/block-device-listener",
   "version": "0.0.0",
   "description": "Listens for block device add / removes. Writes to device-scanner-daemon socket.",
   "scripts": {
@@ -10,6 +10,6 @@
     "access": "public"
   },
   "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/block-device-listener",
-  "author": "IML Team",
+  "author": "MFL Team",
   "license": "MIT"
 }

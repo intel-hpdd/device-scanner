@@ -38,7 +38,7 @@ type IAdd =
   abstract ID_SERIAL: string option with get
   abstract ID_FS_TYPE: string with get
   abstract ID_PART_ENTRY_NUMBER: string option with get
-  abstract IML_SIZE: string
+  abstract MFL_SIZE: string
 
 type IRemove =
   abstract ACTION: Remove with get

@@ -69,7 +69,7 @@ Vagrant.configure("2") do |config|
     ./node_modules/.bin/lerna run prepublish
     mv packages/device-scanner-daemon/dist/device-scanner-daemon /sbin
     mv packages/block-device-listener/dist/block-device-listener /lib/udev
-    cp packages/block-device-listener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
+    cp packages/block-device-listener/udev-rules/99-mfl-device-scanner.rules /etc/udev/rules.d/
     cp packages/device-scanner-daemon/systemd-units/* /etc/systemd/system/
     systemctl enable device-scanner.socket
     systemctl start device-scanner.socket

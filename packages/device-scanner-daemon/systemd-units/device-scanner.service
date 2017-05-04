@@ -1,5 +1,5 @@
 [Unit]
-Description=IML Device Scanner Daemon
+Description=MFL Device Scanner Daemon
 RefuseManualStart=true
 DefaultDependencies=false
 

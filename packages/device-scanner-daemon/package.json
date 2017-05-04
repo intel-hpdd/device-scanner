@@ -10,6 +10,6 @@
     "access": "public"
   },
   "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/device-scanner-daemon",
-  "author": "IML Team",
+  "author": "MFL Team",
   "license": "MIT"
 }

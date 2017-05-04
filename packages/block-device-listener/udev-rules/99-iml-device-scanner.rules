@@ -1,1 +1,1 @@
-ACTION=="add|remove", SUBSYSTEM=="block", ENV{IML_SIZE}="$attr{size}", RUN+="/lib/udev/block-device-listener"
+ACTION=="add|remove", SUBSYSTEM=="block", ENV{MFL_SIZE}="$attr{size}", RUN+="/lib/udev/block-device-listener"

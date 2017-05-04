@@ -1,10 +1,8 @@
 language: csharp
 sudo: false
 dist: trusty
-addons:
-    apt:
-        packages:
-            - libunwind8
+dotnet: 1.0.3
+mono: none
 before_script:
   - nvm install 6
   - nvm use 6

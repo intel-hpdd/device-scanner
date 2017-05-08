@@ -1,7 +1,7 @@
 %{?nodejs_find_provides_and_requires}
 
 Name:       block-device-listener
-Version:    0.1.1
+Version:    0.1.0
 Release:    1%{?dist}
 Summary:    Listens for block device add / removes. Writes to device-scanner-daemon socket.
 License:    MIT

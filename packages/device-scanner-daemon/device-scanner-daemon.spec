@@ -2,6 +2,7 @@
 
 Name:       device-scanner-daemon
 Version:    0.1.0
+Release:    1%{?dist}
 Summary:    A persistent process that consumes udev events over a unix domain socket.
 License:    MIT
 Group:      System Environment/Libraries
@@ -12,6 +13,13 @@ BuildArch:  noarch
 ExclusiveArch: %{nodejs_arches} noarch
 
 BuildRequires:  nodejs-packaging
+
+%description
+A persistent process that consumes udev events over a unix domain socket.
+There are two main modes to this daemon:
+1. Processing new incoming events. In this mode we will munge and store incoming events.
+2. Send current devices object listing. In this mode we will send our current stored devices.
+We use unix domain sockets to communicate with the outside world.
 
 %prep
 %setup -q -n package
@@ -34,5 +42,5 @@ rm -rf %{buildroot}
 %{nodejs_sitelib}/@mfl/device-scanner-daemon
 
 %changelog
-* Mon May 8th 2017 Joe Grund <grundjoseph@gmail.com> - 0.1.0
+* Mon May 8 2017 Joe Grund <grundjoseph@gmail.com> - 0.1.0
 - initial package

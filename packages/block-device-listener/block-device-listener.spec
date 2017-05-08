@@ -29,17 +29,17 @@ Udev event data is written over process.env to this module.
 
 %install
 rm -rf %{buildroot}
-
-mkdir -p %{buildroot}%{nodejs_sitelib}/@mfl/block-device-listener
-cp -pr lib package.json %{buildroot}%{nodejs_sitelib}/@mfl/block-device-listener
-
-%nodejs_symlink_deps
+mkdir -p $RPM_BUILD_ROOT/etc/udev/rules.d/
+cp udev-rules/99-iml-device-scanner.rules $RPM_BUILD_ROOT/etc/udev/rules.d/99-iml-device-scanner.rules
+mkdir -p $RPM_BUILD_ROOT/usr/lib/udev/
+cp dist/block-device-listener $RPM_BUILD_ROOT/usr/lib/udev/block-device-listener
 
 %clean
 rm -rf %{buildroot}
 
 %files
-%{nodejs_sitelib}/@mfl/block-device-listener
+%attr(0744,root,root)/usr/lib/udev/block-device-listener
+%attr(0744,root,root)/etc/udev/rules.d/99-iml-device-scanner.rules
 
 %changelog
 * Mon May 8 2017 Joe Grund <grundjoseph@gmail.com> - 0.1.0

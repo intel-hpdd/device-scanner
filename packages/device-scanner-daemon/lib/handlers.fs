@@ -6,7 +6,7 @@ module rec DeviceScannerDaemon.Handlers
 
 open Fable.Core
 open Fable
-open Node.Net
+open Fable.Import.Node.Net
 open System.Collections.Generic
 open UdevEventTypes.EventTypes
 

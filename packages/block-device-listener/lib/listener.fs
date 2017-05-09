@@ -6,7 +6,7 @@ module BlockDeviceListener.Listener
 
 open Fable.Core
 open Fable.Import.JS
-open Node.Net
+open Fable.Import.Node.Net
 open UdevEventTypes.EventTypes
 
 let private getRecordType (x:IAction) =

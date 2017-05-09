@@ -6,7 +6,7 @@ open Fable.Import
 open Fable.Core
 open Fable.Core.JsInterop
 open Fable.PowerPack
-open Node.Stream.stream_types
+open Fable.Import.Node.Stream
 
 type TestRec = {
   bar:string;

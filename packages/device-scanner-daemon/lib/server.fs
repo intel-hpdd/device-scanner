@@ -4,9 +4,9 @@
 
 module rec DeviceScannerDaemon.Server
 
-open Node.Net
 open Fable.Core
 open Fable.Import.JS
+open Fable.Import.Node.Net
 open Fable.Core.JsInterop
 open LineDelimitedJsonStream.Stream
 open DeviceScannerDaemon.Handlers

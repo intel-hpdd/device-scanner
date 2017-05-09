@@ -6,7 +6,7 @@ module BlockDeviceListener.Main
 
 open BlockDeviceListener.Listener
 open UdevEventTypes.EventTypes
-open Node.Net
-open Node.Globals
+open Fable.Import.Node.Net
+open Fable.Import.Node.Globals
 
 run net (``process``.env :?> IAction)

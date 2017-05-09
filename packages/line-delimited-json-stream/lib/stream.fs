@@ -5,7 +5,7 @@
 module LineDelimitedJsonStream.Stream
 
 open System
-open Node.Stream
+open Fable.Import.Node.Stream
 open Fable.Import.JS
 open Fable.Core
 open Fable.Core.JsInterop

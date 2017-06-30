@@ -1,7 +1,7 @@
 {
   "name": "device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
-  "author": "MFL Team",
+  "author": "IML Team",
   "private": true,
   "scripts": {
     "prejest": "sendProjFile",

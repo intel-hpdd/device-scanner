@@ -1,5 +1,5 @@
 [Unit]
-Description=MFL Device Scanner Socket
+Description=IML Device Scanner Socket
 DefaultDependencies=false
 
 [Socket]

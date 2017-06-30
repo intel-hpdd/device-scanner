@@ -1,5 +1,5 @@
 {
-  "name": "@mfl/device-scanner-daemon",
+  "name": "@iml/device-scanner-daemon",
   "version": "0.1.0",
   "description": "A persistent process that consumes udev events over a unix domain socket.",
   "main": "dist/device-scanner-daemon",
@@ -10,6 +10,6 @@
     "access": "public"
   },
   "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/device-scanner-daemon",
-  "author": "MFL Team",
+  "author": "IML Team",
   "license": "MIT"
 }

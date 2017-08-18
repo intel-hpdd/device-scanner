@@ -1,0 +1,11 @@
+{
+  "name": "@iml/line-delimited-json-stream",
+  "version": "1.0.0",
+  "description": "A Transform stream that buffers JSON objects. It will emit a completed object on a newline.",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/line-delimited-json-stream",
+  "author": "IML Team",
+  "license": "MIT"
+}

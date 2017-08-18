@@ -1,25 +1,19 @@
-<Project Sdk="FSharp.NET.Sdk;Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard1.6</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FSharp.NET.Sdk" Version="1.0.*" PrivateAssets="All" />
-    <PackageReference Include="FSharp.Core" Version="4.1.*" />
-    <PackageReference Include="Fable.Core" Version="1.0.0-narumi-*" />
-    <ProjectReference Include="node_modules/fable-node6/Fable-Node6.fsproj" />
-    <ProjectReference Include="node_modules/fable-jest/fable-jest.fsproj" />
-    <ProjectReference Include="node_modules/fable-powerpack/Fable.PowerPack.fsproj" />
-    <DotNetCliToolReference Include="dotnet-fable" Version="1.0.0-narumi-*" />
+    <DotNetCliToolReference Include="dotnet-fable" Version="1.1.14" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="packages/udev-event-types/lib/event-types.fs" />
-    <Compile Include="packages/line-delimited-json-stream/lib/stream.fs" />
-    <Compile Include="packages/block-device-listener/lib/listener.fs" />
-    <Compile Include="packages/block-device-listener/lib/main.fs" />
-    <Compile Include="packages/line-delimited-json-stream/lib/stream.test.fs" />
-    <Compile Include="packages/block-device-listener/lib/listener.test.fs" />
-    <Compile Include="packages/device-scanner-daemon/lib/device-fns.fs" />
-    <Compile Include="packages/device-scanner-daemon/lib/handlers.fs" />
-    <Compile Include="packages/device-scanner-daemon/lib/server.fs" />
+    <Compile Include="modules/udev-event-types/lib/event-types.fs" />
+    <Compile Include="modules/line-delimited-json-stream/lib/stream.fs" />
+    <Compile Include="modules/line-delimited-json-stream/lib/stream.test.fs" />
+    <Compile Include="modules/block-device-listener/lib/listener.fs" />
+    <Compile Include="modules/block-device-listener/lib/main.fs" />
+    <Compile Include="modules/block-device-listener/lib/listener.test.fs" />
+    <Compile Include="modules/device-scanner-daemon/lib/handlers.fs" />
+    <Compile Include="modules/device-scanner-daemon/lib/server.fs" />
   </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
 </Project>

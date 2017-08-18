@@ -1,9 +1,0 @@
-{
-  "name": "@mfl/udev-event-types",
-  "version": "1.0.0",
-  "description": "Shared Event type definitions from udev.",
-  "private": true,
-  "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/udev-event-types",
-  "author": "MFL Team",
-  "license": "MIT"
-}

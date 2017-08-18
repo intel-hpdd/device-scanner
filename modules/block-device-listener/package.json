@@ -1,0 +1,15 @@
+{
+  "name": "@iml/block-device-listener",
+  "version": "0.1.0",
+  "description": "Listens for block device add / removes. Writes to device-scanner-daemon socket.",
+  "scripts": {
+    "prepublish": "old_pwd=$PWD; cd ../../; dotnet fable npm-run rollup --args \"-i $old_pwd/lib/main.fs -o $old_pwd/$npm_package_main\" --port 'free'; chmod +x $old_pwd/$npm_package_main"
+  },
+  "main": "dist/block-device-listener",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": "https://github.com/intel-hpdd/device-scanner/tree/master/packages/block-device-listener",
+  "author": "IML Team",
+  "license": "MIT"
+}

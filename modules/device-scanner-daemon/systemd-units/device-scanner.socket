@@ -1,0 +1,9 @@
+[Unit]
+Description=IML Device Scanner Socket
+DefaultDependencies=false
+
+[Socket]
+ListenStream=/var/run/device-scanner.sock
+
+[Install]
+WantedBy=sockets.target

@@ -8,3 +8,5 @@ dist
 obj
 bin
 tmp
+packages
+out

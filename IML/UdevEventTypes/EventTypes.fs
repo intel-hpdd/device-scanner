@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module rec UdevEventTypes.EventTypes
+module IML.UdevEventTypes.EventTypes
 
 open Fable.Core
 
@@ -52,8 +52,6 @@ type Events =
   | Remove of IRemove
   | Info
 
-
-// UDEV  [890.275494] remove   /devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1 (block)
 // ACTION=remove
 // DEVLINKS=/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1
 // DEVNAME=/dev/sdb1

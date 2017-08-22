@@ -2,14 +2,14 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module BlockDeviceListener.Test
+module IML.BlockDeviceListener.ListenerTest
 
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
 open Fable.Import.JS
 open Fable.Core
-open BlockDeviceListener.Listener
-open UdevEventTypes.EventTypes
+open IML.BlockDeviceListener.Listener
+open IML.UdevEventTypes.EventTypes
 
 [<Pojo>]
 type MockSocket = {

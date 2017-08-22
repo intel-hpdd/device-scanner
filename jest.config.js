@@ -5,7 +5,7 @@ module.exports = {
     '^.+\\.(fs|fsx)$': 'jest-fable-preprocessor',
     '^.+\\.js$': 'babel-jest'
   },
-  testMatch: ['**/**/*.(test.fs|test.fsx)'],
+  testMatch: ['**/**/*Test.fs'],
   transformIgnorePatterns: ['node_modules/(?!fable.+)/'],
   coveragePathIgnorePatterns: ['packages', 'test/']
 };

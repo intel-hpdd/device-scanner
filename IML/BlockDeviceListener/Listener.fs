@@ -2,12 +2,12 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module BlockDeviceListener.Listener
+module IML.BlockDeviceListener.Listener
 
 open Fable.Core
 open Fable.Import.JS
 open Fable.Import.Node
-open UdevEventTypes.EventTypes
+open IML.UdevEventTypes.EventTypes
 
 let private getRecordType (x:IAction) =
   match x.ACTION with

@@ -2,11 +2,11 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module LineDelimitedJsonStream.Test
+module IML.LineDelimitedJsonStream.StreamTest
 
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
-open LineDelimitedJsonStream.Stream
+open IML.LineDelimitedJsonStream.Stream
 open Fable.Import
 open Fable.Core
 open Fable.Core.JsInterop

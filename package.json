@@ -15,9 +15,6 @@
     "cleanDist": "rm -rf packages/*/dist"
   },
   "pre-commit": ["test"],
-  "fable": {
-    "projLocation": "./device-scanner.fsproj"
-  },
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"

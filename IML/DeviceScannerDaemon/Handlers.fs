@@ -2,13 +2,13 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module rec DeviceScannerDaemon.Handlers
+module rec IML.DeviceScannerDaemon.Handlers
 
 open Fable.Core
 open Fable
 open Fable.Import.Node
 open System.Collections.Generic
-open UdevEventTypes.EventTypes
+open IML.UdevEventTypes.EventTypes
 
 let deviceMap:IDictionary<string, IAdd> = dict[||]
 

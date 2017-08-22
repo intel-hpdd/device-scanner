@@ -2,10 +2,10 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module BlockDeviceListener.Main
+module IML.BlockDeviceListener.Main
 
-open BlockDeviceListener.Listener
-open UdevEventTypes.EventTypes
+open IML.BlockDeviceListener.Listener
+open IML.UdevEventTypes.EventTypes
 open Fable.Import.Node
 
 run Net (Globals.``process``.env :?> IAction)

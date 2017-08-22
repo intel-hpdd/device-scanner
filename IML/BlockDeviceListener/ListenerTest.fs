@@ -7,68 +7,43 @@ module IML.BlockDeviceListener.ListenerTest
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
 open Fable.Import.JS
+open Fable.Core.JsInterop
 open Fable.Core
-open IML.BlockDeviceListener.Listener
-open IML.UdevEventTypes.EventTypes
+open Fable.Import.Node
+open Fable.Import.Node.Globals
 
-[<Pojo>]
-type MockSocket = {
-   once: string -> (obj -> obj) -> obj;
-   ``end``: (string -> unit);
-}
+describe "Listener" <| fun () ->
+  let mutable mockOnce = null
+  let mutable mockEnd = null
+  let mutable mockConnect = null
 
-[<Pojo>]
-type MockNet = {
-  connect: (NetPath -> MockSocket)
-}
+  beforeEach <| fun () ->
+    mockOnce <- Matcher2<string, obj -> obj, obj>()
+    mockOnce?id <- 3
+    mockEnd <- Matcher<string, unit>()
 
-let createMocks () =
-  let mockOnce = Matcher2<string, obj -> obj, obj>()
-  let mockEnd = Matcher<string, unit>()
+    mockConnect <- Matcher<obj, obj>(fun (_) ->
+      createObj [
+        "once" ==> mockOnce.Mock;
+        "end" ==> mockEnd.Mock;
+      ]
+    )
 
-  let mockSocket = {
-    once = mockOnce.Mock;
-    ``end`` = mockEnd.Mock;
-  }
+    jest.mock("net", fun () -> createObj ["connect" ==> mockConnect.Mock])
 
-  let mockConnect = Matcher(fun (_) -> mockSocket)
-  let mockNet = {
-      connect = mockConnect.Mock;
-  }
+    require.Invoke "./Listener.fs" |> ignore
 
-  (mockSocket, mockNet, mockConnect, mockOnce, mockEnd)
+  test "should call connect with NetPath" <| fun () ->
+    mockConnect.CalledWith(createObj ["path" ==> "/var/run/device-scanner.sock"])
 
-test "should call connect with NetPath" <| fun () ->
-  let (_, mockNet, mockConnect, _, _) = createMocks()
+  test "should call connect" <| fun () ->
+    mockOnce.CalledWith "connect" (expect.any Function)
 
-  let action = JsInterop.createEmpty<IAction>
-  action.ACTION <- Actions.Add
+  test "should call end with process data" <| fun () ->
+    mockOnce.LastCall
+      |> snd
+      |> fun fn -> fn()
+      |> ignore
 
-  run (unbox mockNet) action
 
-  mockConnect.CalledWith { path = "/var/run/device-scanner.sock"; }
-
-test "should call connect" <| fun () ->
-  let (mockSocket, mockNet, _, mockOnce, _) = createMocks()
-
-  let action = JsInterop.createEmpty<IAction>
-  action.ACTION <- Actions.Add
-
-  run (unbox mockNet) action
-
-  mockOnce.LastCall ==  ("connect", (expect.any Function))
-
-test "should call end with process data" <| fun () ->
-  let (mockSocket, mockNet, _, mockOnce, mockEnd) = createMocks()
-
-  let action = JsInterop.createEmpty<IAction>
-  action.ACTION <- Actions.Add
-
-  run (unbox mockNet) action
-
-  mockOnce.LastCall
-    |> snd
-    |> fun fn -> fn()
-    |> ignore
-
-  mockEnd.CalledWith """{"Add":{"ACTION":"add"}}"""
+    mockEnd.CalledWith <| expect.any String

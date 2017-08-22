@@ -6,7 +6,7 @@ NUGET
     Fable.Import.Browser (0.1)
       Fable.Core (>= 1.0.8) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.1) - restriction: >= netstandard1.6
-    Fable.Import.Jest (1.4)
+    Fable.Import.Jest (1.4.1)
       Fable.Core (>= 1.1.14) - restriction: >= netstandard1.6
       Fable.Import.Node (>= 0.1.2) - restriction: >= netstandard1.6
       Fable.PowerPack (>= 1.2) - restriction: >= netstandard1.6

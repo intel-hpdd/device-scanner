@@ -4,20 +4,22 @@
 
 module rec IML.DeviceScannerDaemon.Handlers
 
-open Fable.Core
-open Fable
+open Fable.Core.JsInterop
+open Fable.PowerPack
 open Fable.Import.Node
 open System.Collections.Generic
 open IML.UdevEventTypes.EventTypes
 
-let deviceMap:IDictionary<string, IAdd> = dict[||]
+let deviceMap:IDictionary<string, AddEvent> = dict[||]
 
 let dataHandler (c:Net.Socket) = function
-  | Info ->
-    c.``end``(Fable.Core.JsInterop.toJson deviceMap)
-  | Add(x) ->
+  | InfoEventMatch(_) ->
+    c.``end``(toJson deviceMap)
+  | AddEventMatch(x) ->
     deviceMap.Add (x.DEVPATH, x)
     c.``end``()
-  | Remove(x) ->
+  | RemoveEventMatch(x) ->
     deviceMap.Remove x.DEVPATH |> ignore
     c.``end``()
+  | _ ->
+    raise (System.Exception "Handler Got a bad match")

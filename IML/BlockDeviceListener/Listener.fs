@@ -7,23 +7,15 @@ module IML.BlockDeviceListener.Listener
 open Fable.Core
 open Fable.Import.JS
 open Fable.Import.Node
-open IML.UdevEventTypes.EventTypes
-
-let private getRecordType (x:IAction) =
-  match x.ACTION with
-    | Actions.Add -> Add (x :?> IAdd)
-    | Actions.Remove -> Remove (x :?> IRemove)
-
-let private toJson = getRecordType >> JsInterop.toJson
 
 [<Pojo>]
 type NetPath = {
   path: string
 }
 
-let run (net:Net.IExports) (env:IAction) =
-  let client = net.connect { path = "/var/run/device-scanner.sock"; }
-  client.once(
-    "connect",
-    fun () -> client.``end``(toJson env)
-  ) |> ignore
+let private client = Net.connect { path = "/var/run/device-scanner.sock"; }
+
+client.once(
+  "connect",
+  fun () -> client.``end``(JSON.stringify Globals.``process``.env)
+) |> ignore

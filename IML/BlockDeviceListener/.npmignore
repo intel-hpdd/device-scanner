@@ -1,6 +1,0 @@
-*.log
-*.fsproj
-*.fs
-obj
-bin
-test

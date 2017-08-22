@@ -3,11 +3,9 @@ dist: trusty
 dotnet: 1.0.4
 mono: latest
 before_script:
-  - nvm install 6
-  - npm install -g yarn
-cache: yarn
+  - nvm install 8
 script:
-  - yarn
-  - yarn run restore
-  - yarn run test
+  - npm i
+  - npm run restore
+  - npm run test
 

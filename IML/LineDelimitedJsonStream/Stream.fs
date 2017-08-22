@@ -8,12 +8,14 @@ open System
 open Fable.Import.Node
 open Fable.Import.JS
 open Fable.Core
+open Fable.PowerPack
 open Fable.Core.JsInterop
 open System.Text.RegularExpressions
 
-let private matchNewline x = Regex.Match(x, "\\n")
+let private parser = Json.ofString
 
-let private matcher = matchNewline >> function
+let private matcher x =
+  match Regex.Match(x, "\\n") with
     | m when m.Success -> Some(m.Index)
     | _ -> None
 
@@ -22,19 +24,7 @@ let private adjustBuff (buff:string) (index:int) =
   let buff = buff.Substring(index + 1)
   (out, buff)
 
-[<PassGenerics>]
-let private tryJson<'a> (onSuccess:'a -> unit) onFail (x:string)  =
-  try
-    let result = ofJson<'a> x
-    onSuccess(result)
-  with
-  | ex ->
-    let err = !!ex
-
-    onFail err
-
-[<PassGenerics>]
-let rec private getNextMatch<'a> (buff:string) (callback:Error option -> 'a option -> unit) (turn:int) =
+let rec private getNextMatch (buff:string) (callback:Error option -> Json.Json option -> unit) (turn:int) =
   let opt = matcher(buff)
 
   match opt with
@@ -45,24 +35,32 @@ let rec private getNextMatch<'a> (buff:string) (callback:Error option -> 'a opti
     | Some(index) ->
       let (out, b) = adjustBuff buff index
 
-      tryJson<'a>
-        (fun x -> callback None (Some x))
-        (fun e -> callback (Some e) None )
-        out
+      match parser out with
+        | Ok(x) -> callback None (Some x)
+        | Error(e:exn) -> callback (!!e |> Some) None
 
       getNextMatch b callback (turn + 1)
 
-[<PassGenerics>]
-let getJsonStream<'a> () =
+let getJsonStream () =
   let mutable buff = ""
 
   let opts = createEmpty<Stream.TransformBufferOptions>
   opts.readableObjectMode <- Some true
   opts.transform <- (fun chunk encoding callback ->
-    buff <- getNextMatch<'a>
+    let self = JsInterop.jsThis
+
+    buff <- getNextMatch
         (buff + chunk.toString("utf-8"))
-        callback
+        (fun err x ->
+          (Option.map (fun x -> self?emit("error", x)) err)
+            |> ignore
+
+          (Option.map (fun x -> self?push(x)) x)
+            |> ignore
+        )
         0
+
+    callback None None
   )
 
   opts.flush <- Some(fun callback ->
@@ -70,15 +68,13 @@ let getJsonStream<'a> () =
       then
         callback(None)
       else
-        let self = Fable.Core.JsInterop.jsThis
+        let self = JsInterop.jsThis
 
-        tryJson<'a>
-          (fun x ->
-            self?push x |> ignore
-            callback(None)
-          )
-          (Some >> callback)
-          buff
+        match parser buff with
+        | Ok(x) ->
+          self?push x |> ignore
+          callback(None)
+        | Error(e:exn) -> !!e |> Some |> callback
   )
 
-  Stream.Transform.Create<string, 'a> opts
+  Stream.Transform.Create<string, Json.Json> opts

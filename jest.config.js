@@ -1,4 +1,7 @@
 module.exports = {
+  expand: true,
+  resetModules: true,
+  clearMocks: true,
   testEnvironment: 'node',
   moduleFileExtensions: ['js', 'fs', 'fsx'],
   transform: {

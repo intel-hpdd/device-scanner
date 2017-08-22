@@ -14,8 +14,11 @@ open IML.UdevEventTypes.EventTypes
 
 let serverHandler (c:Net.Socket) =
   c
-    .pipe(getJsonStream<Events>())
-    .on("error", fun (e:Error) -> printfn "Unable to parse message %s" e.message)
+    .pipe(getJsonStream())
+    .on("error", fun (e:Error) ->
+      console.error ("Unable to parse message " + e.message)
+      c.``end``()
+    )
     .on("data", (dataHandler c)) |> ignore
 
 let opts = createEmpty<Net.CreateServerOptions>
@@ -23,13 +26,16 @@ opts.allowHalfOpen <- Some true
 
 let private server = Net.createServer(opts, serverHandler)
 
-let r e =
-  raise e
+let private r e =
+  e
+  |> raise
   |> ignore
 
-server.on("error", r) |> ignore
+server.on("error", r)
+  |> ignore
 
-let fd = createEmpty<Net.Fd>
+let private fd = createEmpty<Net.Fd>
 fd.fd <- 3
 
-server.listen(fd) |> ignore
+server.listen(fd)
+  |> ignore

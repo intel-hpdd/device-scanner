@@ -13,6 +13,5 @@ export default {
       },
       port
     })
-  ],
-  format: 'cjs'
+  ]
 };

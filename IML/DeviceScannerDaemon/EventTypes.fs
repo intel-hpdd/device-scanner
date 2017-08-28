@@ -36,7 +36,7 @@ type AddEvent = {
   ID_VENDOR: string option;
   ID_MODEL: string;
   ID_SERIAL: string option;
-  ID_FS_TYPE: string option;
+  ID_FS_TYPE: string;
   ID_PART_ENTRY_NUMBER: string option;
   IML_SIZE: string option;
 }
@@ -49,7 +49,7 @@ type RemoveEvent = {
   MINOR: string;
 }
 
-type InfoEvent = {
+type SimpleEvent = {
   ACTION: string;
 }
 
@@ -61,7 +61,7 @@ let private str = function
   | Json.String a -> Some a
   | _ -> None
 
-let unwrapString a =
+let private unwrapString a =
     match a with
     | Json.String a -> a
     | _ -> failwith "Invalid JSON, it must be a string"
@@ -73,76 +73,78 @@ let private matchAction (name:string) (x:Map<string, Json.Json>) =
   |> Option.filter((=) name)
   |> Option.map(fun _ -> x)
 
-let (|InfoEventMatch|_|) x =
-  x
-    |> object
-    |> Option.bind (matchAction "info")
-    |> Option.map (fun _ -> { ACTION = "info"; })
-
-let findOrFail key x =
+let private findOrFail key x =
   x |> Map.find key |> unwrapString
 
-let findOrNone key x =
+let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
+
+let private major = findOrFail "MAJOR"
+let private minor =  findOrFail "MINOR"
+let private devlinks = findOrFail "DEVLINKS"
+let private devName = findOrFail "DEVNAME"
+let private devPath = findOrFail "DEVPATH"
+let private idVendor = findOrNone "ID_VENDOR"
+let private idModel = findOrFail "ID_MODEL"
+let private idSerial = findOrNone "ID_SERIAL"
+let private idFsType = findOrFail "ID_FS_TYPE"
+let private idPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
+let private imlSize = findOrNone "IML_SIZE"
+
+let extractAddEvent x =
+  let devType =
+    x
+      |> Map.find "DEVTYPE"
+      |> unwrapString
+      |> function
+        | PartitionMatch (x) -> x
+        | DiskMatch (x) -> x
+        | _ -> failwith "DEVTYPE neither partition or disk"
+
+  {
+    ACTION = "add";
+    MAJOR = major x;
+    MINOR = minor x;
+    DEVLINKS = devlinks x;
+    DEVNAME = devName x;
+    DEVPATH = devPath x;
+    DEVTYPE = devType;
+    ID_VENDOR = idVendor x;
+    ID_MODEL = idModel x;
+    ID_SERIAL = idSerial x;
+    ID_FS_TYPE = idFsType x;
+    ID_PART_ENTRY_NUMBER = idPartEntryNumber x;
+    IML_SIZE = imlSize x;
+  }
 
 let (|AddEventMatch|_|) x =
   x
     |> object
     |> Option.bind (matchAction "add")
-    |> Option.map (fun x ->
-      let major = findOrFail "MAJOR" x
-      let minor =  findOrFail "MINOR" x
-      let devlinks = findOrFail "DEVLINKS" x
-      let devName = findOrFail "DEVNAME" x
-      let devPath = findOrFail "DEVPATH" x
-      let idVendor = findOrNone "ID_VENDOR" x
-      let idModel = findOrFail "ID_MODEL" x
-      let idSerial = findOrNone "ID_SERIAL" x
-      let idFsType = findOrNone "ID_FS_TYPE" x // Investigate this
-      let idPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER" x
-      let imlSize = findOrNone "IML_SIZE" x // Investigate this too
-
-      let devType =
-        x
-          |> Map.find "DEVTYPE"
-          |> unwrapString
-          |> function
-            | PartitionMatch (x) -> x
-            | DiskMatch (x) -> x
-            | _ -> failwith "DEVTYPE neither partition or disk"
-
-      {
-        ACTION = "add";
-        MAJOR = major;
-        MINOR = minor;
-        DEVLINKS = devlinks;
-        DEVNAME = devName;
-        DEVPATH = devPath;
-        DEVTYPE = devType;
-        ID_VENDOR = idVendor;
-        ID_MODEL = idModel;
-        ID_SERIAL = idSerial;
-        ID_FS_TYPE = idFsType;
-        ID_PART_ENTRY_NUMBER = idPartEntryNumber;
-        IML_SIZE = imlSize;
-      }
-    )
+    |> Option.map (extractAddEvent)
 
 let (|RemoveEventMatch|_|) x =
   x
     |> object
     |> Option.bind (matchAction  "remove")
     |> Option.map (fun x ->
-      let devlinks = x |> Map.find "DEVLINKS" |> unwrapString
-      let devName = x |> Map.find "DEVNAME" |> unwrapString
-      let major = x |> Map.find "MAJOR" |> unwrapString
-      let minor = x |> Map.find "MINOR" |> unwrapString
-
       {
         ACTION = "remove";
-        DEVLINKS = devlinks;
-        DEVPATH = devName;
-        MAJOR = major;
-        MINOR = minor;
+        DEVLINKS = devlinks x;
+        DEVPATH = devName x;
+        MAJOR = major x;
+        MINOR = minor x;
       }
     )
+
+let (|ReadEventMatch|_|) x =
+  x
+    |> object
+    |> Option.bind (matchAction "read")
+    |> Option.map (fun _ -> { ACTION = "read"; })
+
+let (|InfoEventMatch|_|) x =
+  x
+    |> object
+    |> Option.bind (matchAction "info")
+    |> Option.map (fun _ -> { ACTION = "info"; })

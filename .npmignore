@@ -1,11 +1,6 @@
 .babelrc
 .editorconfig
-.eslintignore
-.eslintrc
-.flowconfig
 .gitignore
-run_test.sh
-setup-jasmine-env.js
 *.log
 *.fs
 obj

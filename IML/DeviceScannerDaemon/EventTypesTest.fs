@@ -34,6 +34,7 @@ let addObj =  toJson """
   "ID_PATH_TAG": "pci-0000_00_01_1-ata-1_0",
   "ID_REVISION": "1.0",
   "ID_SERIAL": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
+  "ID_FS_TYPE": "LVM2_member",
   "ID_SERIAL_SHORT": "VB304a0a0f-15e93f07",
   "ID_TYPE": "disk",
   "MAJOR": "8",
@@ -41,7 +42,8 @@ let addObj =  toJson """
   "SEQNUM": "1566",
   "SUBSYSTEM": "block",
   "TAGS": ":systemd:",
-  "USEC_INITIALIZED": "842"
+  "USEC_INITIALIZED": "842",
+  "IML_SIZE": "81784832"
 }
 """
 

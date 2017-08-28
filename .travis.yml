@@ -1,6 +1,6 @@
 language: csharp
 dist: trusty
-dotnet: 1.0.4
+dotnet: 2.0.0
 mono: latest
 before_script:
   - nvm install 8

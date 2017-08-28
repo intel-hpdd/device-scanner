@@ -8,7 +8,6 @@
     "access": "public"
   },
   "scripts": {
-    "prejest": "sendProjFile",
     "jest": "jest",
     "test": "dotnet fable npm-run jest",
     "restore": "dotnet restore",
@@ -17,7 +16,7 @@
     "postbuildBlockDeviceListener": "cp -r IML/BlockDeviceListener/udev-rules dist/block-device-listener",
     "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
     "postbuildDeviceScannerDaemon": "cp -r IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "prepublishOnly": "npm run cleanDist; sendProjFile; npm run buildBlockDeviceListener && npm run buildDeviceScannerDaemon"
+    "prepublishOnly": "npm run cleanDist; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
   },
   "pre-commit": [
     "test"
@@ -31,11 +30,13 @@
     "babel-preset-env": "^1.6.0",
     "fable-jest": "2.4.1",
     "jest": "^20.0.4",
-    "jest-fable-preprocessor": "^1.2.6",
+    "jest-fable-preprocessor": "^1.3.0",
     "pre-commit": "1.2.2",
-    "prettier": "^1.5.3",
-    "rollup": "^0.48.2",
+    "prettier": "^1.6.0",
+    "rollup": "^0.49.1",
+    "rollup-plugin-cleanup": "^1.0.1",
     "rollup-plugin-fable": "^1.1.0",
+    "rollup-plugin-filesize": "^1.4.2",
     "stream-to-promise": "2.2.0"
   }
 }

@@ -16,7 +16,7 @@
     "postbuildBlockDeviceListener": "cp -r IML/BlockDeviceListener/udev-rules dist/block-device-listener",
     "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
     "postbuildDeviceScannerDaemon": "cp -r IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "prepublishOnly": "npm run cleanDist; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
+    "build": "npm run cleanDist; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
   },
   "pre-commit": [
     "test"

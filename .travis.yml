@@ -8,6 +8,7 @@ script:
 - npm i
 - npm run restore
 - npm run test
+before_deploy: dotnet fable npm-run build
 deploy:
   skip_cleanup: true
   provider: npm

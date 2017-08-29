@@ -3,6 +3,11 @@
 .gitignore
 *.log
 *.fs
+*.fsproj
+paket.*
+Vagrantfile
+base-rollup-config.js
+jest.config.js
 obj
 lib
 bin
@@ -10,3 +15,5 @@ packages
 node_modules
 coverage
 IML
+tmp
+

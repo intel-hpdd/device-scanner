@@ -4,7 +4,6 @@ node_modules
 *.userprefs
 .vscode
 .vagrant
-dist
 obj
 bin
 tmp

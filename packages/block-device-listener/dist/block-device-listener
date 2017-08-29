@@ -1,0 +1,1926 @@
+#!/usr/bin/env node
+'use strict';
+
+var net = require('net');
+
+const types = new Map();
+function setType(fullName, cons) {
+    types.set(fullName, cons);
+}
+
+var _Symbol = {
+    reflection: Symbol("reflection")
+};
+
+class NonDeclaredType {
+    constructor(kind, definition, generics) {
+        this.kind = kind;
+        this.definition = definition;
+        this.generics = generics;
+    }
+    Equals(other) {
+        if (this.kind === other.kind && this.definition === other.definition) {
+            return typeof this.generics === "object"
+                ? equalsRecords(this.generics, other.generics)
+                : this.generics === other.generics;
+        }
+        return false;
+    }
+}
+const Any = new NonDeclaredType("Any");
+const Unit = new NonDeclaredType("Unit");
+
+
+
+function Interface(definition) {
+    return new NonDeclaredType("Interface", definition);
+}
+
+
+
+
+function hasInterface(obj, interfaceName) {
+    if (interfaceName === "System.Collections.Generic.IEnumerable") {
+        return typeof obj[Symbol.iterator] === "function";
+    }
+    else if (typeof obj[_Symbol.reflection] === "function") {
+        const interfaces = obj[_Symbol.reflection]().interfaces;
+        return Array.isArray(interfaces) && interfaces.indexOf(interfaceName) > -1;
+    }
+    return false;
+}
+function getPropertyNames(obj) {
+    if (obj == null) {
+        return [];
+    }
+    const propertyMap = typeof obj[_Symbol.reflection] === "function" ? obj[_Symbol.reflection]().properties || [] : obj;
+    return Object.getOwnPropertyNames(propertyMap);
+}
+
+function toString(obj, quoteStrings = false) {
+    function isObject(x) {
+        return x !== null && typeof x === "object" && !(x instanceof Number) && !(x instanceof String) && !(x instanceof Boolean);
+    }
+    if (obj == null || typeof obj === "number") {
+        return String(obj);
+    }
+    if (typeof obj === "string") {
+        return quoteStrings ? JSON.stringify(obj) : obj;
+    }
+    if (typeof obj.ToString == "function") {
+        return obj.ToString();
+    }
+    if (hasInterface(obj, "FSharpUnion")) {
+        const info = obj[_Symbol.reflection]();
+        const uci = info.cases[obj.tag];
+        switch (uci.length) {
+            case 1:
+                return uci[0];
+            case 2:
+                return uci[0] + " (" + toString(obj.data, true) + ")";
+            default:
+                return uci[0] + " (" + obj.data.map((x) => toString(x, true)).join(",") + ")";
+        }
+    }
+    try {
+        return JSON.stringify(obj, function (k, v) {
+            return v && v[Symbol.iterator] && !Array.isArray(v) && isObject(v) ? Array.from(v)
+                : v && typeof v.ToString === "function" ? toString(v) : v;
+        });
+    }
+    catch (err) {
+        return "{" + Object.getOwnPropertyNames(obj).map(k => k + ": " + String(obj[k])).join(", ") + "}";
+    }
+}
+function hash(x) {
+    if (x != null && typeof x.GetHashCode == "function") {
+        return x.GetHashCode();
+    }
+    else {
+        let s = JSON.stringify(x);
+        let h = 5381, i = 0, len = s.length;
+        while (i < len) {
+            h = (h * 33) ^ s.charCodeAt(i++);
+        }
+        return h;
+    }
+}
+function equals(x, y) {
+    if (x === y)
+        return true;
+    else if (x == null)
+        return y == null;
+    else if (y == null)
+        return false;
+    else if (Object.getPrototypeOf(x) !== Object.getPrototypeOf(y))
+        return false;
+    else if (typeof x.Equals === "function")
+        return x.Equals(y);
+    else if (Array.isArray(x)) {
+        if (x.length != y.length)
+            return false;
+        for (let i = 0; i < x.length; i++)
+            if (!equals(x[i], y[i]))
+                return false;
+        return true;
+    }
+    else if (ArrayBuffer.isView(x)) {
+        if (x.byteLength !== y.byteLength)
+            return false;
+        const dv1 = new DataView(x.buffer), dv2 = new DataView(y.buffer);
+        for (let i = 0; i < x.byteLength; i++)
+            if (dv1.getUint8(i) !== dv2.getUint8(i))
+                return false;
+        return true;
+    }
+    else if (x instanceof Date)
+        return x.getTime() === y.getTime();
+    else
+        return false;
+}
+
+function compare(x, y) {
+    if (x === y)
+        return 0;
+    if (x == null)
+        return y == null ? 0 : -1;
+    else if (y == null)
+        return 1;
+    else if (Object.getPrototypeOf(x) !== Object.getPrototypeOf(y))
+        return -1;
+    else if (typeof x.CompareTo === "function")
+        return x.CompareTo(y);
+    else if (Array.isArray(x)) {
+        if (x.length != y.length)
+            return x.length < y.length ? -1 : 1;
+        for (let i = 0, j = 0; i < x.length; i++)
+            if ((j = compare(x[i], y[i])) !== 0)
+                return j;
+        return 0;
+    }
+    else if (ArrayBuffer.isView(x)) {
+        if (x.byteLength != y.byteLength)
+            return x.byteLength < y.byteLength ? -1 : 1;
+        const dv1 = new DataView(x.buffer), dv2 = new DataView(y.buffer);
+        for (let i = 0, b1 = 0, b2 = 0; i < x.byteLength; i++) {
+            b1 = dv1.getUint8(i), b2 = dv2.getUint8(i);
+            if (b1 < b2)
+                return -1;
+            if (b1 > b2)
+                return 1;
+        }
+        return 0;
+    }
+    else if (x instanceof Date) {
+        let xtime = x.getTime(), ytime = y.getTime();
+        return xtime === ytime ? 0 : (xtime < ytime ? -1 : 1);
+    }
+    else if (typeof x === "object") {
+        let xhash = hash(x), yhash = hash(y);
+        if (xhash === yhash) {
+            return equals(x, y) ? 0 : -1;
+        }
+        else {
+            return xhash < yhash ? -1 : 1;
+        }
+    }
+    else
+        return x < y ? -1 : 1;
+}
+function equalsRecords(x, y) {
+    if (x === y) {
+        return true;
+    }
+    else {
+        const keys = getPropertyNames(x);
+        for (let i = 0; i < keys.length; i++) {
+            if (!equals(x[keys[i]], y[keys[i]]))
+                return false;
+        }
+        return true;
+    }
+}
+
+class Events {
+  constructor(tag, data) {
+    this.tag = tag;
+    this.data = data;
+  }
+
+  [_Symbol.reflection]() {
+    return {
+      type: "UdevEventTypes.EventTypes.Events",
+      interfaces: ["FSharpUnion", "System.IEquatable"],
+      cases: [["Add", Interface("UdevEventTypes.EventTypes.IAdd")], ["Remove", Interface("UdevEventTypes.EventTypes.IRemove")], ["Info"]]
+    };
+  }
+
+  Equals(other) {
+    return this === other || this.tag === other.tag && equals(this.data, other.data);
+  }
+
+}
+setType("UdevEventTypes.EventTypes.Events", Events);
+
+function ofArray(args, base) {
+    let acc = base || new List$1();
+    for (let i = args.length - 1; i >= 0; i--) {
+        acc = new List$1(args[i], acc);
+    }
+    return acc;
+}
+class List$1 {
+    constructor(head, tail) {
+        this.head = head;
+        this.tail = tail;
+    }
+    ToString() {
+        return "[" + Array.from(this).map(x => toString(x)).join("; ") + "]";
+    }
+    Equals(x) {
+        if (this === x) {
+            return true;
+        }
+        else {
+            const iter1 = this[Symbol.iterator](), iter2 = x[Symbol.iterator]();
+            for (;;) {
+                let cur1 = iter1.next(), cur2 = iter2.next();
+                if (cur1.done)
+                    return cur2.done ? true : false;
+                else if (cur2.done)
+                    return false;
+                else if (!equals(cur1.value, cur2.value))
+                    return false;
+            }
+        }
+    }
+    CompareTo(x) {
+        if (this === x) {
+            return 0;
+        }
+        else {
+            let acc = 0;
+            const iter1 = this[Symbol.iterator](), iter2 = x[Symbol.iterator]();
+            for (;;) {
+                let cur1 = iter1.next(), cur2 = iter2.next();
+                if (cur1.done)
+                    return cur2.done ? acc : -1;
+                else if (cur2.done)
+                    return 1;
+                else {
+                    acc = compare(cur1.value, cur2.value);
+                    if (acc != 0)
+                        return acc;
+                }
+            }
+        }
+    }
+    get length() {
+        let cur = this, acc = 0;
+        while (cur.tail != null) {
+            cur = cur.tail;
+            acc++;
+        }
+        return acc;
+    }
+    [Symbol.iterator]() {
+        let cur = this;
+        return {
+            next: () => {
+                const tmp = cur;
+                cur = cur.tail;
+                return { done: tmp.tail == null, value: tmp.head };
+            }
+        };
+    }
+    [_Symbol.reflection]() {
+        return {
+            type: "Microsoft.FSharp.Collections.FSharpList",
+            interfaces: ["System.IEquatable", "System.IComparable"]
+        };
+    }
+}
+
+function compareWith(f, xs, ys) {
+    let nonZero = tryFind((i) => i != 0, map2((x, y) => f(x, y), xs, ys));
+    return nonZero != null ? nonZero : count(xs) - count(ys);
+}
+function delay(f) {
+    return {
+        [Symbol.iterator]: () => f()[Symbol.iterator]()
+    };
+}
+
+
+
+
+
+
+
+
+
+
+function fold(f, acc, xs) {
+    if (Array.isArray(xs) || ArrayBuffer.isView(xs)) {
+        return xs.reduce(f, acc);
+    }
+    else {
+        let cur;
+        for (let i = 0, iter = xs[Symbol.iterator]();; i++) {
+            cur = iter.next();
+            if (cur.done)
+                break;
+            acc = f(acc, cur.value, i);
+        }
+        return acc;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function count(xs) {
+    return Array.isArray(xs) || ArrayBuffer.isView(xs)
+        ? xs.length
+        : fold((acc, x) => acc + 1, 0, xs);
+}
+function map$1(f, xs) {
+    return delay(() => unfold(iter => {
+        const cur = iter.next();
+        return !cur.done ? [f(cur.value), iter] : null;
+    }, xs[Symbol.iterator]()));
+}
+
+function map2(f, xs, ys) {
+    return delay(() => {
+        const iter1 = xs[Symbol.iterator]();
+        const iter2 = ys[Symbol.iterator]();
+        return unfold(() => {
+            const cur1 = iter1.next(), cur2 = iter2.next();
+            return !cur1.done && !cur2.done ? [f(cur1.value, cur2.value), null] : null;
+        });
+    });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function tryFind(f, xs, defaultValue) {
+    for (let i = 0, iter = xs[Symbol.iterator]();; i++) {
+        const cur = iter.next();
+        if (cur.done)
+            return defaultValue === void 0 ? null : defaultValue;
+        if (f(cur.value, i))
+            return cur.value;
+    }
+}
+
+
+
+
+
+
+
+
+
+function unfold(f, acc) {
+    return {
+        [Symbol.iterator]: () => {
+            return {
+                next: () => {
+                    const res = f(acc);
+                    if (res != null) {
+                        acc = res[1];
+                        return { done: false, value: res[0] };
+                    }
+                    return { done: true };
+                }
+            };
+        }
+    };
+}
+
+class MapTree {
+    constructor(tag, data) {
+        this.tag = tag | 0;
+        this.data = data;
+    }
+}
+function tree_sizeAux(acc, m) {
+    sizeAux: while (true) {
+        if (m.tag === 1) {
+            return acc + 1 | 0;
+        }
+        else if (m.tag === 2) {
+            acc = tree_sizeAux(acc + 1, m.data[2]);
+            m = m.data[3];
+            continue sizeAux;
+        }
+        else {
+            return acc | 0;
+        }
+    }
+}
+function tree_size(x) {
+    return tree_sizeAux(0, x);
+}
+function tree_empty() {
+    return new MapTree(0);
+}
+function tree_height(_arg1) {
+    return _arg1.tag === 1 ? 1 : _arg1.tag === 2 ? _arg1.data[4] : 0;
+}
+function tree_mk(l, k, v, r) {
+    const matchValue = l.tag === 0 ? r.tag === 0 ? 0 : 1 : 1;
+    switch (matchValue) {
+        case 0:
+            return new MapTree(1, [k, v]);
+        case 1:
+            const hl = tree_height(l) | 0;
+            const hr = tree_height(r) | 0;
+            const m = (hl < hr ? hr : hl) | 0;
+            return new MapTree(2, [k, v, l, r, m + 1]);
+    }
+    throw new Error("internal error: Map.tree_mk");
+}
+
+function tree_rebalance(t1, k, v, t2) {
+    var t1h = tree_height(t1);
+    var t2h = tree_height(t2);
+    if (t2h > t1h + 2) {
+        if (t2.tag === 2) {
+            if (tree_height(t2.data[2]) > t1h + 1) {
+                if (t2.data[2].tag === 2) {
+                    return tree_mk(tree_mk(t1, k, v, t2.data[2].data[2]), t2.data[2].data[0], t2.data[2].data[1], tree_mk(t2.data[2].data[3], t2.data[0], t2.data[1], t2.data[3]));
+                }
+                else {
+                    throw new Error("rebalance");
+                }
+            }
+            else {
+                return tree_mk(tree_mk(t1, k, v, t2.data[2]), t2.data[0], t2.data[1], t2.data[3]);
+            }
+        }
+        else {
+            throw new Error("rebalance");
+        }
+    }
+    else {
+        if (t1h > t2h + 2) {
+            if (t1.tag === 2) {
+                if (tree_height(t1.data[3]) > t2h + 1) {
+                    if (t1.data[3].tag === 2) {
+                        return tree_mk(tree_mk(t1.data[2], t1.data[0], t1.data[1], t1.data[3].data[2]), t1.data[3].data[0], t1.data[3].data[1], tree_mk(t1.data[3].data[3], k, v, t2));
+                    }
+                    else {
+                        throw new Error("rebalance");
+                    }
+                }
+                else {
+                    return tree_mk(t1.data[2], t1.data[0], t1.data[1], tree_mk(t1.data[3], k, v, t2));
+                }
+            }
+            else {
+                throw new Error("rebalance");
+            }
+        }
+        else {
+            return tree_mk(t1, k, v, t2);
+        }
+    }
+}
+function tree_add(comparer, k, v, m) {
+    if (m.tag === 1) {
+        const c = comparer.Compare(k, m.data[0]);
+        if (c < 0) {
+            return new MapTree(2, [k, v, new MapTree(0), m, 2]);
+        }
+        else if (c === 0) {
+            return new MapTree(1, [k, v]);
+        }
+        return new MapTree(2, [k, v, m, new MapTree(0), 2]);
+    }
+    else if (m.tag === 2) {
+        const c = comparer.Compare(k, m.data[0]);
+        if (c < 0) {
+            return tree_rebalance(tree_add(comparer, k, v, m.data[2]), m.data[0], m.data[1], m.data[3]);
+        }
+        else if (c === 0) {
+            return new MapTree(2, [k, v, m.data[2], m.data[3], m.data[4]]);
+        }
+        return tree_rebalance(m.data[2], m.data[0], m.data[1], tree_add(comparer, k, v, m.data[3]));
+    }
+    return new MapTree(1, [k, v]);
+}
+function tree_find(comparer, k, m) {
+    const res = tree_tryFind(comparer, k, m);
+    if (res != null)
+        return res;
+    throw new Error("key not found");
+}
+function tree_tryFind(comparer, k, m) {
+    tryFind$1: while (true) {
+        if (m.tag === 1) {
+            const c = comparer.Compare(k, m.data[0]) | 0;
+            if (c === 0) {
+                return m.data[1];
+            }
+            else {
+                return null;
+            }
+        }
+        else if (m.tag === 2) {
+            const c_1 = comparer.Compare(k, m.data[0]) | 0;
+            if (c_1 < 0) {
+                comparer = comparer;
+                k = k;
+                m = m.data[2];
+                continue tryFind$1;
+            }
+            else if (c_1 === 0) {
+                return m.data[1];
+            }
+            else {
+                comparer = comparer;
+                k = k;
+                m = m.data[3];
+                continue tryFind$1;
+            }
+        }
+        else {
+            return null;
+        }
+    }
+}
+function tree_spliceOutSuccessor(m) {
+    if (m.tag === 1) {
+        return [m.data[0], m.data[1], new MapTree(0)];
+    }
+    else if (m.tag === 2) {
+        if (m.data[2].tag === 0) {
+            return [m.data[0], m.data[1], m.data[3]];
+        }
+        else {
+            const kvl = tree_spliceOutSuccessor(m.data[2]);
+            return [kvl[0], kvl[1], tree_mk(kvl[2], m.data[0], m.data[1], m.data[3])];
+        }
+    }
+    throw new Error("internal error: Map.spliceOutSuccessor");
+}
+function tree_remove(comparer, k, m) {
+    if (m.tag === 1) {
+        const c = comparer.Compare(k, m.data[0]);
+        if (c === 0) {
+            return new MapTree(0);
+        }
+        else {
+            return m;
+        }
+    }
+    else if (m.tag === 2) {
+        const c = comparer.Compare(k, m.data[0]);
+        if (c < 0) {
+            return tree_rebalance(tree_remove(comparer, k, m.data[2]), m.data[0], m.data[1], m.data[3]);
+        }
+        else if (c === 0) {
+            if (m.data[2].tag === 0) {
+                return m.data[3];
+            }
+            else {
+                if (m.data[3].tag === 0) {
+                    return m.data[2];
+                }
+                else {
+                    const input = tree_spliceOutSuccessor(m.data[3]);
+                    return tree_mk(m.data[2], input[0], input[1], input[2]);
+                }
+            }
+        }
+        else {
+            return tree_rebalance(m.data[2], m.data[0], m.data[1], tree_remove(comparer, k, m.data[3]));
+        }
+    }
+    else {
+        return tree_empty();
+    }
+}
+function tree_mem(comparer, k, m) {
+    mem: while (true) {
+        if (m.tag === 1) {
+            return comparer.Compare(k, m.data[0]) === 0;
+        }
+        else if (m.tag === 2) {
+            const c = comparer.Compare(k, m.data[0]) | 0;
+            if (c < 0) {
+                comparer = comparer;
+                k = k;
+                m = m.data[2];
+                continue mem;
+            }
+            else if (c === 0) {
+                return true;
+            }
+            else {
+                comparer = comparer;
+                k = k;
+                m = m.data[3];
+                continue mem;
+            }
+        }
+        else {
+            return false;
+        }
+    }
+}
+function tree_collapseLHS(stack) {
+    if (stack.tail != null) {
+        if (stack.head.tag === 1) {
+            return stack;
+        }
+        else if (stack.head.tag === 2) {
+            return tree_collapseLHS(ofArray([
+                stack.head.data[2],
+                new MapTree(1, [stack.head.data[0], stack.head.data[1]]),
+                stack.head.data[3]
+            ], stack.tail));
+        }
+        else {
+            return tree_collapseLHS(stack.tail);
+        }
+    }
+    else {
+        return new List$1();
+    }
+}
+function tree_mkIterator(s) {
+    return { stack: tree_collapseLHS(new List$1(s, new List$1())), started: false };
+}
+function tree_moveNext(i) {
+    function current(i) {
+        if (i.stack.tail == null) {
+            return null;
+        }
+        else if (i.stack.head.tag === 1) {
+            return [i.stack.head.data[0], i.stack.head.data[1]];
+        }
+        throw new Error("Please report error: Map iterator, unexpected stack for current");
+    }
+    if (i.started) {
+        if (i.stack.tail == null) {
+            return { done: true, value: null };
+        }
+        else {
+            if (i.stack.head.tag === 1) {
+                i.stack = tree_collapseLHS(i.stack.tail);
+                return {
+                    done: i.stack.tail == null,
+                    value: current(i)
+                };
+            }
+            else {
+                throw new Error("Please report error: Map iterator, unexpected stack for moveNext");
+            }
+        }
+    }
+    else {
+        i.started = true;
+        return {
+            done: i.stack.tail == null,
+            value: current(i)
+        };
+    }
+    
+}
+class FableMap {
+    constructor() { }
+    ToString() {
+        return "map [" + Array.from(this).map(x => toString(x)).join("; ") + "]";
+    }
+    Equals(m2) {
+        return this.CompareTo(m2) === 0;
+    }
+    CompareTo(m2) {
+        return this === m2 ? 0 : compareWith((kvp1, kvp2) => {
+            var c = this.comparer.Compare(kvp1[0], kvp2[0]);
+            return c !== 0 ? c : compare(kvp1[1], kvp2[1]);
+        }, this, m2);
+    }
+    [Symbol.iterator]() {
+        let i = tree_mkIterator(this.tree);
+        return {
+            next: () => tree_moveNext(i)
+        };
+    }
+    entries() {
+        return this[Symbol.iterator]();
+    }
+    keys() {
+        return map$1(kv => kv[0], this);
+    }
+    values() {
+        return map$1(kv => kv[1], this);
+    }
+    get(k) {
+        return tree_find(this.comparer, k, this.tree);
+    }
+    has(k) {
+        return tree_mem(this.comparer, k, this.tree);
+    }
+    set(k, v) {
+        this.tree = tree_add(this.comparer, k, v, this.tree);
+    }
+    delete(k) {
+        const oldSize = tree_size(this.tree);
+        this.tree = tree_remove(this.comparer, k, this.tree);
+        return oldSize > tree_size(this.tree);
+    }
+    clear() {
+        this.tree = tree_empty();
+    }
+    get size() {
+        return tree_size(this.tree);
+    }
+    [_Symbol.reflection]() {
+        return {
+            type: "Microsoft.FSharp.Collections.FSharpMap",
+            interfaces: ["System.IEquatable", "System.IComparable", "System.Collections.Generic.IDictionary"]
+        };
+    }
+}
+
+
+
+
+
+
+
+function tryFind$1(k, map$$1) {
+    return tree_tryFind(map$$1.comparer, k, map$$1.tree);
+}
+
+class SetTree {
+    constructor(tag, data) {
+        this.tag = tag | 0;
+        this.data = data;
+    }
+}
+const tree_tolerance = 2;
+function tree_countAux(s, acc) {
+    countAux: while (true) {
+        if (s.tag === 1) {
+            return acc + 1 | 0;
+        }
+        else if (s.tag === 0) {
+            return acc | 0;
+        }
+        else {
+            const _var5 = s.data[1];
+            acc = tree_countAux(s.data[2], acc + 1);
+            s = _var5;
+            continue countAux;
+        }
+    }
+}
+function tree_count(s) {
+    return tree_countAux(s, 0);
+}
+function tree_SetOne(n) {
+    return new SetTree(1, [n]);
+}
+function tree_SetNode(x, l, r, h) {
+    return new SetTree(2, [x, l, r, h]);
+}
+function tree_height$1(t) {
+    return t.tag === 1 ? 1 : t.tag === 2 ? t.data[3] : 0;
+}
+function tree_mk$1(l, k, r) {
+    const matchValue = l.tag === 0 ? r.tag === 0 ? 0 : 1 : 1;
+    switch (matchValue) {
+        case 0:
+            return tree_SetOne(k);
+        case 1:
+            const hl = tree_height$1(l) | 0;
+            const hr = tree_height$1(r) | 0;
+            const m = (hl < hr ? hr : hl) | 0;
+            return tree_SetNode(k, l, r, m + 1);
+    }
+    throw new Error("internal error: Set.tree_mk");
+}
+function tree_rebalance$1(t1, k, t2) {
+    var t1h = tree_height$1(t1);
+    var t2h = tree_height$1(t2);
+    if (t2h > t1h + tree_tolerance) {
+        if (t2.tag === 2) {
+            if (tree_height$1(t2.data[1]) > t1h + 1) {
+                if (t2.data[1].tag === 2) {
+                    return tree_mk$1(tree_mk$1(t1, k, t2.data[1].data[1]), t2.data[1].data[0], tree_mk$1(t2.data[1].data[2], t2.data[0], t2.data[2]));
+                }
+                else {
+                    throw new Error("rebalance");
+                }
+            }
+            else {
+                return tree_mk$1(tree_mk$1(t1, k, t2.data[1]), t2.data[0], t2.data[2]);
+            }
+        }
+        else {
+            throw new Error("rebalance");
+        }
+    }
+    else {
+        if (t1h > t2h + tree_tolerance) {
+            if (t1.tag === 2) {
+                if (tree_height$1(t1.data[2]) > t2h + 1) {
+                    if (t1.data[2].tag === 2) {
+                        return tree_mk$1(tree_mk$1(t1.data[1], t1.data[0], t1.data[2].data[1]), t1.data[2].data[0], tree_mk$1(t1.data[2].data[2], k, t2));
+                    }
+                    else {
+                        throw new Error("rebalance");
+                    }
+                }
+                else {
+                    return tree_mk$1(t1.data[1], t1.data[0], tree_mk$1(t1.data[2], k, t2));
+                }
+            }
+            else {
+                throw new Error("rebalance");
+            }
+        }
+        else {
+            return tree_mk$1(t1, k, t2);
+        }
+    }
+}
+function tree_add$1(comparer, k, t) {
+    if (t.tag === 1) {
+        const c = comparer.Compare(k, t.data[0]);
+        if (c < 0) {
+            return tree_SetNode(k, new SetTree(0), t, 2);
+        }
+        else if (c === 0) {
+            return t;
+        }
+        else {
+            return tree_SetNode(k, t, new SetTree(0), 2);
+        }
+    }
+    else if (t.tag === 0) {
+        return tree_SetOne(k);
+    }
+    else {
+        const c = comparer.Compare(k, t.data[0]);
+        if (c < 0) {
+            return tree_rebalance$1(tree_add$1(comparer, k, t.data[1]), t.data[0], t.data[2]);
+        }
+        else if (c === 0) {
+            return t;
+        }
+        else {
+            return tree_rebalance$1(t.data[1], t.data[0], tree_add$1(comparer, k, t.data[2]));
+        }
+    }
+}
+function tree_spliceOutSuccessor$1(t) {
+    if (t.tag === 1) {
+        return [t.data[0], new SetTree(0)];
+    }
+    else if (t.tag === 2) {
+        if (t.data[1].tag === 0) {
+            return [t.data[0], t.data[2]];
+        }
+        else {
+            const patternInput = tree_spliceOutSuccessor$1(t.data[1]);
+            return [patternInput[0], tree_mk$1(patternInput[1], t.data[0], t.data[2])];
+        }
+    }
+    else {
+        throw new Error("internal error: Map.spliceOutSuccessor");
+    }
+}
+function tree_remove$1(comparer, k, t) {
+    if (t.tag === 1) {
+        const c = comparer.Compare(k, t.data[0]);
+        if (c === 0) {
+            return new SetTree(0);
+        }
+        else {
+            return t;
+        }
+    }
+    else if (t.tag === 2) {
+        const c = comparer.Compare(k, t.data[0]);
+        if (c < 0) {
+            return tree_rebalance$1(tree_remove$1(comparer, k, t.data[1]), t.data[0], t.data[2]);
+        }
+        else if (c === 0) {
+            const matchValue = [t.data[1], t.data[2]];
+            if (matchValue[0].tag === 0) {
+                return t.data[2];
+            }
+            else if (matchValue[1].tag === 0) {
+                return t.data[1];
+            }
+            else {
+                const patternInput = tree_spliceOutSuccessor$1(t.data[2]);
+                return tree_mk$1(t.data[1], patternInput[0], patternInput[1]);
+            }
+        }
+        else {
+            return tree_rebalance$1(t.data[1], t.data[0], tree_remove$1(comparer, k, t.data[2]));
+        }
+    }
+    else {
+        return t;
+    }
+}
+function tree_mem$1(comparer, k, t) {
+    mem: while (true) {
+        if (t.tag === 1) {
+            return comparer.Compare(k, t.data[0]) === 0;
+        }
+        else if (t.tag === 0) {
+            return false;
+        }
+        else {
+            const c = comparer.Compare(k, t.data[0]) | 0;
+            if (c < 0) {
+                comparer = comparer;
+                k = k;
+                t = t.data[1];
+                continue mem;
+            }
+            else if (c === 0) {
+                return true;
+            }
+            else {
+                comparer = comparer;
+                k = k;
+                t = t.data[2];
+                continue mem;
+            }
+        }
+    }
+}
+function tree_collapseLHS$1(stack) {
+    collapseLHS: while (true) {
+        if (stack.tail != null) {
+            if (stack.head.tag === 1) {
+                return stack;
+            }
+            else if (stack.head.tag === 2) {
+                stack = ofArray([stack.head.data[1], tree_SetOne(stack.head.data[0]), stack.head.data[2]], stack.tail);
+                continue collapseLHS;
+            }
+            else {
+                stack = stack.tail;
+                continue collapseLHS;
+            }
+        }
+        else {
+            return new List$1();
+        }
+    }
+}
+function tree_mkIterator$1(s) {
+    return { stack: tree_collapseLHS$1(new List$1(s, new List$1())), started: false };
+}
+
+function tree_moveNext$1(i) {
+    function current(i) {
+        if (i.stack.tail == null) {
+            return null;
+        }
+        else if (i.stack.head.tag === 1) {
+            return i.stack.head.data[0];
+        }
+        throw new Error("Please report error: Set iterator, unexpected stack for current");
+    }
+    if (i.started) {
+        if (i.stack.tail == null) {
+            return { done: true, value: null };
+        }
+        else {
+            if (i.stack.head.tag === 1) {
+                i.stack = tree_collapseLHS$1(i.stack.tail);
+                return {
+                    done: i.stack.tail == null,
+                    value: current(i)
+                };
+            }
+            else {
+                throw new Error("Please report error: Set iterator, unexpected stack for moveNext");
+            }
+        }
+    }
+    else {
+        i.started = true;
+        return {
+            done: i.stack.tail == null,
+            value: current(i)
+        };
+    }
+    
+}
+function tree_compareStacks(comparer, l1, l2) {
+    compareStacks: while (true) {
+        const matchValue = l1.tail != null ? l2.tail != null ? l2.head.tag === 1 ? l1.head.tag === 1 ? [4, l1.head.data[0], l2.head.data[0], l1.tail, l2.tail] : l1.head.tag === 2 ? l1.head.data[1].tag === 0 ? [6, l1.head.data[1], l1.head.data[0], l1.head.data[2], l2.head.data[0], l1.tail, l2.tail] : [9, l1.head.data[0], l1.head.data[1], l1.head.data[2], l1.tail] : [10, l2.head.data[0], l2.tail] : l2.head.tag === 2 ? l2.head.data[1].tag === 0 ? l1.head.tag === 1 ? [5, l1.head.data[0], l2.head.data[0], l2.head.data[2], l1.tail, l2.tail] : l1.head.tag === 2 ? l1.head.data[1].tag === 0 ? [7, l1.head.data[0], l1.head.data[2], l2.head.data[0], l2.head.data[2], l1.tail, l2.tail] : [9, l1.head.data[0], l1.head.data[1], l1.head.data[2], l1.tail] : [11, l2.head.data[0], l2.head.data[1], l2.head.data[2], l2.tail] : l1.head.tag === 1 ? [8, l1.head.data[0], l1.tail] : l1.head.tag === 2 ? [9, l1.head.data[0], l1.head.data[1], l1.head.data[2], l1.tail] : [11, l2.head.data[0], l2.head.data[1], l2.head.data[2], l2.tail] : l1.head.tag === 1 ? [8, l1.head.data[0], l1.tail] : l1.head.tag === 2 ? [9, l1.head.data[0], l1.head.data[1], l1.head.data[2], l1.tail] : [3, l1.tail, l2.tail] : [2] : l2.tail != null ? [1] : [0];
+        switch (matchValue[0]) {
+            case 0:
+                return 0;
+            case 1:
+                return -1;
+            case 2:
+                return 1;
+            case 3:
+                comparer = comparer;
+                l1 = matchValue[1];
+                l2 = matchValue[2];
+                continue compareStacks;
+            case 4:
+                const c = comparer.Compare(matchValue[1], matchValue[2]) | 0;
+                if (c !== 0) {
+                    return c | 0;
+                }
+                else {
+                    comparer = comparer;
+                    l1 = matchValue[3];
+                    l2 = matchValue[4];
+                    continue compareStacks;
+                }
+            case 5:
+                const c_1 = comparer.Compare(matchValue[1], matchValue[2]) | 0;
+                if (c_1 !== 0) {
+                    return c_1 | 0;
+                }
+                else {
+                    comparer = comparer;
+                    l1 = new List$1(new SetTree(0), matchValue[4]);
+                    l2 = new List$1(matchValue[3], matchValue[5]);
+                    continue compareStacks;
+                }
+            case 6:
+                const c_2 = comparer.Compare(matchValue[2], matchValue[4]) | 0;
+                if (c_2 !== 0) {
+                    return c_2 | 0;
+                }
+                else {
+                    comparer = comparer;
+                    l1 = new List$1(matchValue[3], matchValue[5]);
+                    l2 = new List$1(matchValue[1], matchValue[6]);
+                    continue compareStacks;
+                }
+            case 7:
+                const c_3 = comparer.Compare(matchValue[1], matchValue[3]) | 0;
+                if (c_3 !== 0) {
+                    return c_3 | 0;
+                }
+                else {
+                    comparer = comparer;
+                    l1 = new List$1(matchValue[2], matchValue[5]);
+                    l2 = new List$1(matchValue[4], matchValue[6]);
+                    continue compareStacks;
+                }
+            case 8:
+                comparer = comparer;
+                l1 = ofArray([new SetTree(0), tree_SetOne(matchValue[1])], matchValue[2]);
+                l2 = l2;
+                continue compareStacks;
+            case 9:
+                comparer = comparer;
+                l1 = ofArray([matchValue[2], tree_SetNode(matchValue[1], new SetTree(0), matchValue[3], 0)], matchValue[4]);
+                l2 = l2;
+                continue compareStacks;
+            case 10:
+                comparer = comparer;
+                l1 = l1;
+                l2 = ofArray([new SetTree(0), tree_SetOne(matchValue[1])], matchValue[2]);
+                continue compareStacks;
+            case 11:
+                comparer = comparer;
+                l1 = l1;
+                l2 = ofArray([matchValue[2], tree_SetNode(matchValue[1], new SetTree(0), matchValue[3], 0)], matchValue[4]);
+                continue compareStacks;
+        }
+    }
+}
+function tree_compare(comparer, s1, s2) {
+    if (s1.tag === 0) {
+        return s2.tag === 0 ? 0 : -1;
+    }
+    else {
+        return s2.tag === 0 ? 1 : tree_compareStacks(comparer, ofArray([s1]), ofArray([s2]));
+    }
+}
+class FableSet {
+    constructor() { }
+    ToString() {
+        return "set [" + Array.from(this).map(x => toString(x)).join("; ") + "]";
+    }
+    Equals(s2) {
+        return this.CompareTo(s2) === 0;
+    }
+    CompareTo(s2) {
+        return this === s2 ? 0 : tree_compare(this.comparer, this.tree, s2.tree);
+    }
+    [Symbol.iterator]() {
+        let i = tree_mkIterator$1(this.tree);
+        return {
+            next: () => tree_moveNext$1(i)
+        };
+    }
+    values() {
+        return this[Symbol.iterator]();
+    }
+    has(v) {
+        return tree_mem$1(this.comparer, v, this.tree);
+    }
+    add(v) {
+        this.tree = tree_add$1(this.comparer, v, this.tree);
+        return this;
+    }
+    delete(v) {
+        const oldSize = tree_count(this.tree);
+        this.tree = tree_remove$1(this.comparer, v, this.tree);
+        return oldSize > tree_count(this.tree);
+    }
+    clear() {
+        this.tree = new SetTree(0);
+    }
+    get size() {
+        return tree_count(this.tree);
+    }
+    [_Symbol.reflection]() {
+        return {
+            type: "Microsoft.FSharp.Collections.FSharpSet",
+            interfaces: ["System.IEquatable", "System.IComparable"]
+        };
+    }
+}
+
+function getTypeFullName(typ, option) {
+    function trim(fullName, option) {
+        if (typeof fullName !== "string") {
+            return "unknown";
+        }
+        if (option === "name") {
+            const i = fullName.lastIndexOf('.');
+            return fullName.substr(i + 1);
+        }
+        if (option === "namespace") {
+            const i = fullName.lastIndexOf('.');
+            return i > -1 ? fullName.substr(0, i) : "";
+        }
+        return fullName;
+    }
+    if (typeof typ === "string") {
+        return typ;
+    }
+    else if (typ instanceof NonDeclaredType) {
+        switch (typ.kind) {
+            case "Unit":
+                return "unit";
+            case "Option":
+                return getTypeFullName(typ.generics[0], option) + " option";
+            case "Array":
+                return getTypeFullName(typ.generics[0], option) + "[]";
+            case "Tuple":
+                return typ.generics.map(x => getTypeFullName(x, option)).join(" * ");
+            case "Function":
+                return "Func<" + typ.generics.map(x => getTypeFullName(x, option)).join(", ") + ">";
+            case "GenericParam":
+            case "Interface":
+                return typ.definition;
+            case "GenericType":
+                return getTypeFullName(typ.definition, option);
+            case "Any":
+            default:
+                return "unknown";
+        }
+    }
+    else {
+        const proto = typ.prototype;
+        return trim(typeof proto[_Symbol.reflection] === "function"
+            ? proto[_Symbol.reflection]().type : null, option);
+    }
+}
+
+class Long {
+    constructor(low, high, unsigned) {
+        this.eq = this.equals;
+        this.neq = this.notEquals;
+        this.lt = this.lessThan;
+        this.lte = this.lessThanOrEqual;
+        this.gt = this.greaterThan;
+        this.gte = this.greaterThanOrEqual;
+        this.comp = this.compare;
+        this.neg = this.negate;
+        this.abs = this.absolute;
+        this.sub = this.subtract;
+        this.mul = this.multiply;
+        this.div = this.divide;
+        this.mod = this.modulo;
+        this.shl = this.shiftLeft;
+        this.shr = this.shiftRight;
+        this.shru = this.shiftRightUnsigned;
+        this.Equals = this.equals;
+        this.CompareTo = this.compare;
+        this.ToString = this.toString;
+        this.low = low | 0;
+        this.high = high | 0;
+        this.unsigned = !!unsigned;
+    }
+    toInt() {
+        return this.unsigned ? this.low >>> 0 : this.low;
+    }
+    toNumber() {
+        if (this.unsigned)
+            return ((this.high >>> 0) * TWO_PWR_32_DBL) + (this.low >>> 0);
+        return this.high * TWO_PWR_32_DBL + (this.low >>> 0);
+    }
+    toString(radix = 10) {
+        radix = radix || 10;
+        if (radix < 2 || 36 < radix)
+            throw RangeError('radix');
+        if (this.isZero())
+            return '0';
+        if (this.isNegative()) {
+            if (this.eq(MIN_VALUE)) {
+                var radixLong = fromNumber(radix), div = this.div(radixLong), rem1 = div.mul(radixLong).sub(this);
+                return div.toString(radix) + rem1.toInt().toString(radix);
+            }
+            else
+                return '-' + this.neg().toString(radix);
+        }
+        var radixToPower = fromNumber(pow_dbl(radix, 6), this.unsigned), rem = this;
+        var result = '';
+        while (true) {
+            var remDiv = rem.div(radixToPower), intval = rem.sub(remDiv.mul(radixToPower)).toInt() >>> 0, digits = intval.toString(radix);
+            rem = remDiv;
+            if (rem.isZero())
+                return digits + result;
+            else {
+                while (digits.length < 6)
+                    digits = '0' + digits;
+                result = '' + digits + result;
+            }
+        }
+    }
+    getHighBits() {
+        return this.high;
+    }
+    getHighBitsUnsigned() {
+        return this.high >>> 0;
+    }
+    getLowBits() {
+        return this.low;
+    }
+    getLowBitsUnsigned() {
+        return this.low >>> 0;
+    }
+    getNumBitsAbs() {
+        if (this.isNegative())
+            return this.eq(MIN_VALUE) ? 64 : this.neg().getNumBitsAbs();
+        var val = this.high != 0 ? this.high : this.low;
+        for (var bit = 31; bit > 0; bit--)
+            if ((val & (1 << bit)) != 0)
+                break;
+        return this.high != 0 ? bit + 33 : bit + 1;
+    }
+    isZero() {
+        return this.high === 0 && this.low === 0;
+    }
+    isNegative() {
+        return !this.unsigned && this.high < 0;
+    }
+    isPositive() {
+        return this.unsigned || this.high >= 0;
+    }
+    isOdd() {
+        return (this.low & 1) === 1;
+    }
+    isEven() {
+        return (this.low & 1) === 0;
+    }
+    equals(other) {
+        if (!isLong(other))
+            other = fromValue(other);
+        if (this.unsigned !== other.unsigned && (this.high >>> 31) === 1 && (other.high >>> 31) === 1)
+            return false;
+        return this.high === other.high && this.low === other.low;
+    }
+    notEquals(other) {
+        return !this.eq(other);
+    }
+    lessThan(other) {
+        return this.comp(other) < 0;
+    }
+    lessThanOrEqual(other) {
+        return this.comp(other) <= 0;
+    }
+    greaterThan(other) {
+        return this.comp(other) > 0;
+    }
+    greaterThanOrEqual(other) {
+        return this.comp(other) >= 0;
+    }
+    compare(other) {
+        if (!isLong(other))
+            other = fromValue(other);
+        if (this.eq(other))
+            return 0;
+        var thisNeg = this.isNegative(), otherNeg = other.isNegative();
+        if (thisNeg && !otherNeg)
+            return -1;
+        if (!thisNeg && otherNeg)
+            return 1;
+        if (!this.unsigned)
+            return this.sub(other).isNegative() ? -1 : 1;
+        return (other.high >>> 0) > (this.high >>> 0) || (other.high === this.high && (other.low >>> 0) > (this.low >>> 0)) ? -1 : 1;
+    }
+    negate() {
+        if (!this.unsigned && this.eq(MIN_VALUE))
+            return MIN_VALUE;
+        return this.not().add(ONE);
+    }
+    absolute() {
+        if (!this.unsigned && this.isNegative())
+            return this.negate();
+        else
+            return this;
+    }
+    add(addend) {
+        if (!isLong(addend))
+            addend = fromValue(addend);
+        var a48 = this.high >>> 16;
+        var a32 = this.high & 0xFFFF;
+        var a16 = this.low >>> 16;
+        var a00 = this.low & 0xFFFF;
+        var b48 = addend.high >>> 16;
+        var b32 = addend.high & 0xFFFF;
+        var b16 = addend.low >>> 16;
+        var b00 = addend.low & 0xFFFF;
+        var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+        c00 += a00 + b00;
+        c16 += c00 >>> 16;
+        c00 &= 0xFFFF;
+        c16 += a16 + b16;
+        c32 += c16 >>> 16;
+        c16 &= 0xFFFF;
+        c32 += a32 + b32;
+        c48 += c32 >>> 16;
+        c32 &= 0xFFFF;
+        c48 += a48 + b48;
+        c48 &= 0xFFFF;
+        return fromBits((c16 << 16) | c00, (c48 << 16) | c32, this.unsigned);
+    }
+    subtract(subtrahend) {
+        if (!isLong(subtrahend))
+            subtrahend = fromValue(subtrahend);
+        return this.add(subtrahend.neg());
+    }
+    multiply(multiplier) {
+        if (this.isZero())
+            return ZERO;
+        if (!isLong(multiplier))
+            multiplier = fromValue(multiplier);
+        if (multiplier.isZero())
+            return ZERO;
+        if (this.eq(MIN_VALUE))
+            return multiplier.isOdd() ? MIN_VALUE : ZERO;
+        if (multiplier.eq(MIN_VALUE))
+            return this.isOdd() ? MIN_VALUE : ZERO;
+        if (this.isNegative()) {
+            if (multiplier.isNegative())
+                return this.neg().mul(multiplier.neg());
+            else
+                return this.neg().mul(multiplier).neg();
+        }
+        else if (multiplier.isNegative())
+            return this.mul(multiplier.neg()).neg();
+        if (this.lt(TWO_PWR_24) && multiplier.lt(TWO_PWR_24))
+            return fromNumber(this.toNumber() * multiplier.toNumber(), this.unsigned);
+        var a48 = this.high >>> 16;
+        var a32 = this.high & 0xFFFF;
+        var a16 = this.low >>> 16;
+        var a00 = this.low & 0xFFFF;
+        var b48 = multiplier.high >>> 16;
+        var b32 = multiplier.high & 0xFFFF;
+        var b16 = multiplier.low >>> 16;
+        var b00 = multiplier.low & 0xFFFF;
+        var c48 = 0, c32 = 0, c16 = 0, c00 = 0;
+        c00 += a00 * b00;
+        c16 += c00 >>> 16;
+        c00 &= 0xFFFF;
+        c16 += a16 * b00;
+        c32 += c16 >>> 16;
+        c16 &= 0xFFFF;
+        c16 += a00 * b16;
+        c32 += c16 >>> 16;
+        c16 &= 0xFFFF;
+        c32 += a32 * b00;
+        c48 += c32 >>> 16;
+        c32 &= 0xFFFF;
+        c32 += a16 * b16;
+        c48 += c32 >>> 16;
+        c32 &= 0xFFFF;
+        c32 += a00 * b32;
+        c48 += c32 >>> 16;
+        c32 &= 0xFFFF;
+        c48 += a48 * b00 + a32 * b16 + a16 * b32 + a00 * b48;
+        c48 &= 0xFFFF;
+        return fromBits((c16 << 16) | c00, (c48 << 16) | c32, this.unsigned);
+    }
+    divide(divisor) {
+        if (!isLong(divisor))
+            divisor = fromValue(divisor);
+        if (divisor.isZero())
+            throw Error('division by zero');
+        if (this.isZero())
+            return this.unsigned ? UZERO : ZERO;
+        var approx = 0, rem = ZERO, res = ZERO;
+        if (!this.unsigned) {
+            if (this.eq(MIN_VALUE)) {
+                if (divisor.eq(ONE) || divisor.eq(NEG_ONE))
+                    return MIN_VALUE;
+                else if (divisor.eq(MIN_VALUE))
+                    return ONE;
+                else {
+                    var halfThis = this.shr(1);
+                    let approx = halfThis.div(divisor).shl(1);
+                    if (approx.eq(ZERO)) {
+                        return divisor.isNegative() ? ONE : NEG_ONE;
+                    }
+                    else {
+                        rem = this.sub(divisor.mul(approx));
+                        res = approx.add(rem.div(divisor));
+                        return res;
+                    }
+                }
+            }
+            else if (divisor.eq(MIN_VALUE))
+                return this.unsigned ? UZERO : ZERO;
+            if (this.isNegative()) {
+                if (divisor.isNegative())
+                    return this.neg().div(divisor.neg());
+                return this.neg().div(divisor).neg();
+            }
+            else if (divisor.isNegative())
+                return this.div(divisor.neg()).neg();
+            res = ZERO;
+        }
+        else {
+            if (!divisor.unsigned)
+                divisor = divisor.toUnsigned();
+            if (divisor.gt(this))
+                return UZERO;
+            if (divisor.gt(this.shru(1)))
+                return UONE;
+            res = UZERO;
+        }
+        rem = this;
+        while (rem.gte(divisor)) {
+            approx = Math.max(1, Math.floor(rem.toNumber() / divisor.toNumber()));
+            var log2 = Math.ceil(Math.log(approx) / Math.LN2), delta = (log2 <= 48) ? 1 : pow_dbl(2, log2 - 48), approxRes = fromNumber(approx), approxRem = approxRes.mul(divisor);
+            while (approxRem.isNegative() || approxRem.gt(rem)) {
+                approx -= delta;
+                approxRes = fromNumber(approx, this.unsigned);
+                approxRem = approxRes.mul(divisor);
+            }
+            if (approxRes.isZero())
+                approxRes = ONE;
+            res = res.add(approxRes);
+            rem = rem.sub(approxRem);
+        }
+        return res;
+    }
+    modulo(divisor) {
+        if (!isLong(divisor))
+            divisor = fromValue(divisor);
+        return this.sub(this.div(divisor).mul(divisor));
+    }
+    ;
+    not() {
+        return fromBits(~this.low, ~this.high, this.unsigned);
+    }
+    ;
+    and(other) {
+        if (!isLong(other))
+            other = fromValue(other);
+        return fromBits(this.low & other.low, this.high & other.high, this.unsigned);
+    }
+    or(other) {
+        if (!isLong(other))
+            other = fromValue(other);
+        return fromBits(this.low | other.low, this.high | other.high, this.unsigned);
+    }
+    xor(other) {
+        if (!isLong(other))
+            other = fromValue(other);
+        return fromBits(this.low ^ other.low, this.high ^ other.high, this.unsigned);
+    }
+    shiftLeft(numBits) {
+        if (isLong(numBits))
+            numBits = numBits.toInt();
+        numBits = numBits & 63;
+        if (numBits === 0)
+            return this;
+        else if (numBits < 32)
+            return fromBits(this.low << numBits, (this.high << numBits) | (this.low >>> (32 - numBits)), this.unsigned);
+        else
+            return fromBits(0, this.low << (numBits - 32), this.unsigned);
+    }
+    shiftRight(numBits) {
+        if (isLong(numBits))
+            numBits = numBits.toInt();
+        numBits = numBits & 63;
+        if (numBits === 0)
+            return this;
+        else if (numBits < 32)
+            return fromBits((this.low >>> numBits) | (this.high << (32 - numBits)), this.high >> numBits, this.unsigned);
+        else
+            return fromBits(this.high >> (numBits - 32), this.high >= 0 ? 0 : -1, this.unsigned);
+    }
+    shiftRightUnsigned(numBits) {
+        if (isLong(numBits))
+            numBits = numBits.toInt();
+        numBits = numBits & 63;
+        if (numBits === 0)
+            return this;
+        else {
+            var high = this.high;
+            if (numBits < 32) {
+                var low = this.low;
+                return fromBits((low >>> numBits) | (high << (32 - numBits)), high >>> numBits, this.unsigned);
+            }
+            else if (numBits === 32)
+                return fromBits(high, 0, this.unsigned);
+            else
+                return fromBits(high >>> (numBits - 32), 0, this.unsigned);
+        }
+    }
+    toSigned() {
+        if (!this.unsigned)
+            return this;
+        return fromBits(this.low, this.high, false);
+    }
+    toUnsigned() {
+        if (this.unsigned)
+            return this;
+        return fromBits(this.low, this.high, true);
+    }
+    toBytes(le) {
+        return le ? this.toBytesLE() : this.toBytesBE();
+    }
+    toBytesLE() {
+        var hi = this.high, lo = this.low;
+        return [
+            lo & 0xff,
+            (lo >>> 8) & 0xff,
+            (lo >>> 16) & 0xff,
+            (lo >>> 24) & 0xff,
+            hi & 0xff,
+            (hi >>> 8) & 0xff,
+            (hi >>> 16) & 0xff,
+            (hi >>> 24) & 0xff
+        ];
+    }
+    toBytesBE() {
+        var hi = this.high, lo = this.low;
+        return [
+            (hi >>> 24) & 0xff,
+            (hi >>> 16) & 0xff,
+            (hi >>> 8) & 0xff,
+            hi & 0xff,
+            (lo >>> 24) & 0xff,
+            (lo >>> 16) & 0xff,
+            (lo >>> 8) & 0xff,
+            lo & 0xff
+        ];
+    }
+    [_Symbol.reflection]() {
+        return {
+            type: "System.Int64",
+            interfaces: ["FSharpRecord", "System.IComparable"],
+            properties: {
+                low: "number",
+                high: "number",
+                unsigned: "boolean"
+            }
+        };
+    }
+}
+var INT_CACHE = {};
+var UINT_CACHE = {};
+function isLong(obj) {
+    return (obj && obj instanceof Long);
+}
+function fromInt(value, unsigned = false) {
+    var obj, cachedObj, cache;
+    if (unsigned) {
+        value >>>= 0;
+        if (cache = (0 <= value && value < 256)) {
+            cachedObj = UINT_CACHE[value];
+            if (cachedObj)
+                return cachedObj;
+        }
+        obj = fromBits(value, (value | 0) < 0 ? -1 : 0, true);
+        if (cache)
+            UINT_CACHE[value] = obj;
+        return obj;
+    }
+    else {
+        value |= 0;
+        if (cache = (-128 <= value && value < 128)) {
+            cachedObj = INT_CACHE[value];
+            if (cachedObj)
+                return cachedObj;
+        }
+        obj = fromBits(value, value < 0 ? -1 : 0, false);
+        if (cache)
+            INT_CACHE[value] = obj;
+        return obj;
+    }
+}
+function fromNumber(value, unsigned = false) {
+    if (isNaN(value) || !isFinite(value))
+        return unsigned ? UZERO : ZERO;
+    if (unsigned) {
+        if (value < 0)
+            return UZERO;
+        if (value >= TWO_PWR_64_DBL)
+            return MAX_UNSIGNED_VALUE;
+    }
+    else {
+        if (value <= -TWO_PWR_63_DBL)
+            return MIN_VALUE;
+        if (value + 1 >= TWO_PWR_63_DBL)
+            return MAX_VALUE;
+    }
+    if (value < 0)
+        return fromNumber(-value, unsigned).neg();
+    return fromBits((value % TWO_PWR_32_DBL) | 0, (value / TWO_PWR_32_DBL) | 0, unsigned);
+}
+function fromBits(lowBits, highBits, unsigned) {
+    return new Long(lowBits, highBits, unsigned);
+}
+var pow_dbl = Math.pow;
+function fromString(str, unsigned = false, radix = 10) {
+    if (str.length === 0)
+        throw Error('empty string');
+    if (str === "NaN" || str === "Infinity" || str === "+Infinity" || str === "-Infinity")
+        return ZERO;
+    if (typeof unsigned === 'number') {
+        radix = unsigned,
+            unsigned = false;
+    }
+    else {
+        unsigned = !!unsigned;
+    }
+    radix = radix || 10;
+    if (radix < 2 || 36 < radix)
+        throw RangeError('radix');
+    let p = str.indexOf('-');
+    if (p > 0)
+        throw Error('interior hyphen');
+    else if (p === 0) {
+        return fromString(str.substring(1), unsigned, radix).neg();
+    }
+    var radixToPower = fromNumber(pow_dbl(radix, 8));
+    var result = ZERO;
+    for (var i = 0; i < str.length; i += 8) {
+        var size = Math.min(8, str.length - i), value = parseInt(str.substring(i, i + size), radix);
+        if (size < 8) {
+            var power = fromNumber(pow_dbl(radix, size));
+            result = result.mul(power).add(fromNumber(value));
+        }
+        else {
+            result = result.mul(radixToPower);
+            result = result.add(fromNumber(value));
+        }
+    }
+    result.unsigned = unsigned;
+    return result;
+}
+function fromValue(val) {
+    if (val instanceof Long)
+        return val;
+    if (typeof val === 'number')
+        return fromNumber(val);
+    if (typeof val === 'string')
+        return fromString(val);
+    return fromBits(val.low, val.high, val.unsigned);
+}
+const TWO_PWR_16_DBL = 1 << 16;
+const TWO_PWR_24_DBL = 1 << 24;
+const TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
+const TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
+const TWO_PWR_63_DBL = TWO_PWR_64_DBL / 2;
+const TWO_PWR_24 = fromInt(TWO_PWR_24_DBL);
+const ZERO = fromInt(0);
+const UZERO = fromInt(0, true);
+const ONE = fromInt(1);
+const UONE = fromInt(1, true);
+const NEG_ONE = fromInt(-1);
+const MAX_VALUE = fromBits(0xFFFFFFFF | 0, 0x7FFFFFFF | 0, false);
+const MAX_UNSIGNED_VALUE = fromBits(0xFFFFFFFF | 0, 0xFFFFFFFF | 0, true);
+const MIN_VALUE = fromBits(0, 0x80000000 | 0, false);
+
+const fsFormatRegExp = /(^|[^%])%([0+ ]*)(-?\d+)?(?:\.(\d+))?(\w)/;
+
+
+
+
+function toHex(value) {
+    return value < 0
+        ? "ff" + (16777215 - (Math.abs(value) - 1)).toString(16)
+        : value.toString(16);
+}
+function fsFormat(str, ...args) {
+    function formatOnce(str, rep) {
+        return str.replace(fsFormatRegExp, function (_, prefix, flags, pad, precision, format) {
+            switch (format) {
+                case "f":
+                case "F":
+                    rep = rep.toFixed(precision || 6);
+                    break;
+                case "g":
+                case "G":
+                    rep = rep.toPrecision(precision);
+                    break;
+                case "e":
+                case "E":
+                    rep = rep.toExponential(precision);
+                    break;
+                case "O":
+                    rep = toString(rep);
+                    break;
+                case "A":
+                    rep = toString(rep, true);
+                    break;
+                case "x":
+                    rep = toHex(Number(rep));
+                    break;
+                case "X":
+                    rep = toHex(Number(rep)).toUpperCase();
+                    break;
+            }
+            const plusPrefix = flags.indexOf("+") >= 0 && parseInt(rep) >= 0;
+            if (!isNaN(pad = parseInt(pad))) {
+                const ch = pad >= 0 && flags.indexOf("0") >= 0 ? "0" : " ";
+                rep = padLeft(rep, Math.abs(pad) - (plusPrefix ? 1 : 0), ch, pad < 0);
+            }
+            let once = prefix + (plusPrefix ? "+" + rep : rep);
+            return once.replace(/%/g, "%%");
+        });
+    }
+    if (args.length === 0) {
+        return (cont) => {
+            if (fsFormatRegExp.test(str)) {
+                return function () {
+                    var strCopy = str;
+                    for (let i = 0; i < arguments.length; i++) {
+                        strCopy = formatOnce(strCopy, arguments[i]);
+                    }
+                    return cont(strCopy.replace(/%%/g, "%"));
+                };
+            }
+            else {
+                return cont(str);
+            }
+        };
+    }
+    else {
+        for (let i = 0; i < args.length; i++) {
+            str = formatOnce(str, args[i]);
+        }
+        return str.replace(/%%/g, "%");
+    }
+}
+
+
+
+
+
+
+
+
+function padLeft(str, len, ch, isRight) {
+    ch = ch || " ";
+    str = String(str);
+    len = len - str.length;
+    for (let i = -1; ++i < len;)
+        str = isRight ? str + ch : ch + str;
+    return str;
+}
+
+function deflate(v) {
+    if (ArrayBuffer.isView(v)) {
+        return Array.from(v);
+    }
+    else if (v != null && typeof v === "object") {
+        if (v instanceof List$1 || v instanceof FableSet || v instanceof Set) {
+            return Array.from(v);
+        }
+        else if (v instanceof FableMap || v instanceof Map) {
+            let stringKeys = null;
+            return fold((o, kv) => {
+                if (stringKeys === null) {
+                    stringKeys = typeof kv[0] === "string";
+                }
+                o[stringKeys ? kv[0] : toJson$1(kv[0])] = kv[1];
+                return o;
+            }, {}, v);
+        }
+        const reflectionInfo = typeof v[_Symbol.reflection] === "function" ? v[_Symbol.reflection]() : {};
+        if (reflectionInfo.properties) {
+            return fold((o, prop) => {
+                return o[prop] = v[prop], o;
+            }, {}, Object.getOwnPropertyNames(reflectionInfo.properties));
+        }
+        else if (reflectionInfo.cases) {
+            const caseInfo = reflectionInfo.cases[v.tag], caseName = caseInfo[0], fieldsLength = caseInfo.length - 1;
+            if (fieldsLength === 0) {
+                return caseName;
+            }
+            else {
+                return { [caseName]: (v.data !== void 0 ? v.data : null) };
+            }
+        }
+    }
+    return v;
+}
+function toJson$1(o) {
+    return JSON.stringify(o, (k, v) => deflate(v));
+}
+function combine(path1, path2) {
+    return typeof path2 === "number"
+        ? path1 + "[" + path2 + "]"
+        : (path1 ? path1 + "." : "") + path2;
+}
+function invalidate(val, typ, path) {
+    throw new Error(`${fsFormat("%A", val)} ${path ? "(" + path + ")" : ""} is not of type ${getTypeFullName(typ)}`);
+}
+
+function getRecordType(x) {
+  const matchValue = x.ACTION;
+
+  if (matchValue === "remove") {
+    return new Events(1, x);
+  } else {
+    return new Events(0, x);
+  }
+}
+
+const toJson$$1 = $var1 => toJson$1(getRecordType($var1));
+
+function run(net$$1, env) {
+  const client = net$$1.connect({
+    path: "/var/run/device-scanner.sock"
+  });
+  client.once("connect", function () {
+    client.end(toJson$$1(env));
+  });
+}
+
+run(net, process.env);

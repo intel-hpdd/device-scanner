@@ -12,7 +12,7 @@ open System.Collections.Generic
 open IML.DeviceScannerDaemon.ParseUdevDB
 open IML.UdevEventTypes.EventTypes
 
-let private deviceMap:IDictionary<string, AddEvent> = dict[||]
+let private deviceMap = Dictionary<string, AddEvent>()
 
 let dataHandler (c:Net.Socket) = function
   | ReadEventMatch(_) ->

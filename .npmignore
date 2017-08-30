@@ -1,6 +1,9 @@
 .babelrc
 .editorconfig
 .gitignore
+.paket
+.travis.yml
+.npmignore
 *.log
 *.fs
 *.fsproj

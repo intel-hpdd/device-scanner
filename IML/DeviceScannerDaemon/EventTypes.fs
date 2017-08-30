@@ -36,7 +36,7 @@ type AddEvent = {
   ID_VENDOR: string option;
   ID_MODEL: string;
   ID_SERIAL: string option;
-  ID_FS_TYPE: string;
+  ID_FS_TYPE: string option;
   ID_PART_ENTRY_NUMBER: string option;
   IML_SIZE: string option;
 }
@@ -87,7 +87,7 @@ let private devPath = findOrFail "DEVPATH"
 let private idVendor = findOrNone "ID_VENDOR"
 let private idModel = findOrFail "ID_MODEL"
 let private idSerial = findOrNone "ID_SERIAL"
-let private idFsType = findOrFail "ID_FS_TYPE"
+let private idFsType = findOrNone "ID_FS_TYPE"
 let private idPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
 let private imlSize = findOrNone "IML_SIZE"
 

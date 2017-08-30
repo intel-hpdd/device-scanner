@@ -21,12 +21,12 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision "shell", inline: <<-SHELL
     cd /vagrant
-    mkdir -p /usr/lib/iml-device-scanner-daemon
-    cp dist/device-scanner-daemon/device-scanner-daemon /usr/lib/iml-device-scanner-daemon
+    mkdir -p /usr/lib64/iml-device-scanner-daemon
+    cp dist/device-scanner-daemon/device-scanner-daemon /usr/lib64/iml-device-scanner-daemon
     cp dist/block-device-listener/block-device-listener /lib/udev
     chmod 777 /lib/udev/block-device-listener
     cp dist/block-device-listener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
-    cp dist/device-scanner-daemon/systemd-units/* /usr/lib/systemd/system
+    cp dist/device-scanner-daemon/systemd-units/* /usr/lib64/systemd/system
     systemctl enable device-scanner.socket
     systemctl start device-scanner.socket
   SHELL

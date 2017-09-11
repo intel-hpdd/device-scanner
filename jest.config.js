@@ -1,14 +1,14 @@
 module.exports = {
+  verbose: true,
   expand: true,
   resetModules: true,
   clearMocks: true,
   testEnvironment: 'node',
-  moduleFileExtensions: ['js', 'fs', 'fsx'],
+  moduleFileExtensions: ['js', 'fs'],
   transform: {
-    '^.+\\.(fs|fsx)$': 'jest-fable-preprocessor',
-    '^.+\\.js$': 'babel-jest'
+    '^.+\\.(fs)$': 'jest-fable-preprocessor',
+    '^.+\\.js$': 'jest-fable-preprocessor/source/babel-jest.js'
   },
   testMatch: ['**/**/*Test.fs'],
-  transformIgnorePatterns: ['node_modules/(?!fable.+)/'],
-  coveragePathIgnorePatterns: ['packages', 'test/']
+  coveragePathIgnorePatterns: ['packages', '.+Test.fs']
 };

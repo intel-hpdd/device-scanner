@@ -3,9 +3,6 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="dotnet-fable" Version="1.2.0-beta-003" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="IML/BlockDeviceListener/Listener.fs" />
     <Compile Include="IML/BlockDeviceListener/ListenerTest.fs" />
     <Compile Include="IML/LineDelimitedJsonStream/Stream.fs" />

@@ -4,10 +4,13 @@ dotnet: 2.0.0
 mono: latest
 before_script:
 - nvm install 8
+- npm install -g codecov
 script:
 - npm i
 - npm run restore
 - npm run test
+after_success:
+  - codecov
 before_deploy: dotnet fable npm-run build
 deploy:
   skip_cleanup: true

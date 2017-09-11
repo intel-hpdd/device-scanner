@@ -8,7 +8,7 @@
     "access": "public"
   },
   "scripts": {
-    "jest": "jest",
+    "jest": "jest --coverage",
     "test": "dotnet fable npm-run jest",
     "restore": "dotnet restore",
     "cleanDist": "rm -rf /dist",
@@ -28,14 +28,14 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.0",
-    "fable-jest": "2.4.1",
-    "jest": "^20.0.4",
-    "jest-fable-preprocessor": "^1.3.0",
+    "fable-utils": "^1.0.6",
+    "jest": "^21.0.2",
+    "jest-fable-preprocessor": "^1.3.3",
     "pre-commit": "1.2.2",
     "prettier": "^1.6.1",
-    "rollup": "^0.49.2",
+    "rollup": "^0.49.3",
     "rollup-plugin-cleanup": "^1.0.1",
-    "rollup-plugin-fable": "^1.1.0",
+    "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.4.2",
     "stream-to-promise": "2.2.0"
   }

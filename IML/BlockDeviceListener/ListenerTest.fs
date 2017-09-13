@@ -12,17 +12,12 @@ open Fable.Core
 open Fable.Import.Node
 open Fable.Import.Node.Globals
 
-describe "Listener" <| fun () ->
-  let mutable mockOnce = null
-  let mutable mockEnd = null
-  let mutable mockConnect = null
+testList "Listener" [
+  let withSetup f () =
+    let mockOnce = Matcher2<string, obj -> obj, obj>()
+    let mockEnd = Matcher<string, unit>()
 
-  beforeEach <| fun () ->
-    mockOnce <- Matcher2<string, obj -> obj, obj>()
-    mockOnce?id <- 3
-    mockEnd <- Matcher<string, unit>()
-
-    mockConnect <- Matcher<obj, obj>(fun (_) ->
+    let mockConnect = Matcher<obj, obj>(fun (_) ->
       createObj [
         "once" ==> mockOnce.Mock;
         "end" ==> mockEnd.Mock;
@@ -33,17 +28,21 @@ describe "Listener" <| fun () ->
 
     require.Invoke "./Listener.fs" |> ignore
 
-  test "should call connect with NetPath" <| fun () ->
-    mockConnect.CalledWith(createObj ["path" ==> "/var/run/device-scanner.sock"])
+    f(mockConnect, mockOnce, mockEnd)
 
-  test "should call connect" <| fun () ->
-    mockOnce.CalledWith "connect" (expect.any Function)
+  yield! testFixture withSetup [
+    "should call connect with NetPath", fun (mockConnect, _, _) ->
+      mockConnect.CalledWith(createObj ["path" ==> "/var/run/device-scanner.sock"]);
 
-  test "should call end with process data" <| fun () ->
-    mockOnce.LastCall
-      |> snd
-      |> fun fn -> fn()
-      |> ignore
+    "should call connect", fun (_, mockOnce, _) ->
+      mockOnce.CalledWith "connect" (expect.any Function);
 
+    "should call end with process data", fun (_, mockOnce, mockEnd) ->
+      mockOnce.LastCall
+        |> snd
+        |> fun fn -> fn()
+        |> ignore
 
-    mockEnd.CalledWith <| expect.any String
+      mockEnd.CalledWith <| expect.any String
+  ]
+]

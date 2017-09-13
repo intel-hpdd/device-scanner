@@ -1,3 +1,4 @@
+STORAGE: NONE
 NUGET
   remote: https://www.nuget.org/api/v2
     dotnet-fable (1.2.1) - clitool: true
@@ -26,11 +27,11 @@ NUGET
     Fable.Import.Browser (0.1)
       Fable.Core (>= 1.0.8) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.1) - restriction: >= netstandard1.6
-    Fable.Import.Jest (1.4.1)
-      Fable.Core (>= 1.1.14) - restriction: >= netstandard1.6
-      Fable.Import.Node (>= 0.1.2) - restriction: >= netstandard1.6
-      Fable.PowerPack (>= 1.2) - restriction: >= netstandard1.6
-      FSharp.Core (>= 4.2.2) - restriction: >= netstandard1.6
+    Fable.Import.Jest (1.6)
+      Fable.Core (>= 1.2.1) - restriction: >= netstandard2.0
+      Fable.Import.Node (>= 0.1.5) - restriction: >= netstandard2.0
+      Fable.PowerPack (>= 1.2) - restriction: >= netstandard2.0
+      FSharp.Core (>= 4.2.3) - restriction: >= netstandard2.0
     Fable.Import.Node (0.1.5)
       Fable.Core (>= 1.1.15) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6

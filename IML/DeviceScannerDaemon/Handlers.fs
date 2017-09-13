@@ -10,32 +10,39 @@ open Fable.Import.Node
 open System.Collections.Generic
 
 open IML.DeviceScannerDaemon.ParseUdevDB
-open IML.UdevEventTypes.EventTypes
+open IML.DeviceScannerDaemon.EventTypes
 
 let private deviceMap = Dictionary<string, AddEvent>()
 
-let dataHandler (c:Net.Socket) = function
+let handleReadEvent' getUdevDB ``end`` =
+  promise {
+    let! result = getUdevDB()
+
+    deviceMap.Clear()
+
+    parser result
+      |> Array.map(extractAddEvent >> fun x -> deviceMap.Add (x.DEVPATH, x))
+      |> ignore
+
+    ``end`` None
+  }
+
+let handleReadEvent = handleReadEvent' getUdevDB
+
+let dataHandler' (``end``:string option -> unit) = function
   | ReadEventMatch(_) ->
-    promise {
-      let! result = getUdevDB()
-
-      deviceMap.Clear()
-
-      parser result
-        |> Array.map(extractAddEvent >> fun x -> deviceMap.Add (x.DEVPATH, x))
-        |> ignore
-
-      c.``end``()
-    }
+    handleReadEvent ``end``
       |> Promise.start
   | InfoEventMatch(_) ->
-    c.``end``(toJson deviceMap)
+    ``end`` (Some (toJson deviceMap))
   | AddEventMatch(x) ->
     deviceMap.Add (x.DEVPATH, x)
-    c.``end``()
+    ``end`` None
   | RemoveEventMatch(x) ->
     deviceMap.Remove x.DEVPATH |> ignore
-    c.``end``()
+    ``end`` None
   | _ ->
-    c.``end``()
+    ``end`` None
     raise (System.Exception "Handler got a bad match")
+
+let dataHandler = dataHandler'

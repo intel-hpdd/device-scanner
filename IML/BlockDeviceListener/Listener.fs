@@ -7,15 +7,14 @@ module IML.BlockDeviceListener.Listener
 open Fable.Core
 open Fable.Import.JS
 open Fable.Import.Node
+open NodeHelpers
 
-[<Pojo>]
-type NetPath = {
-  path: string
-}
+let private client = connect { path = "/var/run/device-scanner.sock"; }
 
-let private client = Net.connect { path = "/var/run/device-scanner.sock"; }
+let private endClient = ``end`` client
 
-client.once(
-  "connect",
-  fun () -> client.``end``(JSON.stringify Globals.``process``.env)
-) |> ignore
+let private data = (JSON.stringify Globals.``process``.env)
+
+client
+  |> onceConnect (fun () -> endClient (Some data))
+  |> ignore

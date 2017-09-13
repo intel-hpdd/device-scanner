@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.UdevEventTypes.EventTypes
+module IML.DeviceScannerDaemon.EventTypes
 
 open Fable.Core.JsInterop
 open Fable.PowerPack
@@ -31,13 +31,13 @@ type AddEvent = {
   ACTION: string;
   MAJOR: string;
   MINOR: string;
-  DEVLINKS: string;
-  PATHS: string array;
+  DEVLINKS: string option;
+  PATHS: string array option;
   DEVNAME: string;
   DEVPATH: string;
   DEVTYPE: DevType;
   ID_VENDOR: string option;
-  ID_MODEL: string;
+  ID_MODEL: string option;
   ID_SERIAL: string option;
   ID_FS_TYPE: string option;
   ID_PART_ENTRY_NUMBER: string option;
@@ -50,7 +50,7 @@ type AddEvent = {
 /// udev block device remove event.
 type RemoveEvent = {
   ACTION: string;
-  DEVLINKS: string;
+  DEVLINKS: string option;
   DEVPATH: string;
   MAJOR: string;
   MINOR: string;
@@ -92,19 +92,19 @@ let trimOpt = Option.map(fun (x:string) -> x.Trim())
 let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
 
-let private major = findOrFail "MAJOR"
-let private minor =  findOrFail "MINOR"
-let private devlinks = findOrFail "DEVLINKS"
-let private devName = findOrFail "DEVNAME"
-let private devPath = findOrFail "DEVPATH"
-let private idVendor = findOrNone "ID_VENDOR"
-let private idModel = findOrFail "ID_MODEL"
-let private idSerial = findOrNone "ID_SERIAL"
-let private idFsType = findOrNone "ID_FS_TYPE"
-let private idPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
-let private imlSize = findOrNone "IML_SIZE"
-let private imlScsi80 = findOrNone "IML_SCSI_80"
-let private imlScsi83 = findOrNone "IML_SCSI_83"
+let private parseMajor = findOrFail "MAJOR"
+let private parseMinor =  findOrFail "MINOR"
+let private parseDevlinks = findOrNone "DEVLINKS"
+let private parseDevName = findOrFail "DEVNAME"
+let private parseDevPath = findOrFail "DEVPATH"
+let private parseIdVendor = findOrNone "ID_VENDOR"
+let private parseIdModel = findOrNone "ID_MODEL"
+let private parseIdSerial = findOrNone "ID_SERIAL"
+let private parseIdFsType = findOrNone "ID_FS_TYPE"
+let private parseIdPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
+let private parseImlSize = findOrNone "IML_SIZE"
+let private parseImlScsi80 = findOrNone "IML_SCSI_80"
+let private parseImlScsi83 = findOrNone "IML_SCSI_83"
 
 let extractAddEvent x =
   let devType =
@@ -116,33 +116,35 @@ let extractAddEvent x =
         | DiskMatch (x) -> x
         | _ -> failwith "DEVTYPE neither partition or disk"
 
-  let paths (name:string) (links:string) =
-    let morePaths =
-      links.Split(' ')
-        |> Array.map(fun x -> x.Trim())
+  let paths (name:string) = function
+    | Some(links:string) ->
+      let morePaths =
+        links.Split(' ')
+          |> Array.map(fun x -> x.Trim())
 
-    Array.concat [[| name |]; morePaths]
+      Some(Array.concat [[| name |]; morePaths])
+    | None -> None
 
-  let DEVLINKS = devlinks x
-  let DEVNAME = devName x
+  let devlinks = parseDevlinks x
+  let devname = parseDevName x
 
   {
     ACTION = "add";
-    MAJOR = major x;
-    MINOR = minor x;
-    DEVLINKS = DEVLINKS;
-    DEVNAME = DEVNAME;
-    PATHS = paths DEVNAME DEVLINKS;
-    DEVPATH = devPath x;
+    MAJOR = parseMajor x;
+    MINOR = parseMinor x;
+    DEVLINKS = devlinks;
+    DEVNAME = devname;
+    PATHS = paths devname devlinks;
+    DEVPATH = parseDevPath x;
     DEVTYPE = devType;
-    ID_VENDOR = idVendor x;
-    ID_MODEL = idModel x;
-    ID_SERIAL = idSerial x;
-    ID_FS_TYPE = idFsType x;
-    ID_PART_ENTRY_NUMBER = idPartEntryNumber x;
-    IML_SIZE = imlSize x;
-    IML_SCSI_80 = imlScsi80 x |> trimOpt;
-    IML_SCSI_83 = imlScsi83 x |> trimOpt;
+    ID_VENDOR = parseIdVendor x;
+    ID_MODEL = parseIdModel x;
+    ID_SERIAL = parseIdSerial x;
+    ID_FS_TYPE = parseIdFsType x;
+    ID_PART_ENTRY_NUMBER = parseIdPartEntryNumber x;
+    IML_SIZE = parseImlSize x;
+    IML_SCSI_80 = parseImlScsi80 x |> trimOpt;
+    IML_SCSI_83 = parseImlScsi83 x |> trimOpt;
   }
 
 let (|AddEventMatch|_|) x =
@@ -158,10 +160,10 @@ let (|RemoveEventMatch|_|) x =
     |> Option.map (fun x ->
       {
         ACTION = "remove";
-        DEVLINKS = devlinks x;
-        DEVPATH = devName x;
-        MAJOR = major x;
-        MINOR = minor x;
+        DEVLINKS = parseDevlinks x;
+        DEVPATH = parseDevName x;
+        MAJOR = parseMajor x;
+        MINOR = parseMinor x;
       }
     )
 

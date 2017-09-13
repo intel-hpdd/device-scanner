@@ -10,7 +10,10 @@ open Fable.Import.JS
 open Fable.Core.JsInterop
 open IML.LineDelimitedJsonStream.Stream
 open IML.DeviceScannerDaemon.Handlers
-open IML.UdevEventTypes.EventTypes
+open IML.DeviceScannerDaemon.EventTypes
+open NodeHelpers
+
+open IML.DeviceScannerDaemon.ParseUdevDB
 
 let serverHandler (c:Net.Socket) =
   c
@@ -19,13 +22,13 @@ let serverHandler (c:Net.Socket) =
       console.error ("Unable to parse message " + e.message)
       c.``end``()
     )
-    .on("data", (dataHandler c)) |> ignore
+    .on("data", (dataHandler (``end`` c)))
+    |> ignore
 
 let opts = createEmpty<Net.CreateServerOptions>
 opts.allowHalfOpen <- Some true
 
 let private server = Net.createServer(opts, serverHandler)
-
 let private r e =
   e
   |> raise

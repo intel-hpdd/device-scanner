@@ -25,11 +25,14 @@ let (|DiskMatch|_|) (x:string) =
   else
     None
 
+/// The data received from a
+/// udev block device add event
 type AddEvent = {
   ACTION: string;
   MAJOR: string;
   MINOR: string;
   DEVLINKS: string;
+  PATHS: string array;
   DEVNAME: string;
   DEVPATH: string;
   DEVTYPE: DevType;
@@ -41,6 +44,8 @@ type AddEvent = {
   IML_SIZE: string option;
 }
 
+/// The data received from a
+/// udev block device remove event.
 type RemoveEvent = {
   ACTION: string;
   DEVLINKS: string;
@@ -49,6 +54,8 @@ type RemoveEvent = {
   MINOR: string;
 }
 
+/// Data received from
+/// a user command.
 type SimpleEvent = {
   ACTION: string;
 }
@@ -73,8 +80,11 @@ let private matchAction (name:string) (x:Map<string, Json.Json>) =
   |> Option.filter((=) name)
   |> Option.map(fun _ -> x)
 
-let private findOrFail key x =
-  x |> Map.find key |> unwrapString
+let private findOrFail (key:string) x =
+  match Map.tryFind key x with
+    | Some(x) -> unwrapString x
+    | None -> failwith (sprintf "Could not find key %s in %O" key x)
+
 
 let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
@@ -101,12 +111,23 @@ let extractAddEvent x =
         | DiskMatch (x) -> x
         | _ -> failwith "DEVTYPE neither partition or disk"
 
+  let paths (name:string) (links:string) =
+    let morePaths =
+      links.Split(' ')
+        |> Array.map(fun x -> x.Trim())
+
+    Array.concat [[| name |]; morePaths]
+
+  let DEVLINKS = devlinks x
+  let DEVNAME = devName x
+
   {
     ACTION = "add";
     MAJOR = major x;
     MINOR = minor x;
-    DEVLINKS = devlinks x;
-    DEVNAME = devName x;
+    DEVLINKS = DEVLINKS;
+    DEVNAME = DEVNAME;
+    PATHS = paths DEVNAME DEVLINKS;
     DEVPATH = devPath x;
     DEVTYPE = devType;
     ID_VENDOR = idVendor x;

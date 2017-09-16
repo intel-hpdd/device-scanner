@@ -42,6 +42,8 @@ type AddEvent = {
   ID_FS_TYPE: string option;
   ID_PART_ENTRY_NUMBER: string option;
   IML_SIZE: string option;
+  IML_SCSI_80: string option;
+  IML_SCSI_83: string option;
 }
 
 /// The data received from a
@@ -85,6 +87,7 @@ let private findOrFail (key:string) x =
     | Some(x) -> unwrapString x
     | None -> failwith (sprintf "Could not find key %s in %O" key x)
 
+let trimOpt = Option.map(fun (x:string) -> x.Trim())
 
 let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
@@ -100,6 +103,8 @@ let private idSerial = findOrNone "ID_SERIAL"
 let private idFsType = findOrNone "ID_FS_TYPE"
 let private idPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
 let private imlSize = findOrNone "IML_SIZE"
+let private imlScsi80 = findOrNone "IML_SCSI_80"
+let private imlScsi83 = findOrNone "IML_SCSI_83"
 
 let extractAddEvent x =
   let devType =
@@ -136,6 +141,8 @@ let extractAddEvent x =
     ID_FS_TYPE = idFsType x;
     ID_PART_ENTRY_NUMBER = idPartEntryNumber x;
     IML_SIZE = imlSize x;
+    IML_SCSI_80 = imlScsi80 x |> trimOpt;
+    IML_SCSI_83 = imlScsi83 x |> trimOpt;
   }
 
 let (|AddEventMatch|_|) x =

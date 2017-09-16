@@ -43,7 +43,9 @@ let addObj =  toJson """
   "SUBSYSTEM": "block",
   "TAGS": ":systemd:",
   "USEC_INITIALIZED": "842",
-  "IML_SIZE": "81784832"
+  "IML_SIZE": "81784832",
+  "IML_SCSI_80": "SATA_VBOX_HARDDISK_VB14a8be3e-041467ed",
+  "IML_SCSI_83": "1ATA_VBOX_HARDDISK_VB14a8be3e-041467ed"
 }
 """
 

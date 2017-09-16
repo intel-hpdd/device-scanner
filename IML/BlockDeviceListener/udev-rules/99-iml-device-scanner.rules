@@ -1,1 +1,14 @@
-ACTION=="add|remove", SUBSYSTEM=="block", ENV{IML_SIZE}="$attr{size}", RUN+="/lib/udev/block-device-listener"
+SUBSYSTEM!="block", GOTO="iml_device_scanner_end"
+
+# Get scsi_id page 80 info. This is *only* needed to keep compat with existing IML installs.
+ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x80 -d $devnode", RESULT=="?*", ENV{IML_SCSI_80}="$result"
+
+# Get scsi_id page 83 info. This is *only* needed to keep compat with existing IML installs.
+ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x83 -d $devnode", RESULT=="?*", ENV{IML_SCSI_83}="$result"
+
+# Read size from /sys and add it to the device
+ACTION=="add|change", ENV{IML_SIZE}="$attr{size}"
+# Sync up the device-scanner-daemon on add or remove of block device
+ACTION=="add|remove", RUN+="/lib/udev/block-device-listener"
+
+LABEL="iml_device_scanner_end"

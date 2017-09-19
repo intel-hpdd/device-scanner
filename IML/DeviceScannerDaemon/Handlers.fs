@@ -9,33 +9,14 @@ open Fable.PowerPack
 open Fable.Import.Node
 open System.Collections.Generic
 
-open IML.DeviceScannerDaemon.ParseUdevDB
 open IML.DeviceScannerDaemon.EventTypes
 
 let private deviceMap = Dictionary<string, AddEvent>()
 
-let handleReadEvent' getUdevDB ``end`` =
-  promise {
-    let! result = getUdevDB()
-
-    deviceMap.Clear()
-
-    parser result
-      |> Array.map(extractAddEvent >> fun x -> deviceMap.Add (x.DEVPATH, x))
-      |> ignore
-
-    ``end`` None
-  }
-
-let handleReadEvent = handleReadEvent' getUdevDB
-
 let dataHandler' (``end``:string option -> unit) = function
-  | ReadEventMatch(_) ->
-    handleReadEvent ``end``
-      |> Promise.start
   | InfoEventMatch(_) ->
     ``end`` (Some (toJson deviceMap))
-  | AddEventMatch(x) ->
+  | AddOrChangeEventMatch(x) ->
     deviceMap.Add (x.DEVPATH, x)
     ``end`` None
   | RemoveEventMatch(x) ->

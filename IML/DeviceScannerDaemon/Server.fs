@@ -13,8 +13,6 @@ open IML.DeviceScannerDaemon.Handlers
 open IML.DeviceScannerDaemon.EventTypes
 open NodeHelpers
 
-open IML.DeviceScannerDaemon.ParseUdevDB
-
 let serverHandler (c:Net.Socket) =
   c
     .pipe(getJsonStream())

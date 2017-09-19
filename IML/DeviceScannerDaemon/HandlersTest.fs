@@ -12,29 +12,6 @@ open Fable.Import.Jest.Matchers
 
 let toJson =  Json.ofString >> Result.unwrapResult
 
-testList "Read Handler" [
-  let withSetup f () =
-    let getUdevDB = Matcher<unit, JS.Promise<string>>(fun () ->
-      Promise.lift ""
-    )
-
-    let ``end`` = Matcher<string option, unit>()
-
-    promise {
-      do! handleReadEvent' getUdevDB.Mock ``end``.Mock
-
-      f (getUdevDB, ``end``)
-    }
-
-  yield! testFixtureAsync withSetup [
-    "should call getUdevDB", fun (getUdevDB, ``end``) ->
-      expect.Invoke(getUdevDB.Calls).toEqual([|[||]|])
-
-    "should call end", fun (getUdevDB, ``end``) ->
-      ``end`` <?> None
-  ]
-]
-
 testList "Data Handler" [
   let withSetup f ():unit =
     let ``end`` = Matcher<string option, unit>()

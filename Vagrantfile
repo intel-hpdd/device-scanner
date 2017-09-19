@@ -29,5 +29,6 @@ Vagrant.configure("2") do |config|
     cp dist/device-scanner-daemon/systemd-units/* /usr/lib/systemd/system
     systemctl enable device-scanner.socket
     systemctl start device-scanner.socket
+    udevadm trigger --action=change --subsystem-match=block
   SHELL
 end

@@ -11,14 +11,14 @@ let toJson =  Json.ofString >> Result.unwrapResult
 
 let matcher = function
   | InfoEventMatch x -> "infoEvent"
-  | AddEventMatch x -> "addEvent"
+  | AddOrChangeEventMatch x -> "addOrChangeEvent"
   | RemoveEventMatch x -> "removeEvent"
   | _ -> "no match"
 
 test "Matching Events" <| fun () ->
   expect.assertions 4
 
-  matcher addObj === "addEvent"
+  matcher addObj === "addOrChangeEvent"
 
   matcher removeObj === "removeEvent"
 

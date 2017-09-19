@@ -82,6 +82,13 @@ let private matchAction (name:string) (x:Map<string, Json.Json>) =
   |> Option.filter((=) name)
   |> Option.map(fun _ -> x)
 
+let private matchActions (names:string list) (x:Map<string, Json.Json>) =
+  x
+  |> Map.tryFind "ACTION"
+  |> Option.bind str
+  |> Option.filter(fun x -> List.contains x names)
+  |> Option.map(fun _ -> x)
+
 let private findOrFail (key:string) x =
   match Map.tryFind key x with
     | Some(x) -> unwrapString x
@@ -147,10 +154,10 @@ let extractAddEvent x =
     IML_SCSI_83 = parseImlScsi83 x |> trimOpt;
   }
 
-let (|AddEventMatch|_|) x =
+let (|AddOrChangeEventMatch|_|) x =
   x
     |> object
-    |> Option.bind (matchAction "add")
+    |> Option.bind (matchActions ["add"; "change"])
     |> Option.map (extractAddEvent)
 
 let (|RemoveEventMatch|_|) x =

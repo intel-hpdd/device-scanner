@@ -11,8 +11,6 @@
     <Compile Include="IML/DeviceScannerDaemon/TestFixtures.fs" />
     <Compile Include="IML/DeviceScannerDaemon/EventTypes.fs" />
     <Compile Include="IML/DeviceScannerDaemon/EventTypesTest.fs" />
-    <Compile Include="IML/DeviceScannerDaemon/ParseUdevDB.fs" />
-    <Compile Include="IML/DeviceScannerDaemon/ParseUdevDBTest.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Handlers.fs" />
     <Compile Include="IML/DeviceScannerDaemon/HandlersTest.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Server.fs" />

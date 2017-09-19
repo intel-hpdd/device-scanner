@@ -174,12 +174,6 @@ let (|RemoveEventMatch|_|) x =
       }
     )
 
-let (|ReadEventMatch|_|) x =
-  x
-    |> object
-    |> Option.bind (matchAction "read")
-    |> Option.map (fun _ -> { ACTION = "read"; })
-
 let (|InfoEventMatch|_|) x =
   x
     |> object

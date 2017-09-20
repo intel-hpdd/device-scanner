@@ -44,6 +44,7 @@ type AddEvent = {
   IML_SIZE: string option;
   IML_SCSI_80: string option;
   IML_SCSI_83: string option;
+  IML_IS_RO: bool option;
 }
 
 /// The data received from a
@@ -112,6 +113,7 @@ let private parseIdPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER"
 let private parseImlSize = findOrNone "IML_SIZE"
 let private parseImlScsi80 = findOrNone "IML_SCSI_80"
 let private parseImlScsi83 = findOrNone "IML_SCSI_83"
+let private parseImlRo = findOrNone "IML_IS_RO"
 
 let extractAddEvent x =
   let devType =
@@ -135,6 +137,14 @@ let extractAddEvent x =
   let devlinks = parseDevlinks x
   let devname = parseDevName x
 
+  let imlRo =
+    x
+      |> parseImlRo
+      |> Option.map(function
+        | "1" -> true
+        | _ -> false
+      )
+
   let idFsType =
     x
       |> parseIdFsType
@@ -157,6 +167,7 @@ let extractAddEvent x =
     ID_FS_TYPE = idFsType;
     ID_PART_ENTRY_NUMBER = parseIdPartEntryNumber x |> Option.map(int);
     IML_SIZE = parseImlSize x;
+    IML_IS_RO = imlRo;
     IML_SCSI_80 = parseImlScsi80 x |> trimOpt;
     IML_SCSI_83 = parseImlScsi83 x |> trimOpt;
   }

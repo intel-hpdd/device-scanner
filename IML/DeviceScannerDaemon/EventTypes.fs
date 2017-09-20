@@ -40,7 +40,7 @@ type AddEvent = {
   ID_MODEL: string option;
   ID_SERIAL: string option;
   ID_FS_TYPE: string option;
-  ID_PART_ENTRY_NUMBER: string option;
+  ID_PART_ENTRY_NUMBER: int option;
   IML_SIZE: string option;
   IML_SCSI_80: string option;
   IML_SCSI_83: string option;
@@ -135,6 +135,13 @@ let extractAddEvent x =
   let devlinks = parseDevlinks x
   let devname = parseDevName x
 
+  let idFsType =
+    x
+      |> parseIdFsType
+      |> Option.bind(fun x ->
+        if x = "" then None else Some(x)
+      )
+
   {
     ACTION = "add";
     MAJOR = parseMajor x;
@@ -147,8 +154,8 @@ let extractAddEvent x =
     ID_VENDOR = parseIdVendor x;
     ID_MODEL = parseIdModel x;
     ID_SERIAL = parseIdSerial x;
-    ID_FS_TYPE = parseIdFsType x;
-    ID_PART_ENTRY_NUMBER = parseIdPartEntryNumber x;
+    ID_FS_TYPE = idFsType;
+    ID_PART_ENTRY_NUMBER = parseIdPartEntryNumber x |> Option.map(int);
     IML_SIZE = parseImlSize x;
     IML_SCSI_80 = parseImlScsi80 x |> trimOpt;
     IML_SCSI_83 = parseImlScsi83 x |> trimOpt;

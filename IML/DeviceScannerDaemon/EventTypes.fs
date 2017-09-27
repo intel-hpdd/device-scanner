@@ -25,6 +25,9 @@ let (|DiskMatch|_|) (x:string) =
   else
     None
 
+[<Erase>]
+type DevPath = DevPath of string
+
 /// The data received from a
 /// udev block device add event
 type AddEvent = {
@@ -34,7 +37,7 @@ type AddEvent = {
   DEVLINKS: string option;
   PATHS: string array option;
   DEVNAME: string;
-  DEVPATH: string;
+  DEVPATH: DevPath;
   DEVTYPE: DevType;
   ID_VENDOR: string option;
   ID_MODEL: string option;
@@ -52,7 +55,7 @@ type AddEvent = {
 type RemoveEvent = {
   ACTION: string;
   DEVLINKS: string option;
-  DEVPATH: string;
+  DEVPATH: DevPath;
   MAJOR: string;
   MINOR: string;
 }
@@ -106,7 +109,7 @@ let private parseMajor = findOrFail "MAJOR"
 let private parseMinor =  findOrFail "MINOR"
 let private parseDevlinks = findOrNone "DEVLINKS"
 let private parseDevName = findOrFail "DEVNAME"
-let private parseDevPath = findOrFail "DEVPATH"
+let private parseDevPath x = findOrFail "DEVPATH" x |> DevPath
 let private parseIdVendor = findOrNone "ID_VENDOR"
 let private parseIdModel = findOrNone "ID_MODEL"
 let private parseIdSerial = findOrNone "ID_SERIAL"

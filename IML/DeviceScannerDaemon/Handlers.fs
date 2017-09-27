@@ -11,7 +11,7 @@ open System.Collections.Generic
 
 open IML.DeviceScannerDaemon.EventTypes
 
-let private deviceMap = Dictionary<string, AddEvent>()
+let private deviceMap = Dictionary<DevPath, AddEvent>()
 
 let dataHandler' (``end``:string option -> unit) = function
   | InfoEventMatch(_) ->

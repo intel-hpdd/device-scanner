@@ -23,7 +23,7 @@ testList "Data Handler" [
   yield! testFixture withSetup [
     "Should call end with map for info event", fun (``end``, handler) ->
       handler (toJson """{ "ACTION": "info" }""")
-      ``end`` <?> Some("{}")
+      ``end`` <?> Some("{}");
 
     "Should call end for add event", fun (``end``, handler) ->
        handler addObj
@@ -40,7 +40,27 @@ testList "Data Handler" [
       with
         | ex ->
           ``end`` <?> None
-          expect.Invoke(ex.Message).toEqual("Handler got a bad match")
+          expect.Invoke(ex.Message).toEqual("Handler got a bad match");
 
+    "Should remove an item", fun (``end``, handler) ->
+        handler addObj
+
+        handler (toJson """{ "ACTION": "info" }""")
+
+        ``end`` <?> Some("{\"/devices/pci0000:00/0000:00:01.1/ata1/host1/\
+                          target1:0:0/1:0:0:0/block/sdb/sdb1\":\
+                          {\"ACTION\":\"add\",\"MAJOR\":\"8\",\"MINOR\":\"17\",\"DEVLINKS\":\"/dev/disk\
+                          /by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\",\
+                          \"PATHS\":[\"/dev/sdb1\",\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1\",\"/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\"],\
+                          \"DEVNAME\":\"/dev/sdb1\",\"DEVPATH\":\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\",\
+                          \"DEVTYPE\":\"partition\",\"ID_VENDOR\":null,\"ID_MODEL\":\"VBOX_HARDDISK\",\
+                          \"ID_SERIAL\":\"VBOX_HARDDISK_VB304a0a0f-15e93f07\",\"ID_FS_TYPE\":\"LVM2_member\",\
+                          \"ID_PART_ENTRY_NUMBER\":1,\"IML_SIZE\":\"81784832\",\"IML_SCSI_80\":null,\"IML_SCSI_83\":null,\"IML_IS_RO\":null}}")
+
+        handler removeObj
+
+        handler (toJson """{ "ACTION": "info" }""")
+
+        ``end`` <?> Some("{}");
   ]
 ]

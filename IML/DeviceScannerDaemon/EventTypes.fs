@@ -181,7 +181,7 @@ let (|RemoveEventMatch|_|) x =
       {
         ACTION = "remove";
         DEVLINKS = parseDevlinks x;
-        DEVPATH = parseDevName x;
+        DEVPATH = parseDevPath x;
         MAJOR = parseMajor x;
         MINOR = parseMinor x;
       }

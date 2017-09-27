@@ -46,7 +46,7 @@ open Fable.PowerPack
 
     let onData (fn:string -> unit) (c:Stream.Stream) = c.on("data", fn) :?> Net.Socket
 
-    let onError (fn:a' -> unit) (c:Stream.Stream) = c.on("error", fn) :?> Net.Socket
+    let onError (fn:string -> unit) (c:Stream.Stream) = c.on("error", fn) :?> Net.Socket
 
     let connect (x:NetPath) = Net.connect x
 

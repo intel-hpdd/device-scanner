@@ -8,6 +8,19 @@ open IML.DeviceScannerDaemon.EventTypes
 
 let toJson =  Json.ofString >> Result.unwrapResult
 
+let private object a =
+  match a with
+  | Json.Object a -> Some (Map.ofArray a)
+  | _ -> None
+
+let createEventJson (obj:Json.Json) (transformFn:Map<string, Json.Json> -> Map<string, Json.Json>) =
+  obj
+    |> object
+    |> Option.get
+    |> transformFn
+    |> Map.toArray
+    |> Json.Json.Object
+
 let addObj =  toJson """
 {
   "ACTION": "add",
@@ -49,20 +62,6 @@ let addObj =  toJson """
   "IML_IS_RO": "isRo"
 }
 """
-
-
-let private object a =
-  match a with
-  | Json.Object a -> Some (Map.ofArray a)
-  | _ -> None
-
-let createAddEventJson (transformFn:Map<string, Json.Json> -> Map<string, Json.Json>) =
-  addObj
-    |> object
-    |> Option.get
-    |> transformFn
-    |> Map.toArray
-    |> Json.Json.Object
 
 let removeObj = toJson """
 {

@@ -9,6 +9,8 @@ open Fable.PowerPack
 
 let toJson =  Json.ofString >> Result.unwrapResult
 
+let createAddEventJson = createEventJson addObj
+
 let addDiskObj = createAddEventJson (fun x ->
   x
     |> Map.add "DEVTYPE" (Json.Json.String("disk")))

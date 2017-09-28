@@ -4,7 +4,10 @@ module IML.DeviceScannerDaemon.TestFixtures
 open Fable.Core.JsInterop
 open Fable.PowerPack
 
+open IML.DeviceScannerDaemon.EventTypes
+
 let toJson =  Json.ofString >> Result.unwrapResult
+
 let addObj =  toJson """
 {
   "ACTION": "add",
@@ -40,9 +43,26 @@ let addObj =  toJson """
   "SUBSYSTEM": "block",
   "TAGS": ":systemd:",
   "USEC_INITIALIZED": "842",
-  "IML_SIZE": "81784832"
+  "IML_SIZE": "81784832",
+  "IML_SCSI_80": "80",
+  "IML_SCSI_83": "83",
+  "IML_IS_RO": "isRo"
 }
 """
+
+
+let private object a =
+  match a with
+  | Json.Object a -> Some (Map.ofArray a)
+  | _ -> None
+
+let createAddEventJson (transformFn:Map<string, Json.Json> -> Map<string, Json.Json>) =
+  addObj
+    |> object
+    |> Option.get
+    |> transformFn
+    |> Map.toArray
+    |> Json.Json.Object
 
 let removeObj = toJson """
 {

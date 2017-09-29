@@ -56,6 +56,12 @@ type ImlScsi83 = ImlScsi83 of string
 [<Erase>]
 type ImlIsRo = ImlIsRo of bool
 
+let addAction = Action("add")
+let changeAction = Action("change")
+let removeAction = Action("remove")
+let infoAction = Action("info")
+
+
 /// The data received from a
 /// udev block device add event
 type AddEvent = {
@@ -128,17 +134,17 @@ let private findOrFail (key:string) x =
     | Some(x) -> unwrapString x
     | None -> failwith (sprintf "Could not find key %s in %O" key x)
 
-let isOne = Option.map(function
+let private isOne = Option.map(function
   | "1" -> true
   | _ -> false
 )
 
 let private emptyStrToNone x = if x = "" then None else Some(x)
 
-let private trimOpt = Option.map(fun (x:string) -> x.Trim())
-
 let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
+
+let private intToIdPartEntryNumber = Option.map int >> Option.map IdPartEntryNumber
 
 let private parseMajor x = findOrFail "MAJOR" x |> Major
 let private parseMinor x =  findOrFail "MINOR" x |> Minor
@@ -149,7 +155,7 @@ let private parseIdVendor x = findOrNone "ID_VENDOR" x |> Option.map IdVendor
 let private parseIdModel x = findOrNone "ID_MODEL" x |> Option.map IdModel
 let private parseIdSerial x = findOrNone "ID_SERIAL" x |> Option.map IdSerial
 let private parseIdFsType x = findOrNone "ID_FS_TYPE" x |> Option.map IdFsType
-let private parseIdPartEntryNumber x = findOrNone "ID_PART_ENTRY_NUMBER" x |> Option.map int |> Option.map IdPartEntryNumber
+let private parseIdPartEntryNumber x = findOrNone "ID_PART_ENTRY_NUMBER" x |> intToIdPartEntryNumber
 let private parseImlSize x = findOrNone "IML_SIZE" x |> Option.map ImlSize
 let private parseImlScsi80 x = findOrNone "IML_SCSI_80" x |> Option.map ImlScsi80
 let private parseImlScsi83 x = findOrNone "IML_SCSI_83" x |> Option.map ImlScsi83
@@ -178,7 +184,7 @@ let extractAddEvent x =
   let devname = parseDevName x
 
   {
-    ACTION = Action("add");
+    ACTION = addAction;
     MAJOR = parseMajor x;
     MINOR = parseMinor x;
     DEVLINKS = devlinks;
@@ -193,23 +199,23 @@ let extractAddEvent x =
     ID_PART_ENTRY_NUMBER = parseIdPartEntryNumber x
     IML_SIZE = parseImlSize x |> Option.bind(fun (ImlSize(x):ImlSize) -> emptyStrToNone x) |> Option.map ImlSize;
     IML_IS_RO = parseImlRo x
-    IML_SCSI_80 = parseImlScsi80 x |> Option.bind(fun (ImlScsi80(x):ImlScsi80) -> trimOpt(Some(x))) |> Option.map ImlScsi80;
-    IML_SCSI_83 = parseImlScsi83 x |> Option.bind(fun (ImlScsi83(x):ImlScsi83) -> trimOpt(Some(x))) |> Option.map ImlScsi83;
+    IML_SCSI_80 = parseImlScsi80 x |> Option.map(fun (ImlScsi80(x)) -> x.Trim() |> ImlScsi80);
+    IML_SCSI_83 = parseImlScsi83 x |> Option.map(fun (ImlScsi83(x)) -> x.Trim() |> ImlScsi83);
   }
 
 let (|AddOrChangeEventMatch|_|) x =
   x
     |> object
-    |> Option.bind (matchActions [Action("add"); Action("change")])
+    |> Option.bind (matchActions [addAction; changeAction])
     |> Option.map (extractAddEvent)
 
 let (|RemoveEventMatch|_|) x =
   x
     |> object
-    |> Option.bind (matchAction  (Action("remove")))
+    |> Option.bind (matchAction  (removeAction))
     |> Option.map (fun x ->
       {
-        ACTION = Action("remove");
+        ACTION = removeAction;
         DEVLINKS = parseDevlinks x;
         DEVPATH = parseDevPath x;
         MAJOR = parseMajor x;
@@ -220,5 +226,5 @@ let (|RemoveEventMatch|_|) x =
 let (|InfoEventMatch|_|) x =
   x
     |> object
-    |> Option.bind (matchAction (Action("info")))
-    |> Option.map (fun _ -> { ACTION = Action("info"); })
+    |> Option.bind (matchAction (infoAction))
+    |> Option.map (fun _ -> { ACTION = infoAction; })

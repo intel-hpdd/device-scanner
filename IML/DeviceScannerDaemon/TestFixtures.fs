@@ -59,7 +59,7 @@ let addObj =  toJson """
   "IML_SIZE": "81784832",
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
-  "IML_IS_RO": "isRo"
+  "IML_IS_RO": "1"
 }
 """
 

@@ -50,6 +50,8 @@ open Fable.PowerPack
 
     let connect (x:NetPath) = Net.connect x
 
+    let createServer opts serverHandler = Net.createServer(opts, serverHandler)
+
     let execFn cmd (res:Result<ShellSuccess, ShellError> -> unit) (errOpt:ChildProcess.ExecError option) stdout stderr =
         match errOpt with
             | None ->

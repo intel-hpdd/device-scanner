@@ -144,7 +144,7 @@ let private emptyStrToNone x = if x = "" then None else Some(x)
 let private findOrNone key x =
   x |> Map.tryFind key |> Option.bind str
 
-let private intToIdPartEntryNumber = Option.map int >> Option.map IdPartEntryNumber
+let private intToIdPartEntryNumber = Option.map (int >> IdPartEntryNumber)
 
 let private parseMajor x = findOrFail "MAJOR" x |> Major
 let private parseMinor x =  findOrFail "MINOR" x |> Minor

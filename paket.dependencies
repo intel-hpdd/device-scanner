@@ -1,8 +1,8 @@
 source https://nuget.org/api/v2
 storage:none
 
-clitool dotnet-fable
-nuget Fable.Core
+clitool dotnet-fable = 1.2.3
+nuget Fable.Core = 1.2.3
 nuget Fable.Import.Node
 nuget Fable.Import.Browser
 nuget Fable.Import.Jest

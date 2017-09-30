@@ -56,6 +56,15 @@ type ImlScsi83 = ImlScsi83 of string
 [<Erase>]
 type ImlIsRo = ImlIsRo of bool
 
+[<Erase>]
+type DmMultipathDevicePath = DmMultipathDevicePath of bool
+
+[<Erase>]
+type DmLvName = DmLvName of string
+
+[<Erase>]
+type DmVgName = DmVgName of string
+
 let addAction = Action("add")
 let changeAction = Action("change")
 let removeAction = Action("remove")
@@ -82,6 +91,9 @@ type AddEvent = {
   IML_SCSI_80: ImlScsi80 option;
   IML_SCSI_83: ImlScsi83 option;
   IML_IS_RO: ImlIsRo option;
+  DM_MULTIPATH_DEVICE_PATH: DmMultipathDevicePath option;
+  DM_LV_NAME: DmLvName option;
+  DM_VG_NAME: DmVgName option;
 }
 
 /// The data received from a
@@ -134,10 +146,9 @@ let private findOrFail (key:string) x =
     | Some(x) -> unwrapString x
     | None -> failwith (sprintf "Could not find key %s in %O" key x)
 
-let private isOne = Option.map(function
+let private isOne = function
   | "1" -> true
   | _ -> false
-)
 
 let private emptyStrToNone x = if x = "" then None else Some(x)
 
@@ -146,20 +157,30 @@ let private findOrNone key x =
 
 let private intToIdPartEntryNumber = Option.map (int >> IdPartEntryNumber)
 
-let private parseMajor x = findOrFail "MAJOR" x |> Major
-let private parseMinor x =  findOrFail "MINOR" x |> Minor
-let private parseDevlinks x = findOrNone "DEVLINKS" x |> Option.map DevLinks
-let private parseDevName x = findOrFail "DEVNAME" x |> Path
-let private parseDevPath x = findOrFail "DEVPATH" x |> DevPath
-let private parseIdVendor x = findOrNone "ID_VENDOR" x |> Option.map IdVendor
-let private parseIdModel x = findOrNone "ID_MODEL" x |> Option.map IdModel
-let private parseIdSerial x = findOrNone "ID_SERIAL" x |> Option.map IdSerial
-let private parseIdFsType x = findOrNone "ID_FS_TYPE" x |> Option.map IdFsType
-let private parseIdPartEntryNumber x = findOrNone "ID_PART_ENTRY_NUMBER" x |> intToIdPartEntryNumber
-let private parseImlSize x = findOrNone "IML_SIZE" x |> Option.map ImlSize
-let private parseImlScsi80 x = findOrNone "IML_SCSI_80" x |> Option.map ImlScsi80
-let private parseImlScsi83 x = findOrNone "IML_SCSI_83" x |> Option.map ImlScsi83
-let private parseImlRo x = findOrNone "IML_IS_RO" x |> isOne |> Option.map ImlIsRo
+let private parseMajor = findOrFail "MAJOR" >> Major
+let private parseMinor =  findOrFail "MINOR" >> Minor
+let private parseDevlinks = findOrNone "DEVLINKS" >> Option.map DevLinks
+let private parseDevName = findOrFail "DEVNAME" >> Path
+let private parseDevPath = findOrFail "DEVPATH" >> DevPath
+let private parseIdVendor = findOrNone "ID_VENDOR" >> Option.map IdVendor
+let private parseIdModel = findOrNone "ID_MODEL" >> Option.map IdModel
+let private parseIdSerial = findOrNone "ID_SERIAL" >> Option.map IdSerial
+let private parseIdFsType = findOrNone "ID_FS_TYPE" >> Option.map IdFsType
+let private parseIdPartEntryNumber = findOrNone "ID_PART_ENTRY_NUMBER" >> intToIdPartEntryNumber
+let private parseImlSize = findOrNone "IML_SIZE" >> Option.map ImlSize
+let private parseImlScsi80 = findOrNone "IML_SCSI_80" >> Option.map ImlScsi80
+let private parseImlScsi83 = findOrNone "IML_SCSI_83" >> Option.map ImlScsi83
+let private parseImlRo =
+  findOrNone "IML_IS_RO"
+  >> Option.map(isOne >> ImlIsRo)
+
+let private parseDmMultipathDevicePath =
+  findOrNone "DM_MULTIPATH_DEVICE_PATH"
+  >> Option.map(isOne >> DmMultipathDevicePath)
+
+let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
+
+let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 
 let extractAddEvent x =
   let devType =
@@ -201,6 +222,9 @@ let extractAddEvent x =
     IML_IS_RO = parseImlRo x
     IML_SCSI_80 = parseImlScsi80 x |> Option.map(fun (ImlScsi80(x)) -> x.Trim() |> ImlScsi80);
     IML_SCSI_83 = parseImlScsi83 x |> Option.map(fun (ImlScsi83(x)) -> x.Trim() |> ImlScsi83);
+    DM_MULTIPATH_DEVICE_PATH = parseDmMultipathDevicePath x;
+    DM_LV_NAME = parseDmLvName x;
+    DM_VG_NAME = parseDmVgName x;
   }
 
 let (|AddOrChangeEventMatch|_|) x =

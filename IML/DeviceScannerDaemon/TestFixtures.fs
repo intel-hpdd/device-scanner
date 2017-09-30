@@ -59,7 +59,10 @@ let addObj =  toJson """
   "IML_SIZE": "81784832",
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
-  "IML_IS_RO": "1"
+  "IML_IS_RO": "1",
+  "DM_MULTIPATH_DEVICE_PATH": "1",
+  "DM_LV_NAME": "swap",
+  "DM_VG_NAME": "centos"
 }
 """
 

@@ -51,7 +51,7 @@ let rec private getNextMatch (buff:string) (callback:Error option -> 'a option -
 
       getNextMatch b callback (turn + 1) parser
 
-let getStream (parser:Parsers) () =
+let getStream (parser:'a) () =
   let mutable buff = ""
 
   let opts = createEmpty<Stream.TransformBufferOptions>

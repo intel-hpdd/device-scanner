@@ -1,5 +1,6 @@
 module IML.DeviceScannerDaemon.ServerTest
 
+open IML.DeviceScannerDaemon.Handlers
 open IML.DeviceScannerDaemon.Server
 open IML.DeviceScannerDaemon.TestFixtures
 open Fable.Import.Node
@@ -12,7 +13,7 @@ open Fable.Import.Jest.Matchers
 
 let toJson =  Json.ofString >> Result.unwrapResult
 
-testList "Read Handler" [
+testList "Server Handler" [
   let withSetup f () =
     let getUdevDB = Matcher<unit, JS.Promise<string>>(fun () ->
       Promise.lift ""

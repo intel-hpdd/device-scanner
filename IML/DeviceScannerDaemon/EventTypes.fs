@@ -65,6 +65,8 @@ type DmLvName = DmLvName of string
 [<Erase>]
 type DmVgName = DmVgName of string
 
+[<Erase>]
+type DmUuid = DmUuid of string
 let addAction = Action("add")
 let changeAction = Action("change")
 let removeAction = Action("remove")
@@ -94,6 +96,7 @@ type AddEvent = {
   DM_MULTIPATH_DEVICE_PATH: DmMultipathDevicePath option;
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
+  DM_UUID: DmUuid option;
 }
 
 /// The data received from a
@@ -182,6 +185,7 @@ let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
 
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 
+let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
 let extractAddEvent x =
   let devType =
     x

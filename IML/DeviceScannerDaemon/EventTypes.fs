@@ -67,6 +67,10 @@ type DmVgName = DmVgName of string
 
 [<Erase>]
 type DmUuid = DmUuid of string
+
+[<Erase>]
+type DmSetupLine = DmSetupLine of string
+
 let addAction = Action("add")
 let changeAction = Action("change")
 let removeAction = Action("remove")
@@ -97,6 +101,7 @@ type AddEvent = {
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
+  DM_SETUP_LINE: DmSetupLine option;
 }
 
 /// The data received from a
@@ -186,6 +191,7 @@ let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
+
 let extractAddEvent x =
   let devType =
     x
@@ -195,6 +201,15 @@ let extractAddEvent x =
         | PartitionMatch (x) -> x
         | DiskMatch (x) -> x
         | _ -> failwith "DEVTYPE neither partition or disk"
+
+  let parentmm =
+    x
+      |> Map.find "DM_SETUP_LINE"
+      |> unwrapString
+      |> function
+        | LinearMatch (x.Split(' ')[2]) -> Some(x.Split(' ')[3])
+        | StripedMatch (x.Split(' ')[2]) -> Some(x.Split(' ')[3])
+        | _ -> None
 
   let paths (name:Path) = function
     | Some(DevLinks(links):DevLinks) ->
@@ -229,6 +244,8 @@ let extractAddEvent x =
     DM_MULTIPATH_DEVICE_PATH = parseDmMultipathDevicePath x;
     DM_LV_NAME = parseDmLvName x;
     DM_VG_NAME = parseDmVgName x;
+    DM_UUID = parseDmUuid x;
+    DM_PARENT_MM = parentmm;
   }
 
 let (|AddOrChangeEventMatch|_|) x =

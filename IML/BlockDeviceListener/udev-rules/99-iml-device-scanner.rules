@@ -10,6 +10,9 @@ ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x80 -d $devnode", RESULT
 # Get scsi_id page 83 info. This is *only* needed to keep compat with existing IML installs.
 ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x83 -d $devnode", RESULT=="?*", ENV{IML_SCSI_83}="$result"
 
+# Get dmsetup info. This is *only* needed to keep compat with existing IML installs.
+ACTION=="add|change", PROGRAM="/usr/sbin/dmsetup table -j $major -m $minor", RESULT=="?*", ENV{DM_SETUP_LINE}="$result"
+
 # Get ro state whenever there is an add or change on the device
 ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", ENV{IML_IS_RO}="$result"
 

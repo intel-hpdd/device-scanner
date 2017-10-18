@@ -69,7 +69,7 @@ type DmVgName = DmVgName of string
 type DmUuid = DmUuid of string
 
 [<Erase>]
-type DmSetupLine = DmSetupLine of string
+type DmTargetMms = DmTargetMms of string list
 
 let addAction = Action("add")
 let changeAction = Action("change")
@@ -77,7 +77,7 @@ let removeAction = Action("remove")
 let infoAction = Action("info")
 
 
-/// The data received from a
+/// The data emitted after processing a
 /// udev block device add event
 type AddEvent = {
   ACTION: Action;
@@ -101,7 +101,7 @@ type AddEvent = {
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
-  DM_SETUP_LINE: DmSetupLine option;
+  DM_TARGET_MMS: DmTargetMms option;
 }
 
 /// The data received from a
@@ -192,6 +192,10 @@ let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
 
+let private parseDmTargetMms =
+  findOrNone "DM_STATUS_LINE"
+  >> Option.map((fun x -> x.Split(' ') |> Array.item 3) >> (fun x -> [x]) >> DmTargetMms)
+
 let extractAddEvent x =
   let devType =
     x
@@ -201,15 +205,6 @@ let extractAddEvent x =
         | PartitionMatch (x) -> x
         | DiskMatch (x) -> x
         | _ -> failwith "DEVTYPE neither partition or disk"
-
-  let parentmm =
-    x
-      |> Map.find "DM_SETUP_LINE"
-      |> unwrapString
-      |> function
-        | LinearMatch (x.Split(' ')[2]) -> Some(x.Split(' ')[3])
-        | StripedMatch (x.Split(' ')[2]) -> Some(x.Split(' ')[3])
-        | _ -> None
 
   let paths (name:Path) = function
     | Some(DevLinks(links):DevLinks) ->
@@ -245,7 +240,7 @@ let extractAddEvent x =
     DM_LV_NAME = parseDmLvName x;
     DM_VG_NAME = parseDmVgName x;
     DM_UUID = parseDmUuid x;
-    DM_PARENT_MM = parentmm;
+    DM_TARGET_MMS = parseDmTargetMms x;
   }
 
 let (|AddOrChangeEventMatch|_|) x =

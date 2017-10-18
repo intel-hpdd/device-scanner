@@ -1,14 +1,23 @@
 language: csharp
-sudo: false
 dist: trusty
-dotnet: 1.0.3
-mono: none
+dotnet: 2.0.0
+mono: latest
 before_script:
-  - nvm install 6
-  - npm install -g yarn
-cache: yarn
+- nvm install 8
+- npm install -g codecov
 script:
-  - yarn
-  - yarn run restore
-  - yarn run test
-
+- npm i
+- npm run restore
+- npm run test
+after_success:
+  - codecov
+before_deploy: dotnet fable npm-run build
+deploy:
+  skip_cleanup: true
+  provider: npm
+  email: joe.grund@intel.com
+  api_key:
+    secure: yYNI6QcA2dVgw+O6MoSyi9dJkhsgHhqXLCTzOFsaEFvkiWhihC1MFKuQMrGPcMhlaCaRqJl3MeXbUcfJvKvcloG/+i2rJlqVB5fNvHN6vWLquQZAlKCHErspym5DXGWEwBUV+DyVzb8o0aI4yGSOYZTBexQIUiTQabhzq9+WDU6BMD1iCY0TORgbpruOIgejsUYrosVhwLDSpiwjl3Hfaf4bHUbsch9th6BO/fB9iTiUKPVRVI+S9U7//AKVXoTRQYG1ZfsDparOiGGqIW+hXoNnXTqJvGm6bTGks1QoG6UaDKS81stSDtuGRgqzEn6UnJ2vLS3qsNMThW8EzCgR7gb0G+I8dzYQlF0YJMnwnz5mjHscI8qRtsWODoYU1jox5zNfEhQFkJ8wvk6YK4cgahkKF/hCXnKydfRCtCbdetIrt/JH2Wx/rdjBxi7nA2Ae03TlfB6RI2DMjcXeBOYCj2aTl8BDAqpcASB6kUFp9H6YR7odfnSUlmeVe2UFIhYFLFU4oUfdrTF/QZkenvhmj2fhS77jCT4lS6+fMsYGEwMODs66e9K7W+raBBpIT81sH0pzY3KUx7xAEfnNwuPimfb2AABnrSMgdxTw+CvyNjWZVxndArG9xX28getB7HwUkpx86P7mG2qjtqmVh9A33JAGOmkfkonxH4WrMMYMsTI=
+  on:
+    tags: true
+    repo: intel-hpdd/device-scanner

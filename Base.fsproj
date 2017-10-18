@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="IML/NodeHelpers.fs" />
+    <Compile Include="IML/BlockDeviceListener/Listener.fs" />
+    <Compile Include="IML/BlockDeviceListener/ListenerTest.fs" />
+    <Compile Include="IML/LineDelimitedJsonStream/Stream.fs" />
+    <Compile Include="IML/LineDelimitedJsonStream/StreamTest.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/EventTypes.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/TestFixtures.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/EventTypesTest.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/Handlers.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/HandlersTest.fs" />
+    <Compile Include="IML/DeviceScannerDaemon/Server.fs" />
+  </ItemGroup>
+  <Import Project=".paket\Paket.Restore.targets" />
+</Project>

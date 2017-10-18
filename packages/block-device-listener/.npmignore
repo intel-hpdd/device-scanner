@@ -1,7 +1,0 @@
-*.log
-*.fsproj
-obj
-bin
-test
-lib
-

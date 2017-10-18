@@ -8,3 +8,6 @@ dist
 obj
 bin
 tmp
+packages
+out
+paket-files/paket.locked

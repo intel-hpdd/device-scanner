@@ -1,0 +1,11 @@
+[Unit]
+Description=IML Device Scanner Daemon
+RefuseManualStart=true
+DefaultDependencies=false
+
+[Service]
+Restart=always
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /usr/lib64/iml-device-scanner-daemon/device-scanner-daemon
+StandardOutput=journal+console
+StandardError=journal+console

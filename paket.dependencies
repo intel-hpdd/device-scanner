@@ -1,0 +1,9 @@
+source https://nuget.org/api/v2
+storage:none
+
+clitool dotnet-fable
+nuget Fable.Core
+nuget Fable.Import.Node
+nuget Fable.Import.Browser
+nuget Fable.Import.Jest
+nuget Fable.PowerPack

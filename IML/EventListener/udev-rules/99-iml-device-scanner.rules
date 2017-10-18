@@ -23,6 +23,6 @@ ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", E
 ACTION=="add|change", ENV{IML_SIZE}="$attr{size}"
 
 # Sync up the device-scanner-daemon on add or remove of block device
-ACTION=="add|remove|change", RUN+="/lib/udev/block-device-listener"
+ACTION=="add|remove|change", RUN+="/lib/udev/event-listener"
 
 LABEL="iml_device_scanner_end"

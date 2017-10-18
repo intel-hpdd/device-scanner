@@ -8,13 +8,13 @@ There are two main modes to this daemon:
 
 1. Processing new incoming events. In this mode we will munge and store incoming events.
 
-2. Send current devices object listing. In this mode we will send our current stored devices.
+2. Send current devices object listing. In this mode we will send our current stored info.
 
 We use unix domain sockets to communicate with the outside world.
 
-Consumers can send a Request over the socket to retrieve the current listing:
+Consumers can send a JSON Request over the socket to retrieve the current listing:
 
-`"Info"`
+`{ "ACTION": "info" }`
 
 
 ## Architecture

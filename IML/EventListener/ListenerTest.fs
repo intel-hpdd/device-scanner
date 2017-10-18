@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.BlockDeviceListener.ListenerTest
+module IML.EventListener.ListenerTest
 
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers

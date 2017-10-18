@@ -11,11 +11,11 @@
     "jest": "jest --coverage",
     "test": "dotnet fable npm-run jest",
     "restore": "dotnet restore",
-    "buildBlockDeviceListener": "rollup -c IML/BlockDeviceListener/rollup-config.js",
-    "postbuildBlockDeviceListener": "cp-cli IML/BlockDeviceListener/udev-rules dist/block-device-listener",
+    "buildEventListener": "rollup -c IML/EventListener/rollup-config.js",
+    "postbuildEventListener": "cp-cli IML/EventListener/udev-rules dist/event-listener",
     "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
     "postbuildDeviceScannerDaemon": "cp-cli IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "build": "del-cli ./dist/**; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
+    "build": "del-cli ./dist/**; sendProjFile; npm run buildEventListener & npm run buildDeviceScannerDaemon"
   },
   "pre-commit": [
     "test"

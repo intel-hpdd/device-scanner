@@ -1,0 +1,57 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Matching Events 1`] = `
+ZfsPool {
+  "DATASETS": Map {},
+  "NAME": "testPool1",
+  "PATH": "testPool1",
+  "STATE_STR": "ACTIVE",
+  "UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 2`] = `
+ZfsPool {
+  "DATASETS": Map {},
+  "NAME": "testPool1",
+  "PATH": "testPool1",
+  "STATE_STR": "DESTROYED",
+  "UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 3`] = `
+ZfsPool {
+  "DATASETS": Map {},
+  "NAME": "testPool1",
+  "PATH": "testPool1",
+  "STATE_STR": "EXPORTED",
+  "UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 4`] = `
+ZfsPool {
+  "DATASETS": Map {},
+  "NAME": "testPool1",
+  "PATH": "testPool1",
+  "STATE_STR": "ACTIVE",
+  "UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 5`] = `
+ZfsDataset {
+  "DATASET_NAME": "testPool1/home",
+  "DATASET_UID": "testPool1/home",
+  "POOL_UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 6`] = `
+ZfsDataset {
+  "DATASET_NAME": "testPool1/home",
+  "DATASET_UID": "testPool1/home",
+  "POOL_UID": "0x2D28F440E514007F",
+}
+`;

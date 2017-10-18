@@ -1,10 +1,10 @@
 import baseConfig from '../../base-rollup-config.js';
 
 export default Object.assign({}, baseConfig, {
-  input: 'IML/BlockDeviceListener/Listener.fs',
+  input: 'IML/EventListener/Listener.fs',
   external: ['net'],
   output: {
-    file: './dist/block-device-listener/block-device-listener',
+    file: './dist/event-listener/event-listener',
     format: 'cjs'
   }
 });

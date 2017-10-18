@@ -27,15 +27,23 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     yum install -y epel-release
     yum install -y nodejs socat jq
+    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
+    yum install -y zfs
     cd /vagrant
     mkdir -p /usr/lib64/iml-device-scanner-daemon
     cp dist/device-scanner-daemon/device-scanner-daemon /usr/lib64/iml-device-scanner-daemon
-    cp dist/block-device-listener/block-device-listener /lib/udev
-    chmod 777 /lib/udev/block-device-listener
-    cp dist/block-device-listener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
-    cp dist/device-scanner-daemon/systemd-units/* /usr/lib/systemd/system
+    cp dist/event-listener/event-listener /lib/udev
+    chmod 777 /lib/udev/event-listener
+    cp dist/event-listener/event-listener /usr/libexec/zfs/zed.d/generic-listener.sh
+    chmod 755 /usr/libexec/zfs/zed.d/generic-listener.sh
+    ln -s /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/all_event-listener.sh
+    cp dist/event-listener/IML/EventListener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
+    cp dist/device-scanner-daemon/IML/DeviceScannerDaemon/systemd-units/* /usr/lib/systemd/system
     systemctl enable device-scanner.socket
     systemctl start device-scanner.socket
     udevadm trigger --action=change --subsystem-match=block
+    /sbin/modprobe zfs
+    systemctl enable zfs-zed.service
+    systemctl start zfs-zed.service
   SHELL
 end

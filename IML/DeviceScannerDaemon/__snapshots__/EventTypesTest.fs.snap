@@ -1,0 +1,116 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Matching Events 1`] = `
+AddEvent {
+  "ACTION": "add",
+  "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  "DEVNAME": "/dev/sdb1",
+  "DEVPATH": "/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1",
+  "DEVTYPE": "partition",
+  "DM_LV_NAME": "swap",
+  "DM_MULTIPATH_DEVICE_PATH": true,
+  "DM_SLAVE_MMS": Array [
+    "252:2",
+  ],
+  "DM_UUID": "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz",
+  "DM_VG_NAME": "centos",
+  "ID_FS_TYPE": "LVM2_member",
+  "ID_MODEL": "VBOX_HARDDISK",
+  "ID_PART_ENTRY_NUMBER": 1,
+  "ID_SERIAL": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
+  "ID_VENDOR": null,
+  "IML_IS_RO": true,
+  "IML_SCSI_80": "80",
+  "IML_SCSI_83": "83",
+  "IML_SIZE": "81784832",
+  "MAJOR": "8",
+  "MINOR": "17",
+  "PATHS": Array [
+    "/dev/sdb1",
+    "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1",
+    "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  ],
+}
+`;
+
+exports[`Matching Events 2`] = `
+AddEvent {
+  "ACTION": "add",
+  "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  "DEVNAME": "/dev/sdb1",
+  "DEVPATH": "/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1",
+  "DEVTYPE": "disk",
+  "DM_LV_NAME": "swap",
+  "DM_MULTIPATH_DEVICE_PATH": true,
+  "DM_SLAVE_MMS": Array [
+    "252:2",
+  ],
+  "DM_UUID": "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz",
+  "DM_VG_NAME": "centos",
+  "ID_FS_TYPE": "LVM2_member",
+  "ID_MODEL": "VBOX_HARDDISK",
+  "ID_PART_ENTRY_NUMBER": 1,
+  "ID_SERIAL": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
+  "ID_VENDOR": null,
+  "IML_IS_RO": true,
+  "IML_SCSI_80": "80",
+  "IML_SCSI_83": "83",
+  "IML_SIZE": "81784832",
+  "MAJOR": "8",
+  "MINOR": "17",
+  "PATHS": Array [
+    "/dev/sdb1",
+    "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1",
+    "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  ],
+}
+`;
+
+exports[`Matching Events 3`] = `
+AddEvent {
+  "ACTION": "add",
+  "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  "DEVNAME": "/dev/sdb1",
+  "DEVPATH": "/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1",
+  "DEVTYPE": "disk",
+  "DM_LV_NAME": "swap",
+  "DM_MULTIPATH_DEVICE_PATH": true,
+  "DM_SLAVE_MMS": Array [
+    "252:1",
+  ],
+  "DM_UUID": "LVM-ABCD-1234-ABCD-1234",
+  "DM_VG_NAME": "centos",
+  "ID_FS_TYPE": "LVM2_member",
+  "ID_MODEL": "VBOX_HARDDISK",
+  "ID_PART_ENTRY_NUMBER": 1,
+  "ID_SERIAL": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
+  "ID_VENDOR": null,
+  "IML_IS_RO": true,
+  "IML_SCSI_80": "80",
+  "IML_SCSI_83": "83",
+  "IML_SIZE": "81784832",
+  "MAJOR": "8",
+  "MINOR": "17",
+  "PATHS": Array [
+    "/dev/sdb1",
+    "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1",
+    "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  ],
+}
+`;
+
+exports[`Matching Events 4`] = `
+RemoveEvent {
+  "ACTION": "remove",
+  "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+  "DEVPATH": "/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1",
+  "MAJOR": "8",
+  "MINOR": "17",
+}
+`;
+
+exports[`Matching Events 5`] = `
+SimpleEvent {
+  "ACTION": "info",
+}
+`;

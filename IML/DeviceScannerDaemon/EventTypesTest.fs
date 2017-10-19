@@ -15,6 +15,12 @@ let addDiskObj = createAddEventJson (fun x ->
   x
     |> Map.add "DEVTYPE" (Json.Json.String("disk")))
 
+let addDmDiskObj = createAddEventJson (fun x ->
+  x
+    |> Map.add "DEVTYPE" (Json.Json.String("disk"))
+    |> Map.add "DM_UUID" (Json.Json.String("LVM-ABCD-1234-ABCD-1234"))
+    |> Map.add "DM_SLAVE_MMS" (Json.Json.String("252:1")))
+
 let addInvalidDevTypeObj = createAddEventJson (fun x ->
   x
     |> Map.add "DEVTYPE" (Json.Json.String("invalid")))
@@ -39,6 +45,8 @@ test "Matching Events" <| fun () ->
   matcher addObj === "addOrChangeEvent"
 
   matcher addDiskObj === "addOrChangeEvent"
+
+  matcher addDmDiskObj === "addOrChangeEvent"
 
   matcher removeObj === "removeEvent"
 

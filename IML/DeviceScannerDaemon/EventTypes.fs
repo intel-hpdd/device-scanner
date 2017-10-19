@@ -69,7 +69,7 @@ type DmVgName = DmVgName of string
 type DmUuid = DmUuid of string
 
 [<Erase>]
-type DmTargetMms = DmTargetMms of string list
+type DmTargetMm = DmTargetMm of string
 
 let addAction = Action("add")
 let changeAction = Action("change")
@@ -101,7 +101,7 @@ type AddEvent = {
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
-  DM_TARGET_MMS: DmTargetMms option;
+  DM_TARGET_MMS: DmTargetMm list option;
 }
 
 /// The data received from a
@@ -181,20 +181,17 @@ let private parseImlScsi83 = findOrNone "IML_SCSI_83" >> Option.map ImlScsi83
 let private parseImlRo =
   findOrNone "IML_IS_RO"
   >> Option.map(isOne >> ImlIsRo)
-
 let private parseDmMultipathDevicePath =
   findOrNone "DM_MULTIPATH_DEVICE_PATH"
   >> Option.map(isOne >> DmMultipathDevicePath)
-
 let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
-
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
-
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
-
 let private parseDmTargetMms =
   findOrNone "DM_STATUS_LINE"
-  >> Option.map((fun x -> x.Split(' ') |> Array.item 3) >> (fun x -> [x]) >> DmTargetMms)
+    >> Option.map(
+      (fun x -> x.Split(' ')) >> Array.item 3 >> DmTargetMm >> (fun x -> [x])
+    )
 
 let extractAddEvent x =
   let devType =

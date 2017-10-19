@@ -64,7 +64,7 @@ type DmVgName = DmVgName of string
 [<Erase>]
 type DmUuid = DmUuid of string
 [<Erase>]
-type DmSlaveMms = DmSlaveMms of string
+type DmSlaveMm = DmSlaveMm of string
 
 let addAction = Action("add")
 let changeAction = Action("change")
@@ -96,7 +96,7 @@ type AddEvent = {
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
-  DM_SLAVE_MMS: DmSlaveMms option;
+  DM_SLAVE_MMS: DmSlaveMm [] option;
 }
 
 /// The data received from a
@@ -182,7 +182,10 @@ let private parseDmMultipathDevicePath =
 let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
-let private parseDmSlaveMms = findOrNone "DM_SLAVE_MMS" >> Option.map DmSlaveMms
+let private parseDmSlaveMms =
+  findOrNone "DM_SLAVE_MMS"
+    >> Option.map(fun x -> x.Split('\n'))
+    >> Option.map(Array.map(fun x -> x.Trim() |> DmSlaveMm))
 
 let extractAddEvent x =
   let devType =

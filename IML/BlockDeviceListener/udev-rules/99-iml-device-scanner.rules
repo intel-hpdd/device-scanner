@@ -11,16 +11,17 @@ ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x80 -d $devnode", RESULT
 ACTION=="add|change", PROGRAM="/lib/udev/scsi_id -g -p 0x83 -d $devnode", RESULT=="?*", ENV{IML_SCSI_83}="$result"
 
 # Get target Major-minors for each dm slave (previously retrieved from dmsetup table)
-ACTION=="add|change", ENV{DM_UUID}=="?*", PROGRAM="/bin/bash -c 'for l in `ls /sys%p/slaves`; do cat /sys%p/slaves/$l/dev; done'", RESULT=="?*", ENV{DM_SLAVE_MMS}="$result"
+ACTION=="add|change", ENV{DM_UUID}=="?*", PROGRAM="/bin/bash -c 'for l in `ls /sys%p/slaves`; do cat /sys%p/slaves/$l/dev; done'", RESULT=="?*", ENV{IML_DM_SLAVE_MMS}="$result"
 
 # Get vgs size (not readily available from other udev output)
-ACTION=="add|change", ENV{DM_UUID}=="?*", PROGRAM="/usr/sbin/vgs --no-headings --units b -o size $env{DM_VG_NAME}", RESULT=="?*", ENV{DM_VG_SIZE}="$result"
+ACTION=="add|change", ENV{DM_UUID}=="?*", PROGRAM="/usr/sbin/vgs --no-headings --units b -o size $env{DM_VG_NAME}", RESULT=="?*", ENV{IML_DM_VG_SIZE}="$result"
 
 # Get ro state whenever there is an add or change on the device
 ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", ENV{IML_IS_RO}="$result"
 
 # Read size from /sys and add it to the device
 ACTION=="add|change", ENV{IML_SIZE}="$attr{size}"
+
 # Sync up the device-scanner-daemon on add or remove of block device
 ACTION=="add|remove|change", RUN+="/lib/udev/block-device-listener"
 

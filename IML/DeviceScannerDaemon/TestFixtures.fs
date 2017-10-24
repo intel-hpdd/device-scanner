@@ -64,7 +64,8 @@ let addObj =  toJson """
   "DM_LV_NAME": "swap",
   "DM_VG_NAME": "centos",
   "DM_UUID": "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz",
-  "DM_SLAVE_MMS": "252:2"
+  "DM_SLAVE_MMS": "252:2",
+  "DM_VG_SIZE": " 20946354176B"
 }
 """
 

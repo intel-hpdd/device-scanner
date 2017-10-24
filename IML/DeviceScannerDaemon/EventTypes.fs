@@ -65,6 +65,8 @@ type DmVgName = DmVgName of string
 type DmUuid = DmUuid of string
 [<Erase>]
 type DmSlaveMm = DmSlaveMm of string
+[<Erase>]
+type DmVgSize = DmVgSize of string
 
 let addAction = Action("add")
 let changeAction = Action("change")
@@ -97,6 +99,7 @@ type AddEvent = {
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
   DM_SLAVE_MMS: DmSlaveMm [] option;
+  DM_VG_SIZE: DmVgSize option;
 }
 
 /// The data received from a
@@ -186,6 +189,7 @@ let private parseDmSlaveMms =
   findOrNone "DM_SLAVE_MMS"
     >> Option.map(fun x -> x.Split('\n'))
     >> Option.map(Array.map(fun x -> x.Trim() |> DmSlaveMm))
+let private parseDmVgSize = findOrNone "DM_VG_SIZE" >> Option.map DmVgSize
 
 let extractAddEvent x =
   let devType =
@@ -232,6 +236,7 @@ let extractAddEvent x =
     DM_VG_NAME = parseDmVgName x;
     DM_UUID = parseDmUuid x;
     DM_SLAVE_MMS = parseDmSlaveMms x;
+    DM_VG_SIZE = parseDmVgSize x;
   }
 
 let (|AddOrChangeEventMatch|_|) x =

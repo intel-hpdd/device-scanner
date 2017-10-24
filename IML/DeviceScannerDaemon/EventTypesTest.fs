@@ -17,8 +17,9 @@ let addDiskObj = createAddEventJson (fun x ->
 let addDmDiskObj = createAddEventJson (fun x ->
   x
     |> Map.add "DEVTYPE" (Json.String("disk"))
-    |> Map.add "DM_UUID" (Json.String("LVM-ABCD-1234-ABCD-1234"))
-    |> Map.add "DM_SLAVE_MMS" (Json.String("252:1")))
+    |> Map.add "DM_UUID" (Json.String("LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D"))
+    |> Map.add "IML_DM_SLAVE_MMS" (Json.String("8:16 8:32"))
+    |> Map.add "IML_DM_VG_SIZE" (Json.String("  21466447872B")))
 
 let addInvalidDevTypeObj = createAddEventJson (fun x ->
   x
@@ -54,7 +55,6 @@ test "Matching Events" <| fun () ->
   expect.Invoke(addMatch addDmDiskObj).toMatchSnapshot()
 
   expect.Invoke(removeMatch removeObj).toMatchSnapshot()
-  //matcher removeObj === "removeEvent"
 
   expect.Invoke(infoMatch (toJson """{ "ACTION": "info" }""")).toMatchSnapshot()
 

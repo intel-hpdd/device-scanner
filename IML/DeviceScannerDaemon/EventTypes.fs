@@ -94,12 +94,12 @@ type AddEvent = {
   IML_SCSI_80: ImlScsi80 option;
   IML_SCSI_83: ImlScsi83 option;
   IML_IS_RO: ImlIsRo option;
+  IML_DM_SLAVE_MMS: DmSlaveMm [] option;
+  IML_DM_VG_SIZE: DmVgSize option;
   DM_MULTIPATH_DEVICE_PATH: DmMultipathDevicePath option;
   DM_LV_NAME: DmLvName option;
   DM_VG_NAME: DmVgName option;
   DM_UUID: DmUuid option;
-  DM_SLAVE_MMS: DmSlaveMm [] option;
-  DM_VG_SIZE: DmVgSize option;
 }
 
 /// The data received from a
@@ -179,17 +179,19 @@ let private parseImlScsi83 = findOrNone "IML_SCSI_83" >> Option.map ImlScsi83
 let private parseImlRo =
   findOrNone "IML_IS_RO"
   >> Option.map(isOne >> ImlIsRo)
+let private parseDmSlaveMms =
+  findOrNone "IML_DM_SLAVE_MMS"
+    >> Option.map(fun x -> x.Split(' '))
+    >> Option.map(Array.map(fun x -> x.Trim() |> DmSlaveMm))
+let private parseDmVgSize = 
+  findOrNone "IML_DM_VG_SIZE" 
+  >> Option.map(fun x -> x.Trim() |> DmVgSize)
 let private parseDmMultipathDevicePath =
   findOrNone "DM_MULTIPATH_DEVICE_PATH"
   >> Option.map(isOne >> DmMultipathDevicePath)
 let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
-let private parseDmSlaveMms =
-  findOrNone "DM_SLAVE_MMS"
-    >> Option.map(fun x -> x.Split('\n'))
-    >> Option.map(Array.map(fun x -> x.Trim() |> DmSlaveMm))
-let private parseDmVgSize = findOrNone "DM_VG_SIZE" >> Option.map DmVgSize
 
 let extractAddEvent x =
   let devType =
@@ -231,12 +233,12 @@ let extractAddEvent x =
     IML_IS_RO = parseImlRo x
     IML_SCSI_80 = parseImlScsi80 x |> Option.map(fun (ImlScsi80(x)) -> x.Trim() |> ImlScsi80);
     IML_SCSI_83 = parseImlScsi83 x |> Option.map(fun (ImlScsi83(x)) -> x.Trim() |> ImlScsi83);
+    IML_DM_SLAVE_MMS = parseDmSlaveMms x;
+    IML_DM_VG_SIZE = parseDmVgSize x;
     DM_MULTIPATH_DEVICE_PATH = parseDmMultipathDevicePath x;
     DM_LV_NAME = parseDmLvName x;
     DM_VG_NAME = parseDmVgName x;
     DM_UUID = parseDmUuid x;
-    DM_SLAVE_MMS = parseDmSlaveMms x;
-    DM_VG_SIZE = parseDmVgSize x;
   }
 
 let (|AddOrChangeEventMatch|_|) x =

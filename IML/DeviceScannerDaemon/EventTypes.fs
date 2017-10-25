@@ -11,12 +11,6 @@ open Fable.Core
 module StringUtils =
     let split (x:char []) (s:string) = s.Split(x)
     let trim (y:string) = y.Trim()
-  
-let testVar = "something separated "
-let testResult = StringUtils.split (" ".ToCharArray()) testVar
-let testResult2 = StringUtils.trim testVar
-printfn "resultStrip: %s" (testResult.ToString())
-printfn "resultTrim: %s" testResult2
 
 [<StringEnum>]
 type DevType =
@@ -188,18 +182,17 @@ let private parseImlScsi80 = findOrNone "IML_SCSI_80" >> Option.map ImlScsi80
 let private parseImlScsi83 = findOrNone "IML_SCSI_83" >> Option.map ImlScsi83
 let private parseImlRo =
   findOrNone "IML_IS_RO"
-  >> Option.map(isOne >> ImlIsRo)
+    >> Option.map(isOne >> ImlIsRo)
 let private parseImlDmSlaveMms =
   findOrNone "IML_DM_SLAVE_MMS"
-    >> Option.map(fun x -> x.Split(' '))
-//    >> Option.map(StringUtils.split (' '.ToCharArray()) x)
-    >> Option.map(Array.map(fun x -> x.Trim() |> ImlDmSlaveMm))
+    >> Option.map(StringUtils.split [| ' ' |])
+    >> Option.map(Array.map(StringUtils.trim >> ImlDmSlaveMm))
 let private parseImlDmVgSize = 
   findOrNone "IML_DM_VG_SIZE" 
-  >> Option.map(fun x -> x.Trim() |> ImlDmVgSize)
+    >> Option.map(StringUtils.trim >> ImlDmVgSize)
 let private parseDmMultipathDevicePath =
   findOrNone "DM_MULTIPATH_DEVICE_PATH"
-  >> Option.map(isOne >> DmMultipathDevicePath)
+    >> Option.map(isOne >> DmMultipathDevicePath)
 let private parseDmLvName = findOrNone "DM_LV_NAME" >> Option.map DmLvName
 let private parseDmVgName = findOrNone "DM_VG_NAME" >> Option.map DmVgName
 let private parseDmUuid = findOrNone "DM_UUID" >> Option.map DmUuid
@@ -218,7 +211,7 @@ let extractAddEvent x =
     | Some(DevLinks(links):DevLinks) ->
       let morePaths:Path array =
         links.Split(' ')
-          |> Array.map((fun x -> x.Trim()) >> Path)
+          |> Array.map(StringUtils.trim >> Path)
 
       Some(Array.concat [[| name |]; morePaths])
     | None -> None

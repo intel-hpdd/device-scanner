@@ -6,41 +6,44 @@ open NodeHelpers
 open IML.Test.VagrantTest
 open Fable.PowerPack
 
-type Command = {
-  setup: unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>;
-  teardown: (unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>) option
-}
+
+type CommandFn = unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>
+
+type Command =
+  | Setup of CommandFn
+  | SetupTeardown of (CommandFn * CommandFn)
 
 type CommandBuilder() =
   let mutable stack = []
-  member _this.Bind(({setup=setup; teardown=teardown}), f) =
-    stack <- List.append [teardown] stack
-    setup()
-    |> Promise.bind (function
-      | Ok (x) ->
-        f (Ok x)
-      | Error x ->
-        printfn "Error: %A" x
-        stack
-          |> List.fold (fun acc fn ->
-              acc |> Promise.bind(fun _ ->
-                match fn with
-                | Some(teardownFunc) ->
-                  teardownFunc()
-                | None ->
-                  Promise.lift(Ok(Stdout(""), Stderr("")))
-              )
-          ) (Promise.lift(Ok(Stdout(""), Stderr(""))))
-          |> ignore
+  let runTeardowns () =
+      let start = Promise.lift(Ok(Stdout(""), Stderr("")))
 
-        Promise.lift()
-      )
+      let result = List.fold (fun acc fn -> acc |> Promise.bind(fun _ -> fn())) start stack
 
-  member _this.Return(x) =
-    Promise.lift(x)
+      stack <- []
+
+      result
+  member _this.Bind(command, f) =
+    let runSetup (x:CommandFn) =
+      x()
+        |> Promise.bind (function
+          | Error (e, _, _) ->
+            runTeardowns()
+              |> Promise.map(fun _ -> (raise (e :?> System.Exception)))
+          | x -> f x
+          )
+
+    match command with
+      | Setup(fn) -> runSetup fn
+      | SetupTeardown(setup, teardown) ->
+        stack <- List.append [teardown] stack
+        runSetup setup
+
+  member _this.Return _ =
+    runTeardowns()
 
   member _this.Zero() =
-    Promise.lift()
+    runTeardowns()
 
 let commandBuilder = CommandBuilder()
 
@@ -52,48 +55,43 @@ let createTeardown f td =
     td()
   )
 
+let vagrantSetup =
+  SetupTeardown(
+    vagrantStart,
+    vagrantDestroy
+  )
+
 testList "Info Event" [
   let withSetup f () =
     let data = "{ \"ACTION\": \"info\" }";
-    let tdFun = createTeardown f
 
     commandBuilder {
-      // let! destroyResult = {
-      //   setup = fun () -> vagrantDestroy()
-      //   teardown = None
-      // }
+      let! _ = vagrantSetup
 
-      // let! startResult = {
-      //   setup = fun () -> vagrantStart()
-      //   teardown = Some(fun () -> (vagrantDestroy()))
-      // }
+      let! _ =
+        SetupTeardown(
+          vagrantRunCommand "echo 'first test is fine'",
+          vagrantRunCommand "echo 'teardown for command 1'"
+        )
 
-      let! triggerCommandResult1 = {
-        setup = fun () -> (vagrantRunCommand "echo 'first test is fine'");
-        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 1'"))
-      }
+      let! _ =
+        SetupTeardown(
+          vagrantRunCommand "echo 'second test is fine'",
+          vagrantRunCommand "echo 'teardown for command 2'"
+        )
 
-      let! triggerCommandResult2 = {
-        setup = fun () -> (vagrantRunCommand "echo 'second test is fine'");
-        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 2'"))
-      }
+      let! _ =
+        SetupTeardown(
+          vagrantRunCommand "sdfg",
+          vagrantRunCommand "echo 'teardown for command 3'"
+        )
 
-      let! triggerCommandResult3 = {
-        setup = fun () -> (vagrantRunCommand "sdfg");
-        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 3'"))
-      }
+      let! _ = Setup(vagrantRunCommand "udevadm trigger")
 
-      let! triggerCommandResult = {
-        setup = fun () -> (vagrantRunCommand "udevadm trigger");
-        teardown = None
-      }
-
-      let! socatCommandResult = {
-        setup = fun () -> vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock");
-        teardown = None
-      }
-
-      printfn "socat Command %A" socatCommandResult
+      let! socatCommandResult =
+        Setup(
+          vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock")
+        )
 
       let devices =
         match socatCommandResult with
@@ -102,8 +100,13 @@ testList "Info Event" [
 
       let devicesObj = Fable.Import.JS.JSON.parse devices
       printfn "devicesobj %A" devicesObj
-      f (devicesObj)
+      f devicesObj
     }
+      |> Promise.map(function
+        | Ok _ -> ()
+        | Error (e, _, _) ->
+          raise (e :?> System.Exception)
+        )
 
   yield! testFixtureAsync withSetup [
     "should call end", fun (startResult) ->

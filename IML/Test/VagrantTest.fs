@@ -27,10 +27,10 @@ let vagrantStart () =
 let vagrantDestroy () =
   exec (vagrantCommand "destroy -f")
 
-let vagrantRunCommand cmd =
+let vagrantRunCommand cmd () =
   exec (shellCommand cmd)
 
 
-let vagrantPipeToShellCommand (cmd1:string) (cmd2:string) =
+let vagrantPipeToShellCommand (cmd1:string) (cmd2:string) () =
   let cmd = sprintf "%s | %s" cmd1 (shellCommand cmd2)
   exec cmd

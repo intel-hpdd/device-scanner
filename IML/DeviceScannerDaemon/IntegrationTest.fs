@@ -1,30 +1,107 @@
 module IML.DeviceScannerDaemon.IntegrationTest
 
-open Fable.Core
-open Fable.PowerPack
-open Fable.Import.JS
-open Fable.Import.Node
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
 open NodeHelpers
 open IML.Test.VagrantTest
+open Fable.PowerPack
+
+type Command = {
+  setup: unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>;
+  teardown: (unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>) option
+}
+
+type CommandBuilder() =
+  let mutable stack = []
+  member _this.Bind(({setup=setup; teardown=teardown}), f) =
+    stack <- List.append [teardown] stack
+    setup()
+    |> Promise.bind (function
+      | Ok (x) ->
+        f (Ok x)
+      | Error x ->
+        printfn "Error: %A" x
+        stack
+          |> List.fold (fun acc fn ->
+              acc |> Promise.bind(fun _ ->
+                match fn with
+                | Some(teardownFunc) ->
+                  teardownFunc()
+                | None ->
+                  Promise.lift(Ok(Stdout(""), Stderr("")))
+              )
+          ) (Promise.lift(Ok(Stdout(""), Stderr(""))))
+          |> ignore
+
+        Promise.lift()
+      )
+
+  member _this.Return(x) =
+    Promise.lift(x)
+
+  member _this.Zero() =
+    Promise.lift()
+
+let commandBuilder = CommandBuilder()
+
+let createTeardown f td =
+  Some (fun () ->
+    let devicesObj = Fable.Import.JS.JSON.parse "{\"badkey\": \"badval\"}"
+    f devicesObj
+
+    td()
+  )
 
 testList "Info Event" [
   let withSetup f () =
     let data = "{ \"ACTION\": \"info\" }";
+    let tdFun = createTeardown f
 
-    promise {
-      let! destroyResult = vagrantDestroy()
-      printfn "Finished destroying vagrant node with result %s" destroyResult
-      let! startResult = vagrantStart()
-      printfn "Finished loading vagrant box"
-      let! socatResult = vagrantRunCommand "yum install -y socat"
-      printfn "socatResult %s" socatResult
-      let! triggerResult = vagrantRunCommand "udevadm trigger"
-      let! socatCommandResult = vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock")
-      printfn "socatCommandResult = %s" socatCommandResult
-      let devices = socatCommandResult.Replace("default::\n", "")
-      let devicesObj = JSON.parse devices
+    commandBuilder {
+      // let! destroyResult = {
+      //   setup = fun () -> vagrantDestroy()
+      //   teardown = None
+      // }
+
+      // let! startResult = {
+      //   setup = fun () -> vagrantStart()
+      //   teardown = Some(fun () -> (vagrantDestroy()))
+      // }
+
+      let! triggerCommandResult1 = {
+        setup = fun () -> (vagrantRunCommand "echo 'first test is fine'");
+        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 1'"))
+      }
+
+      let! triggerCommandResult2 = {
+        setup = fun () -> (vagrantRunCommand "echo 'second test is fine'");
+        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 2'"))
+      }
+
+      let! triggerCommandResult3 = {
+        setup = fun () -> (vagrantRunCommand "sdfg");
+        teardown = tdFun (fun () -> (vagrantRunCommand "echo 'teardown for command 3'"))
+      }
+
+      let! triggerCommandResult = {
+        setup = fun () -> (vagrantRunCommand "udevadm trigger");
+        teardown = None
+      }
+
+      let! socatCommandResult = {
+        setup = fun () -> vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock");
+        teardown = None
+      }
+
+      printfn "socat Command %A" socatCommandResult
+
+      let devices =
+        match socatCommandResult with
+        | Ok(Stdout(out), _) -> out.Replace("default::\n", "")
+        | Error(_) -> "{}"
+
+      let devicesObj = Fable.Import.JS.JSON.parse devices
+      printfn "devicesobj %A" devicesObj
       f (devicesObj)
     }
 
@@ -178,7 +255,7 @@ testList "Info Event" [
     \"IML_IS_RO\": false
   }
 }"
-      let expectedDevicesObj = JSON.parse expectedDevices
+      let expectedDevicesObj = Fable.Import.JS.JSON.parse expectedDevices
       expect.Invoke(startResult).toEqual(expectedDevicesObj)
   ]
 ]

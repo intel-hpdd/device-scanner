@@ -3,6 +3,9 @@
 
 Vagrant.configure("2") do |config|
   config.vm.box = "manager-for-lustre/centos74-1708-base"
+  config.ssh.username = 'root'
+  config.ssh.password = 'vagrant'
+  config.ssh.insert_key = 'true'
 
   config.vm.provider "virtualbox" do |vb|
     vb.memory = "1024"

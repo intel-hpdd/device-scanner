@@ -10,4 +10,5 @@ bin
 tmp
 packages
 out
-paket-files/paket.locked
+.paket/paket.exe
+paket-files

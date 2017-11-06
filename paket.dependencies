@@ -12,7 +12,7 @@ nuget Fable.PowerPack
 #
 # To increase the minimum assumed .NET Framework, change the TargetFrameworkVersion in the .fsproj project files.
 
-nuget FSharp.Core ~> 4.1.0 redirects: force
+nuget FSharp.Core ~> 4.1 redirects: force
 
 group Build
   source https://nuget.org/api/v2

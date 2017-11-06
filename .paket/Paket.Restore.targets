@@ -136,21 +136,15 @@
   </Target>
 
   <Target Name="PaketOverrideNuspec" AfterTargets="GenerateNuspec" Condition="('$(IsPackable)' == '' Or '$(IsPackable)' == 'true') And Exists('$(MSBuildProjectDirectory)/obj/$(MSBuildProjectFile).references')" >
-    <ItemGroup>
-      <_NuspecFilesNewLocation Include="$(BaseIntermediateOutputPath)$(Configuration)/*.nuspec"/>
-    </ItemGroup>
-
     <PropertyGroup>
       <PaketProjectFile>$(MSBuildProjectDirectory)/$(MSBuildProjectFile)</PaketProjectFile>
       <ContinuePackingAfterGeneratingNuspec>true</ContinuePackingAfterGeneratingNuspec>
       <UseNewPack>false</UseNewPack>
       <UseNewPack Condition=" '$(NuGetToolVersion)' != '4.0.0' ">true</UseNewPack>
-      <AdjustedNuspecOutputPath>$(BaseIntermediateOutputPath)$(Configuration)/</AdjustedNuspecOutputPath>
-      <AdjustedNuspecOutputPath Condition="@(_NuspecFilesNewLocation) == ''">$(BaseIntermediateOutputPath)</AdjustedNuspecOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
-      <_NuspecFiles Include="$(AdjustedNuspecOutputPath)*.nuspec"/>
+      <_NuspecFiles Include="$(BaseIntermediateOutputPath)*.nuspec"/>
     </ItemGroup>
 
     <Exec Command='$(PaketCommand) fix-nuspecs files "@(_NuspecFiles)" project-file "$(PaketProjectFile)" ' Condition="@(_NuspecFiles) != ''" />
@@ -194,7 +188,7 @@
               Serviceable="$(Serviceable)"
               FrameworkAssemblyReferences="@(_FrameworkAssemblyReferences)"
               ContinuePackingAfterGeneratingNuspec="$(ContinuePackingAfterGeneratingNuspec)"
-              NuspecOutputPath="$(AdjustedNuspecOutputPath)"
+              NuspecOutputPath="$(BaseIntermediateOutputPath)"
               IncludeBuildOutput="$(IncludeBuildOutput)"
               BuildOutputFolder="$(BuildOutputTargetFolder)"
               ContentTargetFolders="$(ContentTargetFolders)"
@@ -236,7 +230,7 @@
               Serviceable="$(Serviceable)"
               AssemblyReferences="@(_References)"
               ContinuePackingAfterGeneratingNuspec="$(ContinuePackingAfterGeneratingNuspec)"
-              NuspecOutputPath="$(AdjustedNuspecOutputPath)"
+              NuspecOutputPath="$(BaseIntermediateOutputPath)"
               IncludeBuildOutput="$(IncludeBuildOutput)"
               BuildOutputFolder="$(BuildOutputTargetFolder)"
               ContentTargetFolders="$(ContentTargetFolders)"

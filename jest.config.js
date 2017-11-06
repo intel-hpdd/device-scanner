@@ -4,6 +4,7 @@ module.exports = {
   resetModules: true,
   clearMocks: true,
   testEnvironment: 'node',
+  setupTestFrameworkScriptFile: './jest.setup.js',
   moduleFileExtensions: ['js', 'fs'],
   transform: {
     '^.+\\.(fs)$': 'jest-fable-preprocessor',

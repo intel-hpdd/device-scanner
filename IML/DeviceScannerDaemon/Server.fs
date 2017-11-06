@@ -26,7 +26,8 @@ let serverHandler (c:Net.Socket) =
 let opts = createEmpty<Net.CreateServerOptions>
 opts.allowHalfOpen <- Some true
 
-let private server = Net.createServer(opts, serverHandler)
+let private server = createServer opts serverHandler
+
 let private r e =
   e
   |> raise

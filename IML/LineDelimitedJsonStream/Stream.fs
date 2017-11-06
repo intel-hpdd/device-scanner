@@ -12,7 +12,17 @@ open Fable.PowerPack
 open Fable.Core.JsInterop
 open System.Text.RegularExpressions
 
-let private parser = Json.ofString
+type JsonParser = string -> Result<Json.Json, Exception>
+type HandleParsedJson = Error option -> Json.Json option -> unit
+
+type StringParser = string -> Result<string, Exception>
+type HandleString = Error option -> string option -> unit
+
+type Parsers = StringParser | JsonParser
+type Handlers = HandleParsedJson | HandleString
+
+let private jsonParser = Json.ofString
+let private stringParser (x:string) = Ok(x)
 
 let private matcher x =
   match Regex.Match(x, "\\n") with
@@ -24,7 +34,7 @@ let private adjustBuff (buff:string) (index:int) =
   let buff = buff.Substring(index + 1)
   (out, buff)
 
-let rec private getNextMatch (buff:string) (callback:Error option -> Json.Json option -> unit) (turn:int) =
+let rec private getNextMatch (buff:string) (callback:Error option -> 'a option -> unit) (turn:int) (parser:Parsers) =
   let opt = matcher(buff)
 
   match opt with
@@ -35,13 +45,13 @@ let rec private getNextMatch (buff:string) (callback:Error option -> Json.Json o
     | Some(index) ->
       let (out, b) = adjustBuff buff index
 
-      match parser out with
+      match jsonParser out with
         | Ok(x) -> callback None (Some x)
         | Error(e:exn) -> callback (!!e |> Some) None
 
-      getNextMatch b callback (turn + 1)
+      getNextMatch b callback (turn + 1) parser
 
-let getJsonStream () =
+let getStream (parser:'a) () =
   let mutable buff = ""
 
   let opts = createEmpty<Stream.TransformBufferOptions>
@@ -59,6 +69,7 @@ let getJsonStream () =
             |> ignore
         )
         0
+        parser
 
     callback None None
   )
@@ -70,11 +81,14 @@ let getJsonStream () =
       else
         let self = JsInterop.jsThis
 
-        match parser buff with
+        match jsonParser buff with
         | Ok(x) ->
           self?push x |> ignore
           callback(None)
         | Error(e:exn) -> !!e |> Some |> callback
   )
 
-  Stream.Transform.Create<string, Json.Json> opts
+  Stream.Transform.Create<string, 'a> opts
+
+let getJsonStream = getStream JsonParser
+let getStringStream = getStream StringParser

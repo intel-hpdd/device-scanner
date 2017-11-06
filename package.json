@@ -1,7 +1,6 @@
 {
   "name": "@iml/device-scanner",
-  "description":
-    "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
+  "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
   "version": "1.1.1",
   "license": "MIT",
@@ -13,18 +12,15 @@
     "test": "dotnet fable npm-run jest",
     "restore": "dotnet restore",
     "cleanDist": "rm -rf /dist",
-    "buildBlockDeviceListener":
-      "rollup -c IML/BlockDeviceListener/rollup-config.js",
-    "postbuildBlockDeviceListener":
-      "cp -r IML/BlockDeviceListener/udev-rules dist/block-device-listener",
-    "buildDeviceScannerDaemon":
-      "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
-    "postbuildDeviceScannerDaemon":
-      "cp -r IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "build":
-      "npm run cleanDist; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
+    "buildBlockDeviceListener": "rollup -c IML/BlockDeviceListener/rollup-config.js",
+    "postbuildBlockDeviceListener": "cp -r IML/BlockDeviceListener/udev-rules dist/block-device-listener",
+    "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
+    "postbuildDeviceScannerDaemon": "cp -r IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
+    "build": "del-cli ./dist/**; sendProjFile; npm run buildBlockDeviceListener & npm run buildDeviceScannerDaemon"
   },
-  "pre-commit": ["test"],
+  "pre-commit": [
+    "test"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"
@@ -32,6 +28,7 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.0",
+    "del-cli": "^1.1.0",
     "fable-utils": "^1.0.6",
     "jest": "^21.2.1",
     "jest-fable-preprocessor": "^1.3.3",

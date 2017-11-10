@@ -3,6 +3,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="IML/Maybe.fs" />
+    <Compile Include="IML/MaybeTest.fs" />
     <Compile Include="IML/NodeHelpers.fs" />
     <Compile Include="IML/BlockDeviceListener/Listener.fs" />
     <Compile Include="IML/BlockDeviceListener/ListenerTest.fs" />

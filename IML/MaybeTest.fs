@@ -21,3 +21,12 @@ test "None" <| fun () ->
   }
 
   x == None
+
+test "Return Some" <| fun () ->
+  let x = maybe {
+    let! y = Some(4);
+
+    return! Some(6 + y)
+  }
+
+  x == Some 10

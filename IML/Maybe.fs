@@ -8,4 +8,6 @@ type MaybeBuilder() =
     member this.Delay(f) = f()
     member this.Return(x) = Some x
 
+    member this.ReturnFrom(x) = x
+
 let maybe = MaybeBuilder();

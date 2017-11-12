@@ -16,7 +16,7 @@ testList "Data Handler" [
   let withSetup f ():unit =
     let ``end`` = Matcher<string option, unit>()
 
-    let handler = dataHandler' ``end``.Mock
+    let handler = dataHandler ``end``.Mock
 
     f (``end``, handler)
 

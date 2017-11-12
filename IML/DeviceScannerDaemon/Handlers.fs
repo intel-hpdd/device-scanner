@@ -13,7 +13,7 @@ open IML.DeviceScannerDaemon.EventTypes
 
 let private deviceMap = Dictionary<DevPath, AddEvent>()
 
-let dataHandler' (``end``:string option -> unit) = function
+let dataHandler (``end``:string option -> unit) = function
   | InfoEventMatch(_) ->
     ``end`` (Some (toJson deviceMap))
   | AddOrChangeEventMatch(x) ->
@@ -25,5 +25,3 @@ let dataHandler' (``end``:string option -> unit) = function
   | _ ->
     ``end`` None
     raise (System.Exception "Handler got a bad match")
-
-let dataHandler = dataHandler'

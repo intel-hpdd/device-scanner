@@ -2,15 +2,13 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module rec IML.DeviceScannerDaemon.Server
+module IML.DeviceScannerDaemon.Server
 
 open Fable.Import.Node
-open Fable.Core
 open Fable.Import.JS
 open Fable.Core.JsInterop
 open IML.LineDelimitedJsonStream.Stream
 open IML.DeviceScannerDaemon.Handlers
-open IML.DeviceScannerDaemon.EventTypes
 open NodeHelpers
 
 let serverHandler (c:Net.Socket) =

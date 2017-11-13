@@ -1,0 +1,37 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`object 1`] = `
+FableMap {
+  "comparer": Comparer {
+    "Compare": [Function],
+  },
+  "tree": MapTree {
+    "data": undefined,
+    "tag": 0,
+  },
+}
+`;
+
+exports[`object 2`] = `null`;
+
+exports[`str 1`] = `"foo"`;
+
+exports[`str 2`] = `null`;
+
+exports[`unwrap object 1`] = `
+FableMap {
+  "comparer": Comparer {
+    "Compare": [Function],
+  },
+  "tree": MapTree {
+    "data": undefined,
+    "tag": 0,
+  },
+}
+`;
+
+exports[`unwrap object 2`] = `"Invalid JSON, it must be an object"`;
+
+exports[`unwrap string 1`] = `"bar"`;
+
+exports[`unwrap string 2`] = `"Invalid JSON, it must be a string"`;

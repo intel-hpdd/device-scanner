@@ -5,11 +5,11 @@
 module IML.LineDelimitedJsonStream.StreamTest
 
 open Fable.Import.Jest
-open Fable.Import.Jest.Matchers
-open IML.LineDelimitedJsonStream.Stream
+open Matchers
+open Stream
 open Fable.Import
 open Fable.Core
-open Fable.Core.JsInterop
+open JsInterop
 open Fable.PowerPack
 open Fable.Import.Node
 
@@ -28,7 +28,7 @@ type Test1or2 =
 
 
 [<Import("default", "stream-to-promise")>]
-let streamToPromise (a:Stream.Transform<string, 'a>) : Fable.Import.JS.Promise<'a[]> = jsNative
+let streamToPromise (_:Stream.Transform<string, 'a>) : JS.Promise<'a[]> = jsNative
 
 testDone "should handle errors from the stream" <| fun d ->
   expect.assertions 1

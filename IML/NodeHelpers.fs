@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module rec NodeHelpers
+module NodeHelpers
 
 open Fable.Import.Node
 open Fable.Core

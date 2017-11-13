@@ -1,27 +1,15 @@
 
 module IML.DeviceScannerDaemon.TestFixtures
 
-open Fable.Core.JsInterop
 open Fable.PowerPack
+open IML.JsonDecoders
 
-open IML.DeviceScannerDaemon.EventTypes
+let toMap =
+  Json.ofString
+    >> Result.unwrapResult
+    >> unwrapObject
 
-let toJson =  Json.ofString >> Result.unwrapResult
-
-let private object a =
-  match a with
-  | Json.Object a -> Some (Map.ofArray a)
-  | _ -> None
-
-let createEventJson (obj:Json.Json) (transformFn:Map<string, Json.Json> -> Map<string, Json.Json>) =
-  obj
-    |> object
-    |> Option.get
-    |> transformFn
-    |> Map.toArray
-    |> Json.Json.Object
-
-let addObj =  toJson """
+let addObj =  toMap """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -69,7 +57,7 @@ let addObj =  toJson """
 }
 """
 
-let removeObj = toJson """
+let removeObj = toMap """
 {
   "ACTION": "remove",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",

@@ -1,83 +1,61 @@
 module IML.DeviceScannerDaemon.EventTypesTest
 
 open IML.DeviceScannerDaemon.TestFixtures
-open IML.DeviceScannerDaemon.EventTypes
+open EventTypes
 open Fable.Import.Jest
-open Fable.Import.Jest.Matchers
+open Matchers
 open Fable.PowerPack
 
-let toJson =  Json.ofString >> Result.unwrapResult
+let addDiskObj =
+  addObj
+    |> Map.add "DEVTYPE" (Json.String("disk"))
 
-let createAddEventJson = createEventJson addObj
-
-let addDiskObj = createAddEventJson (fun x ->
-  x
-    |> Map.add "DEVTYPE" (Json.String("disk")))
-
-let addDmDiskObj = createAddEventJson (fun x ->
-  x
+let addDmDiskObj =
+  addObj
     |> Map.add "DEVTYPE" (Json.String("disk"))
     |> Map.add "DM_UUID" (Json.String("LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D"))
     |> Map.add "IML_DM_SLAVE_MMS" (Json.String("8:16 8:32"))
-    |> Map.add "IML_DM_VG_SIZE" (Json.String("  21466447872B")))
+    |> Map.add "IML_DM_VG_SIZE" (Json.String("  21466447872B"))
 
-let addInvalidDevTypeObj = createAddEventJson (fun x ->
-  x
-    |> Map.add "DEVTYPE" (Json.String("invalid")))
+let addInvalidDevTypeObj =
+  addObj
+    |> Map.add "DEVTYPE" (Json.String("invalid"))
 
-let missingDevNameObj = createAddEventJson (fun x ->
-  x
-    |> Map.remove "DEVNAME")
+let missingDevNameObj =
+  addObj
+    |> Map.remove "DEVNAME"
 
-let floatDevTypeObj = createAddEventJson (fun x ->
-  x
-    |> Map.add "DEVTYPE" (Json.Number(7.0)))
+let floatDevTypeObj =
+  addObj
+    |> Map.add "DEVTYPE" (Json.Number(7.0))
 
 let addMatch = function
-  | AddOrChangeEventMatch x -> x
-  | _ -> raise (System.Exception "No Match")
-
-let infoMatch = function
-  | InfoEventMatch x -> x
-  | _ -> raise (System.Exception "No Match")
+  | UdevAdd x -> Some x
+  | _ -> None
 
 let removeMatch = function
-  | RemoveEventMatch x -> x
-  | _ -> raise (System.Exception "No Match")
+  | UdevRemove x -> Some x
+  | _ -> None
 
 test "Matching Events" <| fun () ->
-  expect.assertions 9
+  expect.assertions 10
 
-  expect.Invoke(addMatch addObj).toMatchSnapshot()
+  toMatchSnapshot (addMatch addObj)
 
-  expect.Invoke(addMatch addDiskObj).toMatchSnapshot()
+  toMatchSnapshot (addMatch addDiskObj)
 
-  expect.Invoke(addMatch addDmDiskObj).toMatchSnapshot()
+  toMatchSnapshot (addMatch addDmDiskObj)
 
-  expect.Invoke(removeMatch removeObj).toMatchSnapshot()
+  toMatchSnapshot (removeMatch removeObj)
 
-  expect.Invoke(infoMatch (toJson """{ "ACTION": "info" }""")).toMatchSnapshot()
+  toMatchSnapshot (addMatch (toMap """{ "ACTION": "blah" }"""))
 
-  try
-    addMatch (toJson """{ "ACTION": "blah" }""") |> ignore
-  with
-    | msg ->
-      msg.Message === "No Match"
+  toMatchSnapshot (addObj |> Map.add "IML_IS_RO" (Json.String "0") |> addMatch)
 
-  try
-    addMatch addInvalidDevTypeObj |> ignore
-  with
-    | msg ->
-      msg.Message === "DEVTYPE neither partition or disk"
+  toMatchSnapshot (addObj |> Map.add "ID_FS_TYPE" (Json.String "") |> addMatch)
 
-  try
-    addMatch missingDevNameObj |> ignore
-  with
-    | msg ->
-      expect.Invoke(msg.Message).toMatchSnapshot()
+  expect.Invoke(fun () -> addMatch addInvalidDevTypeObj).toThrowErrorMatchingSnapshot()
 
-  try
-    addMatch floatDevTypeObj |> ignore
-  with
-    msg ->
-      msg.Message === "Invalid JSON, it must be a string"
+  expect.Invoke(fun () -> addMatch missingDevNameObj).toThrowErrorMatchingSnapshot()
+
+  expect.Invoke(fun () -> addMatch floatDevTypeObj).toThrowErrorMatchingSnapshot()

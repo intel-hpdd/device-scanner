@@ -4,12 +4,11 @@
 
 module IML.LineDelimitedJsonStream.Stream
 
-open System
 open Fable.Import.Node
 open Fable.Import.JS
 open Fable.Core
 open Fable.PowerPack
-open Fable.Core.JsInterop
+open JsInterop
 open System.Text.RegularExpressions
 
 let private parser = Json.ofString
@@ -46,8 +45,8 @@ let getJsonStream () =
 
   let opts = createEmpty<Stream.TransformBufferOptions>
   opts.readableObjectMode <- Some true
-  opts.transform <- (fun chunk encoding callback ->
-    let self = JsInterop.jsThis
+  opts.transform <- (fun chunk _ callback ->
+    let self = jsThis
 
     buff <- getNextMatch
         (buff + chunk.toString("utf-8"))
@@ -68,7 +67,7 @@ let getJsonStream () =
       then
         callback(None)
       else
-        let self = JsInterop.jsThis
+        let self = jsThis
 
         match parser buff with
         | Ok(x) ->

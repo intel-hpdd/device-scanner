@@ -6,6 +6,9 @@
     <Compile Include="IML/Maybe.fs" />
     <Compile Include="IML/MaybeTest.fs" />
     <Compile Include="IML/NodeHelpers.fs" />
+    <Compile Include="IML/StringUtils.fs" />
+    <Compile Include="IML/JsonDecoders.fs" />
+    <Compile Include="IML/JsonDecodersTest.fs" />
     <Compile Include="IML/BlockDeviceListener/Listener.fs" />
     <Compile Include="IML/BlockDeviceListener/ListenerTest.fs" />
     <Compile Include="IML/LineDelimitedJsonStream/Stream.fs" />

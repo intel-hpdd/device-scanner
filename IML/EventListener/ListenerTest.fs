@@ -5,12 +5,11 @@
 module IML.EventListener.ListenerTest
 
 open Fable.Import.Jest
-open Fable.Import.Jest.Matchers
+open Matchers
 open Fable.Import.JS
 open Fable.Core.JsInterop
-open Fable.Core
 open Fable.Import.Node
-open Fable.Import.Node.Globals
+open Globals
 
 testList "Listener" [
   let withSetup f () =

@@ -4,12 +4,11 @@
 
 module IML.DeviceScannerDaemon.ZFSEventTypes
 
-open System.Collections.Generic
 open Fable.Core
-open Fable.PowerPack
 open JsonDecoders
+open Fable.PowerPack.Json
 
-/// The Event IDentifier.
+/// The Event Identifier.
 [<Erase>]
 type ZeventEid = ZeventEid of string
 
@@ -78,15 +77,14 @@ let private matchZeventPoolStateStr = function
   | "UNINITIALIZED" -> Uninitialized
   | "UNAVAIL" -> Unavail
   | "POTENTIALLY_ACTIVE" -> PotentiallyActive
-  | x -> raise (System.Exception ("Could not match ZeventPoolStateStr, got" + x))
+  | x -> failwith ("Could not match ZeventPoolStateStr, got" + x)
 
-type ZedGenericEvent = {
-  ZEVENT_EID: ZeventEid;
-  ZED_PID: ZedPid;
-  ZEVENT_TIME: ZeventTime;
-  ZEVENT_CLASS: ZeventClass;
-  ZEVENT_SUBCLASS: ZeventSubclass;
-}
+let private hasPair k v m =
+  m
+    |> Map.tryFindKey (fun k' v' -> k = k' && String(v) = v')
+    |> Option.isSome
+
+let private hasZeventClassName = hasPair "ZEVENT_CLASS"
 
 type ZedHistoryEvent = {
   ZEVENT_EID: ZeventEid;
@@ -127,72 +125,13 @@ type ZfsPool = {
   UID: ZeventGuid;
   STATE_STR: ZeventPoolStateStr;
   PATH: ZeventName;
-  DATASETS: Dictionary<ZeventGuid, ZfsDataset>;
+  DATASETS: Map<ZeventGuid, ZfsDataset>;
 }
   // SIZE: ZeventSize;
-
-let private historyClass = ZeventClass("sysevent.fs.zfs.history_event")
-
-let private poolClassPrefix = "sysevent.fs.zfs.pool_"
 
 let poolCreateClass = ZeventClass("sysevent.fs.zfs.pool_create")
 
 let poolDestroyClass = ZeventClass("sysevent.fs.zfs.pool_destroy")
-
-let private poolImportClass = ZeventClass("sysevent.fs.zfs.pool_import")
-
-let private poolDestroyedState = matchZeventPoolStateStr("DESTROYED")
-
-let private poolExportedState = matchZeventPoolStateStr("EXPORTED")
-
-let private datasetCreateName = ZeventHistoryInternalName("create")
-
-let private datasetDestroyName = ZeventHistoryInternalName("destroy")
-
-let private matchClassName name x =
-  x
-  |> Map.tryFind "ZEVENT_CLASS"
-  |> Option.bind str
-  |> Option.map ZeventClass
-  |> Option.filter((=) name)
-  |> Option.map(fun _ -> x)
-
-let private matchClassNameStartswith name x =
-  x
-  |> Map.tryFind "ZEVENT_CLASS"
-  |> Option.bind str
-  |> Option.filter(fun x -> x.StartsWith(name))
-  |> Option.map(fun _ -> x)
-
-let private matchStateStr state x =
-  x
-  |> Map.tryFind "ZEVENT_POOL_STATE_STR"
-  |> Option.bind str
-  |> Option.map matchZeventPoolStateStr
-  |> Option.filter((=) state)
-  |> Option.map(fun _ -> x)
-
-let private matchZeventIdExists x =
-  x
-  |> Map.tryFind "ZEVENT_EID"
-  |> Option.bind str
-  |> Option.map ZeventEid
-  |> Option.map(fun _ -> x)
-
-let private matchDatasetIdExists x =
-  x
-  |> Map.tryFind "ZEVENT_HISTORY_DSID"
-  |> Option.bind str
-  |> Option.map ZeventHistoryDsid
-  |> Option.map(fun _ -> x)
-
-let private matchInternalName name x =
-  x
-  |> Map.tryFind "ZEVENT_HISTORY_INTERNAL_NAME"
-  |> Option.bind str
-  |> Option.map ZeventHistoryInternalName
-  |> Option.filter((=) name)
-  |> Option.map(fun _ -> x)
 
 let private parseZeventEid = findOrFail "ZEVENT_EID" >> ZeventEid
 
@@ -214,7 +153,7 @@ let private parseZeventPool = findOrFail "ZEVENT_POOL" >> ZeventName
 
 let private parseZeventPoolGuid = findOrFail "ZEVENT_POOL_GUID" >> ZeventGuid
 
-let private parseZeventPoolSize = findOrNone "ZEVENT_POOL_SIZE" >> Option.map ZeventSize
+// let private parseZeventPoolSize = findOrNone "ZEVENT_POOL_SIZE" >> Option.map ZeventSize
 
 let private parseZeventPoolStateStr = findOrFail "ZEVENT_POOL_STATE_STR" >> matchZeventPoolStateStr
 
@@ -222,147 +161,92 @@ let private parseZeventHistoryDsid = findOrNone "ZEVENT_HISTORY_DSID" >> Option.
 
 let private parseZeventHistoryDsName = findOrNone "ZEVENT_HISTORY_DSNAME" >> Option.map ZeventName
 
-let private parseZeventDataset = findOrFail "ZEVENT_HISTORY_DSNAME" >> ZeventName
+// let private parseZeventDatasetSize = findOrNone "ZEVENT_DATASET_SIZE" >> Option.map ZeventSize
 
-let private parseZeventDatasetGuid = findOrFail "ZEVENT_HISTORY_DSNAME" >> ZeventGuid
+let (|ZedGeneric|_|) =
+  function
+    | x when Map.containsKey "ZEVENT_EID" x -> Some ()
+    | _ -> None
 
-let private parseZeventDatasetSize = findOrNone "ZEVENT_DATASET_SIZE" >> Option.map ZeventSize
+let extractPoolEvent x =
+  {
+    ZEVENT_EID = parseZeventEid x;
+    ZED_PID = parseZedPid x;
+    ZEVENT_TIME = parseZeventTime x;
+    ZEVENT_CLASS = parseZeventClass x;
+    ZEVENT_SUBCLASS = parseZeventSubclass x;
+    ZEVENT_POOL = parseZeventPool x;
+    ZEVENT_POOL_GUID = parseZeventPoolGuid x;
+    ZEVENT_POOL_STATE_STR = parseZeventPoolStateStr x;
+  }
 
-let (|ZedGenericEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchZeventIdExists)
-    |> Option.map(fun x ->
-      {
-        ZEVENT_EID = parseZeventEid x;
-        ZED_PID = parseZedPid x;
-        ZEVENT_TIME = parseZeventTime x;
-        ZEVENT_CLASS = parseZeventClass x;
-        ZEVENT_SUBCLASS = parseZeventSubclass x;
-      }
-    )
+let poolFromEvent x =
+  {
+    NAME = x.ZEVENT_POOL;
+    UID = x.ZEVENT_POOL_GUID;
+    STATE_STR = x.ZEVENT_POOL_STATE_STR;
+    PATH = x.ZEVENT_POOL;
+    DATASETS = Map.empty;
+  }
 
-let (|ZedPoolEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassNameStartswith poolClassPrefix)
-    |> Option.map(fun x ->
-      {
-        ZEVENT_EID = parseZeventEid x;
-        ZED_PID = parseZedPid x;
-        ZEVENT_TIME = parseZeventTime x;
-        ZEVENT_CLASS = parseZeventClass x;
-        ZEVENT_SUBCLASS = parseZeventSubclass x;
-        ZEVENT_POOL = parseZeventPool x;
-        ZEVENT_POOL_GUID = parseZeventPoolGuid x;
-        ZEVENT_POOL_STATE_STR = parseZeventPoolStateStr x;
-      }
-    )
+let private mapToPool = extractPoolEvent >> poolFromEvent >> Some
 
-let (|ZedHistoryEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName historyClass)
-    |> Option.map(fun x ->
-      {
-        ZEVENT_EID = parseZeventEid x;
-        ZED_PID = parseZedPid x;
-        ZEVENT_TIME = parseZeventTime x;
-        ZEVENT_CLASS = parseZeventClass x;
-        ZEVENT_SUBCLASS = parseZeventSubclass x;
-        ZEVENT_HISTORY_HOSTNAME = parseZeventHistoryHostname x;
-        ZEVENT_HISTORY_INTERNAL_NAME = parseZeventHistoryInternalName x;
-        ZEVENT_HISTORY_INTERNAL_STR = parseZeventHistoryInternalStr x;
-        ZEVENT_POOL = parseZeventPool x;
-        ZEVENT_POOL_GUID = parseZeventPoolGuid x;
-        ZEVENT_POOL_STATE_STR = parseZeventPoolStateStr x;
-        ZEVENT_HISTORY_DSID = parseZeventHistoryDsid x;
-        ZEVENT_HISTORY_DSNAME = parseZeventHistoryDsName x;
-      }
-    )
+let (|ZedPool|_|) str =
+  function
+    | x when hasZeventClassName ("sysevent.fs.zfs.pool_" + str) x -> mapToPool x
+    | _ -> None
 
-let (|ZedPoolCreateEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName poolCreateClass)
-    |> Option.map(fun x ->
-      {
-        NAME = parseZeventPool x;
-        UID = parseZeventPoolGuid x;
-        STATE_STR = parseZeventPoolStateStr x;
-        PATH = parseZeventPool x;
-        DATASETS = Dictionary();
-      }
-    )
+let private isDestroyClass = hasZeventClassName "sysevent.fs.zfs.pool_destroy"
 
-let (|ZedPoolDestroyEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName poolDestroyClass)
-    |> Option.bind(matchStateStr poolDestroyedState)
-    |> Option.map(fun x ->
-      {
-        NAME = parseZeventPool x;
-        UID = parseZeventPoolGuid x;
-        STATE_STR = parseZeventPoolStateStr x;
-        PATH = parseZeventPool x;
-        DATASETS = Dictionary();
-      }
-    )
+let (|ZedExport|_|) =
+  let isExportState = hasPair "ZEVENT_POOL_STATE_STR" "EXPORTED"
 
-let (|ZedPoolExportEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName poolDestroyClass)
-    |> Option.bind(matchStateStr poolExportedState)
-    |> Option.map(fun x ->
-      {
-        NAME = parseZeventPool x;
-        UID = parseZeventPoolGuid x;
-        STATE_STR = parseZeventPoolStateStr x;
-        PATH = parseZeventPool x;
-        DATASETS = Dictionary();
-      }
-    )
+  function
+    | x when isDestroyClass x && isExportState x -> mapToPool x
+    | _ -> None
 
-let (|ZedPoolImportEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName poolImportClass)
-    |> Option.map(fun x ->
-      {
-        NAME = parseZeventPool x;
-        UID = parseZeventPoolGuid x;
-        STATE_STR = parseZeventPoolStateStr x;
-        PATH = parseZeventPool x;
-        DATASETS = Dictionary();
-      }
-    )
+let (|ZedDestroy|_|) =
+  let isDestroyState = hasPair "ZEVENT_POOL_STATE_STR" "DESTROYED"
 
-let (|ZedDatasetCreateEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName historyClass)
-    |> Option.bind(matchDatasetIdExists)
-    |> Option.bind(matchInternalName datasetCreateName)
-    |> Option.map(fun x ->
-      {
-        POOL_UID = parseZeventPoolGuid x;
-        DATASET_UID = parseZeventDatasetGuid x;
-        DATASET_NAME = parseZeventDataset x;
-      }
-    )
+  function
+    | x when isDestroyClass x && isDestroyState x -> mapToPool x
+    | _ -> None
 
-let (|ZedDatasetDestroyEventMatch|_|) (x:Json.Json) =
-  x
-    |> object
-    |> Option.bind(matchClassName historyClass)
-    |> Option.bind(matchDatasetIdExists)
-    |> Option.bind(matchInternalName datasetDestroyName)
-    |> Option.map(fun x ->
-      {
-        POOL_UID = parseZeventPoolGuid x;
-        DATASET_UID = parseZeventDatasetGuid x;
-        DATASET_NAME = parseZeventDataset x;
-      }
-    )
+let extractHistoryEvent x =
+  {
+    ZEVENT_EID = parseZeventEid x;
+    ZED_PID = parseZedPid x;
+    ZEVENT_TIME = parseZeventTime x;
+    ZEVENT_CLASS = parseZeventClass x;
+    ZEVENT_SUBCLASS = parseZeventSubclass x;
+    ZEVENT_HISTORY_HOSTNAME = parseZeventHistoryHostname x;
+    ZEVENT_HISTORY_INTERNAL_NAME = parseZeventHistoryInternalName x;
+    ZEVENT_HISTORY_INTERNAL_STR = parseZeventHistoryInternalStr x;
+    ZEVENT_POOL = parseZeventPool x;
+    ZEVENT_POOL_GUID = parseZeventPoolGuid x;
+    ZEVENT_POOL_STATE_STR = parseZeventPoolStateStr x;
+    ZEVENT_HISTORY_DSID = parseZeventHistoryDsid x;
+    ZEVENT_HISTORY_DSNAME = parseZeventHistoryDsName x;
+  }
+
+let (|ZedHistory|_|) =
+  function
+    | x when hasZeventClassName "sysevent.fs.zfs.history_event" x -> Some (extractHistoryEvent x)
+    | _ -> None
+
+let datasetFromEvent (x:ZedHistoryEvent) =
+  {
+    POOL_UID = x.ZEVENT_POOL_GUID;
+    DATASET_NAME = Option.get x.ZEVENT_HISTORY_DSNAME;
+    DATASET_UID = Option.get x.ZEVENT_HISTORY_DSID;
+  }
+
+let handleDatasetEvent dataset action (zpoolMap:Map<ZeventGuid, ZfsPool>) =
+  match action with
+    | "create" ->
+      Map.tryFind dataset.POOL_UID zpoolMap
+        |> Option.map (fun y -> Map.add dataset.DATASET_UID dataset y.DATASETS)
+    | "destroy" ->
+      Map.tryFind dataset.POOL_UID zpoolMap
+        |> Option.map (fun y ->  Map.remove dataset.DATASET_UID y.DATASETS)
+    | _  -> failwith ("ZfsDataset event handler got a bad match" + action)

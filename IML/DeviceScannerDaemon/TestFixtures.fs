@@ -9,7 +9,7 @@ let toMap =
     >> Result.unwrapResult
     >> unwrapObject
 
-let addObj =  toMap """
+let addObj = toMap """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -94,7 +94,7 @@ let removeObj = toMap """
 }
 """
 
-let createZdataset = toJson """
+let createZdataset = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -134,7 +134,7 @@ let createZdataset = toJson """
 }
 """
 
-let destroyZdataset = toJson """
+let destroyZdataset = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -174,7 +174,7 @@ let destroyZdataset = toJson """
 }
 """
 
-let createZpool = toJson """
+let createZpool = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -207,7 +207,7 @@ let createZpool = toJson """
 }
 """
 
-let importZpool = toJson """
+let importZpool = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -241,7 +241,7 @@ let importZpool = toJson """
 """
 
 /// export pool userspace command
-let exportZpool = toJson """
+let exportZpool = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -275,7 +275,7 @@ let exportZpool = toJson """
 """
 
 /// destroy pool userspace command
-let destroyZpool = toJson """
+let destroyZpool = toMap """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",

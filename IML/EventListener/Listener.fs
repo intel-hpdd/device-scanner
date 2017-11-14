@@ -4,7 +4,6 @@
 
 module IML.EventListener.Listener
 
-open Fable.Core
 open Fable.Import.JS
 open Fable.Import.Node
 open NodeHelpers

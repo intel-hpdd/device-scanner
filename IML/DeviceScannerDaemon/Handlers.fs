@@ -33,10 +33,10 @@ let dataHandler (``end``:string option -> unit) x =
           |> toJson
           |> Some
           |> ``end``
-      | UdevAdd(x) | UdevChange(x) ->
+      | UdevAdd x | UdevChange x ->
         deviceMap <- Map.add x.DEVPATH x deviceMap
         ``end`` None
-      | UdevRemove(x) ->
+      | UdevRemove x ->
         deviceMap <- Map.remove x deviceMap
         ``end`` None
       | ZedPool "create" x ->
@@ -53,13 +53,28 @@ let dataHandler (``end``:string option -> unit) x =
         ``end`` None
       | ZedDestroy x ->
         zpoolMap <- zpoolMap.Remove x.UID
-      | ZedHistory(x) ->
-        x.ZEVENT_HISTORY_DSID
-          |> Option.map (fun _ ->
-             handleDatasetEvent (datasetFromEvent x) (x.ZEVENT_HISTORY_INTERNAL_NAME.ToString()) zpoolMap)
-          |> ignore
         ``end`` None
-      | ZedGeneric(_) ->
+      | ZedDataset "create" x ->
+        let updatedPool =
+          match Map.tryFind x.POOL_UID zpoolMap with
+            | Some pool ->
+              { pool with DATASETS = pool.DATASETS.Add (x.DATASET_UID, x) }
+            | None -> failwith ("Pool to add datasets to is missing!")
+
+        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        ``end`` None
+      | ZedDataset "destroy" x ->
+        let updatedPool =
+          match Map.tryFind x.POOL_UID zpoolMap with
+            | Some pool ->
+              { pool with DATASETS = pool.DATASETS.Remove x.DATASET_UID }
+            | None -> failwith ("Pool to remove datasets from is missing!")
+
+        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        ``end`` None
+      | ZedHistory _ ->
+        ``end`` None
+      | ZedGeneric _ ->
         ``end`` None
       | _ ->
         ``end`` None

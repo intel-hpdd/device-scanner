@@ -2,7 +2,15 @@
 
 exports[`Matching Events 1`] = `
 ZfsPool {
-  "DATASETS": Map {},
+  "DATASETS": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "NAME": "testPool1",
   "PATH": "testPool1",
   "STATE_STR": "ACTIVE",
@@ -12,7 +20,15 @@ ZfsPool {
 
 exports[`Matching Events 2`] = `
 ZfsPool {
-  "DATASETS": Map {},
+  "DATASETS": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "NAME": "testPool1",
   "PATH": "testPool1",
   "STATE_STR": "DESTROYED",
@@ -22,7 +38,15 @@ ZfsPool {
 
 exports[`Matching Events 3`] = `
 ZfsPool {
-  "DATASETS": Map {},
+  "DATASETS": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "NAME": "testPool1",
   "PATH": "testPool1",
   "STATE_STR": "EXPORTED",
@@ -32,26 +56,18 @@ ZfsPool {
 
 exports[`Matching Events 4`] = `
 ZfsPool {
-  "DATASETS": Map {},
+  "DATASETS": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "NAME": "testPool1",
   "PATH": "testPool1",
   "STATE_STR": "ACTIVE",
   "UID": "0x2D28F440E514007F",
-}
-`;
-
-exports[`Matching Events 5`] = `
-ZfsDataset {
-  "DATASET_NAME": "testPool1/home",
-  "DATASET_UID": "testPool1/home",
-  "POOL_UID": "0x2D28F440E514007F",
-}
-`;
-
-exports[`Matching Events 6`] = `
-ZfsDataset {
-  "DATASET_NAME": "testPool1/home",
-  "DATASET_UID": "testPool1/home",
-  "POOL_UID": "0x2D28F440E514007F",
 }
 `;

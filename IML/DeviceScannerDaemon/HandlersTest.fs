@@ -68,12 +68,12 @@ testList "Data Handler" [
 
         ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{}}");
 
-    "Should call end for remove pool zed event", fun (``end``, handler) ->
-       handler (mapToJson destroyZpool)
-       ``end`` <?> None;
-
     "Should call end for add pool zed event", fun (``end``, handler) ->
        handler (mapToJson createZpool)
+       ``end`` <?> None;
+
+    "Should call end for remove pool zed event", fun (``end``, handler) ->
+       handler (mapToJson destroyZpool)
        ``end`` <?> None;
 
     "Should call end for import pool zed event", fun (``end``, handler) ->
@@ -84,12 +84,12 @@ testList "Data Handler" [
        handler (mapToJson exportZpool)
        ``end`` <?> None;
 
-    "Should call end for remove dataset zed event", fun (``end``, handler) ->
-       handler (mapToJson destroyZdataset)
-       ``end`` <?> None;
-
     "Should call end for add dataset zed event", fun (``end``, handler) ->
        handler (mapToJson createZdataset)
+       ``end`` <?> None;
+
+    "Should call end for remove dataset zed event", fun (``end``, handler) ->
+       handler (mapToJson destroyZdataset)
        ``end`` <?> None;
 
     "Should add then remove a zpool", fun (``end``, handler) ->
@@ -130,7 +130,7 @@ testList "Data Handler" [
 
        handler (toJson """{ "ACTION": "info" }""")
 
-       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{\"testPool1/home\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"testPool1/home\"}}}}}")
+       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{\"11\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"11\"}}}}}")
 
        handler (mapToJson destroyZdataset)
 
@@ -145,13 +145,13 @@ testList "Data Handler" [
 
        handler (toJson """{ "ACTION": "info" }""")
 
-       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"EXPORTED\",\"PATH\":\"testPool1\",\"DATASETS\":{\"testPool1/home\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"testPool1/home\"}}}}}")
+       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"EXPORTED\",\"PATH\":\"testPool1\",\"DATASETS\":{\"11\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"11\"}}}}}")
 
        handler (mapToJson importZpool)
 
        handler (toJson """{ "ACTION": "info" }""")
 
-       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{\"testPool1/home\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"testPool1/home\"}}}}}")
+       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{\"11\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"11\"}}}}}")
 
        handler (mapToJson destroyZdataset)
        handler (mapToJson exportZpool)
@@ -164,6 +164,6 @@ testList "Data Handler" [
 
        handler (toJson """{ "ACTION": "info" }""")
 
-       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{\"testPool1/home\":{\"POOL_UID\":\"0x2D28F440E514007F\",\"DATASET_NAME\":\"testPool1/home\",\"DATASET_UID\":\"testPool1/home\"}}}}}");
+       ``end`` <?> Some("{\"BLOCK_DEVICES\":{},\"ZFSPOOLS\":{\"0x2D28F440E514007F\":{\"NAME\":\"testPool1\",\"UID\":\"0x2D28F440E514007F\",\"STATE_STR\":\"ACTIVE\",\"PATH\":\"testPool1\",\"DATASETS\":{}}}}");
   ]
 ]

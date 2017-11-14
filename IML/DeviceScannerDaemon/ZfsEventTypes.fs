@@ -229,11 +229,6 @@ let extractHistoryEvent x =
     ZEVENT_HISTORY_DSNAME = parseZeventHistoryDsName x;
   }
 
-let (|ZedHistory|_|) =
-  function
-    | x when hasZeventClassName "sysevent.fs.zfs.history_event" x -> Some (extractHistoryEvent x)
-    | _ -> None
-
 let datasetFromEvent (x:ZedHistoryEvent) =
   {
     POOL_UID = x.ZEVENT_POOL_GUID;
@@ -241,12 +236,18 @@ let datasetFromEvent (x:ZedHistoryEvent) =
     DATASET_UID = Option.get x.ZEVENT_HISTORY_DSID;
   }
 
-let handleDatasetEvent dataset action (zpoolMap:Map<ZeventGuid, ZfsPool>) =
-  match action with
-    | "create" ->
-      Map.tryFind dataset.POOL_UID zpoolMap
-        |> Option.map (fun y -> Map.add dataset.DATASET_UID dataset y.DATASETS)
-    | "destroy" ->
-      Map.tryFind dataset.POOL_UID zpoolMap
-        |> Option.map (fun y ->  Map.remove dataset.DATASET_UID y.DATASETS)
-    | _  -> failwith ("ZfsDataset event handler got a bad match" + action)
+let private mapToDataset = extractHistoryEvent >> datasetFromEvent >> Some
+
+let private isHistoryClass = hasZeventClassName "sysevent.fs.zfs.history_event"
+
+let (|ZedHistory|_|) =
+  function
+    | x when hasZeventClassName "sysevent.fs.zfs.history_event" x -> Some (extractHistoryEvent x)
+    | _ -> None
+
+let (|ZedDataset|_|) str =
+  let isInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" str
+
+  function
+    | x when isHistoryClass x && isInternalName x -> mapToDataset x
+    | _ -> None

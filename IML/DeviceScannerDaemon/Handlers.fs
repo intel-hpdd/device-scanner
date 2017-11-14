@@ -15,14 +15,27 @@ open ZFSEventTypes
 let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
 let mutable zpoolMap:Map<ZeventGuid, ZfsPool> = Map.empty
 
-let (|Info|_|) (x:Map<string,Json.Json>) =
-  match x with
-    | x when hasAction "info" x -> Some()
-    | _ -> None
 type DataMaps = {
   BLOCK_DEVICES: Map<DevPath, AddEvent>;
   ZFSPOOLS: Map<ZeventGuid, ZfsPool>;
 }
+
+let (|Info|_|) (x:Map<string,Json.Json>) =
+  match x with
+    | x when hasAction "info" x -> Some()
+    | _ -> None
+
+let updateDatasets action x =
+  let matchAction pool =
+    match action with
+      | "create" -> pool.DATASETS.Add (x.DATASET_UID, x)
+      | "destroy" -> pool.DATASETS.Remove x.DATASET_UID
+      | _ -> failwith "failure matching dataset action"
+
+  match Map.tryFind x.POOL_UID zpoolMap with
+    | Some pool ->
+      { pool with DATASETS = matchAction pool }
+    | None -> failwith ("Pool to update datasets on is missing!")
 
 let dataHandler (``end``:string option -> unit) x =
   x
@@ -55,24 +68,14 @@ let dataHandler (``end``:string option -> unit) x =
         zpoolMap <- zpoolMap.Remove x.UID
         ``end`` None
       | ZedDataset "create" x ->
-        let updatedPool =
-          match Map.tryFind x.POOL_UID zpoolMap with
-            | Some pool ->
-              { pool with DATASETS = pool.DATASETS.Add (x.DATASET_UID, x) }
-            | None -> failwith ("Pool to add datasets to is missing!")
+        let updatedPool = updateDatasets "create" x
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
         ``end`` None
       | ZedDataset "destroy" x ->
-        let updatedPool =
-          match Map.tryFind x.POOL_UID zpoolMap with
-            | Some pool ->
-              { pool with DATASETS = pool.DATASETS.Remove x.DATASET_UID }
-            | None -> failwith ("Pool to remove datasets from is missing!")
+        let updatedPool = updateDatasets "destroy" x
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
-        ``end`` None
-      | ZedHistory _ ->
         ``end`` None
       | ZedGeneric _ ->
         ``end`` None

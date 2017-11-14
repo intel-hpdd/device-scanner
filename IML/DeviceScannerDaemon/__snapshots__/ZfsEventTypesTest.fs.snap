@@ -71,3 +71,19 @@ ZfsPool {
   "UID": "0x2D28F440E514007F",
 }
 `;
+
+exports[`Matching Events 5`] = `
+ZfsDataset {
+  "DATASET_NAME": "testPool1/home",
+  "DATASET_UID": "11",
+  "POOL_UID": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 6`] = `
+ZfsDataset {
+  "DATASET_NAME": "testPool1/home",
+  "DATASET_UID": "11",
+  "POOL_UID": "0x2D28F440E514007F",
+}
+`;

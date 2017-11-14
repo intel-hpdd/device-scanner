@@ -240,11 +240,6 @@ let private mapToDataset = extractHistoryEvent >> datasetFromEvent >> Some
 
 let private isHistoryClass = hasZeventClassName "sysevent.fs.zfs.history_event"
 
-let (|ZedHistory|_|) =
-  function
-    | x when hasZeventClassName "sysevent.fs.zfs.history_event" x -> Some (extractHistoryEvent x)
-    | _ -> None
-
 let (|ZedDataset|_|) str =
   let isInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" str
 

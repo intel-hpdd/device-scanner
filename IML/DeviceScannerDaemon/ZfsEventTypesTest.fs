@@ -5,10 +5,6 @@ open ZFSEventTypes
 open Fable.Import.Jest
 open Matchers
 
-let addHistoryMatch = function
-  | ZedHistory x -> Some x
-  | _ -> None
-
 let poolCreateMatch = function
   | ZedPool "create" x -> Some x
   | _ -> None
@@ -25,16 +21,16 @@ let poolImportMatch = function
   | ZedPool "import" x -> Some x
   | _ -> None
 
-// let datasetCreateMatch = function
-//   | ZedDatasetCreateEventMatch x -> x
-//   | _ -> raise (System.Exception "No Match")
+let datasetCreateMatch = function
+  | ZedDataset "create" x -> Some x
+  | _ -> None
 
-// let datasetDestroyMatch = function
-//   | ZedDatasetDestroyEventMatch x -> x
-//   | _ -> raise (System.Exception "No Match")
+let datasetDestroyMatch = function
+  | ZedDataset "destroy" x -> Some x
+  | _ -> None
 
 test "Matching Events" <| fun () ->
-  expect.assertions 4
+  expect.assertions 6
 
   toMatchSnapshot (poolCreateMatch createZpool)
 
@@ -44,6 +40,6 @@ test "Matching Events" <| fun () ->
 
   toMatchSnapshot (poolImportMatch importZpool)
 
-  // toMatchSnapshot (datasetCreateMatch addZdataset)
+  toMatchSnapshot (datasetCreateMatch createZdataset)
 
-  // toMatchSnapshot (datasetDestroyMatch removeZdataset)
+  toMatchSnapshot (datasetDestroyMatch destroyZdataset)

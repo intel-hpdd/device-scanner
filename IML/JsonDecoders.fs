@@ -35,3 +35,5 @@ let tryFindJson fn key x =
 
     return! fn v
   }
+
+let findStr = findJson unwrapString

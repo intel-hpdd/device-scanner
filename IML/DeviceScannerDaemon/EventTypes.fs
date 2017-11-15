@@ -60,10 +60,6 @@ let private isOne = function
   | "1" -> true
   | _ -> false
 
-let private emptyStrToNone x = if x = "" then None else Some(x)
-
-let private findStr = findJson unwrapString
-
 let private tryFindStr = tryFindJson str
 
 let private parseDevName = findStr "DEVNAME" >> Path

@@ -5,7 +5,6 @@ open TestFixtures
 open Fable.PowerPack
 open Fable.Import.Jest
 open Matchers
-open NodeHelpers.NetHelpers
 
 let private toJson =  Json.ofString >> Result.unwrapResult
 let private mapToJson = Map.toArray >> Json.Object

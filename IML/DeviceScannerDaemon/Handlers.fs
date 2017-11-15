@@ -13,11 +13,11 @@ open ZFSEventTypes
 
 
 let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
-let mutable zpoolMap:Map<ZeventGuid, ZfsPool> = Map.empty
+let mutable zpoolMap:Map<string, ZfsPool> = Map.empty
 
 type DataMaps = {
   BLOCK_DEVICES: Map<DevPath, AddEvent>;
-  ZFSPOOLS: Map<ZeventGuid, ZfsPool>;
+  ZFSPOOLS: Map<string, ZfsPool>;
 }
 
 type DatasetAction = CreateDataset | DestroyDataset

@@ -13,6 +13,15 @@ ZfsPool {
   },
   "NAME": "testPool1",
   "PATH": "testPool1",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "STATE_STR": "ACTIVE",
   "UID": "0x2D28F440E514007F",
 }
@@ -31,6 +40,15 @@ ZfsPool {
   },
   "NAME": "testPool1",
   "PATH": "testPool1",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "STATE_STR": "DESTROYED",
   "UID": "0x2D28F440E514007F",
 }
@@ -49,6 +67,15 @@ ZfsPool {
   },
   "NAME": "testPool1",
   "PATH": "testPool1",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "STATE_STR": "EXPORTED",
   "UID": "0x2D28F440E514007F",
 }
@@ -67,6 +94,15 @@ ZfsPool {
   },
   "NAME": "testPool1",
   "PATH": "testPool1",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
   "STATE_STR": "ACTIVE",
   "UID": "0x2D28F440E514007F",
 }
@@ -77,6 +113,15 @@ ZfsDataset {
   "DATASET_NAME": "testPool1/home",
   "DATASET_UID": "11",
   "POOL_UID": "0x2D28F440E514007F",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
 }
 `;
 
@@ -85,5 +130,14 @@ ZfsDataset {
   "DATASET_NAME": "testPool1/home",
   "DATASET_UID": "11",
   "POOL_UID": "0x2D28F440E514007F",
+  "PROPERTIES": FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
 }
 `;

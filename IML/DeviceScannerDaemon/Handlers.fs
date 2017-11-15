@@ -22,12 +22,14 @@ type DataMaps = {
 
 type DatasetAction = CreateDataset | DestroyDataset
 
+type PropertyOwner = Dataset | Pool
+
 let (|Info|_|) (x:Map<string,Json.Json>) =
   match x with
     | x when hasAction "info" x -> Some()
     | _ -> None
 
-let updateDatasets (action:DatasetAction) x =
+let updateDatasets (action:DatasetAction) (x:ZfsDataset) =
   let matchAction pool =
     match action with
       | CreateDataset -> pool.DATASETS.Add (x.DATASET_UID, x)
@@ -57,6 +59,7 @@ let dataHandler (``end``:string option -> unit) x =
         zpoolMap <- Map.add x.UID x zpoolMap
         ``end`` None
       | ZedPool "import" x | ZedExport x ->
+
         let updatedPool =
           match Map.tryFind x.UID zpoolMap with
             | Some pool ->
@@ -75,6 +78,33 @@ let dataHandler (``end``:string option -> unit) x =
         ``end`` None
       | ZedDataset "destroy" x ->
         let updatedPool = updateDatasets DestroyDataset x
+
+        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        ``end`` None
+      | ZedPoolProperty x ->
+
+        let updatedPool =
+          match Map.tryFind x.POOL_UID zpoolMap with
+            | Some pool ->
+              { pool with PROPERTIES = pool.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }
+            | None -> failwith (sprintf "Pool to update properties on is missing! %A" x.POOL_UID)
+
+        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        ``end`` None
+      | ZedDatasetProperty x ->
+
+        let updatedDataset (datasets:Map<string, ZfsDataset>) =
+          match Map.tryFind (Option.get x.DATASET_UID) datasets with
+            | Some dataset ->
+              { dataset with PROPERTIES = dataset.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }
+            | None
+              -> failwith (sprintf "Dataset to update properties on is missing! %A (pool %A)" x.DATASET_UID x.POOL_UID)
+
+        let updatedPool =
+          match Map.tryFind x.POOL_UID zpoolMap with
+            | Some pool ->
+              { pool with DATASETS = pool.DATASETS.Add (Option.get x.DATASET_UID, updatedDataset pool.DATASETS)  }
+            | None -> failwith (sprintf "Pool to update properties on is missing! %A" x.POOL_UID)
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
         ``end`` None

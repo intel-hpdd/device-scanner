@@ -48,6 +48,7 @@ type ZfsDataset = {
   POOL_UID: string;
   DATASET_NAME: string;
   DATASET_UID: string;
+  PROPERTIES: Map<string, string>;
 }
 
 type ZfsPool = {
@@ -56,7 +57,19 @@ type ZfsPool = {
   STATE_STR: string;
   PATH: string;
   DATASETS: Map<string, ZfsDataset>;
+  PROPERTIES: Map<string, string>;
 }
+
+type ZfsProperty = {
+    POOL_UID: string;
+    DATASET_UID: string option;
+    PROPERTY_NAME: string;
+    PROPERTY_VALUE: string;
+}
+
+let private parsePropertyName (x:string) = x.Split([| '=' |]).[0]
+
+let private parsePropertyValue (x:string) = x.Split([| '=' |]).[1]
 
 let extractHistoryEvent x =
   {
@@ -94,6 +107,7 @@ let poolFromEvent x =
     STATE_STR = x.ZEVENT_POOL_STATE_STR;
     PATH = x.ZEVENT_POOL;
     DATASETS = Map.empty;
+    PROPERTIES = Map.empty;
   }
 
 let datasetFromEvent (x:ZedHistoryEvent) =
@@ -101,15 +115,28 @@ let datasetFromEvent (x:ZedHistoryEvent) =
     POOL_UID = x.ZEVENT_POOL_GUID;
     DATASET_NAME = Option.get x.ZEVENT_HISTORY_DSNAME;
     DATASET_UID = Option.get x.ZEVENT_HISTORY_DSID;
+    PROPERTIES = Map.empty;
+  }
+
+let propertyFromEvent (x:ZedHistoryEvent) =
+  {
+    POOL_UID = x.ZEVENT_POOL_GUID;
+    DATASET_UID = x.ZEVENT_HISTORY_DSID;
+    PROPERTY_NAME = parsePropertyName x.ZEVENT_HISTORY_INTERNAL_STR;
+    PROPERTY_VALUE = parsePropertyValue x.ZEVENT_HISTORY_INTERNAL_STR;
   }
 
 let private mapToPool = extractPoolEvent >> poolFromEvent >> Some
 
 let private mapToDataset = extractHistoryEvent >> datasetFromEvent >> Some
 
+let private mapToProperty = extractHistoryEvent >> propertyFromEvent >> Some
+
 let private isDestroyClass = hasZeventClassName "sysevent.fs.zfs.pool_destroy"
 
 let private isHistoryClass = hasZeventClassName "sysevent.fs.zfs.history_event"
+
+let isSetInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" "set"
 
 let (|ZedGeneric|_|) =
   function
@@ -139,5 +166,21 @@ let (|ZedDataset|_|) str =
   let isInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" str
 
   function
-    | x when isHistoryClass x && isInternalName x -> mapToDataset x
+    | x when Map.containsKey "ZEVENT_HISTORY_DSID" x
+             && isHistoryClass x && isInternalName x
+      -> mapToDataset x
+    | _ -> None
+
+let (|ZedPoolProperty|_|) =
+  function
+    | x when not (Map.containsKey "ZEVENT_HISTORY_DSID" x)
+             && isHistoryClass x && isSetInternalName x
+      -> mapToProperty x
+    | _ -> None
+
+let (|ZedDatasetProperty|_|) =
+  function
+    | x when Map.containsKey "ZEVENT_HISTORY_DSID" x
+             && isHistoryClass x && isSetInternalName x
+      -> mapToProperty x
     | _ -> None

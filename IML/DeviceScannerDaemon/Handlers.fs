@@ -78,7 +78,7 @@ let dataHandler (``end``:string option -> unit) x =
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
         ``end`` None
-      | ZedGeneric _ ->
+      | ZedGeneric ->
         ``end`` None
       | _ ->
         ``end`` None

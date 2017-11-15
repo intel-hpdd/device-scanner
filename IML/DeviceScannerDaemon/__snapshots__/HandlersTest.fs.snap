@@ -2,4 +2,30 @@
 
 exports[`Data Handler Should add then remove a device path 1`] = `"{\\"BLOCK_DEVICES\\":{\\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\":{\\"MAJOR\\":\\"8\\",\\"MINOR\\":\\"17\\",\\"PATHS\\":[\\"/dev/sdb1\\",\\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1\\",\\"/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\\"],\\"DEVNAME\\":\\"/dev/sdb1\\",\\"DEVPATH\\":\\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\",\\"DEVTYPE\\":\\"partition\\",\\"ID_VENDOR\\":null,\\"ID_MODEL\\":\\"VBOX_HARDDISK\\",\\"ID_SERIAL\\":\\"VBOX_HARDDISK_VB304a0a0f-15e93f07\\",\\"ID_FS_TYPE\\":\\"LVM2_member\\",\\"ID_PART_ENTRY_NUMBER\\":1,\\"IML_SIZE\\":\\"81784832\\",\\"IML_SCSI_80\\":\\"80\\",\\"IML_SCSI_83\\":\\"83\\",\\"IML_IS_RO\\":true,\\"IML_DM_SLAVE_MMS\\":null,\\"IML_DM_VG_SIZE\\":null,\\"DM_MULTIPATH_DEVICE_PATH\\":true,\\"DM_LV_NAME\\":\\"swap\\",\\"DM_VG_NAME\\":\\"centos\\",\\"DM_UUID\\":\\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\"}},\\"ZFSPOOLS\\":{}}"`;
 
+exports[`Data Handler Should add then remove a device path 2`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{}}"`;
+
+exports[`Data Handler Should add then remove a zdataset 1`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{\\"11\\":{\\"POOL_UID\\":\\"0x2D28F440E514007F\\",\\"DATASET_NAME\\":\\"testPool1/home\\",\\"DATASET_UID\\":\\"11\\"}}}}}"`;
+
+exports[`Data Handler Should add then remove a zdataset 2`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should add then remove a zpool 1`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should add then remove a zpool 2`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{}}"`;
+
+exports[`Data Handler Should call end with map for info event 1`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{}}"`;
+
 exports[`Data Handler Should end on a bad match 1`] = `"Handler got a bad match"`;
+
+exports[`Data Handler Should export then import zpool with datasets 1`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"EXPORTED\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{\\"11\\":{\\"POOL_UID\\":\\"0x2D28F440E514007F\\",\\"DATASET_NAME\\":\\"testPool1/home\\",\\"DATASET_UID\\":\\"11\\"}}}}}"`;
+
+exports[`Data Handler Should export then import zpool with datasets 2`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{\\"11\\":{\\"POOL_UID\\":\\"0x2D28F440E514007F\\",\\"DATASET_NAME\\":\\"testPool1/home\\",\\"DATASET_UID\\":\\"11\\"}}}}}"`;
+
+exports[`Data Handler Should export then import zpool with datasets 3`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"EXPORTED\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should export then import zpool with datasets 4`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should import then export then import a zpool 1`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should import then export then import a zpool 2`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"EXPORTED\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;
+
+exports[`Data Handler Should import then export then import a zpool 3`] = `"{\\"BLOCK_DEVICES\\":{},\\"ZFSPOOLS\\":{\\"0x2D28F440E514007F\\":{\\"NAME\\":\\"testPool1\\",\\"UID\\":\\"0x2D28F440E514007F\\",\\"STATE_STR\\":\\"ACTIVE\\",\\"PATH\\":\\"testPool1\\",\\"DATASETS\\":{}}}}"`;

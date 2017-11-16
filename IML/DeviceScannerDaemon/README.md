@@ -33,7 +33,7 @@ Consumers can send a JSON Request over the socket to retrieve the current listin
                │
                ▼
   ┌─────────────────────────┐
-  │  Block-Device Listener  │
+  │      Event Listener     │
   └─────────────────────────┘
                │
                │

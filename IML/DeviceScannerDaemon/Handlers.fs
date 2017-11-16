@@ -13,16 +13,14 @@ open ZFSEventTypes
 
 
 let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
-let mutable zpoolMap:Map<string, ZfsPool> = Map.empty
+let mutable zpoolMap:Map<ZfsPoolUid, ZfsPool> = Map.empty
 
 type DataMaps = {
   BLOCK_DEVICES: Map<DevPath, AddEvent>;
-  ZFSPOOLS: Map<string, ZfsPool>;
+  ZFSPOOLS: Map<ZfsPoolUid, ZfsPool>;
 }
 
 type DatasetAction = CreateDataset | DestroyDataset
-
-type PropertyOwner = Dataset | Pool
 
 let (|Info|_|) (x:Map<string,Json.Json>) =
   match x with
@@ -93,7 +91,7 @@ let dataHandler (``end``:string option -> unit) x =
         ``end`` None
       | ZedDatasetProperty x ->
 
-        let updatedDataset (datasets:Map<string, ZfsDataset>) =
+        let updatedDataset (datasets:Map<ZfsDatasetUid, ZfsDataset>) =
           match Map.tryFind (Option.get x.DATASET_UID) datasets with
             | Some dataset ->
               { dataset with PROPERTIES = dataset.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }

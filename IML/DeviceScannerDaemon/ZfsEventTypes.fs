@@ -4,13 +4,21 @@
 
 module IML.DeviceScannerDaemon.ZFSEventTypes
 
-open Fable.PowerPack.Json
+open Fable.PowerPack
+open Json
+open Fable.Core
 open IML.JsonDecoders
 
 let private hasPair k v m =
   m
     |> Map.tryFindKey (fun k' v' -> k = k' && String(v) = v')
     |> Option.isSome
+
+[<Erase>]
+type ZfsPoolUid = ZfsPoolUid of string
+
+[<Erase>]
+type ZfsDatasetUid = ZfsDatasetUid of string
 
 let private tryFindStr = tryFindJson str
 
@@ -27,9 +35,9 @@ type ZedHistoryEvent = {
   ZEVENT_HISTORY_INTERNAL_NAME: string;
   ZEVENT_HISTORY_INTERNAL_STR: string;
   ZEVENT_POOL: string;
-  ZEVENT_POOL_GUID: string;
+  ZEVENT_POOL_GUID: ZfsPoolUid;
   ZEVENT_POOL_STATE_STR: string;
-  ZEVENT_HISTORY_DSID: string option;
+  ZEVENT_HISTORY_DSID: ZfsDatasetUid option;
   ZEVENT_HISTORY_DSNAME: string option;
 }
 
@@ -40,36 +48,40 @@ type ZedPoolEvent = {
   ZEVENT_CLASS: string;
   ZEVENT_SUBCLASS: string;
   ZEVENT_POOL: string;
-  ZEVENT_POOL_GUID: string;
+  ZEVENT_POOL_GUID: ZfsPoolUid;
   ZEVENT_POOL_STATE_STR: string;
 }
 
 type ZfsDataset = {
-  POOL_UID: string;
+  POOL_UID: ZfsPoolUid;
   DATASET_NAME: string;
-  DATASET_UID: string;
+  DATASET_UID: ZfsDatasetUid;
   PROPERTIES: Map<string, string>;
 }
 
 type ZfsPool = {
   NAME: string;
-  UID: string;
+  UID: ZfsPoolUid;
   STATE_STR: string;
   PATH: string;
-  DATASETS: Map<string, ZfsDataset>;
+  DATASETS: Map<ZfsDatasetUid, ZfsDataset>;
   PROPERTIES: Map<string, string>;
 }
 
 type ZfsProperty = {
-    POOL_UID: string;
-    DATASET_UID: string option;
-    PROPERTY_NAME: string;
-    PROPERTY_VALUE: string;
+  POOL_UID: ZfsPoolUid;
+  DATASET_UID: ZfsDatasetUid option;
+  PROPERTY_NAME: string;
+  PROPERTY_VALUE: string;
 }
 
 let private parsePropertyName (x:string) = x.Split([| '=' |]).[0]
 
 let private parsePropertyValue (x:string) = x.Split([| '=' |]).[1]
+
+let private parsePoolUid = findStr "ZEVENT_POOL_GUID" >> ZfsPoolUid
+
+let private parseDatasetUid = tryFindStr "ZEVENT_HISTORY_DSID" >> Option.map ZfsDatasetUid
 
 let extractHistoryEvent x =
   {
@@ -82,9 +94,9 @@ let extractHistoryEvent x =
     ZEVENT_HISTORY_INTERNAL_NAME = findStr "ZEVENT_HISTORY_INTERNAL_NAME" x;
     ZEVENT_HISTORY_INTERNAL_STR = findStr "ZEVENT_HISTORY_INTERNAL_STR" x;
     ZEVENT_POOL = findStr "ZEVENT_POOL" x;
-    ZEVENT_POOL_GUID = findStr "ZEVENT_POOL_GUID" x;
+    ZEVENT_POOL_GUID = parsePoolUid x;
     ZEVENT_POOL_STATE_STR = findStr "ZEVENT_POOL_STATE_STR" x;
-    ZEVENT_HISTORY_DSID = tryFindStr "ZEVENT_HISTORY_DSID" x;
+    ZEVENT_HISTORY_DSID = parseDatasetUid x;
     ZEVENT_HISTORY_DSNAME = tryFindStr "ZEVENT_HISTORY_DSNAME" x;
   }
 
@@ -96,7 +108,7 @@ let extractPoolEvent x =
     ZEVENT_CLASS = findStr "ZEVENT_CLASS" x;
     ZEVENT_SUBCLASS = findStr "ZEVENT_SUBCLASS" x;
     ZEVENT_POOL = findStr "ZEVENT_POOL" x;
-    ZEVENT_POOL_GUID = findStr "ZEVENT_POOL_GUID" x;
+    ZEVENT_POOL_GUID = parsePoolUid x;
     ZEVENT_POOL_STATE_STR = findStr "ZEVENT_POOL_STATE_STR" x;
   }
 

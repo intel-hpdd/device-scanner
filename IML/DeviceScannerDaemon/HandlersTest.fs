@@ -134,5 +134,91 @@ testList "Data Handler" [
 
       handleJson importZpool
       evaluate handler ``end``;
-  ]
+
+    "Should add pool property then export then import", fun (``end``, handler) ->
+      expect.assertions 4
+      let handleJson = mapToJson >> handler
+
+      handleJson createZpool
+      handleJson createZpoolProperty
+      evaluate handler ``end``
+
+      handleJson exportZpool
+      evaluate handler ``end``
+
+      handleJson importZpool
+      evaluate handler ``end``
+
+      handleJson destroyZpool
+      evaluate handler ``end``;
+
+    "Should add dataset property then export then import", fun (``end``, handler) ->
+      expect.assertions 4
+      let handleJson = mapToJson >> handler
+
+      handleJson createZpool
+      handleJson createZdataset
+      handleJson createZdatasetProperty
+      evaluate handler ``end``
+
+      handleJson exportZpool
+      evaluate handler ``end``
+
+      handleJson importZpool
+      evaluate handler ``end``
+
+      handleJson destroyZdataset
+      evaluate handler ``end``;
+
+    "Should add multiple pool properties then add two datasets with multiple properties then export then import", fun (``end``, handler) ->
+      expect.assertions 5
+      let handleJson = mapToJson >> handler
+
+      handleJson createZpool
+      handleJson createZdataset
+      handleJson createZdatasetProperty
+      handleJson createZdatasetPropertyTwo
+      handleJson createSecondZdataset
+      handleJson createSecondZdatasetProperty
+      handleJson createSecondZdatasetPropertyTwo
+      handleJson createZpoolProperty
+      handleJson createZpoolPropertyTwo
+      evaluate handler ``end``
+
+      handleJson exportZpool
+      evaluate handler ``end``
+
+      handleJson importZpool
+      evaluate handler ``end``
+
+      handleJson resetZpoolProperty
+      handleJson resetZdatasetProperty
+      evaluate handler ``end``
+
+      handleJson destroyZpool
+      evaluate handler ``end``;
+
+    "Should fail when adding a dataset to non-existent pool", fun (_, handler) ->
+      expect.assertions 1
+      let handleJson = mapToJson >> handler
+      expect.Invoke(fun () -> handleJson createZdataset).toThrowErrorMatchingSnapshot();
+
+    "Should fail when adding a property to non-existent pool", fun (_, handler) ->
+      expect.assertions 1
+      let handleJson = mapToJson >> handler
+      expect.Invoke(fun () -> handleJson createZpoolProperty).toThrowErrorMatchingSnapshot();
+
+    "Should fail when adding a property to non-existent dataset on a non-existent pool", fun (_, handler) ->
+      expect.assertions 1
+      let handleJson = mapToJson >> handler
+
+      expect.Invoke(fun () -> handleJson createZdatasetProperty).toThrowErrorMatchingSnapshot();
+
+    "Should fail when adding a property to non-existent dataset", fun (_, handler) ->
+      expect.assertions 1
+      let handleJson = mapToJson >> handler
+
+      handleJson createZpool
+      expect.Invoke(fun () -> handleJson createZdatasetProperty).toThrowErrorMatchingSnapshot();
+    ]
 ]

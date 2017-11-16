@@ -36,7 +36,7 @@ let updateDatasets (action:DatasetAction) (x:ZfsDataset) =
   match Map.tryFind x.POOL_UID zpoolMap with
     | Some pool ->
       { pool with DATASETS = matchAction pool }
-    | None -> failwith (sprintf "Pool to update datasets on is missing! %A" x.POOL_UID)
+    | None -> failwith (sprintf "Pool to update dataset on is missing! %A" x.POOL_UID)
 
 let dataHandler (``end``:string option -> unit) x =
   x
@@ -61,7 +61,7 @@ let dataHandler (``end``:string option -> unit) x =
         let updatedPool =
           match Map.tryFind x.UID zpoolMap with
             | Some pool ->
-              { x with DATASETS = pool.DATASETS }
+              { x with DATASETS = pool.DATASETS; PROPERTIES = pool.PROPERTIES }
             | None -> x
 
         zpoolMap <- Map.add x.UID updatedPool zpoolMap
@@ -85,7 +85,7 @@ let dataHandler (``end``:string option -> unit) x =
           match Map.tryFind x.POOL_UID zpoolMap with
             | Some pool ->
               { pool with PROPERTIES = pool.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }
-            | None -> failwith (sprintf "Pool to update properties on is missing! %A" x.POOL_UID)
+            | None -> failwith (sprintf "Pool to update property on is missing! %A" x.POOL_UID)
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
         ``end`` None
@@ -96,13 +96,13 @@ let dataHandler (``end``:string option -> unit) x =
             | Some dataset ->
               { dataset with PROPERTIES = dataset.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }
             | None
-              -> failwith (sprintf "Dataset to update properties on is missing! %A (pool %A)" x.DATASET_UID x.POOL_UID)
+              -> failwith (sprintf "Dataset to update property on is missing! %A (pool %A)" x.DATASET_UID x.POOL_UID)
 
         let updatedPool =
           match Map.tryFind x.POOL_UID zpoolMap with
             | Some pool ->
               { pool with DATASETS = pool.DATASETS.Add (Option.get x.DATASET_UID, updatedDataset pool.DATASETS)  }
-            | None -> failwith (sprintf "Pool to update properties on is missing! %A" x.POOL_UID)
+            | None -> failwith (sprintf "Pool to update dataset property on is missing! %A" x.POOL_UID)
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
         ``end`` None

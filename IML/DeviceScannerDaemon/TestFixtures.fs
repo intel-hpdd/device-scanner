@@ -58,6 +58,34 @@ let addObj = toMap """
 }
 """
 
+let addMdraidObj = toMap """
+{
+  "ACTION": "add",
+  "DEVLINKS": "/dev/disk/by-id/md-name-lotus-32vm6:0 /dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910",
+  "DEVNAME": "/dev/md0",
+  "DEVPATH": "/devices/virtual/block/md0",
+  "DEVTYPE": "disk",
+  "ID_FS_TYPE": "",
+  "IML_IS_RO": "0",
+  "IML_SIZE": "41910272",
+  "MAJOR": "9",
+  "MD_DEVICES": "2",
+  "MD_DEVICE_sda_DEV": "/dev/sda",
+  "MD_DEVICE_sda_ROLE": "0",
+  "MD_DEVICE_sdd_DEV": "/dev/sdd",
+  "MD_DEVICE_sdd_ROLE": "1",
+  "MD_LEVEL": "raid0",
+  "MD_METADATA": "1.2",
+  "MD_NAME": "lotus-32vm6:0",
+  "MD_UUID": "685b40ee:f2bc2028:f056f6d2:e292c910",
+  "MINOR": "0",
+  "MPATH_SBIN_PATH": "/sbin",
+  "SUBSYSTEM": "block",
+  "TAGS": ":systemd:",
+  "USEC_INITIALIZED": "426309440135"
+}
+"""
+
 let removeObj = toMap """
 {
   "ACTION": "remove",

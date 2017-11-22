@@ -18,10 +18,12 @@ AddEvent {
   "IML_DM_SLAVE_MMS": null,
   "IML_DM_VG_SIZE": null,
   "IML_IS_RO": true,
+  "IML_MD_DEVICES": null,
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
   "IML_SIZE": "81784832",
   "MAJOR": "8",
+  "MD_UUID": null,
   "MINOR": "17",
   "PATHS": Array [
     "/dev/sdb1",
@@ -49,10 +51,12 @@ AddEvent {
   "IML_DM_SLAVE_MMS": null,
   "IML_DM_VG_SIZE": null,
   "IML_IS_RO": true,
+  "IML_MD_DEVICES": null,
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
   "IML_SIZE": "81784832",
   "MAJOR": "8",
+  "MD_UUID": null,
   "MINOR": "17",
   "PATHS": Array [
     "/dev/sdb1",
@@ -83,10 +87,12 @@ AddEvent {
   ],
   "IML_DM_VG_SIZE": "21466447872B",
   "IML_IS_RO": true,
+  "IML_MD_DEVICES": null,
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
   "IML_SIZE": "81784832",
   "MAJOR": "8",
+  "MD_UUID": null,
   "MINOR": "17",
   "PATHS": Array [
     "/dev/sdb1",
@@ -118,10 +124,12 @@ AddEvent {
   "IML_DM_SLAVE_MMS": null,
   "IML_DM_VG_SIZE": null,
   "IML_IS_RO": false,
+  "IML_MD_DEVICES": null,
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
   "IML_SIZE": "81784832",
   "MAJOR": "8",
+  "MD_UUID": null,
   "MINOR": "17",
   "PATHS": Array [
     "/dev/sdb1",
@@ -149,10 +157,12 @@ AddEvent {
   "IML_DM_SLAVE_MMS": null,
   "IML_DM_VG_SIZE": null,
   "IML_IS_RO": true,
+  "IML_MD_DEVICES": null,
   "IML_SCSI_80": "80",
   "IML_SCSI_83": "83",
   "IML_SIZE": "81784832",
   "MAJOR": "8",
+  "MD_UUID": null,
   "MINOR": "17",
   "PATHS": Array [
     "/dev/sdb1",
@@ -167,3 +177,39 @@ exports[`Matching Events 8`] = `"DEVTYPE neither partition or disk"`;
 exports[`Matching Events 9`] = `"Could not find key DEVNAME in map [[\\"ACTION\\",{\\"tag\\":0,\\"data\\":\\"add\\"}]; [\\"DEVLINKS\\",{\\"tag\\":0,\\"data\\":\\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\\"}]; [\\"DEVPATH\\",{\\"tag\\":0,\\"data\\":\\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\"}]; [\\"DEVTYPE\\",{\\"tag\\":0,\\"data\\":\\"partition\\"}]; [\\"DM_LV_NAME\\",{\\"tag\\":0,\\"data\\":\\"swap\\"}]; [\\"DM_MULTIPATH_DEVICE_PATH\\",{\\"tag\\":0,\\"data\\":\\"1\\"}]; [\\"DM_SLAVE_MMS\\",{\\"tag\\":0,\\"data\\":\\"252:2\\"}]; [\\"DM_UUID\\",{\\"tag\\":0,\\"data\\":\\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\"}]; [\\"DM_VG_NAME\\",{\\"tag\\":0,\\"data\\":\\"centos\\"}]; [\\"DM_VG_SIZE\\",{\\"tag\\":0,\\"data\\":\\" 20946354176B\\"}]; [\\"ID_ATA\\",{\\"tag\\":0,\\"data\\":\\"1\\"}]; [\\"ID_ATA_FEATURE_SET_PM\\",{\\"tag\\":1,\\"data\\":1}]; [\\"ID_ATA_FEATURE_SET_PM_ENABLED\\",{\\"tag\\":1,\\"data\\":1}]; [\\"ID_ATA_WRITE_CACHE\\",{\\"tag\\":1,\\"data\\":1}]; [\\"ID_ATA_WRITE_CACHE_ENABLED\\",{\\"tag\\":1,\\"data\\":1}]; [\\"ID_BUS\\",{\\"tag\\":0,\\"data\\":\\"ata\\"}]; [\\"ID_FS_TYPE\\",{\\"tag\\":0,\\"data\\":\\"LVM2_member\\"}]; [\\"ID_FS_USAGE\\",{\\"tag\\":0,\\"data\\":\\"filesystem\\"}]; [\\"ID_MODEL\\",{\\"tag\\":0,\\"data\\":\\"VBOX_HARDDISK\\"}]; [\\"ID_MODEL_ENC\\",{\\"tag\\":0,\\"data\\":\\"VBOX HARDDISK\\"}]; [\\"ID_PART_ENTRY_DISK\\",{\\"tag\\":0,\\"data\\":\\"8:16\\"}]; [\\"ID_PART_ENTRY_NUMBER\\",{\\"tag\\":0,\\"data\\":\\"1\\"}]; [\\"ID_PART_ENTRY_OFFSET\\",{\\"tag\\":0,\\"data\\":\\"2048\\"}]; [\\"ID_PART_ENTRY_SCHEME\\",{\\"tag\\":0,\\"data\\":\\"dos\\"}]; [\\"ID_PART_ENTRY_SIZE\\",{\\"tag\\":0,\\"data\\":\\"2048\\"}]; [\\"ID_PART_ENTRY_TYPE\\",{\\"tag\\":0,\\"data\\":\\"0x83\\"}]; [\\"ID_PART_TABLE_TYPE\\",{\\"tag\\":0,\\"data\\":\\"dos\\"}]; [\\"ID_PATH\\",{\\"tag\\":0,\\"data\\":\\"pci-0000:00:01.1-ata-1.0\\"}]; [\\"ID_PATH_TAG\\",{\\"tag\\":0,\\"data\\":\\"pci-0000_00_01_1-ata-1_0\\"}]; [\\"ID_REVISION\\",{\\"tag\\":0,\\"data\\":\\"1.0\\"}]; [\\"ID_SERIAL\\",{\\"tag\\":0,\\"data\\":\\"VBOX_HARDDISK_VB304a0a0f-15e93f07\\"}]; [\\"ID_SERIAL_SHORT\\",{\\"tag\\":0,\\"data\\":\\"VB304a0a0f-15e93f07\\"}]; [\\"ID_TYPE\\",{\\"tag\\":0,\\"data\\":\\"disk\\"}]; [\\"IML_IS_RO\\",{\\"tag\\":0,\\"data\\":\\"1\\"}]; [\\"IML_SCSI_80\\",{\\"tag\\":0,\\"data\\":\\"80\\"}]; [\\"IML_SCSI_83\\",{\\"tag\\":0,\\"data\\":\\"83\\"}]; [\\"IML_SIZE\\",{\\"tag\\":0,\\"data\\":\\"81784832\\"}]; [\\"MAJOR\\",{\\"tag\\":0,\\"data\\":\\"8\\"}]; [\\"MINOR\\",{\\"tag\\":0,\\"data\\":\\"17\\"}]; [\\"SEQNUM\\",{\\"tag\\":0,\\"data\\":\\"1566\\"}]; [\\"SUBSYSTEM\\",{\\"tag\\":0,\\"data\\":\\"block\\"}]; [\\"TAGS\\",{\\"tag\\":0,\\"data\\":\\":systemd:\\"}]; [\\"USEC_INITIALIZED\\",{\\"tag\\":0,\\"data\\":\\"842\\"}]]"`;
 
 exports[`Matching Events 10`] = `"Invalid JSON, it must be a string"`;
+
+exports[`Matching Events 11`] = `
+AddEvent {
+  "DEVNAME": "/dev/md0",
+  "DEVPATH": "/devices/virtual/block/md0",
+  "DEVTYPE": "disk",
+  "DM_LV_NAME": null,
+  "DM_MULTIPATH_DEVICE_PATH": null,
+  "DM_UUID": null,
+  "DM_VG_NAME": null,
+  "ID_FS_TYPE": null,
+  "ID_FS_USAGE": null,
+  "ID_MODEL": null,
+  "ID_PART_ENTRY_NUMBER": null,
+  "ID_SERIAL": null,
+  "ID_VENDOR": null,
+  "IML_DM_SLAVE_MMS": null,
+  "IML_DM_VG_SIZE": null,
+  "IML_IS_RO": false,
+  "IML_MD_DEVICES": Array [
+    "/dev/sda",
+    "/dev/sdd",
+  ],
+  "IML_SCSI_80": null,
+  "IML_SCSI_83": null,
+  "IML_SIZE": "41910272",
+  "MAJOR": "9",
+  "MD_UUID": "685b40ee:f2bc2028:f056f6d2:e292c910",
+  "MINOR": "0",
+  "PATHS": Array [
+    "/dev/md0",
+    "/dev/disk/by-id/md-name-lotus-32vm6:0",
+    "/dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910",
+  ],
+}
+`;

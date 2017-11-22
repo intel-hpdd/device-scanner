@@ -10,7 +10,7 @@ let addDiskObj =
   addObj
     |> Map.add "DEVTYPE" (Json.String("disk"))
 
-let addDmDiskObj =
+let addDmObj =
   addObj
     |> Map.add "DEVTYPE" (Json.String("disk"))
     |> Map.add "DM_UUID" (Json.String("LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D"))
@@ -38,13 +38,13 @@ let removeMatch = function
   | _ -> None
 
 test "Matching Events" <| fun () ->
-  expect.assertions 10
+  expect.assertions 11
 
   toMatchSnapshot (addMatch addObj)
 
   toMatchSnapshot (addMatch addDiskObj)
 
-  toMatchSnapshot (addMatch addDmDiskObj)
+  toMatchSnapshot (addMatch addDmObj)
 
   toMatchSnapshot (removeMatch removeObj)
 
@@ -59,3 +59,5 @@ test "Matching Events" <| fun () ->
   expect.Invoke(fun () -> addMatch missingDevNameObj).toThrowErrorMatchingSnapshot()
 
   expect.Invoke(fun () -> addMatch floatDevTypeObj).toThrowErrorMatchingSnapshot()
+
+  toMatchSnapshot (addMatch addMdraidObj)

@@ -43,6 +43,7 @@ type AddEvent = {
   ID_MODEL: string option;
   ID_SERIAL: string option;
   ID_FS_TYPE: string option;
+  ID_FS_USAGE: string option;
   ID_PART_ENTRY_NUMBER: int option;
   IML_SIZE: string option;
   IML_SCSI_80: string option;
@@ -92,6 +93,7 @@ let extractAddEvent x =
     ID_MODEL = tryFindStr "ID_MODEL" x;
     ID_SERIAL = tryFindStr "ID_SERIAL" x;
     ID_FS_TYPE = tryFindStr "ID_FS_TYPE" x |> Option.bind(emptyStrToNone);
+    ID_FS_USAGE = tryFindStr "ID_FS_USAGE" x |> Option.bind(emptyStrToNone);
     ID_PART_ENTRY_NUMBER = tryFindStr "ID_PART_ENTRY_NUMBER" x |> Option.map (int)
     IML_SIZE = tryFindStr "IML_SIZE" x |> Option.bind(emptyStrToNone);
     IML_IS_RO = tryFindStr "IML_IS_RO" x |> Option.map(isOne)

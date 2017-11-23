@@ -36,6 +36,7 @@ let addObj = toMap """
   "ID_REVISION": "1.0",
   "ID_SERIAL": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
   "ID_FS_TYPE": "LVM2_member",
+  "ID_FS_USAGE": "filesystem",
   "ID_SERIAL_SHORT": "VB304a0a0f-15e93f07",
   "ID_TYPE": "disk",
   "MAJOR": "8",

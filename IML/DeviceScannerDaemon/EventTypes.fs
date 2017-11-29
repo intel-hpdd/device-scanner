@@ -49,7 +49,7 @@ type AddEvent = {
   IML_SCSI_80: string option;
   IML_SCSI_83: string option;
   IML_IS_RO: bool option;
-  IML_DM_SLAVE_MMS: string [] option;
+  IML_DM_SLAVE_MMS: string [];
   IML_DM_VG_SIZE: string option;
   IML_MD_DEVICES: string [];
   DM_MULTIPATH_DEVICE_PATH: bool option;
@@ -73,6 +73,12 @@ let private parseMdDevices x =
     |> Map.filter (fun (k:string) _ -> k.EndsWith("_DEV"))
     |> Map.toArray
     |> Array.map (snd >> unwrapString)
+let private parseDmSlaveMms (x:Map<string,Json>) =
+  x
+    |> Map.filter (fun (k:string) _ -> k.Equals("IML_DM_SLAVE_MMS"))
+    |> Map.toArray
+    |> Array.map snd
+    |> Array.collect (unwrapString >> split [| ' ' |])
 
 let extractAddEvent x =
   let devType =
@@ -107,9 +113,7 @@ let extractAddEvent x =
     IML_IS_RO = tryFindStr "IML_IS_RO" x |> Option.map(isOne)
     IML_SCSI_80 = tryFindStr "IML_SCSI_80" x |> Option.map(trim);
     IML_SCSI_83 = tryFindStr "IML_SCSI_83" x |> Option.map(trim);
-    IML_DM_SLAVE_MMS = tryFindStr "IML_DM_SLAVE_MMS" x
-      |> Option.map(split [| ' ' |])
-      |> Option.map(Array.map(trim));
+    IML_DM_SLAVE_MMS = parseDmSlaveMms x;
     IML_DM_VG_SIZE = tryFindStr "IML_DM_VG_SIZE" x |> Option.map(trim);
     IML_MD_DEVICES = parseMdDevices x;
     DM_MULTIPATH_DEVICE_PATH = tryFindStr "DM_MULTIPATH_DEVICE_PATH" x |> Option.map(isOne);

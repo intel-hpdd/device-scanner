@@ -65,19 +65,14 @@ let private isOne = function
 
 let private tryFindStr = tryFindJson str
 
-let private (|EmptySeq|_|) x = if Seq.isEmpty x then None else Some ()
-
 let private parseDevName = findStr "DEVNAME" >> Path
 let private parseDevPath = findStr "DEVPATH" >> DevPath
 let private parseMdDevices x =
-  let keys:seq<string> = x |> Map.toSeq |> Seq.map fst
-
-  let deviceKeys:seq<string> =
-    seq { for key in keys do if (key.StartsWith("MD_DEVICE_") && key.EndsWith("_DEV")) then yield key }
-
-  match deviceKeys with
-    | EmptySeq -> Some (seq { for key in deviceKeys -> findStr key x } |> Seq.toArray)
-    | _ -> None
+  x
+    |> Map.filter (fun (k:string) _ -> k.StartsWith("MD_DEVICE_"))
+    |> Map.filter (fun (k:string) _ -> k.EndsWith("_DEV"))
+    |> Map.toArray
+    |> Array.map (fun (_, v) -> str v)
 
 let extractAddEvent x =
   let devType =

@@ -51,7 +51,7 @@ type AddEvent = {
   IML_IS_RO: bool option;
   IML_DM_SLAVE_MMS: string [] option;
   IML_DM_VG_SIZE: string option;
-  IML_MD_DEVICES: string [] option;
+  IML_MD_DEVICES: string [];
   DM_MULTIPATH_DEVICE_PATH: bool option;
   DM_LV_NAME: string option;
   DM_VG_NAME: string option;
@@ -72,7 +72,7 @@ let private parseMdDevices x =
     |> Map.filter (fun (k:string) _ -> k.StartsWith("MD_DEVICE_"))
     |> Map.filter (fun (k:string) _ -> k.EndsWith("_DEV"))
     |> Map.toArray
-    |> Array.map (fun (_, v) -> str v)
+    |> Array.map (snd >> unwrapString)
 
 let extractAddEvent x =
   let devType =

@@ -75,7 +75,7 @@ let private parseMdDevices x =
     |> Array.map (snd >> unwrapString)
 let private parseDmSlaveMms (x:Map<string,Json>) =
   x
-    |> Map.filter (fun (k:string) _ -> k.Equals("IML_DM_SLAVE_MMS"))
+    |> Map.filter (fun k _ -> k = "IML_DM_SLAVE_MMS")
     |> Map.toArray
     |> Array.map snd
     |> Array.collect (unwrapString >> split [| ' ' |])

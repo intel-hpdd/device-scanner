@@ -6,7 +6,7 @@ module IML.EventListener.Listener
 
 open Fable.Import.JS
 open Fable.Import.Node
-open NodeHelpers
+open NodeHelpers.NetHelpers
 
 let private client = connect { path = "/var/run/device-scanner.sock"; }
 

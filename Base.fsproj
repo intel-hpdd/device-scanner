@@ -22,6 +22,7 @@
     <Compile Include="IML/DeviceScannerDaemon/Handlers.fs" />
     <Compile Include="IML/DeviceScannerDaemon/HandlersTest.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Server.fs" />
+    <Compile Include="IML/Test/VagrantTestFramework.fs" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

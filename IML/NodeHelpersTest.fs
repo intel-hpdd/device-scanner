@@ -13,46 +13,55 @@ open Globals
 
 testList "NodeHelpers" [
   let withSetup f () =
-    let onFn evt (fn:string -> obj) = fn evt
-    let mockOnAndOnce = Matcher2<string, string -> obj, obj>(onFn)
+    let onStringToObj evt (fn:string -> obj) = fn evt
+    let mockOnStringToObj = Matcher<string, obj>()
+    let mockOnAndOnce = Matcher2<string, string -> obj, obj>(onStringToObj)
     let mockConnect = Matcher<obj, obj>()
-    let mockFn = Matcher<string, obj>(fun evt -> createObj ["name" ==> evt])
+    let onObjToObj opts (fn:obj -> obj) = fn opts
+    let mockOnObjToObj = Matcher<obj, obj>()
+    let mockCreateServer = Matcher2<obj, obj -> obj, obj>(onObjToObj)
 
-    jest.mock("net", fun () -> createObj ["connect" ==> mockConnect.Mock])
+    jest.mock("net", fun () -> createObj [
+                                "connect" ==> mockConnect.Mock
+                                "createServer" ==> mockCreateServer.Mock
+    ])
 
     let nodeHelpers = require.Invoke "./NodeHelpers.fs"
-    f(nodeHelpers, mockConnect, mockOnAndOnce, mockFn)
+    f(nodeHelpers, mockConnect, mockCreateServer, mockOnAndOnce, mockOnStringToObj, mockOnObjToObj)
 
   yield! testFixture withSetup [
-    "should expose onceConnect", fun (nodeHelpers, _, mockOnce, mockFn) ->
+    "should expose onceConnect", fun (nodeHelpers, _, _, mockOnce, mockOnStringToObj, _) ->
       let c = createObj ["once" ==> mockOnce.Mock]
-      nodeHelpers?NetHelpers?onceConnect (id, c) |> ignore
+      nodeHelpers?NetHelpers?onceConnect (mockOnStringToObj.Mock, c) |> ignore
       mockOnce.CalledWith "connect" (expect.any Function)
+      mockOnStringToObj.CalledWith "connect"
 
-    "should expose onConnect", fun (nodeHelpers, _, mockOn, mockFn) ->
+    "should expose onConnect", fun (nodeHelpers, _, _, mockOn, mockOnStringToObj, _) ->
       let c = createObj ["on" ==> mockOn.Mock]
-      nodeHelpers?NetHelpers?onConnect (id, c) |> ignore
+      nodeHelpers?NetHelpers?onConnect (mockOnStringToObj.Mock, c) |> ignore
       mockOn.CalledWith "connect" (expect.any Function)
+      mockOnStringToObj.CalledWith "connect"
 
-    "should expose onData", fun (nodeHelpers, _, mockOn, mockFn) ->
+    "should expose onData", fun (nodeHelpers, _, _, mockOn, mockOnStringToObj, _) ->
       let c = createObj ["on" ==> mockOn.Mock]
-      nodeHelpers?NetHelpers?onData (id, c) |> ignore
+      nodeHelpers?NetHelpers?onData (mockOnStringToObj.Mock, c) |> ignore
       mockOn.CalledWith "data" (expect.any Function)
+      mockOnStringToObj.CalledWith "data"
 
-    "should expose connect with NetPath", fun (nodeHelpers, mockConnect, _, _) ->
+    "should expose onError", fun (nodeHelpers, _, _, mockOn, mockOnStringToObj, _) ->
+      let c = createObj ["on" ==> mockOn.Mock]
+      nodeHelpers?NetHelpers?onError (mockOnStringToObj.Mock, c) |> ignore
+      mockOn.CalledWith "error" (expect.any Function)
+      mockOnStringToObj.CalledWith "error"
+
+    "should expose connect with NetPath", fun (nodeHelpers, mockConnect, _, _, _, _) ->
       nodeHelpers?NetHelpers?connect (createObj ["path" ==> "/var/run/device-scanner.sock" ]) |> ignore
       mockConnect.CalledWith (createObj ["path" ==> "/var/run/device-scanner.sock"])
 
-
-    // "should call connect", fun (_, mockOnce, _) ->
-    //   mockOnce.CalledWith "connect" (expect.any Function);
-
-    // "should call end with process data", fun (_, mockOnce, mockEnd) ->
-    //   mockOnce.LastCall
-    //     |> snd
-    //     |> fun fn -> fn()
-    //     |> ignore
-
-    //   mockEnd.CalledWith <| expect.any String
+    "should expose createServer", fun (nodeHelpers, _, mockCreateServer, _, _, mockOnObjToObj) ->
+      let opts = createObj ["opt1" ==> "val1"]
+      nodeHelpers?NetHelpers?createServer (opts, mockOnObjToObj.Mock) |> ignore
+      mockCreateServer.CalledWith opts (expect.any Function)
+      mockOnObjToObj.CalledWith opts
   ]
 ]

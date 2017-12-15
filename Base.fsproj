@@ -9,6 +9,7 @@
     <Compile Include="IML/StringUtils.fs" />
     <Compile Include="IML/JsonDecoders.fs" />
     <Compile Include="IML/JsonDecodersTest.fs" />
+    <Compile Include="IML/Common.fs" />
     <Compile Include="IML/EventListener/Listener.fs" />
     <Compile Include="IML/EventListener/ListenerTest.fs" />
     <Compile Include="IML/LineDelimitedJsonStream/Stream.fs" />

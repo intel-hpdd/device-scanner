@@ -6,19 +6,13 @@ module IML.DeviceScannerDaemon.Handlers
 
 open Fable.Core.JsInterop
 open Fable.PowerPack
-
-open EventTypes
 open IML.JsonDecoders
+open IML.Common
+open EventTypes
 open ZFSEventTypes
 
-
-let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
-let mutable zpoolMap:Map<ZfsPoolUid, ZfsPool> = Map.empty
-
-type DataMaps = {
-  BLOCK_DEVICES: Map<DevPath, AddEvent>;
-  ZFSPOOLS: Map<ZfsPoolUid, ZfsPool>;
-}
+let mutable deviceMap:BlockDevMap = Map.empty
+let mutable zpoolMap:ZfsMap = Map.empty
 
 type DatasetAction = CreateDataset | DestroyDataset
 

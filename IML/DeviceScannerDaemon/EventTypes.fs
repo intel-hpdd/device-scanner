@@ -4,60 +4,17 @@
 
 module IML.DeviceScannerDaemon.EventTypes
 
-open Fable.PowerPack
-open Json
-open Fable.Core
+open Fable.PowerPack.Json
 open IML.JsonDecoders
 open IML.StringUtils
 open IML.Maybe
-
-let private hasPair k v m =
-  m
-    |> Map.tryFindKey (fun k' v' -> k = k' && v = v')
-    |> Option.isSome
-
-let hasAction v =
-  hasPair "ACTION" (String v)
-
-[<Erase>]
-type DevPath = DevPath of string
-[<Erase>]
-type Path = Path of string
+open IML.Common
 
 let (|Partition|Disk|) =
   function
     | x when x = "partition" -> Partition x
     | x when x = "disk" -> Disk x
     | _ -> failwith "DEVTYPE neither partition or disk"
-
-/// The data emitted after processing a
-/// udev block device add event
-type AddEvent = {
-  MAJOR: string;
-  MINOR: string;
-  PATHS: Path array option;
-  DEVNAME: Path;
-  DEVPATH: DevPath;
-  DEVTYPE: string;
-  ID_VENDOR: string option;
-  ID_MODEL: string option;
-  ID_SERIAL: string option;
-  ID_FS_TYPE: string option;
-  ID_FS_USAGE: string option;
-  ID_PART_ENTRY_NUMBER: int option;
-  IML_SIZE: string option;
-  IML_SCSI_80: string option;
-  IML_SCSI_83: string option;
-  IML_IS_RO: bool option;
-  IML_DM_SLAVE_MMS: string [];
-  IML_DM_VG_SIZE: string option;
-  IML_MD_DEVICES: string [];
-  DM_MULTIPATH_DEVICE_PATH: bool option;
-  DM_LV_NAME: string option;
-  DM_VG_NAME: string option;
-  DM_UUID: string option;
-  MD_UUID: string option;
-}
 
 let private isOne = function
   | "1" -> true

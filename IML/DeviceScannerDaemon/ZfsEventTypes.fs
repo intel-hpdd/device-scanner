@@ -4,25 +4,16 @@
 
 module IML.DeviceScannerDaemon.ZFSEventTypes
 
-open Fable.PowerPack
-open Json
-open Fable.Core
+open Fable.PowerPack.Json
 open IML.JsonDecoders
+open IML.Common
 
-let private hasPair k v m =
-  m
-    |> Map.tryFindKey (fun k' v' -> k = k' && String(v) = v')
-    |> Option.isSome
-
-[<Erase>]
-type ZfsPoolUid = ZfsPoolUid of string
-
-[<Erase>]
-type ZfsDatasetUid = ZfsDatasetUid of string
+let private hasPair' k v m =
+  hasPair k (String v) m
 
 let private tryFindStr = tryFindJson str
 
-let private hasZeventClassName = hasPair "ZEVENT_CLASS"
+let private hasZeventClassName = hasPair' "ZEVENT_CLASS"
 
 type ZedHistoryEvent = {
   ZEVENT_EID: string;
@@ -50,22 +41,6 @@ type ZedPoolEvent = {
   ZEVENT_POOL: string;
   ZEVENT_POOL_GUID: ZfsPoolUid;
   ZEVENT_POOL_STATE_STR: string;
-}
-
-type ZfsDataset = {
-  POOL_UID: ZfsPoolUid;
-  DATASET_NAME: string;
-  DATASET_UID: ZfsDatasetUid;
-  PROPERTIES: Map<string, string>;
-}
-
-type ZfsPool = {
-  NAME: string;
-  UID: ZfsPoolUid;
-  STATE_STR: string;
-  PATH: string;
-  DATASETS: Map<ZfsDatasetUid, ZfsDataset>;
-  PROPERTIES: Map<string, string>;
 }
 
 type ZfsProperty = {
@@ -148,7 +123,7 @@ let private isDestroyClass = hasZeventClassName "sysevent.fs.zfs.pool_destroy"
 
 let private isHistoryClass = hasZeventClassName "sysevent.fs.zfs.history_event"
 
-let isSetInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" "set"
+let isSetInternalName = hasPair' "ZEVENT_HISTORY_INTERNAL_NAME" "set"
 
 let (|ZedGeneric|_|) =
   function
@@ -161,21 +136,21 @@ let (|ZedPool|_|) str =
     | _ -> None
 
 let (|ZedExport|_|) =
-  let isExportState = hasPair "ZEVENT_POOL_STATE_STR" "EXPORTED"
+  let isExportState = hasPair' "ZEVENT_POOL_STATE_STR" "EXPORTED"
 
   function
     | x when isDestroyClass x && isExportState x -> mapToPool x
     | _ -> None
 
 let (|ZedDestroy|_|) =
-  let isDestroyState = hasPair "ZEVENT_POOL_STATE_STR" "DESTROYED"
+  let isDestroyState = hasPair' "ZEVENT_POOL_STATE_STR" "DESTROYED"
 
   function
     | x when isDestroyClass x && isDestroyState x -> mapToPool x
     | _ -> None
 
 let (|ZedDataset|_|) str =
-  let isInternalName = hasPair "ZEVENT_HISTORY_INTERNAL_NAME" str
+  let isInternalName = hasPair' "ZEVENT_HISTORY_INTERNAL_NAME" str
 
   function
     | x when Map.containsKey "ZEVENT_HISTORY_DSID" x

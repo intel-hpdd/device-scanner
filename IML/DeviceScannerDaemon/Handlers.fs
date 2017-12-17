@@ -11,7 +11,6 @@ open EventTypes
 open IML.JsonDecoders
 open ZFSEventTypes
 
-
 let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
 let mutable zpoolMap:Map<ZfsPoolUid, ZfsPool> = Map.empty
 
@@ -22,12 +21,17 @@ type DataMaps = {
 
 type DatasetAction = CreateDataset | DestroyDataset
 
-let (|Info|_|) (x:Map<string,Json.Json>) =
+let private (|Info|_|) (x:Map<string,Json.Json>) =
   match x with
     | x when hasAction "info" x -> Some()
     | _ -> None
 
-let updateDatasets (action:DatasetAction) (x:ZfsDataset) =
+let private (|Stream|_|) (x:Map<string,Json.Json>) =
+  match x with
+    | x when hasAction "stream" x -> Some()
+    | _ -> None
+
+let private updateDatasets (action:DatasetAction) (x:ZfsDataset) =
   let matchAction pool =
     match action with
       | CreateDataset -> pool.DATASETS.Add (x.DATASET_UID, x)
@@ -38,26 +42,28 @@ let updateDatasets (action:DatasetAction) (x:ZfsDataset) =
       { pool with DATASETS = matchAction pool }
     | None -> failwith (sprintf "Pool to update dataset on is missing! %A" x.POOL_UID)
 
+let mutable private closeOnWrite = true
+
+let private writeState =
+  { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
+    |> toJson
+    |> Some
+
+let private writeOrClose (``end``:string option -> unit) =
+  match closeOnWrite with
+    | true -> ``end`` None
+    | false -> writeState |> ignore
+
 let dataHandler (``end``:string option -> unit) x =
   x
-   |> unwrapObject
-   |> function
-      | Info ->
-        { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
-          |> toJson
-          |> Some
-          |> ``end``
-      | UdevAdd x | UdevChange x ->
-        deviceMap <- Map.add x.DEVPATH x deviceMap
-        ``end`` None
-      | UdevRemove x ->
-        deviceMap <- Map.remove x deviceMap
-        ``end`` None
-      | ZedPool "create" x ->
-        zpoolMap <- Map.add x.UID x zpoolMap
-        ``end`` None
+    |> unwrapObject
+    |> function
+      | Info -> (closeOnWrite <- true)
+      | Stream -> (closeOnWrite <- false)
+      | UdevAdd x | UdevChange x -> (deviceMap <- Map.add x.DEVPATH x deviceMap)
+      | UdevRemove x -> (deviceMap <- Map.remove x deviceMap)
+      | ZedPool "create" x -> (zpoolMap <- Map.add x.UID x zpoolMap)
       | ZedPool "import" x | ZedExport x ->
-
         let updatedPool =
           match Map.tryFind x.UID zpoolMap with
             | Some pool ->
@@ -65,22 +71,16 @@ let dataHandler (``end``:string option -> unit) x =
             | None -> x
 
         zpoolMap <- Map.add x.UID updatedPool zpoolMap
-        ``end`` None
-      | ZedDestroy x ->
-        zpoolMap <- zpoolMap.Remove x.UID
-        ``end`` None
+      | ZedDestroy x -> (zpoolMap <- zpoolMap.Remove x.UID)
       | ZedDataset "create" x ->
         let updatedPool = updateDatasets CreateDataset x
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
-        ``end`` None
       | ZedDataset "destroy" x ->
         let updatedPool = updateDatasets DestroyDataset x
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
-        ``end`` None
       | ZedPoolProperty x ->
-
         let updatedPool =
           match Map.tryFind x.POOL_UID zpoolMap with
             | Some pool ->
@@ -88,9 +88,7 @@ let dataHandler (``end``:string option -> unit) x =
             | None -> failwith (sprintf "Pool to update property on is missing! %A" x.POOL_UID)
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
-        ``end`` None
       | ZedDatasetProperty x ->
-
         let updatedDataset (datasets:Map<ZfsDatasetUid, ZfsDataset>) =
           match Map.tryFind (Option.get x.DATASET_UID) datasets with
             | Some dataset ->
@@ -105,9 +103,8 @@ let dataHandler (``end``:string option -> unit) x =
             | None -> failwith (sprintf "Pool to update dataset property on is missing! %A" x.POOL_UID)
 
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
-        ``end`` None
-      | ZedGeneric ->
-        ``end`` None
+      | ZedGeneric -> ()
       | _ ->
         ``end`` None
         raise (System.Exception "Handler got a bad match")
+  writeOrClose ``end`` |> ignore

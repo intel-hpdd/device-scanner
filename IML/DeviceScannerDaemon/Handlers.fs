@@ -45,7 +45,7 @@ let private updateDatasets (action:DatasetAction) (x:ZfsDataset) =
 
 let mutable private closeOnWrite = true
 
-let private getState =
+let private getState () =
   { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
     |> toJson
     |> Some
@@ -105,5 +105,9 @@ let dataHandler (sock:Net.Socket) x =
         raise (System.Exception "Handler got a bad match")
 
   match closeOnWrite with
-    | true -> sock.``end`` getState
-    | false -> sock.write getState |> ignore
+    | true ->
+      System.Console.Write (sprintf "writing then closing")
+      sock.``end`` (getState ())
+    | false ->
+      System.Console.Write (sprintf "writing not closing")
+      sock.write (getState ()) |> ignore

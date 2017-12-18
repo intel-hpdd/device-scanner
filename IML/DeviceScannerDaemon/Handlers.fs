@@ -4,6 +4,7 @@
 
 module IML.DeviceScannerDaemon.Handlers
 
+open Fable.Import.Node
 open Fable.Core.JsInterop
 open Fable.PowerPack
 
@@ -44,17 +45,12 @@ let private updateDatasets (action:DatasetAction) (x:ZfsDataset) =
 
 let mutable private closeOnWrite = true
 
-let private writeState =
+let private getState =
   { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
     |> toJson
     |> Some
 
-let private writeOrClose (``end``:string option -> unit) =
-  match closeOnWrite with
-    | true -> ``end`` None
-    | false -> writeState |> ignore
-
-let dataHandler (``end``:string option -> unit) x =
+let dataHandler (sock:Net.Socket) x =
   x
     |> unwrapObject
     |> function
@@ -105,6 +101,9 @@ let dataHandler (``end``:string option -> unit) x =
         zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
       | ZedGeneric -> ()
       | _ ->
-        ``end`` None
+        sock.``end`` None
         raise (System.Exception "Handler got a bad match")
-  writeOrClose ``end`` |> ignore
+
+  match closeOnWrite with
+    | true -> sock.``end`` getState
+    | false -> sock.write getState |> ignore

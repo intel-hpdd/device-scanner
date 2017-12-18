@@ -8,17 +8,17 @@ open Fable.Import.Node
 open Fable.Import.JS
 open Fable.Core.JsInterop
 open IML.LineDelimitedJsonStream.Stream
-open IML.DeviceScannerDaemon.Handlers
+open Handlers
 open NodeHelpers
 
-let serverHandler (c:Net.Socket) =
-  c
+let serverHandler (sock:Net.Socket) =
+  sock
     .pipe(getJsonStream())
     .on("error", fun (e:Error) ->
       console.error ("Unable to parse message " + e.message)
-      c.``end``()
+      sock.``end``()
     )
-    .on("data", (dataHandler (``end`` c)))
+    .on("data", (dataHandler sock))
     |> ignore
 
 let opts = createEmpty<Net.CreateServerOptions>

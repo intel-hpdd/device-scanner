@@ -82,9 +82,7 @@ testList "NetHelpers" [
 
 testList "ChildProcessHelpers" [
   let withSetup f () =
-    let execCallbackHandler cmd opts fn = 
-      let cb:obj option -> string -> string -> unit = !!fn
-      cb None "bla" "bla2"
+    let execCallbackHandler cmd opts fn = fn (None, "bla", "bla2")
     let mockChildProcessExec = Matcher3<string, obj, ((obj option * string * string) -> unit), unit> (execCallbackHandler)
     let mockChildProcess = createObj ["exec" ==> mockChildProcessExec.Mock]
     jest.mock("child_process", fun () -> mockChildProcess)

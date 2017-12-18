@@ -50,7 +50,7 @@ open Fable.PowerPack
 
         let opts = createEmpty<ChildProcess.ExecOptions>
 
-        ChildProcess.exec(cmd, opts, (fun e stdout' stderr' ->
+        ChildProcess.exec(cmd, opts, (fun (e, stdout', stderr') ->
           let stdout = stdout' |> toStr |> Stdout
           let stderr = stderr' |> toStr |> Stderr
 

@@ -12,8 +12,9 @@ open EventTypes
 open IML.JsonDecoders
 open ZFSEventTypes
 
-let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
-let mutable zpoolMap:Map<ZfsPoolUid, ZfsPool> = Map.empty
+let mutable devices:Map<DevPath, AddEvent> = Map.empty
+let mutable zpools:Map<ZfsPoolUid, ZfsPool> = Map.empty
+// let mutable connections:Map<ConnId, string> = Map.empty
 
 type DataMaps = {
   BLOCK_DEVICES: Map<DevPath, AddEvent>;
@@ -38,15 +39,15 @@ let private updateDatasets (action:DatasetAction) (x:ZfsDataset) =
       | CreateDataset -> pool.DATASETS.Add (x.DATASET_UID, x)
       | DestroyDataset -> pool.DATASETS.Remove x.DATASET_UID
 
-  match Map.tryFind x.POOL_UID zpoolMap with
+  match Map.tryFind x.POOL_UID zpools with
     | Some pool ->
       { pool with DATASETS = matchAction pool }
     | None -> failwith (sprintf "Pool to update dataset on is missing! %A" x.POOL_UID)
 
-let mutable private closeOnWrite = true
+let mutable private shouldEnd = true
 
 let private getState () =
-  { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
+  { BLOCK_DEVICES = devices; ZFSPOOLS = zpools }
     |> toJson
     |> Some
 
@@ -54,36 +55,36 @@ let dataHandler (sock:Net.Socket) x =
   x
     |> unwrapObject
     |> function
-      | Info -> (closeOnWrite <- true)
-      | Stream -> (closeOnWrite <- false)
-      | UdevAdd x | UdevChange x -> (deviceMap <- Map.add x.DEVPATH x deviceMap)
-      | UdevRemove x -> (deviceMap <- Map.remove x deviceMap)
-      | ZedPool "create" x -> (zpoolMap <- Map.add x.UID x zpoolMap)
+      | Info -> (shouldEnd <- true)
+      | Stream -> (shouldEnd <- false)
+      | UdevAdd x | UdevChange x -> (devices <- Map.add x.DEVPATH x devices)
+      | UdevRemove x -> (devices <- Map.remove x devices)
+      | ZedPool "create" x -> (zpools <- Map.add x.UID x zpools)
       | ZedPool "import" x | ZedExport x ->
         let updatedPool =
-          match Map.tryFind x.UID zpoolMap with
+          match Map.tryFind x.UID zpools with
             | Some pool ->
               { x with DATASETS = pool.DATASETS; PROPERTIES = pool.PROPERTIES }
             | None -> x
 
-        zpoolMap <- Map.add x.UID updatedPool zpoolMap
-      | ZedDestroy x -> (zpoolMap <- zpoolMap.Remove x.UID)
+        zpools <- Map.add x.UID updatedPool zpools
+      | ZedDestroy x -> (zpools <- zpools.Remove x.UID)
       | ZedDataset "create" x ->
         let updatedPool = updateDatasets CreateDataset x
 
-        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        zpools <- Map.add x.POOL_UID updatedPool zpools
       | ZedDataset "destroy" x ->
         let updatedPool = updateDatasets DestroyDataset x
 
-        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        zpools <- Map.add x.POOL_UID updatedPool zpools
       | ZedPoolProperty x ->
         let updatedPool =
-          match Map.tryFind x.POOL_UID zpoolMap with
+          match Map.tryFind x.POOL_UID zpools with
             | Some pool ->
               { pool with PROPERTIES = pool.PROPERTIES.Add (x.PROPERTY_NAME, x.PROPERTY_VALUE) }
             | None -> failwith (sprintf "Pool to update property on is missing! %A" x.POOL_UID)
 
-        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        zpools <- Map.add x.POOL_UID updatedPool zpools
       | ZedDatasetProperty x ->
         let updatedDataset (datasets:Map<ZfsDatasetUid, ZfsDataset>) =
           match Map.tryFind (Option.get x.DATASET_UID) datasets with
@@ -93,21 +94,16 @@ let dataHandler (sock:Net.Socket) x =
               -> failwith (sprintf "Dataset to update property on is missing! %A (pool %A)" x.DATASET_UID x.POOL_UID)
 
         let updatedPool =
-          match Map.tryFind x.POOL_UID zpoolMap with
+          match Map.tryFind x.POOL_UID zpools with
             | Some pool ->
               { pool with DATASETS = pool.DATASETS.Add (Option.get x.DATASET_UID, updatedDataset pool.DATASETS)  }
             | None -> failwith (sprintf "Pool to update dataset property on is missing! %A" x.POOL_UID)
 
-        zpoolMap <- Map.add x.POOL_UID updatedPool zpoolMap
+        zpools <- Map.add x.POOL_UID updatedPool zpools
       | ZedGeneric -> ()
       | _ ->
         sock.``end`` None
         raise (System.Exception "Handler got a bad match")
 
-  match closeOnWrite with
-    | true ->
-      System.Console.Write (sprintf "writing then closing")
-      sock.``end`` (getState ())
-    | false ->
-      System.Console.Write (sprintf "writing not closing")
-      sock.write (getState ()) |> ignore
+  if shouldEnd then sock.``end`` (getState ()) else sock.write (getState ()) |> ignore
+

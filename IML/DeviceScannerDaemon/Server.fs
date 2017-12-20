@@ -12,6 +12,7 @@ open Handlers
 open NodeHelpers
 
 let serverHandler (sock:Net.Socket) =
+  console.log "client connected"
   sock
     .pipe(getJsonStream())
     .on("error", fun (e:Error) ->
@@ -19,7 +20,10 @@ let serverHandler (sock:Net.Socket) =
       sock.``end``()
     )
     .on("data", (dataHandler sock))
-    |> ignore
+    .on("end", fun (_) ->
+      console.log "client disconnected"
+    )
+  |> ignore
 
 let opts = createEmpty<Net.CreateServerOptions>
 opts.allowHalfOpen <- Some true

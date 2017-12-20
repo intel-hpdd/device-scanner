@@ -105,5 +105,11 @@ let dataHandler (sock:Net.Socket) x =
         sock.``end`` None
         raise (System.Exception "Handler got a bad match")
 
-  if shouldEnd then sock.``end`` (getState ()) else sock.write (getState ()) |> ignore
+  match shouldEnd with
+    | true ->
+      System.Console.Write "shouldEnd=true, ending with state"
+      sock.``end`` (getState ())
+    | false ->
+      System.Console.Write "shouldEnd=false, writing state"
+      sock.write (getState ()) |> ignore
 

@@ -1,32 +1,33 @@
-module IML.DeviceScannerDaemon.ZFSEventTypesTest
+module IML.DeviceScannerDaemon.ZedTest
 
-open IML.DeviceScannerDaemon.TestFixtures
-open ZFSEventTypes
+open IML.DeviceScannerDaemon
+open TestFixtures
+open Zed
 open Fable.Import.Jest
 open Matchers
 
 let poolCreateMatch = function
-  | ZedPool "create" x -> Some x
+  | Zpool.Create x -> Some x
   | _ -> None
 
 let poolDestroyMatch = function
-  | ZedDestroy x -> Some x
+  | Zpool.Destroy x -> Some x
   | _ -> None
 
 let poolExportMatch = function
-  | ZedExport x -> Some x
+  | Zpool.Export x -> Some x
   | _ -> None
 
 let poolImportMatch = function
-  | ZedPool "import" x -> Some x
+  | Zpool.Import x -> Some x
   | _ -> None
 
 let datasetCreateMatch = function
-  | ZedDataset "create" x -> Some x
+  | Zfs.Create x -> Some x
   | _ -> None
 
 let datasetDestroyMatch = function
-  | ZedDataset "destroy" x -> Some x
+  | Zfs.Destroy x -> Some x
   | _ -> None
 
 test "Matching Events" <| fun () ->

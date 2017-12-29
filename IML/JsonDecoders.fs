@@ -4,36 +4,11 @@
 
 module IML.JsonDecoders
 
-open Fable.PowerPack
-open Maybe
+open Thot.Json.Decode
+open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
 
-let unwrapObject = function
-  | Json.Object a -> Map.ofArray a
-  | _ -> failwith "Invalid JSON, it must be an object"
+let decodeJson (decoder: Decoder<'T>) =
+    function
+      | Json y -> decodeValue decoder y
 
-let object = function
-  | Json.Object a -> Some (Map.ofArray a)
-  | _ -> None
-
-let str = function
-  | Json.String a -> Some a
-  | _ -> None
-
-let unwrapString a =
-    match a with
-    | Json.String a -> a
-    | _ -> failwith "Invalid JSON, it must be a string"
-
-let findJson (fn:Json.Json -> 'b) (key:string) x =
-  match Map.tryFind key x with
-    | Some(x) -> fn x
-    | None -> failwith (sprintf "Could not find key %s in %O" key x)
-
-let tryFindJson fn key x =
-  maybe {
-    let! v = Map.tryFind key x
-
-    return! fn v
-  }
-
-let findStr = findJson unwrapString
+let andThenSucceed x y = andThen (x >> succeed) y

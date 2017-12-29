@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Matching Events 1`] = `
+Data {
+  "guid": "0x2D28F440E514007F",
+  "name": "testPool1",
+  "state": "ACTIVE",
+}
+`;
+
+exports[`Matching Events 2`] = `
+Data {
+  "guid": "0x2D28F440E514007F",
+  "name": "testPool1",
+  "state": "DESTROYED",
+}
+`;
+
+exports[`Matching Events 3`] = `
+Data {
+  "guid": "0x2D28F440E514007F",
+  "name": "testPool1",
+  "state": "EXPORTED",
+}
+`;
+
+exports[`Matching Events 4`] = `
+Data {
+  "guid": "0x2D28F440E514007F",
+  "name": "testPool1",
+  "state": "ACTIVE",
+}
+`;
+
+exports[`Matching Events 5`] = `
+Data {
+  "id": "11",
+  "name": "testPool1/home",
+  "poolGuid": "0x2D28F440E514007F",
+}
+`;
+
+exports[`Matching Events 6`] = `
+Data {
+  "id": "11",
+  "name": "testPool1/home",
+  "poolGuid": "0x2D28F440E514007F",
+}
+`;

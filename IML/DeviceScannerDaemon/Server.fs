@@ -5,20 +5,21 @@
 module IML.DeviceScannerDaemon.Server
 
 open Fable.Import.Node
+open Fable.Import.Node.PowerPack
+open Fable.Import.Node.PowerPack.Stream
 open Fable.Import.JS
 open Fable.Core.JsInterop
-open IML.LineDelimitedJsonStream.Stream
 open IML.DeviceScannerDaemon.Handlers
 open NodeHelpers
 
-let serverHandler (c:Net.Socket) =
+let serverHandler (c:Net.Socket):unit =
   c
-    .pipe(getJsonStream())
-    .on("error", fun (e:Error) ->
+    |> LineDelimitedJsonStream.getJsonStream()
+    |> error (fun (e:Error) ->
       console.error ("Unable to parse message " + e.message)
       c.``end``()
     )
-    .on("data", (dataHandler (``end`` c)))
+    |> iter (dataHandler (``end`` c))
     |> ignore
 
 let opts = createEmpty<Net.CreateServerOptions>

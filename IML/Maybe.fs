@@ -1,13 +1,12 @@
 module IML.Maybe
 
 type MaybeBuilder() =
-    member this.Bind(x, f) =
+    member __.Bind(x, f) =
         match x with
         | Some(x) -> f(x)
         | _ -> None
-    member this.Delay(f) = f()
-    member this.Return(x) = Some x
-
-    member this.ReturnFrom(x) = x
+    member __.Delay(f) = f()
+    member __.Return(x) = Some x
+    member __.ReturnFrom(x) = x
 
 let maybe = MaybeBuilder();

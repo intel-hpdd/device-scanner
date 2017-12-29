@@ -1,35 +1,22 @@
 module IML.JsonDecodersTest
 
-open IML.JsonDecoders
-open Fable.PowerPack
+open Thot.Json.Decode
+open Fable.Import
 open Fable.Import.Jest
 open Matchers
+open IML.JsonDecoders
+open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
 
-let private ofString = Json.ofString >> Result.unwrapResult
-let private plainMap = ofString """{}"""
+let toJson =
+  JS.JSON.parse
+    >> Json
 
-test "unwrap object" <| fun () ->
-  expect.assertions(2)
+test "decodeJson" <| fun () ->
+  (decodeJson string (toJson @"""foo""")) == Ok("foo")
 
-  toMatchSnapshot (unwrapObject plainMap)
+test "andThenSucceed" <| fun () ->
+  let decoder =
+    field "bar" string
+      |> andThenSucceed (fun x -> x + "baz")
 
-  expect.Invoke(fun () -> unwrapObject (ofString """null""")).toThrowErrorMatchingSnapshot()
-
-test "object" <| fun () ->
-  expect.assertions(2)
-
-  toMatchSnapshot (object plainMap)
-  toMatchSnapshot (object (ofString """null"""))
-
-test "str" <| fun () ->
-  expect.assertions(2)
-
-  toMatchSnapshot (str (Json.String "foo"))
-  toMatchSnapshot (str (ofString """null"""))
-
-test "unwrap string" <| fun () ->
-  expect.assertions(2)
-
-  toMatchSnapshot (unwrapString (Json.String "bar"))
-
-  expect.Invoke(fun () -> unwrapString (Json.Boolean true)).toThrowErrorMatchingSnapshot()
+  JS.JSON.parse """{"bar": "foo"}""" |> decoder == Ok("foobaz")

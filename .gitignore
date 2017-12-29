@@ -4,6 +4,7 @@ node_modules
 *.userprefs
 .vscode
 .vagrant
+.idea
 dist
 obj
 bin

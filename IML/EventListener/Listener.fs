@@ -12,8 +12,12 @@ let private client = connect { path = "/var/run/device-scanner.sock"; }
 
 let private endClient = ``end`` client
 
-let private data = (JSON.stringify Globals.``process``.env)
+let private data:Buffer.Buffer option =
+  Globals.``process``.env
+    |> JSON.stringify
+    |> Buffer.Buffer.from
+    |> Some
 
 client
-  |> onceConnect (fun () -> endClient (Some (Buffer.Buffer.from data)))
+  |> onceConnect (fun () -> endClient data)
   |> ignore

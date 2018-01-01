@@ -6,6 +6,7 @@
     <Compile Include="IML/Maybe.fs" />
     <Compile Include="IML/MaybeTest.fs" />
     <Compile Include="IML/NodeHelpers.fs" />
+    <Compile Include="IML/NodeHelpersTest.fs" />
     <Compile Include="IML/StringUtils.fs" />
     <Compile Include="IML/JsonDecoders.fs" />
     <Compile Include="IML/JsonDecodersTest.fs" />

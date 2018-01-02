@@ -42,6 +42,6 @@ testList "Listener" [
         |> fun fn -> fn()
         |> ignore
 
-      mockEnd.CalledWith <| expect.any String
+      mockEnd.CalledWith <| expect.any Buffer
   ]
 ]

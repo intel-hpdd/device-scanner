@@ -10,6 +10,7 @@ open Fable.PowerPack
 open EventTypes
 open IML.JsonDecoders
 open ZFSEventTypes
+open Fable.Import.Node
 
 
 let mutable deviceMap:Map<DevPath, AddEvent> = Map.empty
@@ -38,13 +39,14 @@ let updateDatasets (action:DatasetAction) (x:ZfsDataset) =
       { pool with DATASETS = matchAction pool }
     | None -> failwith (sprintf "Pool to update dataset on is missing! %A" x.POOL_UID)
 
-let dataHandler (``end``:string option -> unit) x =
+let dataHandler (``end``) x =
   x
    |> unwrapObject
    |> function
       | Info ->
         { BLOCK_DEVICES = deviceMap; ZFSPOOLS = zpoolMap }
           |> toJson
+          |> Buffer.Buffer.from
           |> Some
           |> ``end``
       | UdevAdd x | UdevChange x ->

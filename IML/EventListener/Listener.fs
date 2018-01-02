@@ -15,5 +15,5 @@ let private endClient = ``end`` client
 let private data = (JSON.stringify Globals.``process``.env)
 
 client
-  |> onceConnect (fun () -> endClient (Some data))
+  |> onceConnect (fun () -> endClient (Some (Buffer.Buffer.from data)))
   |> ignore

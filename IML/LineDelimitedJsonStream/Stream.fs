@@ -43,9 +43,9 @@ let rec private getNextMatch (buff:string) (callback:Error option -> Json.Json o
 let getJsonStream () =
   let mutable buff = ""
 
-  let opts = createEmpty<Stream.TransformBufferOptions>
+  let opts = createEmpty<Stream.TransformOptions<Buffer.Buffer, Json.Json>>
   opts.readableObjectMode <- Some true
-  opts.transform <- (fun chunk _ callback ->
+  opts.transform <- Some(fun chunk _ callback ->
     let self = jsThis
 
     buff <- getNextMatch
@@ -76,4 +76,4 @@ let getJsonStream () =
         | Error(e:exn) -> !!e |> Some |> callback
   )
 
-  Stream.Transform.Create<string, Json.Json> opts
+  Stream.Transform.Create<Buffer.Buffer, Json.Json> opts

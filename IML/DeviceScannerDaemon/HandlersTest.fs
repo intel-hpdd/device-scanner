@@ -4,6 +4,7 @@ open IML.DeviceScannerDaemon.Handlers
 open TestFixtures
 open Fable.PowerPack
 open Fable.Import.Jest
+open Fable.Import.Node
 open Matchers
 
 let private toJson =  Json.ofString >> Result.unwrapResult
@@ -17,13 +18,13 @@ let private changeJson =
     |> mapToJson
 let private removeJson = mapToJson removeObj
 let private infoJson = toJson """{ "ACTION": "info" }"""
-let private evaluate handler (end':Matcher<string option, unit>) =
+let private evaluate handler (end':Matcher<Buffer.Buffer option, unit>) =
   handler infoJson
-  expect.Invoke(end'.LastCall).toMatchSnapshot()
+  expect.Invoke(end'.LastCall |> Option.map (fun x -> x.toString())).toMatchSnapshot()
 
 testList "Data Handler" [
   let withSetup f ():unit =
-    let ``end`` = Matcher<string option, unit>()
+    let ``end`` = Matcher<Buffer.Buffer option, unit>()
 
     let handler = dataHandler ``end``.Mock
 

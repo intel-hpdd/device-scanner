@@ -23,7 +23,7 @@ testList "Data Handler" [
       evaluate handler ``end``
 
     "Should call end for add event", fun (``end``, handler) ->
-      handler addObj
+      handler addJson
       ``end`` <?> None;
 
     "Should call end for add event", fun (``end``, handler) ->
@@ -41,7 +41,7 @@ testList "Data Handler" [
 
     "Should add then remove a device path", fun (``end``, handler) ->
       expect.assertions 2
-      handler addObj
+      handler addJson
       evaluate handler ``end``
 
       handler removeJson

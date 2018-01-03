@@ -16,11 +16,11 @@ let removeMatch = function
 test "Matching Events" <| fun () ->
   expect.assertions 6
 
-  toMatchSnapshot (addMatch addObj)
+  toMatchSnapshot (addMatch addJson)
 
-  toMatchSnapshot (addMatch addDiskObj)
+  toMatchSnapshot (addMatch addDiskJson)
 
-  toMatchSnapshot (addMatch addDmObj)
+  toMatchSnapshot (addMatch addDmJson)
 
   toMatchSnapshot (removeMatch removeJson)
 

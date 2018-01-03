@@ -52,7 +52,7 @@ let dataHandler (``end``:Buffer.Buffer option -> unit) (x:Json) =
       ``end`` None
     | Zpool.Destroy x ->
       data.zpools <- Map.remove x.guid data.zpools
-      data.props <- List.filter (Properties.byId x.guid) data.props
+      data.props <- List.filter (Properties.byPoolGuid x.guid) data.props
       data.zfs <- Map.filter (fun _ z -> z.poolGuid <> x.guid) data.zfs
       ``end`` None
     | Zfs.Create x ->

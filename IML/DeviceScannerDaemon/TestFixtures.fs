@@ -10,7 +10,7 @@ let toJson =
 
 let infoJson = toJson """{ "ACTION": "info" }"""
 
-let addObj = toJson """
+let addJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -59,7 +59,7 @@ let addObj = toJson """
 }
 """
 
-let addDiskObj = toJson """
+let addDiskJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -108,7 +108,7 @@ let addDiskObj = toJson """
 }
 """
 
-let addDmObj = toJson """
+let addDmJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",

@@ -184,7 +184,7 @@ module Properties =
     | Zpool of ZpoolProperty
     | Zfs of ZfsProperty
 
-  let byId x y =
+  let byPoolGuid x y =
         match y with
           | Zfs p -> p.poolGuid <> x
           | Zpool p -> p.poolGuid <> x

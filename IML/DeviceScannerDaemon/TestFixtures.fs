@@ -8,9 +8,9 @@ let toJson =
   JS.JSON.parse
     >> Json
 
-let infoJson = toJson """{ "ACTION": "info" }"""
+let infoUdevJson = toJson """{ "ACTION": "info" }"""
 
-let addJson = toJson """
+let addUdevJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -59,7 +59,7 @@ let addJson = toJson """
 }
 """
 
-let addDiskJson = toJson """
+let addDiskUdevJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -108,7 +108,7 @@ let addDiskJson = toJson """
 }
 """
 
-let addDmJson = toJson """
+let addDmUdevJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -159,7 +159,7 @@ let addDmJson = toJson """
 }
 """
 
-let changeJson = toJson """
+let changeUdevJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -208,7 +208,7 @@ let changeJson = toJson """
 }
 """
 
-let addMdraidJson = toJson """
+let addMdraidUdevJson = toJson """
 {
   "ACTION": "add",
   "DEVLINKS": "/dev/disk/by-id/md-name-lotus-32vm6:0 /dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910",
@@ -236,7 +236,7 @@ let addMdraidJson = toJson """
 }
 """
 
-let removeJson = toJson """
+let removeUdevJson = toJson """
 {
   "ACTION": "remove",
   "DEVLINKS": "/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1 /dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
@@ -273,7 +273,7 @@ let removeJson = toJson """
 }
 """
 
-let createZdataset = toJson """
+let createZdatasetJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -313,7 +313,7 @@ let createZdataset = toJson """
 }
 """
 
-let createSecondZdataset = toJson """
+let createSecondZdatasetJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -353,7 +353,7 @@ let createSecondZdataset = toJson """
 }
 """
 
-let destroyZdataset = toJson """
+let destroyZdatasetJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -393,7 +393,7 @@ let destroyZdataset = toJson """
 }
 """
 
-let createZpool = toJson """
+let createZpoolJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -426,7 +426,7 @@ let createZpool = toJson """
 }
 """
 
-let importZpool = toJson """
+let importZpoolJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -460,7 +460,7 @@ let importZpool = toJson """
 """
 
 /// export pool userspace command
-let exportZpool = toJson """
+let exportZpoolJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -494,7 +494,7 @@ let exportZpool = toJson """
 """
 
 /// destroy pool userspace command
-let destroyZpool = toJson """
+let destroyZpoolJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -527,7 +527,7 @@ let destroyZpool = toJson """
 }
 """
 
-let createZpoolProperty = toJson """
+let createZpoolPropertyJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -564,7 +564,7 @@ let createZpoolProperty = toJson """
   "_": "/usr/bin/printenv"
 }
 """
-let resetZpoolProperty = toJson """
+let resetZpoolPropertyJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -602,7 +602,7 @@ let resetZpoolProperty = toJson """
 }
 """
 
-let createZpoolPropertyTwo = toJson """
+let createZpoolPropertyTwoJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -640,7 +640,7 @@ let createZpoolPropertyTwo = toJson """
 }
 """
 
-let createZdatasetProperty = toJson """
+let createZdatasetPropertyJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -680,7 +680,7 @@ let createZdatasetProperty = toJson """
 }
 """
 
-let resetZdatasetProperty = toJson """
+let resetZdatasetPropertyJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -720,7 +720,7 @@ let resetZdatasetProperty = toJson """
 }
 """
 
-let createZdatasetPropertyTwo = toJson """
+let createZdatasetPropertyTwoJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -760,7 +760,7 @@ let createZdatasetPropertyTwo = toJson """
 }
 """
 
-let createSecondZdatasetProperty = toJson """
+let createSecondZdatasetPropertyJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
@@ -800,7 +800,7 @@ let createSecondZdatasetProperty = toJson """
 }
 """
 
-let createSecondZdatasetPropertyTwo = toJson """
+let createSecondZdatasetPropertyTwoJson = toJson """
 {
   "IFS": "  ",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",

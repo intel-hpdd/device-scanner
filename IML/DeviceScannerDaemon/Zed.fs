@@ -184,6 +184,11 @@ module Properties =
     | Zpool of ZpoolProperty
     | Zfs of ZfsProperty
 
+  let byId x y =
+        match y with
+          | Zfs p -> p.poolGuid <> x
+          | Zpool p -> p.poolGuid <> x
+
   let private nvpairDecoder =
     let toTuple xs =
       (Array.head xs, Array.last xs)

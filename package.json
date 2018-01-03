@@ -10,6 +10,7 @@
   "scripts": {
     "jest": "jest --coverage",
     "test": "dotnet fable npm-run jest",
+    "test-watch": "jest --watchAll",
     "restore": "dotnet restore",
     "buildEventListener": "rollup -c IML/EventListener/rollup-config.js",
     "postbuildEventListener": "cp-cli IML/EventListener/udev-rules dist/event-listener",

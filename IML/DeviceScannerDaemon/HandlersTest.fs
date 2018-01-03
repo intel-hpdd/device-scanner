@@ -179,18 +179,5 @@ testList "Data Handler" [
 
       handler destroyZpool
       evaluate handler ``end``;
-
-    "Should fail when adding a dataset to non-existent pool", fun (_, handler) ->
-      expect.Invoke(fun () -> handler createZdataset).toThrowErrorMatchingSnapshot();
-
-    "Should fail when adding a property to non-existent pool", fun (_, handler) ->
-      expect.Invoke(fun () -> handler createZpoolProperty).toThrowErrorMatchingSnapshot();
-
-    "Should fail when adding a property to non-existent dataset on a non-existent pool", fun (_, handler) ->
-      expect.Invoke(fun () -> handler createZdatasetProperty).toThrowErrorMatchingSnapshot();
-
-    "Should fail when adding a property to non-existent dataset", fun (_, handler) ->
-      handler createZpool
-      expect.Invoke(fun () -> handler createZdatasetProperty).toThrowErrorMatchingSnapshot();
     ]
 ]

@@ -42,7 +42,7 @@ let dataHandler (``end``:Buffer.Buffer option -> unit) (x:Json) =
       data.blockDevices <- Map.add x.DEVPATH x data.blockDevices
       ``end`` None
     | UdevRemove x ->
-      data.blockDevices <- Map.add x.DEVPATH x data.blockDevices
+      data.blockDevices <- Map.remove x.DEVPATH data.blockDevices
       ``end`` None
     | Zpool.Create x ->
       data.zpools <- Map.add x.guid x data.zpools
@@ -52,13 +52,23 @@ let dataHandler (``end``:Buffer.Buffer option -> unit) (x:Json) =
       ``end`` None
     | Zpool.Destroy x ->
       data.zpools <- Map.remove x.guid data.zpools
-      // Remove any datasets and props.
+      data.props <- List.filter (Properties.byId x.guid) data.props
+      data.zfs <- Map.filter (fun _ z -> z.poolGuid <> x.guid) data.zfs
       ``end`` None
     | Zfs.Create x ->
       data.zfs <- Map.add x.id x data.zfs
       ``end`` None
     | Zfs.Destroy x ->
       data.zfs <- Map.remove x.id data.zfs
+
+      let filterZfsProps (x:Zfs.Data) y =
+        match y with
+          | Properties.Zfs p ->
+            p.poolGuid <> x.poolGuid && p.zfsId <> x.id
+          | _  -> true
+
+      data.props <- List.filter (filterZfsProps x) data.props
+
       ``end`` None
     | Properties.ZpoolProp (x:Properties.Property) ->
       data.props <- (data.props @ [x])

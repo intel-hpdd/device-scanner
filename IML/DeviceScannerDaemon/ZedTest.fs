@@ -33,14 +33,14 @@ let datasetDestroyMatch = function
 test "Matching Events" <| fun () ->
   expect.assertions 6
 
-  toMatchSnapshot (poolCreateMatch createZpool)
+  toMatchSnapshot (poolCreateMatch createZpoolJson)
 
-  toMatchSnapshot (poolDestroyMatch destroyZpool)
+  toMatchSnapshot (poolDestroyMatch destroyZpoolJson)
 
-  toMatchSnapshot (poolExportMatch exportZpool)
+  toMatchSnapshot (poolExportMatch exportZpoolJson)
 
-  toMatchSnapshot (poolImportMatch importZpool)
+  toMatchSnapshot (poolImportMatch importZpoolJson)
 
-  toMatchSnapshot (datasetCreateMatch createZdataset)
+  toMatchSnapshot (datasetCreateMatch createZdatasetJson)
 
-  toMatchSnapshot (datasetDestroyMatch destroyZdataset)
+  toMatchSnapshot (datasetDestroyMatch destroyZdatasetJson)

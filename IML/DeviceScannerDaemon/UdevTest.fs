@@ -16,14 +16,14 @@ let removeMatch = function
 test "Matching Events" <| fun () ->
   expect.assertions 6
 
-  toMatchSnapshot (addMatch addJson)
+  toMatchSnapshot (addMatch addUdevJson)
 
-  toMatchSnapshot (addMatch addDiskJson)
+  toMatchSnapshot (addMatch addDiskUdevJson)
 
-  toMatchSnapshot (addMatch addDmJson)
+  toMatchSnapshot (addMatch addDmUdevJson)
 
-  toMatchSnapshot (removeMatch removeJson)
+  toMatchSnapshot (removeMatch removeUdevJson)
 
   toMatchSnapshot (addMatch (toJson """{ "ACTION": "blah" }"""))
 
-  toMatchSnapshot (addMatch addMdraidJson)
+  toMatchSnapshot (addMatch addMdraidUdevJson)

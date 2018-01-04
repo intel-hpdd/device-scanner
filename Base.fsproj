@@ -11,7 +11,6 @@
     <Compile Include="IML/EventListener/ListenerTest.fs" />
     <Compile Include="IML/JsonDecoders.fs" />
     <Compile Include="IML/JsonDecodersTest.fs" />
-    <Compile Include="IML/DeviceScannerDaemon/JsonDecoders.fs" />
     <Compile Include="IML/DeviceScannerDaemon/TestFixtures.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Udev.fs" />
     <Compile Include="IML/DeviceScannerDaemon/UdevTest.fs" />

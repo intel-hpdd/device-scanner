@@ -6,6 +6,7 @@
     <Compile Include="IML/Maybe.fs" />
     <Compile Include="IML/MaybeTest.fs" />
     <Compile Include="IML/NodeHelpers.fs" />
+    <Compile Include="IML/NodeHelpersTest.fs" />
     <Compile Include="IML/StringUtils.fs" />
     <Compile Include="IML/EventListener/Listener.fs" />
     <Compile Include="IML/EventListener/ListenerTest.fs" />
@@ -19,6 +20,7 @@
     <Compile Include="IML/DeviceScannerDaemon/Handlers.fs" />
     <Compile Include="IML/DeviceScannerDaemon/HandlersTest.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Server.fs" />
+    <Compile Include="IML/Test/VagrantTestFramework.fs" />
   </ItemGroup>
   <Import Project=".paket\Paket.Restore.targets" />
 </Project>

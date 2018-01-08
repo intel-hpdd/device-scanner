@@ -4,12 +4,10 @@
 
 module IML.DeviceScannerDaemon.Handlers
 
-open Fable.Core.JsInterop
-
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
-open Fable.Import.Node
+open Fable.Import.Node.PowerPack.Stream
 open Udev
 open Zed
+
 
 type Data = {
   mutable blockDevices: Map<DevPath, UEvent>;
@@ -25,39 +23,34 @@ let data = {
   props = [];
 }
 
-let (|Info|_|) (x:Json) =
+let (|Info|_|) (x:LineDelimitedJson.Json) =
   match actionDecoder x with
     | Ok(y) when y = "info" -> Some()
     | _ -> None
 
-let dataHandler (``end``:Buffer.Buffer option -> unit) (x:Json) =
+let dataHandler (x:LineDelimitedJson.Json) =
   match x with
-    | Info ->
-        data
-        |> toJson
-        |> Buffer.Buffer.from
-        |> Some
-        |> ``end``
+    | Info -> ()
     | UdevAdd x | UdevChange x ->
       data.blockDevices <- Map.add x.DEVPATH x data.blockDevices
-      ``end`` None
+
     | UdevRemove x ->
       data.blockDevices <- Map.remove x.DEVPATH data.blockDevices
-      ``end`` None
+
     | Zpool.Create x ->
       data.zpools <- Map.add x.guid x data.zpools
-      ``end`` None
+
     | Zpool.Import x | Zpool.Export x ->
       data.zpools <- Map.add x.guid x data.zpools
-      ``end`` None
+
     | Zpool.Destroy x ->
       data.zpools <- Map.remove x.guid data.zpools
       data.props <- List.filter (Properties.byPoolGuid x.guid) data.props
       data.zfs <- Map.filter (fun _ z -> z.poolGuid <> x.guid) data.zfs
-      ``end`` None
+
     | Zfs.Create x ->
       data.zfs <- Map.add x.id x data.zfs
-      ``end`` None
+
     | Zfs.Destroy x ->
       data.zfs <- Map.remove x.id data.zfs
 
@@ -68,16 +61,12 @@ let dataHandler (``end``:Buffer.Buffer option -> unit) (x:Json) =
           | _  -> true
 
       data.props <- List.filter (filterZfsProps x) data.props
-
-      ``end`` None
     | Properties.ZpoolProp (x:Properties.Property) ->
       data.props <- (data.props @ [x])
-      ``end`` None
     | Properties.ZfsProp x ->
       data.props <- (data.props @ [x])
-      ``end`` None
-    | ZedGeneric ->
-      ``end`` None
+    | ZedGeneric -> ()
     | _ ->
-      ``end`` None
       failwith "Handler got a bad match"
+
+  Ok data

@@ -2,8 +2,9 @@ import baseConfig from '../../base-rollup-config.js';
 
 export default Object.assign({}, baseConfig, {
   input: 'IML/EventListener/Listener.fs',
-  external: ['net'],
+  external: ['net', 'buffer'],
   output: {
+    banner: '#!/usr/bin/env node',
     file: './dist/event-listener/event-listener',
     format: 'cjs'
   }

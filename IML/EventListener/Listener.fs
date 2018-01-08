@@ -6,16 +6,21 @@ module IML.EventListener.Listener
 
 open Fable.Import.JS
 open Fable.Import.Node
-open NodeHelpers
+open Fable.Import.Node.PowerPack
+open Fable.Import.Node.PowerPack.Stream
 
-let private client = connect { path = "/var/run/device-scanner.sock"; }
+type NetPath = {
+  path: string
+}
 
-let private endClient = ``end`` client
+let private client = net.connect { path = "/var/run/device-scanner.sock"; }
+
+let private endClient d = Writable.``end`` d client
 
 let private data:Buffer.Buffer option =
   Globals.``process``.env
     |> JSON.stringify
-    |> Buffer.Buffer.from
+    |> buffer.Buffer.from
     |> Some
 
 client

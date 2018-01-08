@@ -3,181 +3,143 @@ module IML.DeviceScannerDaemon.HandlersTest
 open IML.DeviceScannerDaemon.Handlers
 open TestFixtures
 open Fable.Import.Jest
-open Fable.Import.Node
 open Matchers
-
-let private evaluate handler (end':Matcher<Buffer.Buffer option, unit>) =
-  handler infoUdevJson
-  expect.Invoke(end'.LastCall |> Option.map (fun x -> x.toString())).toMatchSnapshot()
 
 testList "Data Handler" [
   let withSetup f ():unit =
-    let ``end`` = Matcher<Buffer.Buffer option, unit>()
-
-    let handler = dataHandler ``end``.Mock
-
-    f (``end``, handler)
+    f (dataHandler)
 
   yield! testFixture withSetup [
-    "Should call end with map for info event", fun (``end``, handler) ->
-      evaluate handler ``end``
+    "Should call end with map for info event", fun (handler) ->
+      handler infoUdevJson
+        |> toMatchSnapshot
 
-    "Should call end for add event", fun (``end``, handler) ->
-      handler addUdevJson
-      ``end`` <?> None;
 
-    "Should call end for add event", fun (``end``, handler) ->
-      handler changeUdevJson
-      ``end`` <?> None;
-
-    "Should call end for remove event", fun (``end``, handler) ->
-      handler removeUdevJson
-      ``end`` <?> None;
-
-    "Should end on a bad match", fun (``end``, handler) ->
-      expect.assertions 2
+    "Should end on a bad match", fun (handler) ->
+      expect.assertions 1
       expect.Invoke(fun () -> handler (toJson """{}""")).toThrowErrorMatchingSnapshot()
-      ``end`` <?> None;
 
-    "Should add then remove a device path", fun (``end``, handler) ->
+    "Should add then remove a device path", fun (handler) ->
       expect.assertions 2
-      handler addUdevJson
-      evaluate handler ``end``
+      handler addUdevJson |> toMatchSnapshot
 
-      handler removeUdevJson
-      evaluate handler ``end``;
+      handler removeUdevJson |> toMatchSnapshot
 
-    "Should call end for add pool zed event", fun (``end``, handler) ->
-      handler createZpoolJson
-      ``end`` <?> None;
-
-    "Should call end for remove pool zed event", fun (``end``, handler) ->
-      handler destroyZpoolJson
-      ``end`` <?> None;
-
-    "Should call end for import pool zed event", fun (``end``, handler) ->
-      handler importZpoolJson
-      ``end`` <?> None;
-
-    "Should call end for export pool zed event", fun (``end``, handler) ->
-      handler exportZpoolJson
-      ``end`` <?> None;
-
-    "Should call end for add dataset zed event", fun (``end``, handler) ->
-      handler createZdatasetJson
-      ``end`` <?> None;
-
-    "Should call end for remove dataset zed event", fun (``end``, handler) ->
-      handler destroyZdatasetJson
-      ``end`` <?> None;
-
-    "Should add then remove a zpool", fun (``end``, handler) ->
+    "Should add then remove a zpool", fun (handler) ->
       expect.assertions 2
 
       handler createZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZpoolJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should import then export then import a zpool", fun (``end``, handler) ->
+    "Should import then export then import a zpool", fun (handler) ->
       expect.assertions 3
 
       handler importZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should add then remove a zdataset", fun (``end``, handler) ->
+    "Should add then remove a zdataset", fun (handler) ->
       expect.assertions 2
 
       handler createZpoolJson
+        |> ignore
       handler createZdatasetJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZdatasetJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should export then import zpool with datasets", fun (``end``, handler) ->
+    "Should export then import zpool with datasets", fun (handler) ->
       expect.assertions 4
 
       handler createZpoolJson
+        |> ignore
       handler createZdatasetJson
+        |> ignore
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZdatasetJson
+        |> ignore
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should add pool property then export then import", fun (``end``, handler) ->
+    "Should add pool property then export then import", fun (handler) ->
       expect.assertions 4
 
       handler createZpoolJson
+        |> ignore
       handler createZpoolPropertyJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZpoolJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should add dataset property then export then import", fun (``end``, handler) ->
+    "Should add dataset property then export then import", fun (handler) ->
       expect.assertions 4
 
       handler createZpoolJson
+        |> ignore
       handler createZdatasetJson
+        |> ignore
       handler createZdatasetPropertyJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZdatasetJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
 
-    "Should add multiple pool properties then add two datasets with multiple properties then export then import", fun (``end``, handler) ->
+    "Should add multiple pool properties then add two datasets with multiple properties then export then import", fun (handler) ->
       expect.assertions 5
 
-      handler createZpoolJson
-      handler createZdatasetJson
-      handler createZdatasetPropertyJson
-      handler createZdatasetPropertyTwoJson
-      handler createSecondZdatasetJson
-      handler createSecondZdatasetPropertyJson
-      handler createSecondZdatasetPropertyTwoJson
-      handler createZpoolPropertyJson
+      handler createZpoolJson |> ignore
+      handler createZdatasetJson |> ignore
+      handler createZdatasetPropertyJson |> ignore
+      handler createZdatasetPropertyTwoJson |> ignore
+      handler createSecondZdatasetJson |> ignore
+      handler createSecondZdatasetPropertyJson |> ignore
+      handler createSecondZdatasetPropertyTwoJson |> ignore
+      handler createZpoolPropertyJson |> ignore
       handler createZpoolPropertyTwoJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler exportZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler importZpoolJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler resetZpoolPropertyJson
+        |> ignore
       handler resetZdatasetPropertyJson
-      evaluate handler ``end``
+        |> toMatchSnapshot
 
       handler destroyZpoolJson
-      evaluate handler ``end``;
+        |> toMatchSnapshot
     ]
 ]

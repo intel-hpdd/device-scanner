@@ -5,10 +5,10 @@
 module IML.JsonDecoders
 
 open Thot.Json.Decode
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
+open Fable.Import.Node.PowerPack.Stream
 
 let decodeJson (decoder: Decoder<'T>) =
     function
-      | Json y -> decodeValue decoder y
+      | LineDelimitedJson.Json y -> decodeValue decoder y
 
 let andThenSucceed x y = andThen (x >> succeed) y

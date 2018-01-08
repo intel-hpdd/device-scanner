@@ -2,11 +2,11 @@
 module IML.DeviceScannerDaemon.TestFixtures
 
 open Fable.Import
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
+open Fable.Import.Node.PowerPack.Stream
 
 let toJson =
   JS.JSON.parse
-    >> Json
+    >> LineDelimitedJson.Json
 
 let infoUdevJson = toJson """{ "ACTION": "info" }"""
 

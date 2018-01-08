@@ -8,7 +8,7 @@ open Thot.Json.Decode
 open Fable.Core
 open IML.JsonDecoders
 open IML.StringUtils
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
+open Fable.Import.Node.PowerPack.Stream
 
 [<RequireQualifiedAccess>]
 module Result =
@@ -25,7 +25,7 @@ let private unwrap x =
       | Ok y -> y
       | Error y -> failwith y
 
-let private historyInternalNameDecoder (x:Json) =
+let private historyInternalNameDecoder (x:LineDelimitedJson.Json) =
   decodeJson (field "ZEVENT_HISTORY_INTERNAL_NAME" string) x
 
 [<RequireQualifiedAccess>]

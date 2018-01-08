@@ -5,11 +5,11 @@ open Fable.Import
 open Fable.Import.Jest
 open Matchers
 open IML.JsonDecoders
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
+open Fable.Import.Node.PowerPack.Stream
 
 let toJson =
   JS.JSON.parse
-    >> Json
+    >> LineDelimitedJson.Json
 
 test "decodeJson" <| fun () ->
   (decodeJson string (toJson @"""foo""")) == Ok("foo")

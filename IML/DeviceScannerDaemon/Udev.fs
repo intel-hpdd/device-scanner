@@ -10,7 +10,7 @@ open JsInterop
 open IML
 open JsonDecoders
 open StringUtils
-open Fable.Import.Node.PowerPack.LineDelimitedJsonStream
+open Fable.Import.Node.PowerPack.Stream
 
 [<Erase>]
 type DevPath = DevPath of string
@@ -131,17 +131,17 @@ let uEventDecoder x =
     | Ok y -> y
     | Error y -> failwith y
 
-let (|UdevAdd|_|) (x:Json) =
+let (|UdevAdd|_|) (x:LineDelimitedJson.Json) =
   match actionDecoder x with
     | Ok(y) when y = "add" -> Some(uEventDecoder x)
     | _ -> None
 
-let (|UdevChange|_|) (x:Json) =
+let (|UdevChange|_|) (x:LineDelimitedJson.Json) =
   match actionDecoder x with
     | Ok(y) when y = "change" -> Some (uEventDecoder x)
     | _ -> None
 
-let (|UdevRemove|_|) (x:Json) =
+let (|UdevRemove|_|) (x:LineDelimitedJson.Json) =
   match actionDecoder x with
     | Ok(y) when y = "remove" -> Some (uEventDecoder x)
     | _ -> None

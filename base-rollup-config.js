@@ -6,7 +6,6 @@ import { resolveBabelOptions } from 'fable-utils';
 const { FABLE_SERVER_PORT: port = 61225 } = process.env;
 
 export default {
-  banner: '#!/usr/bin/env node',
   plugins: [
     fable({
       babel: resolveBabelOptions({

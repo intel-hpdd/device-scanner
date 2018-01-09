@@ -5,7 +5,6 @@
   <ItemGroup>
     <Compile Include="IML/Maybe.fs" />
     <Compile Include="IML/MaybeTest.fs" />
-    <Compile Include="IML/NodeHelpers.fs" />
     <Compile Include="IML/StringUtils.fs" />
     <Compile Include="IML/EventListener/Listener.fs" />
     <Compile Include="IML/EventListener/ListenerTest.fs" />

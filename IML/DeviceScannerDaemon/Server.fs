@@ -48,7 +48,7 @@ let serverHandler (c:Net.Socket):unit =
     |> map dataHandler
     |> map (
       toJson
-        >> (+) "\n"
+        >> fun x -> x + "\n"
         >> buffer.Buffer.from
         >> Ok
     )

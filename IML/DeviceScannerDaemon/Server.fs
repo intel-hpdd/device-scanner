@@ -9,9 +9,6 @@ open Fable.Import.Node.PowerPack.Stream
 open Fable.Import
 open Fable.Core.JsInterop
 open IML.DeviceScannerDaemon.Handlers
-open Fable.Import.Node.Buffer
-open IML.StringUtils
-open IML
 
 let counterFactory () =
   let mutable count = 1

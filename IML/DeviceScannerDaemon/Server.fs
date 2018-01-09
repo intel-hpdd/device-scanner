@@ -6,35 +6,55 @@ module IML.DeviceScannerDaemon.Server
 
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack.Stream
-open Fable.Import.JS
+open Fable.Import
 open Fable.Core.JsInterop
 open IML.DeviceScannerDaemon.Handlers
+open Fable.Import.Node.Buffer
+open IML.StringUtils
+open IML
 
+let counterFactory () =
+  let mutable count = 1
 
-let mutable conns = []
+  fun () ->
+    count <- count + 1
+    count
+
+let counter = counterFactory()
+
+let mutable conns = Map.empty<int, Net.Socket>
+
+let removeConn (i) () =
+    conns <- Map.filter (fun k _ -> k <> i) conns
+
+let writeConns x =
+  conns <- Map.filter (fun _ (v:Net.Socket) -> not (!!v?destroyed)) conns
+
+  conns
+    |> Map.iter (fun _ c -> Writable.write x c |> ignore)
 
 let serverHandler (c:Net.Socket):unit =
-  conns <- c :: conns
+  let index = counter()
 
-  let removeConn () =
-    Fable.Import.JS.console.error(List.length conns)
+  conns <- Map.add index c conns
 
-    List.filter (fun x -> c = x) conns
-
-  let writeConns x =
-    List.filter (fun (x:Net.Socket) -> not (!!x?destroyed)) conns
-      |> List.iter (fun c -> Writable.write x c |> ignore)
-
+  let remove = removeConn index
   c
-    |> Readable.onEnd (fun () -> conns <- removeConn())
+    |> Readable.onEnd (remove)
     |> LineDelimitedJson.create()
-    |> Readable.onError (fun (e:Error) ->
-      console.error ("Unable to parse message " + e.message)
-      conns <- removeConn()
+    |> Readable.onError (fun (e:JS.Error) ->
+      JS.console.error ("Unable to parse message " + e.message)
+
+      remove()
       c.``end``()
     )
     |> map dataHandler
-    |> map (toJson >> buffer.Buffer.from >> Ok)
+    |> map (
+      toJson
+        >> (+) "\n"
+        >> buffer.Buffer.from
+        >> Ok
+    )
     |> iter writeConns
     |> ignore
 

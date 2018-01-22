@@ -7,7 +7,7 @@ open Matchers
 
 testList "Data Handler" [
   let withSetup f ():unit =
-    f (dataHandler)
+    f (handler)
 
   yield! testFixture withSetup [
     "Should call end with map for info event", fun (handler) ->

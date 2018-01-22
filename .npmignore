@@ -20,3 +20,7 @@ coverage
 IML
 tmp
 Nuget.config
+mock-build.sh
+paket-files
+iml-device-scanner.spec
+*.tgz

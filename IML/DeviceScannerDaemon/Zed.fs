@@ -66,19 +66,24 @@ module Zpool =
       guid: Guid;
       /// The state of the pool.
       state: string;
+      size: float option
+    }
+
+  let create name guid state size =
+    {
+      name = name;
+      guid = guid;
+      state = state;
+      size = size;
     }
 
   let dataDecoder x =
     let decoder =
-      map3(fun name guid state ->
-        {
-          name = name;
-          guid = guid;
-          state = state;
-        })
+      map4 create
         (field "ZEVENT_POOL" string)
         guidDecoder
         stateStrDecoder
+        (succeed None)
       |> decodeJson
 
     decoder x |> unwrap
@@ -125,14 +130,16 @@ module Zfs =
       id: Id;
     }
 
+  let create poolGuid name id =
+    {
+      poolGuid = poolGuid;
+      name = name;
+      id = id;
+    }
+
   let dataDecoder x =
     let decoder =
-        map3 (fun poolGuid name id ->
-            {
-              poolGuid = poolGuid;
-              name = name;
-              id = id;
-            })
+        map3 create
             Zpool.guidDecoder
             (field "ZEVENT_HISTORY_DSNAME" string)
             (dsIdDecoder |> map Id)
@@ -244,9 +251,9 @@ module Properties =
     else
       None
 
-let (|ZedGeneric|_|) x =
+let (|ZedGeneric|_|) x = 
   if decodeJson (field "ZEVENT_EID" string) x |> Result.isOk then
     printfn "Got generic ZED event %A" x
     Some ()
-  else
+  else 
     None

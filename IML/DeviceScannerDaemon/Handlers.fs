@@ -8,19 +8,25 @@ open Fable.Import.Node.PowerPack.Stream
 open Udev
 open Zed
 
+open libzfs
+
+module Option =
+  let expect message = function
+    | Some x -> x
+    | None -> failwith message
+
+let private scan init update =
+  let mutable state = init()
+
+  fun (x) ->
+    state <- update state x
+    state
 
 type Data = {
-  mutable blockDevices: Map<DevPath, UEvent>;
-  mutable zpools: Map<Zpool.Guid, Zpool.Data>;
-  mutable zfs: Map<Zfs.Id, Zfs.Data>;
-  mutable props: Properties.Property list
-}
-
-let data = {
-  blockDevices = Map.empty;
-  zpools = Map.empty;
-  zfs = Map.empty;
-  props = [];
+  blockDevices: Map<DevPath, UEvent>;
+  zpools: Map<Zpool.Guid, Zpool.Data>;
+  zfs: Map<Zfs.Id, Zfs.Data>;
+  props: Properties.Property list;
 }
 
 let (|Info|_|) (x:LineDelimitedJson.Json) =
@@ -28,45 +34,93 @@ let (|Info|_|) (x:LineDelimitedJson.Json) =
     | Ok(y) when y = "info" -> Some()
     | _ -> None
 
-let dataHandler (x:LineDelimitedJson.Json) =
+let (|ZedTrigger|_|) (x:LineDelimitedJson.Json) =
+  match actionDecoder x with
+    | Ok(y) when y = "trigger zed" -> Some()
+    | _ -> None
+
+let private toMap key xs =
+  let folder state x =
+    Map.add (key x) x state
+
+  Seq.fold folder Map.empty xs
+
+let init () =
+  {
+    blockDevices = Map.empty;
+    zpools = Map.empty;
+    zfs = Map.empty;
+    props = [];
+  }
+
+let update (state:Data) (x:LineDelimitedJson.Json):Data =
   match x with
-    | Info -> ()
+    | Info -> 
+      state
     | UdevAdd x | UdevChange x ->
-      data.blockDevices <- Map.add x.DEVPATH x data.blockDevices
-
+      { state with blockDevices = Map.add x.DEVPATH x state.blockDevices }
     | UdevRemove x ->
-      data.blockDevices <- Map.remove x.DEVPATH data.blockDevices
+      { state with blockDevices = Map.remove x.DEVPATH state.blockDevices }
+    | ZedTrigger ->
+      let libzfsPools = 
+        libzfs.getImportedPools()
+          |> List.ofSeq
 
+      let zedPools =
+        List.map (fun (x:Libzfs.Pool) ->
+          Zpool.create x.name (Zpool.Guid x.uid) x.state (Some x.size)) libzfsPools
+
+      let zedZfs =
+        Seq.collect (fun (x:Libzfs.Pool) ->
+          Seq.map (fun (y:Libzfs.Dataset) -> 
+            let id = 
+              libzfs.getDatasetStringProp(y.name, "guid")
+                |> Option.expect (sprintf "could not fetch guid for %s" y.name)
+                |> Zfs.Id
+
+            Zfs.create (Zpool.Guid x.uid) y.name id
+          ) x.datasets) libzfsPools
+
+      {
+        state with
+          zpools = toMap (fun x -> x.guid) zedPools;
+          zfs = toMap (fun x -> x.id) zedZfs;
+          props = [];
+      }
     | Zpool.Create x ->
-      data.zpools <- Map.add x.guid x data.zpools
+      let size =
+        (libzfs.getPoolByName x.name)
+          |> Option.map (fun x -> x.size)
 
+      let pool = { x with size = size }
+      { state with zpools = Map.add pool.guid pool state.zpools }
     | Zpool.Import x | Zpool.Export x ->
-      data.zpools <- Map.add x.guid x data.zpools
-
+      { state with zpools = Map.add x.guid x state.zpools }
     | Zpool.Destroy x ->
-      data.zpools <- Map.remove x.guid data.zpools
-      data.props <- List.filter (Properties.byPoolGuid x.guid) data.props
-      data.zfs <- Map.filter (fun _ z -> z.poolGuid <> x.guid) data.zfs
-
+      { state with 
+          zpools = Map.remove x.guid state.zpools;
+          props = List.filter (Properties.byPoolGuid x.guid) state.props;
+          zfs = Map.filter (fun _ z -> z.poolGuid <> x.guid) state.zfs;
+      }
     | Zfs.Create x ->
-      data.zfs <- Map.add x.id x data.zfs
-
+      { state with zfs = Map.add x.id x state.zfs; }
     | Zfs.Destroy x ->
-      data.zfs <- Map.remove x.id data.zfs
-
       let filterZfsProps (x:Zfs.Data) y =
         match y with
           | Properties.Zfs p ->
             p.poolGuid <> x.poolGuid && p.zfsId <> x.id
           | _  -> true
 
-      data.props <- List.filter (filterZfsProps x) data.props
+      { state with 
+          zfs = Map.remove x.id state.zfs; 
+          props = List.filter (filterZfsProps x) state.props; }
     | Properties.ZpoolProp (x:Properties.Property) ->
-      data.props <- (data.props @ [x])
+      { state with props = state.props @ [x] }
     | Properties.ZfsProp x ->
-      data.props <- (data.props @ [x])
-    | ZedGeneric -> () 
+      { state with props = state.props @ [x] }
+    | ZedGeneric ->
+      state
     | x ->
       failwithf "Handler got a bad match %A" x
 
-  Ok data
+let handler = scan init update

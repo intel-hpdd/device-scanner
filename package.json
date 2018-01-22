@@ -2,33 +2,37 @@
   "name": "@iml/device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
     "jest": "jest --coverage",
-    "test": "dotnet fable npm-run jest",
+    "test": "dotnet fable npm-jest",
     "test-watch": "jest --watchAll",
     "restore": "dotnet restore",
     "buildEventListener": "rollup -c IML/EventListener/rollup-config.js",
     "postbuildEventListener": "cp-cli IML/EventListener/udev-rules dist/event-listener",
     "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
-    "postbuildDeviceScannerDaemon": "cp-cli IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "build": "del-cli ./dist/**; sendProjFile; npm run buildEventListener & npm run buildDeviceScannerDaemon"
+    "postbuildDeviceScannerDaemon": "cp-cli IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon/",
+    "build": "del-cli ./dist/**; sendProjFile; npm run buildEventListener & npm run buildDeviceScannerDaemon",
+    "premock": "docker run  -dit --privileged --name mock intelhpdd/mock /usr/sbin/init",
+    "mock": "docker cp -a ./ mock:/builddir",
+    "postmock": "docker exec -ti mock bash -xec 'bash -xe /builddir/mock-build.sh'"
   },
-  "pre-commit": [
-    "test"
-  ],
+  "pre-commit": ["test"],
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"
   },
+  "dependencies": {
+    "@iml/node-libzfs": "0.1.6"
+  },
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "cp-cli": "^1.1.0",
+    "cp-cli": "1.0.2",
     "del-cli": "^1.1.0",
     "fable-utils": "^1.0.6",
     "jest": "^22.1.4",

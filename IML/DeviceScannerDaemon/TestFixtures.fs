@@ -393,6 +393,40 @@ let destroyZdatasetJson = toJson """
 }
 """
 
+let historyCreateZPoolJson = toJson """
+{
+  "IFS": " \t\n",
+  "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
+  "ZDB": "/sbin/zdb",
+  "ZED": "/sbin/zed",
+  "ZED_PID": "2292",
+  "ZED_ZEDLET_DIR": "/etc/zfs/zed.d",
+  "ZEVENT_CLASS": "sysevent.fs.zfs.history_event",
+  "ZEVENT_EID": "2",
+  "ZEVENT_HISTORY_HOSTNAME": "localhost.localdomain",
+  "ZEVENT_HISTORY_INTERNAL_NAME": "create",
+  "ZEVENT_HISTORY_INTERNAL_STR": "pool version 5000; software version 5000/5; uts localhost.localdomain 3.10.0-693... (length: 138)",
+  "ZEVENT_HISTORY_TIME": "1515608560",
+  "ZEVENT_HISTORY_TXG": "4",
+  "ZEVENT_POOL": "tank",
+  "ZEVENT_POOL_CONTEXT": "6",
+  "ZEVENT_POOL_GUID": "0xF1575BF8142F0C31",
+  "ZEVENT_POOL_STATE": "0",
+  "ZEVENT_POOL_STATE_STR": "ACTIVE",
+  "ZEVENT_SUBCLASS": "history_event",
+  "ZEVENT_TIME": "1515608560 233711499",
+  "ZEVENT_TIME_NSECS": "233711499",
+  "ZEVENT_TIME_SECS": "1515608560",
+  "ZEVENT_TIME_STRING": "2018-01-10 13:22:40-0500",
+  "ZEVENT_VERSION": "0",
+  "ZFS": "/sbin/zfs",
+  "ZFS_ALIAS": "zfs-0.7.5-1",
+  "ZFS_RELEASE": "1",
+  "ZFS_VERSION": "0.7.5",
+  "ZINJECT": "/sbin/zinject",
+  "ZPOOL": "/sbin/zpool"
+}"""
+
 let createZpoolJson = toJson """
 {
   "IFS": "  ",

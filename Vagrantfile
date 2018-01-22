@@ -26,10 +26,9 @@ Vagrant.configure("2") do |config|
   config.vm.boot_timeout = 600
 
   config.vm.provision "shell", inline: <<-SHELL
-    yum install -y epel-release
-    yum install -y nodejs socat jq
-    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
-    yum install -y zfs
+    yum install -y epel-release yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
+    yum -y copr enable alonid/llvm-5.0.0
+    yum install -y nodejs socat jq clang-5.0.0 zfs libzfs2-devel
     cd /vagrant
     mkdir -p /usr/lib64/iml-device-scanner-daemon
     cp dist/device-scanner-daemon/device-scanner-daemon /usr/lib64/iml-device-scanner-daemon

@@ -10,6 +10,7 @@
     <Compile Include="IML/EventListener/ListenerTest.fs" />
     <Compile Include="IML/JsonDecoders.fs" />
     <Compile Include="IML/JsonDecodersTest.fs" />
+    <Compile Include="node_modules/\@iml/node-libzfs/libzfs.fs" />
     <Compile Include="IML/DeviceScannerDaemon/TestFixtures.fs" />
     <Compile Include="IML/DeviceScannerDaemon/Udev.fs" />
     <Compile Include="IML/DeviceScannerDaemon/UdevTest.fs" />

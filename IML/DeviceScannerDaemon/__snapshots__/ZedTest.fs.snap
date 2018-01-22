@@ -47,3 +47,5 @@ Data {
   "poolGuid": "0x2D28F440E514007F",
 }
 `;
+
+exports[`Zfs.Create miss 1`] = `null`;

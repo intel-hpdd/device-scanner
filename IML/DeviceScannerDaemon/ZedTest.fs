@@ -44,3 +44,8 @@ test "Matching Events" <| fun () ->
   toMatchSnapshot (datasetCreateMatch createZdatasetJson)
 
   toMatchSnapshot (datasetDestroyMatch destroyZdatasetJson)
+
+
+test "Zfs.Create miss" <| fun () ->
+  datasetCreateMatch historyCreateZPoolJson
+    |> toMatchSnapshot

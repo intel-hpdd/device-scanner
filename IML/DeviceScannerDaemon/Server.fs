@@ -36,18 +36,16 @@ let serverHandler (c:Net.Socket):unit =
   conns <- Map.add index c conns
 
   let remove = removeConn index
+
   c
     |> Readable.onEnd (remove)
     |> LineDelimitedJson.create()
     |> Readable.onError (fun (e:JS.Error) ->
-      JS.console.error ("Unable to parse message " + e.message)
-
-      remove()
-      c.``end``()
+      JS.console.error("Unable to parse message ", e.message)
     )
-    |> map dataHandler
     |> map (
-      toJson
+        handler
+        >> toJson
         >> fun x -> x + "\n"
         >> buffer.Buffer.from
         >> Ok

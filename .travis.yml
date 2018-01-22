@@ -8,29 +8,23 @@ jobs:
         - clamscan --quiet -r ./
     - stage: test
       env: Type='build'
-      language: csharp
-      dotnet: 2.1.3
-      mono: latest
-      before_script:
-        - nvm install 8
+      sudo: required
+      services:
+        - docker
       script:
-        - npm i
-        - npm run restore
-        - dotnet fable npm-run build
+        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
+        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-run build'
     - stage: test
       env: Type='unit test'
-      language: csharp
-      dotnet: 2.1.3
-      mono: latest
-      before_script:
-        - nvm install 8
-        - npm install -g codecov
+      sudo: required
+      services:
+        - docker
       script:
-        - npm i
-        - npm run restore
-        - npm run test
+        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
+        - docker exec -i libzfs-dotnet npm i -g codecov
+        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && npm test'
       after_success:
-        - codecov
+        - docker exec -i libzfs-dotnet codecov
     - stage: deploy
       language: csharp
       dotnet: 2.1.3

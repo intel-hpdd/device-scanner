@@ -244,9 +244,9 @@ module Properties =
     else
       None
 
-let (|ZedGeneric|_|) x = 
+let (|ZedGeneric|_|) x =
   if decodeJson (field "ZEVENT_EID" string) x |> Result.isOk then
     printfn "Got generic ZED event %A" x
     Some ()
-  else 
-    None 
+  else
+    None

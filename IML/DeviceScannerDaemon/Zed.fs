@@ -45,6 +45,10 @@ module Zpool =
 
   let isExportState x =
     decodeJson stateStrDecoder x = Ok("EXPORTED")
+
+  let private isExportClass x = 
+      subclassDecoder x = Ok("pool_export") 
+
   let isDestroyState x =
     decodeJson stateStrDecoder x = Ok("DESTROYED")
 
@@ -92,7 +96,7 @@ module Zpool =
       | _ -> None
 
   let (|Export|_|) x =
-      if isDestroyClass x && isExportState x then
+      if isExportClass x && isExportState x then
         Some (dataDecoder x)
       else
         None

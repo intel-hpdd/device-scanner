@@ -462,34 +462,31 @@ let importZpoolJson = toJson """
 /// export pool userspace command
 let exportZpoolJson = toJson """
 {
-  "IFS": "  ",
+  "IFS": " \t\n",
   "PATH": "/usr/bin:/bin:/usr/sbin:/sbin",
-  "PWD": "/",
-  "SHLVL": "1",
   "ZDB": "/sbin/zdb",
   "ZED": "/sbin/zed",
-  "ZED_PID": "21671",
+  "ZED_PID": "4521",
   "ZED_ZEDLET_DIR": "/etc/zfs/zed.d",
-  "ZEVENT_CLASS": "sysevent.fs.zfs.pool_destroy",
-  "ZEVENT_EID": "58",
+  "ZEVENT_CLASS": "sysevent.fs.zfs.pool_export",
+  "ZEVENT_EID": "56",
   "ZEVENT_POOL": "testPool1",
   "ZEVENT_POOL_CONTEXT": "0",
   "ZEVENT_POOL_GUID": "0x2D28F440E514007F",
   "ZEVENT_POOL_STATE": "1",
   "ZEVENT_POOL_STATE_STR": "EXPORTED",
-  "ZEVENT_SUBCLASS": "pool_destroy",
-  "ZEVENT_TIME": "1509968607 577447782",
-  "ZEVENT_TIME_NSECS": "577447782",
-  "ZEVENT_TIME_SECS": "1509968607",
-  "ZEVENT_TIME_STRING": "2017-11-06 03:43:27-0800",
+  "ZEVENT_SUBCLASS": "pool_export",
+  "ZEVENT_TIME": "1515624665 950920582",
+  "ZEVENT_TIME_NSECS": "950920582",
+  "ZEVENT_TIME_SECS": "1515624665",
+  "ZEVENT_TIME_STRING": "2018-01-10 17:51:05-0500",
   "ZEVENT_VERSION": "0",
   "ZFS": "/sbin/zfs",
-  "ZFS_ALIAS": "zfs-0.7.1-1",
+  "ZFS_ALIAS": "zfs-0.7.5-1",
   "ZFS_RELEASE": "1",
-  "ZFS_VERSION": "0.7.1",
+  "ZFS_VERSION": "0.7.5",
   "ZINJECT": "/sbin/zinject",
-  "ZPOOL": "/sbin/zpool",
-  "_": "/usr/bin/printenv"
+  "ZPOOL": "/sbin/zpool"
 }
 """
 

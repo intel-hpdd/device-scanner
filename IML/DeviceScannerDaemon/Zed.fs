@@ -4,11 +4,11 @@
 
 module IML.DeviceScannerDaemon.Zed
 
-open Thot.Json.Decode
 open Fable.Core
 open IML.JsonDecoders
 open IML.StringUtils
 open Fable.Import.Node.PowerPack.Stream
+open Thot.Json.Decode
 
 [<RequireQualifiedAccess>]
 module Result =
@@ -41,7 +41,7 @@ module Zpool =
 
   let guidDecoder =
     field "ZEVENT_POOL_GUID" string
-      |> andThenSucceed Guid
+      |> map Guid
 
   let isExportState x =
     decodeJson stateStrDecoder x = Ok("EXPORTED")
@@ -110,7 +110,7 @@ module Zfs =
 
   let dsIdDecoder =
     field "ZEVENT_HISTORY_DSID" string
-      |> andThenSucceed Id
+      |> map Id
 
   type Data =
     {
@@ -194,7 +194,7 @@ module Properties =
       (Array.head xs, Array.last xs)
 
     field "ZEVENT_HISTORY_INTERNAL_STR" string
-      |> andThenSucceed (split [| '=' |] >> toTuple)
+      |> map (split [| '=' |] >> toTuple)
 
   let zpoolPropertyDecoder x =
     let decoder =

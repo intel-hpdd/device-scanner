@@ -4,13 +4,13 @@
 
 module IML.DeviceScannerDaemon.Udev
 
-open Thot.Json.Decode
 open Fable.Core
 open JsInterop
 open IML
 open JsonDecoders
 open StringUtils
 open Fable.Import.Node.PowerPack.Stream
+open Thot.Json.Decode
 
 [<Erase>]
 type DevPath = DevPath of string
@@ -101,24 +101,24 @@ type UEvent =
               } : UEvent)
         |> required "MAJOR" string
         |> required "MINOR" string
-        |> required "DEVLINKS" (andThenSucceed (Option.map (splitSpace >> (Array.map Path))) (option string))
-        |> required "DEVNAME" (andThenSucceed Path string)
-        |> required "DEVPATH" (andThenSucceed DevPath string)
+        |> required "DEVLINKS" (map (Option.map (splitSpace >> (Array.map Path))) (option string))
+        |> required "DEVNAME" (map Path string)
+        |> required "DEVPATH" (map DevPath string)
         |> required "DEVTYPE" string
         |> optional "ID_VENDOR" (option string) None
         |> optional "ID_MODEL" (option string) None
         |> optional "ID_SERIAL" (option string) None
-        |> optional "ID_FS_TYPE" (andThenSucceed (Option.bind emptyStrToNone) (option string)) None
-        |> optional "ID_FS_USAGE" (andThenSucceed (Option.bind emptyStrToNone) (option string)) None
-        |> optional "ID_PART_ENTRY_NUMBER" (andThenSucceed (Option.map Operators.int) (option string)) None
-        |> optional "IML_SIZE" (andThenSucceed (Option.bind emptyStrToNone) (option string)) None
-        |> optional "IML_SCSI_80" (andThenSucceed (Option.map trim) (option string)) None
-        |> optional "IML_SCSI_83" (andThenSucceed (Option.map trim) (option string)) None
-        |> optional "IML_IS_RO" (andThenSucceed (Option.map isOne) (option string)) None
-        |> optional "IML_DM_SLAVE_MMS" (andThenSucceed splitSpace string) [||]
-        |> optional "IML_DM_VG_SIZE" (andThenSucceed (Option.map trim) (option string)) None
+        |> optional "ID_FS_TYPE" (map (Option.bind emptyStrToNone) (option string)) None
+        |> optional "ID_FS_USAGE" (map (Option.bind emptyStrToNone) (option string)) None
+        |> optional "ID_PART_ENTRY_NUMBER" (map (Option.map Operators.int) (option string)) None
+        |> optional "IML_SIZE" (map (Option.bind emptyStrToNone) (option string)) None
+        |> optional "IML_SCSI_80" (map (Option.map trim) (option string)) None
+        |> optional "IML_SCSI_83" (map (Option.map trim) (option string)) None
+        |> optional "IML_IS_RO" (map (Option.map isOne) (option string)) None
+        |> optional "IML_DM_SLAVE_MMS" (map splitSpace string) [||]
+        |> optional "IML_DM_VG_SIZE" (map (Option.map trim) (option string)) None
         |> custom (matchedKeyValuePairs (fun k -> startsWith "MD_DEVICE_" k && endsWith "_DEV" k) string)
-        |> optional "DM_MULTIPATH_DEVICE_PATH" (andThenSucceed (Option.map isOne) (option string)) None
+        |> optional "DM_MULTIPATH_DEVICE_PATH" (map (Option.map isOne) (option string)) None
         |> optional "DM_LV_NAME" (option string) None
         |> optional "DM_VG_NAME" (option string) None
         |> optional "DM_UUID" (option string) None

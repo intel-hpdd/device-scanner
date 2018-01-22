@@ -10,5 +10,3 @@ open Fable.Import.Node.PowerPack.Stream
 let decodeJson (decoder: Decoder<'T>) =
     function
       | LineDelimitedJson.Json y -> decodeValue decoder y
-
-let andThenSucceed x y = andThen (x >> succeed) y

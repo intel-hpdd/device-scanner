@@ -13,10 +13,3 @@ let toJson =
 
 test "decodeJson" <| fun () ->
   (decodeJson string (toJson @"""foo""")) == Ok("foo")
-
-test "andThenSucceed" <| fun () ->
-  let decoder =
-    field "bar" string
-      |> andThenSucceed (fun x -> x + "baz")
-
-  JS.JSON.parse """{"bar": "foo"}""" |> decoder == Ok("foobaz")

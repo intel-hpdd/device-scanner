@@ -114,7 +114,6 @@ module Zfs =
 
   let dsIdDecoder =
     field "ZEVENT_HISTORY_DSID" string
-      |> map Id
 
   type Data =
     {
@@ -136,7 +135,7 @@ module Zfs =
             })
             Zpool.guidDecoder
             (field "ZEVENT_HISTORY_DSNAME" string)
-            dsIdDecoder
+            (dsIdDecoder |> map Id)
         |> decodeJson
 
     decoder x |> unwrap
@@ -224,7 +223,7 @@ module Properties =
           value = value;
         })
         Zpool.guidDecoder
-        Zfs.dsIdDecoder
+        (Zfs.dsIdDecoder |> map Zfs.Id)
         nvpairDecoder
       |> decodeJson
 
@@ -245,8 +244,9 @@ module Properties =
     else
       None
 
-let (|ZedGeneric|_|) x =
+let (|ZedGeneric|_|) x = 
   if decodeJson (field "ZEVENT_EID" string) x |> Result.isOk then
+    printfn "Got generic ZED event %A" x
     Some ()
-  else
-    None
+  else 
+    None 

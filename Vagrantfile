@@ -37,7 +37,11 @@ Vagrant.configure("2") do |config|
     chmod 777 /lib/udev/event-listener
     cp dist/event-listener/event-listener /usr/libexec/zfs/zed.d/generic-listener.sh
     chmod 755 /usr/libexec/zfs/zed.d/generic-listener.sh
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/all_event-listener.sh
+    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_create-scanner.sh 
+    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_destroy-scanner.sh 
+    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_import-scanner.sh 
+    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_export-scanner.sh 
+    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/history_event-scanner.sh 
     cp dist/event-listener/IML/EventListener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
     cp dist/device-scanner-daemon/IML/DeviceScannerDaemon/systemd-units/* /usr/lib/systemd/system
     systemctl enable device-scanner.socket

@@ -65,8 +65,8 @@ let dataHandler (x:LineDelimitedJson.Json) =
       data.props <- (data.props @ [x])
     | Properties.ZfsProp x ->
       data.props <- (data.props @ [x])
-    | ZedGeneric -> ()
-    | _ ->
-      failwith "Handler got a bad match"
+    | ZedGeneric -> () 
+    | x ->
+      failwithf "Handler got a bad match %A" x
 
   Ok data

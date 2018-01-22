@@ -1274,7 +1274,7 @@ Result {
 }
 `;
 
-exports[`Data Handler Should end on a bad match 1`] = `"Handler got a bad match"`;
+exports[`Data Handler Should end on a bad match 1`] = `"Handler got a bad match {}"`;
 
 exports[`Data Handler Should export then import zpool with datasets 1`] = `
 Result {

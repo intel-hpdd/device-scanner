@@ -25,7 +25,7 @@ testList "Listener" [
 
     jest.mock("net", fun () -> createObj ["connect" ==> mockConnect.Mock])
 
-    require.Invoke "./Listener.fs" |> ignore
+    require.Invoke "../src/Listener.fs" |> ignore
 
     f(mockConnect, mockOnce, mockEnd)
 

@@ -16,7 +16,7 @@ jobs:
       script:
         - npm i
         - npm run restore
-        - dotnet fable npm-run build
+        - dotnet fable npm-build
     - stage: test
       env: Type='unit test'
       language: csharp
@@ -28,7 +28,7 @@ jobs:
       script:
         - npm i
         - npm run restore
-        - npm run test
+        - dotnet fable npm-coverage
       after_success:
         - codecov
     - stage: deploy
@@ -39,7 +39,7 @@ jobs:
       before_deploy:
         - nvm install 8
         - npm install -g codecov
-        - dotnet fable npm-run build
+        - dotnet fable npm-build
       deploy:
         skip_cleanup: true
         provider: npm

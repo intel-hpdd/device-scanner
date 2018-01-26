@@ -16,7 +16,6 @@ Consumers can send a JSON Request over the socket to retrieve the current listin
 
 `{ "ACTION": "info" }`
 
-
 ## Architecture
 
 ```

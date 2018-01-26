@@ -8,15 +8,13 @@
     "access": "public"
   },
   "scripts": {
-    "jest": "jest --coverage",
-    "test": "dotnet fable npm-run jest",
-    "test-watch": "jest --watchAll",
-    "restore": "dotnet restore",
-    "buildEventListener": "rollup -c IML/EventListener/rollup-config.js",
-    "postbuildEventListener": "cp-cli IML/EventListener/udev-rules dist/event-listener",
-    "buildDeviceScannerDaemon": "rollup -c IML/DeviceScannerDaemon/rollup-config.js",
-    "postbuildDeviceScannerDaemon": "cp-cli IML/DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
-    "build": "del-cli ./dist/**; sendProjFile; npm run buildEventListener & npm run buildDeviceScannerDaemon"
+    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener --coverage",
+    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener",
+    "test": "dotnet fable npm-jest",
+    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener --watchAll",
+    "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
+    "build": "del-cli ./dist/**; rollup -c rollup-config.js",
+    "postbuild": "cp-cli IML.EventListener/udev-rules dist/event-listener && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon"
   },
   "pre-commit": [
     "test"
@@ -28,11 +26,11 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-preset-env": "^1.6.1",
-    "cp-cli": "^1.1.0",
+    "cp-cli": "1.0.2",
     "del-cli": "^1.1.0",
     "fable-utils": "^1.0.6",
     "jest": "^22.1.4",
-    "jest-fable-preprocessor": "^1.3.3",
+    "jest-fable-preprocessor": "^1.4.0",
     "pre-commit": "1.2.2",
     "rollup": "^0.55.0",
     "rollup-plugin-cleanup": "^2.0.0",

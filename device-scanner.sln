@@ -27,6 +27,8 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "VdevAddZedlet", "IML.Listen
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "UdevListener", "IML.Listeners\UdevListener\UdevListener.fsproj", "{2E243F47-7F39-4CC9-9277-DF95CF33B2E8}"
 EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IML.IntegrationTest", "IML.IntegrationTest\IML.IntegrationTest.fsproj", "{1509065E-FA69-42D5-BFE4-0F080C333FA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -160,6 +162,18 @@ Global
 		{2E243F47-7F39-4CC9-9277-DF95CF33B2E8}.Release|x64.Build.0 = Release|x64
 		{2E243F47-7F39-4CC9-9277-DF95CF33B2E8}.Release|x86.ActiveCfg = Release|x86
 		{2E243F47-7F39-4CC9-9277-DF95CF33B2E8}.Release|x86.Build.0 = Release|x86
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|x64.ActiveCfg = Debug|x64
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|x64.Build.0 = Debug|x64
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|x86.ActiveCfg = Debug|x86
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Debug|x86.Build.0 = Debug|x86
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|x64.ActiveCfg = Release|x64
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|x64.Build.0 = Release|x64
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|x86.ActiveCfg = Release|x86
+		{1509065E-FA69-42D5-BFE4-0F080C333FA5}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1B473DA6-9A50-432B-A580-1A809A0D5B93} = {B05488FE-B6D9-492D-9A63-83A61EEA6C64}

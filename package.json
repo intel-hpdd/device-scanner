@@ -11,6 +11,7 @@
     "coverage": "jest --projects IML.DeviceScannerDaemon --coverage",
     "jest": "jest --projects IML.DeviceScannerDaemon",
     "test": "dotnet fable npm-jest",
+    "integration-test": "jest --projects IML.IntegrationTest",
     "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",
@@ -20,7 +21,8 @@
     "postmock": "docker exec -i mock bash -xec 'bash -xe /builddir/mock-build.sh'"
   },
   "pre-commit": [
-    "test"
+    "test",
+    "integration-test"
   ],
   "repository": {
     "type": "git",

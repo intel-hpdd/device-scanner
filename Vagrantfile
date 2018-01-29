@@ -28,7 +28,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: <<-SHELL
     rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
     yum-config-manager --add-repo http://download.mono-project.com/repo/centos7/
-    yum-config-manager --add-repo https://bintray.com/intel-hpdd/intelhpdd-build/rpm
+    wget https://bintray.com/intel-hpdd/intelhpdd-build/rpm -O /etc/yum.repos.d/bintray-intel-hpdd-intelhpdd-build.repo
     yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
     yum install -y centos-release-dotnet
     yum install -y nodejs socat jq docker mono-devel rh-dotnet20

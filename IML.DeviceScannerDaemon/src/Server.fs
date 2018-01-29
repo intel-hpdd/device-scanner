@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Intel Corporation. All rights reserved.
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -8,7 +8,8 @@ open Fable.Import.Node
 open Fable.Import.Node.PowerPack.Stream
 open Fable.Import
 open Fable.Core.JsInterop
-open IML.DeviceScannerDaemon.Handlers
+open Handlers
+open IML.Types.CommandTypes
 
 let counterFactory () =
   let mutable count = 1
@@ -40,14 +41,17 @@ let serverHandler (c:Net.Socket):unit =
     |> Readable.onEnd (remove)
     |> LineDelimitedJson.create()
     |> Readable.onError (fun (e:JS.Error) ->
-      JS.console.error ("Unable to parse message " + e.message)
-
-      remove()
-      c.``end``()
+      eprintfn "Unable to parse message %s" e.message
     )
-    |> map dataHandler
+    |> map (fun (LineDelimitedJson.Json x) -> 
+        x
+          |> Fable.Import.JS.JSON.stringify
+          |> ofJson<Command>
+          |> Ok
+    )
     |> map (
-      toJson
+        handler
+        >> toJson
         >> fun x -> x + "\n"
         >> buffer.Buffer.from
         >> Ok

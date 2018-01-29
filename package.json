@@ -2,7 +2,7 @@
   "name": "@iml/device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
-  "version": "1.1.1",
+  "version": "2.0.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -14,7 +14,10 @@
     "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",
-    "postbuild": "cp-cli IML.EventListener/udev-rules dist/event-listener && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon"
+    "postbuild": "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",
+    "premock": "docker run  -di --privileged --name mock intelhpdd/mock /usr/sbin/init",
+    "mock": "docker cp -a ./ mock:/builddir",
+    "postmock": "docker exec -i mock bash -xec 'bash -xe /builddir/mock-build.sh'"
   },
   "pre-commit": [
     "test"
@@ -22,6 +25,9 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"
+  },
+  "dependencies": {
+    "@iml/node-libzfs": "0.1.9"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -32,7 +38,7 @@
     "jest": "^22.1.4",
     "jest-fable-preprocessor": "^1.4.0",
     "pre-commit": "1.2.2",
-    "rollup": "^0.55.0",
+    "rollup": "^0.55.1",
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

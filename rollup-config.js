@@ -17,22 +17,82 @@ const getPlugins = () => [
 
 export default [
   {
-    input: 'IML.EventListener/src/IML.EventListener.fsproj',
-    external: ['net', 'buffer', 'stream'],
-    output: {
-      banner: '#!/usr/bin/env node',
-      file: './dist/event-listener/event-listener',
-      format: 'cjs'
-    },
-    plugins: getPlugins()
-  },
-  {
     input: 'IML.DeviceScannerDaemon/src/IML.DeviceScannerDaemon.fsproj',
-    external: ['stream', 'net', 'child_process', 'buffer'],
+    external: ['stream', 'net', 'child_process', 'buffer', '@iml/node-libzfs'],
     output: {
       file: './dist/device-scanner-daemon/device-scanner-daemon',
       format: 'cjs'
     },
     plugins: getPlugins()
-  }
+  },
+  {
+    input: 'IML.Listeners/UdevListener/UdevListener.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/udev-listener',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/HistoryEventZedlet/HistoryEventZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/history_event-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/PoolCreateZedlet/PoolCreateZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/pool_create-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/PoolDestroyZedlet/PoolDestroyZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/pool_destroy-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/PoolExportZedlet/PoolExportZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/pool_export-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/PoolImportZedlet/PoolImportZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/pool_import-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
+    input: 'IML.Listeners/VdevAddZedlet/VdevAddZedlet.fsproj',
+    external: ['net', 'buffer'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/vdev_add-scanner.sh',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
 ];

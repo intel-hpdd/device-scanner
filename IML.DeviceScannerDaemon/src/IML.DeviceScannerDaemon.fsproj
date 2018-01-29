@@ -1,11 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="StringUtils.fs" />
-    <Compile Include="JsonDecoders.fs" />
+    <ProjectReference Include="../../IML.Types/IML.Types.fsproj">
+      <Name>IML.Types.fsproj</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommonLibrary.fs" />
+    <Compile Include="../../node_modules/@iml/node-libzfs/libzfs.fs" />
     <Compile Include="Udev.fs" />
     <Compile Include="Zed.fs" />
     <Compile Include="Handlers.fs" />

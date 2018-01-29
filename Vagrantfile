@@ -26,29 +26,23 @@ Vagrant.configure("2") do |config|
   config.vm.boot_timeout = 600
 
   config.vm.provision "shell", inline: <<-SHELL
-    yum install -y epel-release
-    yum install -y nodejs socat jq
-    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
-    yum install -y zfs
-    cd /vagrant
-    mkdir -p /usr/lib64/iml-device-scanner-daemon
-    cp dist/device-scanner-daemon/device-scanner-daemon /usr/lib64/iml-device-scanner-daemon
-    cp dist/event-listener/event-listener /lib/udev
-    chmod 777 /lib/udev/event-listener
-    cp dist/event-listener/event-listener /usr/libexec/zfs/zed.d/generic-listener.sh
-    chmod 755 /usr/libexec/zfs/zed.d/generic-listener.sh
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_create-scanner.sh 
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_destroy-scanner.sh 
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_import-scanner.sh 
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/pool_export-scanner.sh 
-    ln -sf /usr/libexec/zfs/zed.d/generic-listener.sh /etc/zfs/zed.d/history_event-scanner.sh 
-    cp dist/event-listener/IML/EventListener/udev-rules/99-iml-device-scanner.rules /etc/udev/rules.d/
-    cp dist/device-scanner-daemon/IML/DeviceScannerDaemon/systemd-units/* /usr/lib/systemd/system
-    systemctl enable device-scanner.socket
-    systemctl start device-scanner.socket
-    udevadm trigger --action=change --subsystem-match=block
-    /sbin/modprobe zfs
-    systemctl enable zfs-zed.service
-    systemctl start zfs-zed.service
+    rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
+    yum-config-manager --add-repo http://download.mono-project.com/repo/centos7/
+    yum-config-manager --add-repo https://bintray.com/intel-hpdd/intelhpdd-build/rpm
+    yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
+    yum install -y centos-release-dotnet
+    yum install -y nodejs socat jq docker mono-devel rh-dotnet20
+    systemctl start docker
+    docker rm mock -f
+    rm -rf /builddir
+    cp -r /vagrant /builddir
+    cd /builddir
+    npm i --ignore-scripts
+    scl enable rh-dotnet20 "npm run restore && dotnet fable npm-build"
+    npm pack
+    rename 'iml-' '' iml-device-scanner-*.tgz
+    npm run mock
+    docker cp mock:/var/lib/mock/epel-7-x86_64/result/iml-device-scanner2-2.0.0-76.el7.centos.x86_64.rpm ./
+    yum install -y ./iml-device-scanner2-2.0.0-*.el7.centos.x86_64.rpm
   SHELL
 end

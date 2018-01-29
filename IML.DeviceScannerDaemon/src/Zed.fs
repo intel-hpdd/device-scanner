@@ -1,158 +1,56 @@
-// Copyright (c) 2017 Intel Corporation. All rights reserved.
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
 module IML.DeviceScannerDaemon.Zed
 
 open Fable.Core
-open IML.JsonDecoders
-open IML.StringUtils
-open Fable.Import.Node.PowerPack.Stream
-open Thot.Json.Decode
-
-[<RequireQualifiedAccess>]
-module Result =
-
-  let isOk = function
-    | Ok _ -> true
-    | Error _ -> false
-
-  let isError =
-     isOk >> not
-
-let private unwrap x =
-    match x with
-      | Ok y -> y
-      | Error y -> failwith y
-
-let private historyInternalNameDecoder (x:LineDelimitedJson.Json) =
-  decodeJson (field "ZEVENT_HISTORY_INTERNAL_NAME" string) x
+open IML.Types.CommandTypes
+open CommonLibrary
 
 [<RequireQualifiedAccess>]
 module Zpool =
-  [<Erase>]
-  type Guid = Guid of string
-
-  let private subclassDecoder =
-    decodeJson (field "ZEVENT_SUBCLASS" string)
-
-  let private stateStrDecoder =
-    field "ZEVENT_POOL_STATE_STR" string
-
-  let guidDecoder =
-    field "ZEVENT_POOL_GUID" string
-      |> map Guid
-
-  let isExportState x =
-    decodeJson stateStrDecoder x = Ok("EXPORTED")
-
-  let private isExportClass x = 
-      subclassDecoder x = Ok("pool_export") 
-
-  let isDestroyState x =
-    decodeJson stateStrDecoder x = Ok("DESTROYED")
-
-  let private isDestroyClass x =
-    subclassDecoder x = Ok("pool_destroy")
-
   /// Representation of a zpool from ZED events.
   type Data =
     {
       /// Name of the pool
-      name: string;
+      name: ZpoolName;
       /// Unique id of the imported pool.
       /// Exporting and importing the pool
       /// will change this guid.
       guid: Guid;
+      hostName: string;
       /// The state of the pool.
-      state: string;
+      state: State;
+      size: float;
+      vdev: libzfs.Libzfs.VDev;
     }
 
-  let dataDecoder x =
-    let decoder =
-      map3(fun name guid state ->
-        {
-          name = name;
-          guid = guid;
-          state = state;
-        })
-        (field "ZEVENT_POOL" string)
-        guidDecoder
-        stateStrDecoder
-      |> decodeJson
-
-    decoder x |> unwrap
-
-  let (|Create|_|) x =
-    match subclassDecoder x with
-      | Ok("pool_create") ->
-        Some (dataDecoder x)
-      | _ -> None
-
-  let (|Import|_|) x =
-    match subclassDecoder x with
-      | Ok("pool_import") ->
-        Some (dataDecoder x)
-      | _ -> None
-
-  let (|Export|_|) x =
-      if isExportClass x && isExportState x then
-        Some (dataDecoder x)
-      else
-        None
-
-  let (|Destroy|_|) x =
-    if isDestroyClass x && isDestroyState x then
-      Some (dataDecoder x)
-    else
-      None
+  let create name guid hostName state size vdev =
+    {
+      name = name;
+      guid = guid;
+      hostName = hostName
+      state = state;
+      size = size;
+      vdev = vdev
+    }
 
 [<RequireQualifiedAccess>]
 module Zfs =
-  [<Erase>]
-  type Id = Id of string
-
-  let dsIdDecoder =
-    field "ZEVENT_HISTORY_DSID" string
-
   type Data =
     {
       /// The pool the zfs item belongs to.
-      poolGuid: Zpool.Guid;
+      poolGuid: Guid;
       /// The name of the zfs item
-      name: string;
-      /// Id of the zfs item.
-      id: Id;
+      name: ZfsName;
     }
 
-  let dataDecoder x =
-    let decoder =
-        map3 (fun poolGuid name id ->
-            {
-              poolGuid = poolGuid;
-              name = name;
-              id = id;
-            })
-            Zpool.guidDecoder
-            (field "ZEVENT_HISTORY_DSNAME" string)
-            (dsIdDecoder |> map Id)
-        |> decodeJson
-
-    decoder x |> unwrap
-
-  let (|Create|_|) x =
-    if historyInternalNameDecoder x = Ok("create") &&
-        (dsIdDecoder >> Result.isOk) x then
-          Some (dataDecoder x)
-    else
-      None
-
-  let (|Destroy|_|) x =
-    if historyInternalNameDecoder x = Ok("destroy") &&
-        (dsIdDecoder >> Result.isOk) x then
-          Some (dataDecoder x)
-    else
-      None
+  let create poolGuid name =
+    {
+      poolGuid = poolGuid;
+      name = name;
+    }
 
 [<RequireQualifiedAccess>]
 module Properties =
@@ -161,11 +59,11 @@ module Properties =
   type ZfsProperty =
     {
       /// The guid of the pool this property is associated with.
-      poolGuid: Zpool.Guid;
-      /// The zfs item id this property is associated with.
-      zfsId: Zfs.Id;
+      poolGuid: Guid;
+      /// The zfs name
+      zfsName: ZfsName;
       /// The property name
-      name: string;
+      key: string;
       /// The property value
       value: string;
     }
@@ -175,9 +73,9 @@ module Properties =
   type ZpoolProperty =
     {
       /// The guid of the pool this property is associated with.
-      poolGuid: Zpool.Guid;
+      poolGuid: Guid;
       /// The property name
-      name: string;
+      key: string;
       /// The property value
       value: string;
     }
@@ -187,66 +85,144 @@ module Properties =
     | Zpool of ZpoolProperty
     | Zfs of ZfsProperty
 
+  let createZpoolProperty poolGuid key value =
+    {
+      poolGuid = poolGuid;
+      key = key;
+      value = value;
+    }
+      |> Zpool
+
+  let createZfsProperty poolGuid zfsName key value =
+      {
+        poolGuid = poolGuid;
+        /// The zfs name
+        zfsName = zfsName;
+        /// The property name
+        key = key;
+        /// The property value
+        value = value;
+      }
+        |> Zfs
+
   let byPoolGuid x y =
         match y with
           | Zfs p -> p.poolGuid <> x
           | Zpool p -> p.poolGuid <> x
 
-  let private nvpairDecoder =
-    let toTuple xs =
-      (Array.head xs, Array.last xs)
 
-    field "ZEVENT_HISTORY_INTERNAL_STR" string
-      |> map (split [| '=' |] >> toTuple)
+let private toMap key xs =
+  let folder state x =
+    Map.add (key x) x state
 
-  let zpoolPropertyDecoder x =
-    let decoder =
-      map2 (fun guid (name, value) ->
+  Seq.fold folder Map.empty xs
+
+[<RequireQualifiedAccess>]
+module Zed =
+  open libzfs
+
+  type ZedData = {
+    zpools: Map<Guid, Zpool.Data>;
+    zfs: Map<(Guid * ZfsName), Zfs.Data>;
+    props: Set<Properties.Property>;
+  }
+
+  let update (zed:ZedData) (x:ZedCommand):ZedData =
+    match x with
+      | Init ->
+        let libzfsPools = 
+          libzfs.getImportedPools()
+            |> List.ofSeq
+
+        let zedPools =
+          List.map (fun (x:Libzfs.Pool) ->
+            Zpool.create (ZpoolName x.name) (Guid x.uid) x.hostname (State x.state) x.size x.vdev) libzfsPools
+
+        let zedZfs =
+          Seq.collect (fun (x:Libzfs.Pool) ->
+            Seq.map (fun (y:Libzfs.Dataset) ->
+              Zfs.create (Guid x.uid) (ZfsName y.name)
+            ) x.datasets) libzfsPools
+
         {
-          poolGuid = guid;
-          name = name;
-          value = value;
-        })
-        Zpool.guidDecoder
-        nvpairDecoder
-      |> decodeJson
+          zed with
+            zpools = toMap (fun x -> x.guid) zedPools;
+            zfs = toMap (fun x -> (x.poolGuid, x.name)) zedZfs;
+            props = Set.empty;
+        }
+      | CreateZpool (ZpoolName(name), guid, state) ->
+        let pool = 
+          libzfs.getPoolByName(name)
+            |> Option.expect (sprintf "expected pool name %s to exist and be imported." name)
+            |> fun p -> Zpool.create (ZpoolName name) guid p.hostname state p.size p.vdev
 
-    decoder x |> unwrap
-
-  let zfsPropertyDecoder x =
-    let decoder =
-      map3 (fun poolUid datasetUid (name, value) ->
         {
-          poolGuid = poolUid;
-          zfsId = datasetUid;
-          name = name;
-          value = value;
-        })
-        Zpool.guidDecoder
-        (Zfs.dsIdDecoder |> map Zfs.Id)
-        nvpairDecoder
-      |> decodeJson
+          zed with
+            zpools = Map.add guid pool zed.zpools;
+        }
+      | ImportZpool (guid, state) -> 
+        let pool = Map.find guid zed.zpools
+        
+        {
+          zed with
+            zpools = Map.add guid ({pool with state = state}) zed.zpools;
+        }
+      | ExportZpool (guid, state) ->
+        let pool = Map.find guid zed.zpools
+        
+        {
+          zed with
+            zpools = Map.add guid ({pool with state = state}) zed.zpools;
+        }
+      | DestroyZpool guid ->
+        {
+          zed with
+            zpools = Map.remove guid zed.zpools;
+            zfs = Map.filter (fun (guid', _) _ -> guid <> guid') zed.zfs
+            props = Set.filter (Properties.byPoolGuid guid) zed.props
+        }
+      | CreateZfs (guid, zfsName) ->
+        {
+          zed with
+            zfs = Map.add (guid, zfsName) { poolGuid = guid; name = zfsName; } zed.zfs
+        }
+      | DestroyZfs (guid, zfsName) ->
+        {
+          zed with
+            zfs = Map.remove (guid, zfsName) zed.zfs
+            props = Set.filter (function
+              | Properties.Zfs z -> z.poolGuid <> guid && z.zfsName <> zfsName
+              | _ -> true
+            ) zed.props
+        }
+      | SetZpoolProp (guid, key, value) ->
+        {
+          zed with
+            props = Set.add (Properties.createZpoolProperty guid key value) zed.props;
+        }
+      | SetZfsProp (guid, zfsName, key, value) -> 
+        {
+          zed with
+            props = Set.add (Properties.createZfsProperty guid zfsName key value) zed.props;
+        }
+      | AddVdev guid ->
+        let x = 
+          maybe {
+            let! zedPool = Map.tryFind guid zed.zpools
 
-    decoder x |> unwrap
+            let (ZpoolName name) = zedPool.name
+            
+            let! libzfsPool = libzfs.getPoolByName(name)
 
-  let private isSet x =
-    historyInternalNameDecoder x = Ok("set")
+            return 
+              { 
+                zedPool with 
+                  vdev = libzfsPool.vdev;
+              }
+          }
+          |> Option.expect (sprintf "expected pool guid %A to exist and be imported." guid)
 
-  let (|ZpoolProp|_|) x =
-    if decodeJson Zfs.dsIdDecoder x |> Result.isError && isSet x then
-      Some (Property.Zpool (zpoolPropertyDecoder x))
-    else
-      None
-
-  let (|ZfsProp|_|) x =
-    if decodeJson Zfs.dsIdDecoder x |> Result.isOk && isSet x then
-      Some (Property.Zfs (zfsPropertyDecoder x))
-    else
-      None
-
-let (|ZedGeneric|_|) x =
-  if decodeJson (field "ZEVENT_EID" string) x |> Result.isOk then
-    printfn "Got generic ZED event %A" x
-    Some ()
-  else
-    None
+        {
+          zed with
+            zpools = Map.add x.guid x zed.zpools
+        }

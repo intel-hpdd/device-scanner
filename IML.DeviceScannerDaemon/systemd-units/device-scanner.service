@@ -6,6 +6,7 @@ DefaultDependencies=false
 [Service]
 Restart=always
 Environment=NODE_ENV=production
+Environment=NODE_PATH=/usr/lib/node_modules
 ExecStart=/usr/bin/node /usr/lib64/iml-device-scanner-daemon/device-scanner-daemon
 StandardOutput=journal+console
 StandardError=journal+console

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 Intel Corporation. All rights reserved.
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -7,9 +7,8 @@ module IML.DeviceScannerDaemon.Udev
 open Fable.Core
 open JsInterop
 open IML
-open JsonDecoders
-open StringUtils
-open Fable.Import.Node.PowerPack.Stream
+open Types.CommandTypes
+open DeviceScannerDaemon.CommonLibrary
 open Thot.Json.Decode
 
 [<Erase>]
@@ -17,7 +16,7 @@ type DevPath = DevPath of string
 [<Erase>]
 type Path = Path of string
 
-let private splitSpace = split [|' '|] >> Array.map trim
+let private splitSpace = String.split ' ' >> Array.map String.trim
 
 let private isOne = function
   | "1" -> true
@@ -108,40 +107,36 @@ type UEvent =
         |> optional "ID_VENDOR" (option string) None
         |> optional "ID_MODEL" (option string) None
         |> optional "ID_SERIAL" (option string) None
-        |> optional "ID_FS_TYPE" (map (Option.bind emptyStrToNone) (option string)) None
-        |> optional "ID_FS_USAGE" (map (Option.bind emptyStrToNone) (option string)) None
+        |> optional "ID_FS_TYPE" (map (Option.bind String.emptyStrToNone) (option string)) None
+        |> optional "ID_FS_USAGE" (map (Option.bind String.emptyStrToNone) (option string)) None
         |> optional "ID_PART_ENTRY_NUMBER" (map (Option.map Operators.int) (option string)) None
-        |> optional "IML_SIZE" (map (Option.bind emptyStrToNone) (option string)) None
-        |> optional "IML_SCSI_80" (map (Option.map trim) (option string)) None
-        |> optional "IML_SCSI_83" (map (Option.map trim) (option string)) None
+        |> optional "IML_SIZE" (map (Option.bind String.emptyStrToNone) (option string)) None
+        |> optional "IML_SCSI_80" (map (Option.map String.trim) (option string)) None
+        |> optional "IML_SCSI_83" (map (Option.map String.trim) (option string)) None
         |> optional "IML_IS_RO" (map (Option.map isOne) (option string)) None
         |> optional "IML_DM_SLAVE_MMS" (map splitSpace string) [||]
-        |> optional "IML_DM_VG_SIZE" (map (Option.map trim) (option string)) None
-        |> custom (matchedKeyValuePairs (fun k -> startsWith "MD_DEVICE_" k && endsWith "_DEV" k) string)
+        |> optional "IML_DM_VG_SIZE" (map (Option.map String.trim) (option string)) None
+        |> custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) string)
         |> optional "DM_MULTIPATH_DEVICE_PATH" (map (Option.map isOne) (option string)) None
         |> optional "DM_LV_NAME" (option string) None
         |> optional "DM_VG_NAME" (option string) None
         |> optional "DM_UUID" (option string) None
         |> optional "MD_UUID" (option string) None
 
-let actionDecoder = decodeJson (field "ACTION" string)
-
 let uEventDecoder x =
-  match decodeJson UEvent.Decoder x with
+  match decodeString UEvent.Decoder x with
     | Ok y -> y
     | Error y -> failwith y
 
-let (|UdevAdd|_|) (x:LineDelimitedJson.Json) =
-  match actionDecoder x with
-    | Ok(y) when y = "add" -> Some(uEventDecoder x)
-    | _ -> None
+type BlockDevices = Map<DevPath, UEvent>
 
-let (|UdevChange|_|) (x:LineDelimitedJson.Json) =
-  match actionDecoder x with
-    | Ok(y) when y = "change" -> Some (uEventDecoder x)
-    | _ -> None
+let update (blockDevices:BlockDevices) (x:UdevCommand):BlockDevices =  
+  match x with
+    | Add o | Change o ->
+      let d = uEventDecoder o
 
-let (|UdevRemove|_|) (x:LineDelimitedJson.Json) =
-  match actionDecoder x with
-    | Ok(y) when y = "remove" -> Some (uEventDecoder x)
-    | _ -> None
+      Map.add d.DEVPATH d blockDevices
+    | Remove o ->
+      let d = uEventDecoder o
+
+      Map.remove d.DEVPATH blockDevices

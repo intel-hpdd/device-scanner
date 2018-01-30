@@ -23,7 +23,9 @@ module Zpool =
       hostName: string;
       /// The state of the pool.
       state: State;
+      /// The size of the pool.
       size: float;
+      /// The Vdev tree of the pool.
       vdev: Libzfs.VDev;
     }
 

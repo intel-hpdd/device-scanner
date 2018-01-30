@@ -4,30 +4,30 @@
 
 module IML.DeviceScannerDaemon.UdevTest
 
-open IML.DeviceScannerDaemon.TestFixtures
+open TestFixtures
+open IML.Types.CommandTypes
 open Udev
 open Fable.Import.Jest
 open Matchers
 
-let addMatch = function
-  | UdevAdd x -> Some x
-  | _ -> None
 
-let removeMatch = function
-  | UdevRemove x -> Some x
-  | _ -> None
+let matcher m x =
+  x
+    |> update m
+    |> Map.toList
+    |> toMatchSnapshot
 
 test "Matching Events" <| fun () ->
   expect.assertions 6
 
-  toMatchSnapshot (addMatch addUdevJson)
+  matcher Map.empty addUdev
 
-  toMatchSnapshot (addMatch addDiskUdevJson)
+  matcher Map.empty addDiskUdev
 
-  toMatchSnapshot (addMatch addDmUdevJson)
+  matcher Map.empty addDmUdev
 
-  toMatchSnapshot (removeMatch removeUdevJson)
+  matcher Map.empty removeUdev
 
-  toMatchSnapshot (addMatch (toJson """{ "ACTION": "blah" }"""))
+  matcher Map.empty addMdraidUdev
 
-  toMatchSnapshot (addMatch addMdraidUdevJson)
+  matcher Map.empty (UdevCommand.Change """{ "ACTION": "blah" }""")

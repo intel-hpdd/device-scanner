@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../src/IML.DeviceScannerDaemon.fsproj" />
     <Compile Include="TestFixtures.fs" />
+    <Compile Include="ConnectionsTest.fs" />
     <Compile Include="UdevTest.fs" />
     <Compile Include="ZedTest.fs" />
     <Compile Include="HandlersTest.fs" />

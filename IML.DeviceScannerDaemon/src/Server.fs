@@ -11,34 +11,11 @@ open Fable.Core.JsInterop
 open Handlers
 open IML.Types.CommandTypes
 
-let counterFactory () =
-  let mutable count = 1
-
-  fun () ->
-    count <- count + 1
-    count
-
-let counter = counterFactory()
-
-let mutable conns = Map.empty<int, Net.Socket>
-
-let removeConn (i) () =
-    conns <- Map.filter (fun k _ -> k <> i) conns
-
-let writeConns x =
-  conns <- Map.filter (fun _ (v:Net.Socket) -> not (!!v?destroyed)) conns
-
-  conns
-    |> Map.iter (fun _ c -> Writable.write x c |> ignore)
-
 let serverHandler (c:Net.Socket):unit =
-  let index = counter()
+  Connections.addConn c
 
-  conns <- Map.add index c conns
-
-  let remove = removeConn index
   c
-    |> Readable.onEnd (remove)
+    |> Readable.onEnd (Connections.removeConn c)
     |> LineDelimitedJson.create()
     |> Readable.onError (fun (e:JS.Error) ->
       eprintfn "Unable to parse message %s" e.message
@@ -56,7 +33,7 @@ let serverHandler (c:Net.Socket):unit =
         >> buffer.Buffer.from
         >> Ok
     )
-    |> iter writeConns
+    |> iter Connections.writeConns
     |> ignore
 
 let private server = net.createServer(serverHandler)

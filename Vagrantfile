@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
     wget https://bintray.com/intel-hpdd/intelhpdd-build/rpm -O /etc/yum.repos.d/bintray-intel-hpdd-intelhpdd-build.repo
     yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
     yum install -y centos-release-dotnet
-    yum install -y nodejs socat jq docker mono-devel rh-dotnet20
+    yum install -y nodejs socat jq docker mono-devel rh-dotnet20 git
     systemctl start docker
     docker rm mock -f
     rm -rf /builddir

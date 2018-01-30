@@ -8,10 +8,10 @@
     "access": "public"
   },
   "scripts": {
-    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener",
+    "coverage": "jest --projects IML.DeviceScannerDaemon --coverage",
+    "jest": "jest --projects IML.DeviceScannerDaemon",
     "test": "dotnet fable npm-jest",
-    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.EventListener --watchAll",
+    "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",
     "postbuild": "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon",

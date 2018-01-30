@@ -51,6 +51,7 @@ jobs:
       if: branch = master AND env(TRAVIS_TAG) IS blank
       script:
         - nvm install 8
+        - npm i --ignore-scripts
         - npm run restore
         - dotnet fable npm-build
         - npm pack

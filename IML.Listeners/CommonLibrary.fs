@@ -49,7 +49,7 @@ module Zed =
   let getState() = !!env?ZEVENT_POOL_STATE_STR |> State
   let getZpoolName() = !!env?ZEVENT_POOL |> ZpoolName
   let getZfsName() = !!env?ZEVENT_HISTORY_DSNAME |> ZfsName
-  let getZfsNameMaybe():ZfsName option =
+  let getZfsNameOption():ZfsName option =
     !!env?ZEVENT_HISTORY_DSNAME
       |> Option.map ZfsName
   let getHistoryName():HistoryEvents = !!env?ZEVENT_HISTORY_INTERNAL_NAME

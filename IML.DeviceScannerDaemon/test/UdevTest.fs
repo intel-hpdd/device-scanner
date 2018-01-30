@@ -10,21 +10,21 @@ open Fable.Import.Jest
 open Matchers
 
 
-let matcher m x =
+let matcher x =
   x
-    |> update m
+    |> update Map.empty
     |> Map.toList
     |> toMatchSnapshot
 
 test "Matching Events" <| fun () ->
   expect.assertions 5
 
-  matcher Map.empty addUdev
+  matcher addUdev
 
-  matcher Map.empty addDiskUdev
+  matcher addDiskUdev
 
-  matcher Map.empty addDmUdev
+  matcher addDmUdev
 
-  matcher Map.empty removeUdev
+  matcher removeUdev
 
-  matcher Map.empty addMdraidUdev
+  matcher addMdraidUdev

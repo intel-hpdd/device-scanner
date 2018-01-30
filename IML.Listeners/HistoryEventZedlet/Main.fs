@@ -10,10 +10,10 @@ open IML.Listeners.CommonLibrary
 let historyName = Zed.getHistoryName()
 let guid:Guid = Zed.getGuid()
 
-let zfsNameMaybe = Zed.getZfsNameMaybe()
+let zfsNameOption = Zed.getZfsNameOption()
 
 let cmd = 
-  if historyName = Zed.Create && Option.isSome zfsNameMaybe then
+  if historyName = Zed.Create && Option.isSome zfsNameOption then
     Some (CreateZfs(guid, Zed.getZfsName()))
   else if historyName = Zed.Destroy then
     Some (DestroyZfs(guid, Zed.getZfsName()))
@@ -23,7 +23,7 @@ let cmd =
         |> fun (x:string) -> x.Split '='
         |> fun xs -> (Array.head xs, Array.last xs)
 
-    match zfsNameMaybe with
+    match zfsNameOption with
       | Some(x) -> 
         Some(SetZfsProp(guid, x, key, value))
       | None ->

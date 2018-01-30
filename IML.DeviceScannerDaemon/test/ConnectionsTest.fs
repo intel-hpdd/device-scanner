@@ -29,6 +29,8 @@ test "removing a connection" <| fun () ->
 
 
 testDone "writing a connection" <| fun (d) ->
+  expect.assertions 1
+
   let server = 
     net.createServer(fun (s) ->
       Connections.addConn s
@@ -46,6 +48,8 @@ testDone "writing a connection" <| fun (d) ->
     sock.once("data", fun (x) -> 
       x == buffer.Buffer.from "foo"
       
+      sock.``end``()
+
       server.close()
         |> ignore
       

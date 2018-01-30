@@ -20,10 +20,7 @@ module String =
   let emptyStrToNone x = if x = "" then None else Some(x)
  
 type MaybeBuilder() = 
-    member __.Bind(x, f) = 
-        match x with 
-        | Some(x) -> f(x) 
-        | _ -> None 
+    member __.Bind(x, f) = Option.bind f x
     member __.Delay(f) = f() 
     member __.Return(x) = Some x 
     member __.ReturnFrom(x) = x 

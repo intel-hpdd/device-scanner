@@ -27,7 +27,7 @@
     "url": "git@github.com:intel-hpdd/device-scanner.git"
   },
   "dependencies": {
-    "@iml/node-libzfs": "0.1.9"
+    "@iml/node-libzfs": "0.1.10"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",

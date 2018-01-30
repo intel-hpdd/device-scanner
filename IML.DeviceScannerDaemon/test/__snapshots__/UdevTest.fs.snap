@@ -180,39 +180,3 @@ List {
   },
 }
 `;
-
-exports[`Matching Events 6`] = `
-UEvent {
-  "DEVNAME": "/dev/md0",
-  "DEVPATH": "/devices/virtual/block/md0",
-  "DEVTYPE": "disk",
-  "DM_LV_NAME": null,
-  "DM_MULTIPATH_DEVICE_PATH": null,
-  "DM_UUID": null,
-  "DM_VG_NAME": null,
-  "ID_FS_TYPE": null,
-  "ID_FS_USAGE": null,
-  "ID_MODEL": null,
-  "ID_PART_ENTRY_NUMBER": null,
-  "ID_SERIAL": null,
-  "ID_VENDOR": null,
-  "IML_DM_SLAVE_MMS": Array [],
-  "IML_DM_VG_SIZE": null,
-  "IML_IS_RO": false,
-  "IML_MD_DEVICES": Array [
-    "/dev/sda",
-    "/dev/sdd",
-  ],
-  "IML_SCSI_80": null,
-  "IML_SCSI_83": null,
-  "IML_SIZE": "41910272",
-  "MAJOR": "9",
-  "MD_UUID": "685b40ee:f2bc2028:f056f6d2:e292c910",
-  "MINOR": "0",
-  "PATHS": Array [
-    "/dev/md0",
-    "/dev/disk/by-id/md-name-lotus-32vm6:0",
-    "/dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910",
-  ],
-}
-`;

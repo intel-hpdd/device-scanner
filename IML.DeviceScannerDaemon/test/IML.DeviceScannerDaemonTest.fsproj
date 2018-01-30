@@ -8,7 +8,6 @@
     <Compile Include="TestFixtures.fs" />
     <Compile Include="ConnectionsTest.fs" />
     <Compile Include="UdevTest.fs" />
-    <Compile Include="ZedTest.fs" />
     <Compile Include="HandlersTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

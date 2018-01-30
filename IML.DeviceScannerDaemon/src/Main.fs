@@ -36,14 +36,11 @@ let serverHandler (c:Net.Socket):unit =
     |> iter Connections.writeConns
     |> ignore
 
-let private server = net.createServer(serverHandler)
-
-server
-  |> Readable.onError raise
-  |> ignore
-
 let private fd = createEmpty<Net.Fd>
 fd.fd <- 3
 
-server.listen(fd)
-  |> ignore
+net
+  .createServer(serverHandler)
+  .listen(fd)
+    |> Readable.onError raise
+    |> ignore

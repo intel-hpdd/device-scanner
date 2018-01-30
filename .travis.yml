@@ -27,12 +27,13 @@ jobs:
         - docker exec -i libzfs-dotnet codecov
     - stage: deploy
       language: csharp
-      dotnet: 2.1.3
+      dotnet: 2.1.4
       mono: latest
       if: branch =~ ^v\d+\.\d+\.\d+$
       before_deploy:
         - nvm install 8
         - npm install -g codecov
+        - npm run restore
         - dotnet fable npm-build
       deploy:
         skip_cleanup: true
@@ -42,3 +43,17 @@ jobs:
         on:
           tags: true
           repo: intel-hpdd/device-scanner
+    - stage: deploy
+      env: Type='bintray master deploy'
+      language: csharp
+      dotnet: 2.1.4
+      mono: latest
+      if: branch = master AND env(TRAVIS_TAG) IS blank
+      script:
+        - nvm install 8
+        - npm run restore
+        - dotnet fable npm-build
+        - npm pack
+        - rename 's/^iml\-//' iml-device-scanner-*.tgz
+        - npm run mock
+        - PACKAGE_VERSION=$(node -p -e "require('./package.json').version") && docker exec -ti mock bash -xec "curl -T /var/lib/mock/epel-7-x86_64/result/iml-device-scanner2-$PACKAGE_VERSION-*.el7.centos.x86_64.rpm -u$BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/content/intel-hpdd/intelhpdd-build/iml-device-scanner/$PACKAGE_VERSION/;publish=1"

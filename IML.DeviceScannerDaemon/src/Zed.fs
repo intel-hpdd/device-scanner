@@ -7,6 +7,7 @@ module IML.DeviceScannerDaemon.Zed
 open Fable.Core
 open IML.Types.CommandTypes
 open CommonLibrary
+open libzfs
 
 [<RequireQualifiedAccess>]
 module Zpool =
@@ -23,7 +24,7 @@ module Zpool =
       /// The state of the pool.
       state: State;
       size: float;
-      vdev: libzfs.Libzfs.VDev;
+      vdev: Libzfs.VDev;
     }
 
   let create name guid hostName state size vdev =
@@ -119,19 +120,19 @@ let private toMap key xs =
 
 [<RequireQualifiedAccess>]
 module Zed =
-  open libzfs
-
   type ZedData = {
     zpools: Map<Guid, Zpool.Data>;
-    zfs: Map<(Guid * ZfsName), Zfs.Data>;
+    zfs: Set<Zfs.Data>;
     props: Set<Properties.Property>;
   }
 
   let update (zed:ZedData) (x:ZedCommand):ZedData =
+    let libzfsInstance = libzfs.Invoke()
+
     match x with
       | Init ->
         let libzfsPools = 
-          libzfs.getImportedPools()
+          libzfsInstance.getImportedPools()
             |> List.ofSeq
 
         let zedPools =
@@ -147,12 +148,12 @@ module Zed =
         {
           zed with
             zpools = toMap (fun x -> x.guid) zedPools;
-            zfs = toMap (fun x -> (x.poolGuid, x.name)) zedZfs;
+            zfs =  Set.ofSeq zedZfs;
             props = Set.empty;
         }
       | CreateZpool (ZpoolName(name), guid, state) ->
         let pool = 
-          libzfs.getPoolByName(name)
+          libzfsInstance.getPoolByName(name)
             |> Option.expect (sprintf "expected pool name %s to exist and be imported." name)
             |> fun p -> Zpool.create (ZpoolName name) guid p.hostname state p.size p.vdev
 
@@ -178,18 +179,18 @@ module Zed =
         {
           zed with
             zpools = Map.remove guid zed.zpools;
-            zfs = Map.filter (fun (guid', _) _ -> guid <> guid') zed.zfs
+            zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
             props = Set.filter (Properties.byPoolGuid guid) zed.props
         }
       | CreateZfs (guid, zfsName) ->
         {
           zed with
-            zfs = Map.add (guid, zfsName) { poolGuid = guid; name = zfsName; } zed.zfs
+            zfs = Set.add { poolGuid = guid; name = zfsName; } zed.zfs
         }
       | DestroyZfs (guid, zfsName) ->
         {
           zed with
-            zfs = Map.remove (guid, zfsName) zed.zfs
+            zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
             props = Set.filter (function
               | Properties.Zfs z -> z.poolGuid <> guid && z.zfsName <> zfsName
               | _ -> true
@@ -212,7 +213,7 @@ module Zed =
 
             let (ZpoolName name) = zedPool.name
             
-            let! libzfsPool = libzfs.getPoolByName(name)
+            let! libzfsPool = libzfsInstance.getPoolByName(name)
 
             return 
               { 

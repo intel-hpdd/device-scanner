@@ -4,6 +4,7 @@ storage:none
 clitool dotnet-fable
 nuget Fable.Core
 nuget Fable.Import.Node
+nuget Fable.Import.NodeLibzfs 
 nuget Fable.Import.Jest
 nuget Fable.Import.Node.PowerPack
 nuget Fable.PowerPack

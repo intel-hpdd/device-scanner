@@ -42,7 +42,10 @@ Vagrant.configure("2") do |config|
     npm pack
     rename 'iml-' '' iml-device-scanner-*.tgz
     npm run mock
-    docker cp mock:/var/lib/mock/epel-7-x86_64/result/iml-device-scanner2-2.0.0-76.el7.centos.x86_64.rpm ./
-    yum install -y ./iml-device-scanner2-2.0.0-*.el7.centos.x86_64.rpm
+    PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
+    RELEASE=$(git rev-list HEAD | wc -l)
+    RPM_NAME=iml-device-scanner2-$PACKAGE_VERSION-$RELEASE.el7.centos.x86_64.rpm
+    docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
+    yum install -y ./$RPM_NAME
   SHELL
 end

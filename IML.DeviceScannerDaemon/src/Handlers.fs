@@ -26,7 +26,7 @@ let init () =
     zed = 
       {
         zpools = Map.empty;
-        zfs = Map.empty;
+        zfs = Set.empty;
         props = Set.empty;
       };
   }

@@ -20,6 +20,8 @@ Requires: nodejs
 Requires: iml-node-libzfs
 Requires: socat
 
+Obsoletes: %{prefix_name}
+
 %description
 Builds an in-memory representation of devices using udev and zed.
 
@@ -79,9 +81,9 @@ rm -rf %{buildroot}
 %{_sysconfdir}/zfs/zed.d/*.sh
 
 %triggerin -- zfs
+/sbin/modprobe zfs
 systemctl enable zfs-zed.service
 systemctl start zfs-zed.service
-/sbin/modprobe zfs
 echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 
 %post
@@ -102,6 +104,7 @@ fi
 
 %changelog
 * Mon Jan 22 2018 Joe Grund <joe.grund@intel.com> - 2.0.0-1
+- Breaking change, the API has changed output format
 
 
 * Wed Sep 27 2017 Joe Grund <joe.grund@intel.com> - 1.1.1-1

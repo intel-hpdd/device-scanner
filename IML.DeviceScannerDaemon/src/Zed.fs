@@ -21,6 +21,7 @@ module Zpool =
       /// will change this guid.
       guid: Guid;
       hostName: string;
+      hostId: float option;
       /// The state of the pool.
       state: State;
       /// The size of the pool.
@@ -29,11 +30,12 @@ module Zpool =
       vdev: Libzfs.VDev;
     }
 
-  let create name guid hostName state size vdev =
+  let create name guid hostName hostId state size vdev =
     {
       name = name;
       guid = guid;
-      hostName = hostName
+      hostName = hostName;
+      hostId = hostId;
       state = state;
       size = size;
       vdev = vdev
@@ -139,7 +141,7 @@ module Zed =
 
         let zedPools =
           List.map (fun (x:Libzfs.Pool) ->
-            Zpool.create (ZpoolName x.name) (Guid x.uid) x.hostname (State x.state) x.size x.vdev) libzfsPools
+            Zpool.create (ZpoolName x.name) (Guid x.uid) x.hostname x.hostid (State x.state) x.size x.vdev) libzfsPools
 
         let zedZfs =
           Seq.collect (fun (x:Libzfs.Pool) ->
@@ -157,7 +159,7 @@ module Zed =
         let pool = 
           libzfsInstance.getPoolByName(name)
             |> Option.expect (sprintf "expected pool name %s to exist and be imported." name)
-            |> fun p -> Zpool.create (ZpoolName name) guid p.hostname state p.size p.vdev
+            |> fun p -> Zpool.create (ZpoolName name) guid p.hostname p.hostid state p.size p.vdev
 
         {
           zed with

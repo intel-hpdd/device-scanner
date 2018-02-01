@@ -21,7 +21,11 @@ let (>>=) (rest:'a -> StateS<'s, 'c, 'b>) (s1:StateS<'s, 'a, 'b>) : StateS<'s, '
           | Error (e, s) -> Promise.lift (Error (e, s))
       )
 
+let get = fun s -> Promise.lift (Ok (s, s)) : JS.Promise<Result<('a * 'a), 'c>>
+
+
 type StatefulPromise() =
   member __.Bind(x, y) = y >>= x
   member __.Return(x) = rtrn x
   member __.Zero () = rtrn ()
+  member __.Get () = get

@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="StatefulPromise.fs" />
-    <Compile Include="VagrantTestFramework.fs" />
+    <Compile Include="IntegrationTestFramework.fs" />
     <Compile Include="IntegrationTest.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

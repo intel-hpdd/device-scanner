@@ -2,9 +2,11 @@ module IML.IntegrationTest.IntegrationTest
 
 open Fable.Import.Jest.Matchers
 open IML.IntegrationTest.StatefulPromise
-open IML.IntegrationTest.VagrantTestFramework
+open IML.IntegrationTest.IntegrationTestFramework
 open Fable.Import.Node.PowerPack
 open Fable.Import.Node
+open Fable.PowerPack
+open Fable.Import.Jest
 
 type ExecOk = Stdout * Stderr
 type ExecErr = ChildProcess.ExecError * Stdout * Stderr
@@ -13,38 +15,37 @@ type CommandFn = unit -> Fable.Import.JS.Promise<Result<ExecOk, ExecErr>>
 let command = StatefulPromise()
 
 let rb1 () =
-  printfn "Invoking rb1"
-  ChildProcess.exec (shellCommand "echo rollback command 1") None
+  ChildProcess.exec (shellCommand "echo 'rollback1' >> /tmp/integration_test.txt") None
 
 let rb2 () =
-  printfn "Invoking rb2"
-  ChildProcess.exec (shellCommand "echo rollback command 2") None
+  ChildProcess.exec (shellCommand "echo 'rollback2' >> /tmp/integration_test.txt") None
 
 let rb3 () =
-  printfn "Invoking rb3"
-  ChildProcess.exec (shellCommand "echo rollback command 3") None
+  ChildProcess.exec (shellCommand "echo 'rollback3' >> /tmp/integration_test.txt") None
 
 let rb4 () =
-  printfn "Invoking rb4"
-  ChildProcess.exec (shellCommand "echo rollback command 4") None
+  ChildProcess.exec (shellCommand "echo 'rollback4' > /tmp/integration_test.txt") None
 
-testList "Simple Pass" [
-  let withSetup f () =
-    let data = "{ \"ACTION\": \"info\" }";
-    command {
-      let! (Stdout(x), _) = runTestCommand "echo hello" (Some(rb1))
-      printfn "output is: %A" x
-      let! (Stdout(x), _) = runTestCommand "echo goodbye" (Some(rb2))
-      printfn "output is: %A" x
-      let! (Stdout(x), _) = runTestCommand "udevadm trigger" (Some(rb3))
-      printfn "udevadm output: %A" x
-      //let! (Stdout(x), _) = vagrantRunCommand "sdfg" (Some(rb4))
-      let! (Stdout(x), _) = vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock") (Some(rb4))
-      f x
-    } |> testRun []
 
-  yield! testFixtureAsync withSetup [
-    "should call end", fun x ->
-      printfn "x: %A" x
-  ]
-]
+Exports.testAsync "Stateful Promise should rollback starting with the last command" <| fun () ->
+  command {
+        let! _ = runTestCommand "rm /tmp/integration_test.txt && touch /tmp/integration_test.txt" None
+        let! _ = runTestCommand "echo 'hello'" (Some(rb1))
+        let! _ = runTestCommand "echo 'goodbye'" (Some(rb2))
+        let! _ = runTestCommand "echo 'another command'" (Some(rb3))
+        let! _ = runTestCommand "echo 'done'" (Some(rb4))
+        ()
+      } |> testRun []
+      |> Promise.map (fun _ ->
+        promise {
+          let! x = ChildProcess.exec (shellCommand "cat /tmp/integration_test.txt") None
+          x
+            |> Result.map(fun (Stdout(result), _) ->
+              result == "rollback4\nrollback3\nrollback2\nrollback1\n"
+            )
+            |> Result.mapError(fun (e, _, _) ->
+              let message = sprintf "Error reading from /tmp/integration_test.txt %s" e.message
+              raise (System.Exception(message))
+            ) |> ignore
+        }
+      )

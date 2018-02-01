@@ -16,3 +16,6 @@ out
 .paket/paket.exe
 paket-files
 NuGetScratch
+hosts
+id_rsa
+id_rsa.pub

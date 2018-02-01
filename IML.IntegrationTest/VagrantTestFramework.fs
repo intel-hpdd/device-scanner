@@ -19,7 +19,8 @@ let vagrantCommand (cmd:string) =
   sprintf "vagrant %s" cmd
 
 let shellCommand (cmd:string) =
-  sprintf "vagrant ssh default -- '%s'" cmd
+  //sprintf "vagrant ssh default -- '%s'" cmd
+  sprintf "ssh devicescannernode '%s'" cmd
 
 let private mapChildProcessPromise rollback s p : JS.Promise<CommandResult> =
   p
@@ -47,7 +48,7 @@ let vagrantStart rb =
 let vagrantDestroy rb =
   execCommand (vagrantCommand "destroy -f") rb
 
-let vagrantRunCommand cmd rb =
+let runTestCommand cmd rb =
   execCommand (shellCommand cmd) rb
 
 let vagrantPipeToShellCommand cmd1 cmd2 rb =

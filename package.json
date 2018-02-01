@@ -11,7 +11,7 @@
     "coverage": "jest --projects IML.DeviceScannerDaemon --coverage",
     "jest": "jest --projects IML.DeviceScannerDaemon",
     "test": "dotnet fable npm-jest",
-    "integration-test": "jest --projects IML.IntegrationTest",
+    "integration-test": "jest --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
     "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",
@@ -19,6 +19,14 @@
     "premock": "docker run  -di --privileged --name mock intelhpdd/mock /usr/sbin/init",
     "mock": "docker cp -a ./ mock:/builddir",
     "postmock": "docker exec -i mock bash -xec 'bash -xe /builddir/mock-build.sh'"
+  },
+  "jest-junit": {
+    "suiteName": "Device Scanner",
+    "output": "results.xml",
+    "classNameTemplate": "{classname}-{title}",
+    "titleTemplate": "{classname}-{title}",
+    "ancestorSeparator": " › ",
+    "usePathForSuiteName": "true"
   },
   "pre-commit": [
     "test",
@@ -39,6 +47,7 @@
     "fable-utils": "^1.0.6",
     "jest": "^22.1.4",
     "jest-fable-preprocessor": "^1.4.0",
+    "jest-junit": "^3.4.1",
     "pre-commit": "1.2.2",
     "rollup": "^0.55.3",
     "rollup-plugin-cleanup": "^2.0.0",

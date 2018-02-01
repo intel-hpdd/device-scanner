@@ -32,11 +32,11 @@ testList "Simple Pass" [
   let withSetup f () =
     let data = "{ \"ACTION\": \"info\" }";
     command {
-      let! (Stdout(x), _) = vagrantRunCommand "echo hello" (Some(rb1))
+      let! (Stdout(x), _) = runTestCommand "echo hello" (Some(rb1))
       printfn "output is: %A" x
-      let! (Stdout(x), _) = vagrantRunCommand "echo goodbye" (Some(rb2))
+      let! (Stdout(x), _) = runTestCommand "echo goodbye" (Some(rb2))
       printfn "output is: %A" x
-      let! (Stdout(x), _) = vagrantRunCommand "udevadm trigger" (Some(rb3))
+      let! (Stdout(x), _) = runTestCommand "udevadm trigger" (Some(rb3))
       printfn "udevadm output: %A" x
       //let! (Stdout(x), _) = vagrantRunCommand "sdfg" (Some(rb4))
       let! (Stdout(x), _) = vagrantPipeToShellCommand (sprintf "echo '%s'" data) ("socat - UNIX-CONNECT:/var/run/device-scanner.sock") (Some(rb4))

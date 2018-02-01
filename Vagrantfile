@@ -8,7 +8,6 @@ Vagrant.configure("2") do |config|
 
   config.ssh.username = 'root'
   config.ssh.password = 'vagrant'
-  config.ssh.insert_key = 'true'
 
   # Create a set of /24 networks under a single /16 subnet range
 	subnet_prefix="10.73"
@@ -20,8 +19,9 @@ Vagrant.configure("2") do |config|
   f.puts <<-__EOF
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
-#{mgmt_net_pfx}.10 test.lfs.local testnode
-#{mgmt_net_pfx}.11 devicescanner.lfs.local devicescannernode
+
+#{mgmt_net_pfx}.10 devicescanner.lfs.local devicescannernode
+#{mgmt_net_pfx}.11 test.lfs.local testnode
 __EOF
 	}
 	config.vm.provision "shell", inline: "cp -f /vagrant/hosts /etc/hosts"
@@ -50,6 +50,7 @@ __EOF"
 
   config.vm.provision "shell", inline: "mkdir -m 0700 -p /root/.ssh; [ -f /vagrant/id_rsa.pub ] && (awk -v pk=\"`cat /vagrant/id_rsa.pub`\" 'BEGIN{split(pk,s,\" \")} $2 == s[2] {m=1;exit}END{if (m==0)print pk}' /root/.ssh/authorized_keys )>> /root/.ssh/authorized_keys; chmod 0600 /root/.ssh/authorized_keys"
 
+  config.vm.provision "shell", inline: "cp /vagrant/id_rsa /root/.ssh/.; chmod 0600 /root/.ssh/id_rsa"
 
   #
   # Create a device-scanner node
@@ -61,17 +62,21 @@ __EOF"
 
       file_to_disk = './tmp/device_scanner.vdi'
 
-      v.customize ['setextradata', :id,
-  'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '091118FC1221NCJ6G8GG']
+      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '091118FC1221NCJ6G8GG']
 
       unless File.exist?(file_to_disk)
         v.customize ['createhd', '--filename', file_to_disk, '--size', 500 * 1024]
       end
 
       v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
-      v.customize ['setextradata', :id,
-  'VBoxInternal/Devices/ahci/0/Config/Port1/SerialNumber', '081118FC1221NCJ6G8GG']
+      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port1/SerialNumber', '081118FC1221NCJ6G8GG']
     end
+
+    device_scanner.vm.provision "shell", inline: "cat >/root/.ssh/config<<__EOF
+Host testnode
+  Hostname #{mgmt_net_pfx}.11
+  StrictHostKeyChecking no
+__EOF"
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
     rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
@@ -106,7 +111,7 @@ __EOF"
   #
   # Create a test node
   #
-  config.vm.define "test", primary: false do |test|
+  config.vm.define "test", primary: false, autostart: false do |test|
     test.vm.provider "virtualbox" do |v|
       v.memory = 1024
       v.name = "test"
@@ -117,6 +122,12 @@ __EOF"
       ip: "#{mgmt_net_pfx}.11",
       netmask: "255.255.255.0"
 
+    test.vm.provision "shell", inline: "cat >/root/.ssh/config<<__EOF
+Host devicescannernode
+  Hostname #{mgmt_net_pfx}.10
+  StrictHostKeyChecking no
+__EOF"
+
     test.vm.provision "shell", inline: <<-SHELL
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
 yum-config-manager --add-repo http://download.mono-project.com/repo/centos7/
@@ -126,10 +137,10 @@ yum install -y nodejs mono-devel rh-dotnet20
 rm -rf /builddir
 cp -r /vagrant /builddir
 cd /builddir
-rm -rf node_modules bin obj dist
 npm i --ignore-scripts
-scl enable rh-dotnet20 "npm run restore && dotnet fable npm-build"
+scl enable rh-dotnet20 "npm run restore"
 scl enable rh-dotnet20 "dotnet fable npm-run integration-test"
+cp /builddir/results.xml /vagrant
 SHELL
   end
 end

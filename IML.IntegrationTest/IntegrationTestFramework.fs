@@ -10,7 +10,7 @@ open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 
-open IML.IntegrationTest.StatefulPromise
+open IML.StatefulMonad.StatefulPromise
 
 type PromiseResultS = unit -> ChildProcessPromiseResult
 type CommandResult = Result<Out * PromiseResultS list, Err * PromiseResultS list>

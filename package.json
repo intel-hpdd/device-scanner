@@ -8,8 +8,8 @@
     "access": "public"
   },
   "scripts": {
-    "coverage": "jest --projects IML.DeviceScannerDaemon --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon",
+    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulMonad/test --coverage",
+    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulMonad/test",
     "test": "dotnet fable npm-jest",
     "integration-test": "jest --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
     "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
@@ -29,8 +29,7 @@
     "usePathForSuiteName": "true"
   },
   "pre-commit": [
-    "test",
-    "integration-test"
+    "test"
   ],
   "repository": {
     "type": "git",

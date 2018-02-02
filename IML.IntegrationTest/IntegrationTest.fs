@@ -1,7 +1,7 @@
 module IML.IntegrationTest.IntegrationTest
 
 open Fable.Import.Jest.Matchers
-open IML.IntegrationTest.StatefulPromise
+open IML.StatefulMonad.StatefulPromise
 open IML.IntegrationTest.IntegrationTestFramework
 open Fable.Import.Node.PowerPack
 open Fable.Import.Node

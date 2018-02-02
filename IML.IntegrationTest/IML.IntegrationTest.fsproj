@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="StatefulPromise.fs" />
+    <ProjectReference Include="../IML.StatefulMonad/source/IML.StatefulMonad.fsproj" />
     <Compile Include="IntegrationTestFramework.fs" />
     <Compile Include="IntegrationTest.fs" />
   </ItemGroup>

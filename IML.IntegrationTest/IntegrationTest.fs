@@ -29,7 +29,7 @@ let rb4 () =
 
 Exports.testAsync "Stateful Promise should rollback starting with the last command" <| fun () ->
   command {
-        let! _ = runTestCommand "rm /tmp/integration_test.txt && touch /tmp/integration_test.txt" None
+        let! _ = runTestCommand "rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt" None
         let! _ = runTestCommand "echo 'hello'" (Some(rb1))
         let! _ = runTestCommand "echo 'goodbye'" (Some(rb2))
         let! _ = runTestCommand "echo 'another command'" (Some(rb3))

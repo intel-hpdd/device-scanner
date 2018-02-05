@@ -9,52 +9,55 @@ open Fable.Import
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack
-
 open IML.StatefulMonad.StatefulPromise
 
-type PromiseResultS = unit -> ChildProcessPromiseResult
-type CommandResult = Result<Out * PromiseResultS list, Err * PromiseResultS list>
+type PromiseResultS = unit -> ChildProcess.ChildProcessPromiseResult
+type CommandResult<'a, 'b> = Result<'a * PromiseResultS list, 'b * PromiseResultS list>
 
 let shellCommand (cmd:string) =
   sprintf "ssh devicescannernode '%s'" cmd
 
-let private mapChildProcessPromise rollback s p : JS.Promise<CommandResult> =
-  p
+let execShell x =
+  ChildProcess.exec (shellCommand x) None
+
+let cmd (x:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
+  execShell x
     |> Promise.map (function
-      | Ok (x) ->
-        match rollback with
-          | Some(rb) ->
-            Ok(x, rb :: s)
-          | None -> Ok(x, s)
-      | Error (x) ->
-         match rollback with
-           | Some(rb) ->
-              Error(x, rb :: s)
-           | None -> Error(x, s)
+      | Ok x -> Ok(x, s)
+      | Error x -> Error(x, s)
     )
 
-let private execCommand cmd rb s : JS.Promise<CommandResult> =
-    ChildProcess.exec (cmd) None
-      |> (mapChildProcessPromise rb s)
+let ignoreCmd p =
+  p
+    |> Promise.map (function
+      | Ok (_, s) -> Ok((), s)
+      | Error (e, s) -> Error(e, s)
+    )
 
-let runTestCommand cmd rb =
-  execCommand (shellCommand cmd) rb
+let rollback (rb:PromiseResultS) (p:JS.Promise<CommandResult<'a, 'b>>):JS.Promise<CommandResult<'a, 'b>> =
+  p
+    |> Promise.map(function
+      | Ok (x, s) -> Ok (x, rb :: s)
+      | Error (e, s) -> Error (e, rb :: s)
+    )
 
-let runTeardown (errorList:PromiseResultS list) =
+let private runTeardown (errorList:PromiseResultS list) =
   errorList
     |> List.fold (fun acc rb ->
       acc
         |> Promise.bind(fun _ -> rb())
     ) (Promise.lift(Ok(Stdout(""), Stderr(""))))
+    |> Promise.map (ignore)
 
-let testRun state fn =
+let run state fn =
   promise {
     let! runResult = run state fn
+
     match runResult with
       | Ok(result, rollbacks) ->
-        let! _ = runTeardown(rollbacks)
+        do! runTeardown(rollbacks)
         return result
       | Error((e, _, _), rollbacks) ->
-        let! _ = runTeardown(rollbacks)
+        do! runTeardown(rollbacks)
         return! raise !!e
   }

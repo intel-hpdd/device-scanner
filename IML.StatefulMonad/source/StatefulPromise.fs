@@ -27,5 +27,8 @@ let get = fun s -> Promise.lift (Ok (s, s)) : JS.Promise<Result<('a * 'a), 'c>>
 type StatefulPromise() =
   member __.Bind(x, y) = y >>= x
   member __.Return(x) = rtrn x
+  member __.ReturnFrom(x) = x
   member __.Zero () = rtrn ()
   member __.Get () = get
+
+let command = StatefulPromise()

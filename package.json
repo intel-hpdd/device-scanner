@@ -8,8 +8,8 @@
     "access": "public"
   },
   "scripts": {
-    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulMonad/test --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulMonad/test",
+    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulPromise/test --coverage",
+    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulPromise/test",
     "test": "dotnet fable npm-jest",
     "integration-test": "jest --projects IML.IntegrationTest/test --testResultsProcessor='jest-junit'",
     "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",

@@ -3,7 +3,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../source/IML.StatefulMonad.fsproj" />
+    <ProjectReference Include="../source/IML.StatefulPromise.fsproj" />
     <Compile Include="StatefulPromiseTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

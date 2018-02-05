@@ -1,4 +1,4 @@
-module IML.StatefulMonad.StatefulPromise
+module IML.StatefulPromise.StatefulPromise
 
 open Fable.Import
 open Fable.PowerPack

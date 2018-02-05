@@ -9,7 +9,7 @@ open Fable.Import
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack
-open IML.StatefulMonad.StatefulPromise
+open IML.StatefulPromise.StatefulPromise
 
 type PromiseResultS = unit -> ChildProcess.ChildProcessPromiseResult
 type CommandResult<'a, 'b> = Result<'a * PromiseResultS list, 'b * PromiseResultS list>

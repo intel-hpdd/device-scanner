@@ -17,7 +17,5 @@ out
 paket-files
 NuGetScratch
 hosts
-id_rsa
-id_rsa.pub
 .history
 results.xml

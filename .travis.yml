@@ -53,7 +53,7 @@ jobs:
         - nvm install 8
         - PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
         - RELEASE=$(git rev-list HEAD | wc -l)
-        - RPM_NAME=iml-device-scanner2-$PACKAGE_VERSION-*.el7.centos.x86_64.rpm
+        - RPM_NAME=iml-device-scanner2-$PACKAGE_VERSION-$RELEASE.el7.centos.x86_64.rpm
         - npm i --ignore-scripts
         - npm run restore
         - dotnet fable npm-build

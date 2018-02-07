@@ -11,7 +11,7 @@
     "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulPromise/test --coverage",
     "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.StatefulPromise/test",
     "test": "dotnet fable npm-jest",
-    "integration-test": "jest --projects IML.IntegrationTest/test --testResultsProcessor='jest-junit'",
+    "integration-test": "jest --projects IML.IntegrationTestFramework/test --testResultsProcessor='jest-junit'",
     "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",

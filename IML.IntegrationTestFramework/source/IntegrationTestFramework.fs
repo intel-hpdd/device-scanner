@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.IntegrationTest.IntegrationTestFramework
+module IML.IntegrationTestFramework.IntegrationTestFramework
 
 open Fable.Core.JsInterop
 open Fable.Import

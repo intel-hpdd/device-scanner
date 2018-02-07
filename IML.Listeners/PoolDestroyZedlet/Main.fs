@@ -7,6 +7,6 @@ module IML.PoolDestroyZedlet
 open IML.Types.CommandTypes
 open IML.Listeners.CommonLibrary
 
-let x = ZedCommand (DestroyZpool (Zed.getGuid())) 
+let x = ZedCommand (DestroyZpool (Zpool.getGuid())) 
 
 sendData x

@@ -6,29 +6,46 @@ module IML.Types.CommandTypes
 
 open Fable.Core
 
-[<Erase>]
-type Guid = Guid of string
-[<Erase>]
-type ZpoolName = ZpoolName of string 
-[<Erase>]
-type ZfsName = ZfsName of string
-[<Erase>]
-type State = State of string 
+[<RequireQualifiedAccess>]
+module Zpool =
+  [<Erase>]
+  type Guid = Guid of string
 
-type Key = string 
-type Value = string 
+  [<Erase>]
+  type Name = Name of string
 
-type ZedCommand = 
+  [<Erase>]
+  type State = State of string
+
+[<RequireQualifiedAccess>]
+module Zfs =
+  [<Erase>]
+  type Name = Name of string
+
+[<RequireQualifiedAccess>]
+module Prop =
+  type Key = string
+  type Value = string
+
+[<RequireQualifiedAccess>]
+module Vdev =
+  [<Erase>]
+  type Guid = Guid of string
+
+  [<Erase>]
+  type State = State of string
+
+type ZedCommand =
   | Init 
-  | CreateZpool of ZpoolName * Guid * State
-  | ImportZpool of Guid * State
-  | ExportZpool of Guid * State
-  | DestroyZpool of Guid
-  | CreateZfs of Guid * ZfsName
-  | DestroyZfs of Guid * ZfsName
-  | SetZpoolProp of Guid * Key * Value
-  | SetZfsProp of Guid * ZfsName * Key * Value 
-  | AddVdev of Guid
+  | CreateZpool of Zpool.Name * Zpool.Guid * Zpool.State
+  | ImportZpool of Zpool.Guid * Zpool.State
+  | ExportZpool of Zpool.Guid * Zpool.State
+  | DestroyZpool of Zpool.Guid
+  | CreateZfs of Zpool.Guid * Zfs.Name
+  | DestroyZfs of Zpool.Guid * Zfs.Name
+  | SetZpoolProp of Zpool.Guid * Prop.Key * Prop.Value
+  | SetZfsProp of Zpool.Guid * Zfs.Name * Prop.Key * Prop.Value
+  | AddVdev of Zpool.Guid
 
 type UdevCommand = 
   | Add of string

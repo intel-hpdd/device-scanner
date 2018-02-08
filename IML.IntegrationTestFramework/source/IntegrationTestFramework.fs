@@ -20,12 +20,20 @@ let shellCommand (cmd:string) =
 let execShell x =
   ChildProcess.exec (shellCommand x) None
 
-let cmd (x:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
-  execShell x
+let wrapWithState s p =
+  p
     |> Promise.map (function
       | Ok x -> Ok(x, s)
       | Error x -> Error(x, s)
     )
+
+let cmd (x:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
+  execShell x
+    |> wrapWithState s
+
+let pipeToShellCmd (leftCmd:string) (rightCmd:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
+  ChildProcess.exec (sprintf "%s | %s" leftCmd (shellCommand rightCmd)) None
+    |> wrapWithState s
 
 let ignoreCmd p =
   p

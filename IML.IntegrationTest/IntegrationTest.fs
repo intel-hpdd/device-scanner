@@ -8,14 +8,18 @@ open Fable.Import.Jest.Matchers
 open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
+open Fable.Import.Node.PowerPack.ChildProcess
+
+let udevAdmTrigger =
+  cmd "udevadm trigger"
 
 let scannerInfo =
-  cmd "echo '\"Info\"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock"
+  pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
 
 testAsync "info event" <| fun () ->
-  expect.assertions 2
-
   command {
-        let! (stdout, _) = scannerInfo
-        toMatchSnapshot stdout
+        do! udevAdmTrigger >> ignoreCmd
+        let! (Stdout(x), _) = scannerInfo
+
+        toMatchSnapshot x
       } |> run []

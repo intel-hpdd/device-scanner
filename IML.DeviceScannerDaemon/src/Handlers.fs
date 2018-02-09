@@ -21,9 +21,9 @@ type Data = {
 }
 
 let init () =
-  {
+  Ok {
     blockDevices = Map.empty;
-    zed = 
+    zed =
       {
         zpools = Map.empty;
         zfs = Set.empty;
@@ -31,17 +31,27 @@ let init () =
       };
   }
 
-let update (state:Data) (command:Command):Data =
-    match command with
-      | ZedCommand x ->
-        { state with 
-            zed = Zed.update state.zed x;
-        }
-      | UdevCommand x ->
-        { state with 
-            blockDevices = Udev.update state.blockDevices x;
-        }
-      | Info ->
-        state
+let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
+    match state with
+      | Ok state ->
+        match command with
+          | ZedCommand x ->
+            Zed.update state.zed x
+              |> Result.map (fun zed ->
+                { state with
+                    zed = zed;
+                }
+              )
+
+          | UdevCommand x ->
+            Udev.update state.blockDevices x
+              |> Result.map (fun blockDevices ->
+                { state with
+                    blockDevices = blockDevices;
+                }
+              )
+          | Info ->
+            Ok state
+        | x -> x
 
 let handler = scan init update

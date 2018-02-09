@@ -1,6 +1,6 @@
-// Copyright (c) 2018 Intel Corporation. All rights reserved. 
-// Use of this source code is governed by a MIT-style 
-// license that can be found in the LICENSE file. 
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
 module IML.Listeners.CommonLibrary
 
@@ -16,10 +16,10 @@ let sendData (x:Command) =
   let client = net.connect opts
 
   client.once("connect", fun () ->
-  x 
-    |> toJson 
-    |> buffer.Buffer.from 
-    |> client.``end`` 
+  x
+    |> toJson
+    |> buffer.Buffer.from
+    |> client.``end``
   )
     |> ignore
 
@@ -37,23 +37,22 @@ module Udev =
 
 [<RequireQualifiedAccess>]
 module Zpool =
-  let getGuid () = 
-    !!env?ZEVENT_POOL_GUID 
-      |> (fun (x:string) -> x.ToLower())
+  let getGuid () =
+    !!env?ZEVENT_POOL_GUID
       |> Zpool.Guid
 
-  let getState() = 
-    !!env?ZEVENT_POOL_STATE_STR 
+  let getState() =
+    !!env?ZEVENT_POOL_STATE_STR
       |> Zpool.State
 
-  let getName() = 
-    !!env?ZEVENT_POOL 
+  let getName() =
+    !!env?ZEVENT_POOL
       |> Zpool.Name
 
 [<RequireQualifiedAccess>]
-module Zfs = 
-  let getName() = 
-    !!env?ZEVENT_HISTORY_DSNAME 
+module Zfs =
+  let getName() =
+    !!env?ZEVENT_HISTORY_DSNAME
       |> Zfs.Name
 
   let getNameOption():Zfs.Name option =
@@ -73,7 +72,7 @@ module Vdev =
 [<RequireQualifiedAccess>]
 module Zed =
   [<StringEnum>]
-  type HistoryEvents = 
+  type HistoryEvents =
     | Create
     | Destroy
     | Set

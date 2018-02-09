@@ -125,18 +125,20 @@ type UEvent =
 
 let uEventDecoder x =
   match decodeString UEvent.Decoder x with
-    | Ok y -> y
-    | Error y -> failwith y
+    | Ok y -> Ok y
+    | Error y -> Error (exn y)
 
 type BlockDevices = Map<DevPath, UEvent>
 
-let update (blockDevices:BlockDevices) (x:UdevCommand):BlockDevices =  
+let update (blockDevices:BlockDevices) (x:UdevCommand):Result<BlockDevices, exn> =
   match x with
     | Add o | Change o ->
-      let d = uEventDecoder o
-
-      Map.add d.DEVPATH d blockDevices
+      uEventDecoder o
+        |> Result.map (fun d ->
+          Map.add d.DEVPATH d blockDevices
+        )
     | Remove o ->
-      let d = uEventDecoder o
-
-      Map.remove d.DEVPATH blockDevices
+      uEventDecoder o
+        |> Result.map (fun d ->
+          Map.remove d.DEVPATH blockDevices
+        )

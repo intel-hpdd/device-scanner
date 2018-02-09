@@ -21,10 +21,7 @@ jobs:
         - docker
       script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet npm i -g codecov
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && npm test'
-      after_success:
-        - docker exec -i libzfs-dotnet codecov
     - stage: deploy
       language: csharp
       dotnet: 2.1.4
@@ -32,7 +29,6 @@ jobs:
       if: branch =~ ^v\d+\.\d+\.\d+$
       before_deploy:
         - nvm install 8
-        - npm install -g codecov
         - npm run restore
         - dotnet fable npm-build
       deploy:

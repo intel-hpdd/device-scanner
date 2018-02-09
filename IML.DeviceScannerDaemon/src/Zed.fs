@@ -122,6 +122,33 @@ let private toMap key xs =
 
   Seq.fold folder Map.empty xs
 
+module Libzfs =
+  let getImportedPools () =
+    libzfs.Invoke().getImportedPools()
+
+  let libzfsPooltoZedPoolDatasets (x:Libzfs.Pool) =
+    let pool = Zpool.create (Zpool.Name x.name) (Zpool.Guid x.uid) x.hostname x.hostid (Zpool.State x.state) x.size x.vdev
+
+    let ds =
+      x.datasets
+        |> Seq.map (fun (y:Libzfs.Dataset) ->
+          Zfs.create (Zpool.Guid x.uid) (Zfs.Name y.name)
+        )
+        |> Set.ofSeq
+
+    pool, ds
+
+  let getPoolByName (n:string):Result<Zpool.Data * Set<Zfs.Data>, exn> =
+    libzfs.Invoke().getPoolByName n
+      |> Option.map (libzfsPooltoZedPoolDatasets)
+      |> Option.toResult (exn (sprintf "expected pool name %s to exist and be imported." n))
+
+  let tryFindPool (Zpool.Guid guid) =
+      getImportedPools()
+        |> List.tryFind(fun p -> p.uid = guid)
+        |> Option.map (libzfsPooltoZedPoolDatasets)
+        |> Option.toResult (exn (sprintf "expected pool guid %s to exist and be imported." guid))
+
 [<RequireQualifiedAccess>]
 module Zed =
   type ZedData = {
@@ -130,104 +157,101 @@ module Zed =
     props: Set<Properties.Property>;
   }
 
-  let update (zed:ZedData) (x:ZedCommand):ZedData =
-    let libzfsInstance = libzfs.Invoke()
-
+  let update (zed:ZedData) (x:ZedCommand):Result<ZedData, exn> =
     match x with
       | Init ->
-        let libzfsPools = 
-          libzfsInstance.getImportedPools()
-            |> List.ofSeq
+        let (pools, zfses) =
+          Libzfs.getImportedPools()
+            |> List.map (Libzfs.libzfsPooltoZedPoolDatasets)
+            |> List.unzip
 
-        let zedPools =
-          List.map (fun (x:Libzfs.Pool) ->
-            Zpool.create (Zpool.Name x.name) (Zpool.Guid x.uid) x.hostname x.hostid (Zpool.State x.state) x.size x.vdev) libzfsPools
-
-        let zedZfs =
-          Seq.collect (fun (x:Libzfs.Pool) ->
-            Seq.map (fun (y:Libzfs.Dataset) ->
-              Zfs.create (Zpool.Guid x.uid) (Zfs.Name y.name)
-            ) x.datasets) libzfsPools
-
-        {
-          zed with
-            zpools = toMap (fun x -> x.guid) zedPools;
-            zfs =  Set.ofSeq zedZfs;
-            props = Set.empty;
-        }
+        Ok({
+            zed with
+              zpools = toMap (fun x -> x.guid) pools;
+              zfs =  Set.unionMany zfses;
+              props = Set.empty;
+        })
       | CreateZpool (Zpool.Name(name), guid, state) ->
-        let pool = 
-          libzfsInstance.getPoolByName(name)
-            |> Option.expect (sprintf "expected pool name %s to exist and be imported." name)
-            |> fun p -> Zpool.create (Zpool.Name name) guid p.hostname p.hostid state p.size p.vdev
+          Libzfs.getPoolByName(name)
+            |> Result.map (fun (p, _) ->
+              let p' = {
+                p with
+                  guid = guid;
+                  state = state;
+              }
 
-        {
-          zed with
-            zpools = Map.add guid pool zed.zpools;
-        }
-      | ImportZpool (guid, state) -> 
-        let pool = Map.find guid zed.zpools
-        
-        {
-          zed with
-            zpools = Map.add guid ({pool with state = state}) zed.zpools;
-        }
+              {
+                zed with
+                  zpools = Map.add guid p' zed.zpools;
+              }
+            )
+      | ImportZpool (guid, state) ->
+            match Map.tryFind guid zed.zpools with
+              | Some p ->
+                Ok({
+                    zed with
+                      zpools = Map.add guid ({p with state = state}) zed.zpools;
+                  })
+              | None ->
+                 Libzfs.tryFindPool guid
+                  |> Result.map (fun (p, ds) ->
+                    {
+                      zed with
+                        zpools = Map.add guid p zed.zpools
+                        zfs = Set.union zed.zfs ds
+                    }
+                  )
       | ExportZpool (guid, state) ->
         let pool = Map.find guid zed.zpools
-        
-        {
-          zed with
-            zpools = Map.add guid ({pool with state = state}) zed.zpools;
-        }
+
+        Ok({
+            zed with
+              zpools = Map.add guid ({pool with state = state}) zed.zpools;
+        })
       | DestroyZpool guid ->
-        {
-          zed with
-            zpools = Map.remove guid zed.zpools;
-            zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
-            props = Set.filter (Properties.byPoolGuid guid) zed.props
-        }
+        Ok({
+            zed with
+              zpools = Map.remove guid zed.zpools;
+              zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
+              props = Set.filter (Properties.byPoolGuid guid) zed.props
+        })
       | CreateZfs (guid, zfsName) ->
-        {
-          zed with
-            zfs = Set.add { poolGuid = guid; name = zfsName; } zed.zfs
-        }
+        Ok({
+            zed with
+              zfs = Set.add { poolGuid = guid; name = zfsName; } zed.zfs
+        })
       | DestroyZfs (guid, zfsName) ->
-        {
-          zed with
-            zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
-            props = Set.filter (function
-              | Properties.Zfs z -> z.poolGuid <> guid && z.zfsName <> zfsName
-              | _ -> true
-            ) zed.props
-        }
+        Ok({
+            zed with
+              zfs = Set.filter (fun (x) -> guid <> x.poolGuid) zed.zfs
+              props = Set.filter (function
+                | Properties.Zfs z -> z.poolGuid <> guid && z.zfsName <> zfsName
+                | _ -> true
+              ) zed.props
+        })
       | SetZpoolProp (guid, key, value) ->
-        {
-          zed with
-            props = Set.add (Properties.createZpoolProperty guid key value) zed.props;
-        }
-      | SetZfsProp (guid, zfsName, key, value) -> 
-        {
-          zed with
-            props = Set.add (Properties.createZfsProperty guid zfsName key value) zed.props;
-        }
+        Ok({
+            zed with
+              props = Set.add (Properties.createZpoolProperty guid key value) zed.props;
+        })
+      | SetZfsProp (guid, zfsName, key, value) ->
+        Ok({
+            zed with
+              props = Set.add (Properties.createZfsProperty guid zfsName key value) zed.props;
+        })
       | AddVdev guid ->
-        let x = 
-          maybe {
-            let! zedPool = Map.tryFind guid zed.zpools
+        let ex = exn (sprintf "expected pool guid %A to exist and be imported." guid)
 
-            let (Zpool.Name name) = zedPool.name
-            
-            let! libzfsPool = libzfsInstance.getPoolByName(name)
+        Map.tryFind guid zed.zpools
+          |> Option.toResult ex
+          |> Result.bind(fun pool ->
+            let (Zpool.Name name) = pool.name
 
-            return 
-              { 
-                zedPool with 
-                  vdev = libzfsPool.vdev;
-              }
-          }
-            |> Option.expect (sprintf "expected pool guid %A to exist and be imported." guid)
-
-        {
-          zed with
-            zpools = Map.add x.guid x zed.zpools
-        }
+            Libzfs.getPoolByName name
+          )
+          |> Result.map (fun (p, _) ->
+            {
+              zed with
+                zpools = Map.add p.guid p zed.zpools
+            }
+          )

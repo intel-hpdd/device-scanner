@@ -18,7 +18,7 @@ let private parser x =
       |> Ok
   with
     | ex ->
-      Error (!!ex)
+      Error ex
 
 let serverHandler (c:Net.Socket):unit =
   Connections.addConn c
@@ -30,9 +30,9 @@ let serverHandler (c:Net.Socket):unit =
     |> Readable.onError (fun (e:JS.Error) ->
       eprintfn "Unable to parse message %s" e.message
     )
+    |> map handler
     |> map (
-        handler
-        >> toJson
+      toJson
         >> fun x -> x + "\n"
         >> buffer.Buffer.from
         >> Ok

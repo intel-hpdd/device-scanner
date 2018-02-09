@@ -32,7 +32,6 @@ let unwrapDeviceData = Json.ofString >> unwrapResult >> unwrapObject >> Map.find
 
 testAsync "info event" <| fun () ->
   command {
-        do! udevAdmTrigger >> ignoreCmd
         let! (Stdout(x), _) = scannerInfo
         let json =
           x

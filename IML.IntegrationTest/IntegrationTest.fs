@@ -5,6 +5,8 @@
 module IML.IntegrationTest.IntegrationTest
 
 open Fable.Import.Jest.Matchers
+open Fable.Core.JsInterop
+open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
@@ -16,10 +18,31 @@ let udevAdmTrigger =
 let scannerInfo =
   pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
 
+let unwrapObject a =
+    match a with
+    | Json.Object a -> Map.ofArray a
+    | _ -> failwith "Invalid JSON, it must be an object"
+
+let unwrapResult a =
+  match a with
+  | Ok x -> x
+  | Error e -> failwith !!e
+
+let unwrapDeviceData = Json.ofString >> unwrapResult >> unwrapObject >> Map.find("blockDevices") >> unwrapObject
+
 testAsync "info event" <| fun () ->
   command {
         do! udevAdmTrigger >> ignoreCmd
         let! (Stdout(x), _) = scannerInfo
+        let json =
+          x
+            |> unwrapDeviceData
+            |> Map.filter (fun key _ ->
+              key <> "/devices/virtual/block/dm-0" &&
+              key <> "/devices/virtual/block/dm-1" &&
+              key <> "/devices/virtual/block/dm-2" &&
+              key <> "/devices/virtual/block/dm-3"
+            )
 
-        toMatchSnapshot x
+        toMatchSnapshot json
       } |> run []

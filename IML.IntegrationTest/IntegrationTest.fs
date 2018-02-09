@@ -12,9 +12,6 @@ open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
 open Fable.Import.Node.PowerPack.ChildProcess
 
-let udevAdmTrigger =
-  cmd "udevadm trigger"
-
 let scannerInfo =
   pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
 

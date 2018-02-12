@@ -7,6 +7,6 @@ module IML.PoolCreateZedlet
 open IML.Types.CommandTypes
 open IML.Listeners.CommonLibrary
 
-let x = ZedCommand (CreateZpool (Zed.getZpoolName(), Zed.getGuid(), Zed.getState())) 
+let x = ZedCommand (CreateZpool (Zpool.getName(), Zpool.getGuid(), Zpool.getState())) 
 
 sendData x

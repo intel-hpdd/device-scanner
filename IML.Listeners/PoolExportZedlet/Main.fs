@@ -7,6 +7,6 @@ module IML.PoolExportZedlet
 open IML.Types.CommandTypes
 open IML.Listeners.CommonLibrary
 
-let x = ZedCommand (ExportZpool (Zed.getGuid(), Zed.getState())) 
+let x = ZedCommand (ExportZpool (Zpool.getGuid(), Zpool.getState())) 
 
 sendData x

@@ -8,15 +8,15 @@ open IML.Types.CommandTypes
 open IML.Listeners.CommonLibrary
 
 let historyName = Zed.getHistoryName()
-let guid:Guid = Zed.getGuid()
+let guid:Zpool.Guid = Zpool.getGuid()
 
-let zfsNameOption = Zed.getZfsNameOption()
+let zfsNameOption = Zfs.getNameOption()
 
 let cmd = 
   if historyName = Zed.Create && Option.isSome zfsNameOption then
-    Some (CreateZfs(guid, Zed.getZfsName()))
+    Some (CreateZfs(guid, Zfs.getName()))
   else if historyName = Zed.Destroy then
-    Some (DestroyZfs(guid, Zed.getZfsName()))
+    Some (DestroyZfs(guid, Zfs.getName()))
   else if historyName = Zed.Set then
     let (key, value) =
       Zed.getHistoryStr()

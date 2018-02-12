@@ -7,6 +7,6 @@ module IML.VdevAddZedlet
 open IML.Types.CommandTypes
 open IML.Listeners.CommonLibrary
 
-let x = ZedCommand (AddVdev (Zed.getGuid()))
+let x = ZedCommand (AddVdev (Zpool.getGuid()))
 
 sendData x

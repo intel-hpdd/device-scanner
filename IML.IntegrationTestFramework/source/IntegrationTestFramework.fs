@@ -19,8 +19,9 @@ type State = Result<CommandResult, CommandError> list * CommandRollback list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 
 let shellCommand (cmd:string) =
-  sprintf "%s" cmd
-  //sprintf "ssh devicescannernode '%s'" cmd
+  let newCommand = sprintf "ssh devicescannernode '%s'" cmd
+  printfn "Running command: %s" newCommand
+  newCommand
 
 let execShell x =
   ChildProcess.exec (shellCommand x) None
@@ -54,18 +55,17 @@ let rollback (rb:CommandRollback) (p:JS.Promise<CommandResult<'a, 'b>>):JS.Promi
       | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
     )
 
-let private logCommandResults (results, _) =
+let private logCommandErrors (results, _) =
   results
     |> List.map (function
-      | Error (e, _, Stderr(stderr)) -> sprintf "%s" !!e
+      | Error (e, _, _) -> sprintf "%s" !!e
       | Ok _ -> ""
     )
     |> List.filter(fun x -> x <> "")
-    |> List.iter(fun x -> printfn "%s" x)
+    |> List.iter(fun x -> eprintfn "%s" x)
 
 
 let private runTeardown ((_, rollbacks):State) =
-  printfn "Rollback count %d" (List.length rollbacks)
   rollbacks
     |> List.fold (fun acc rb ->
       acc
@@ -86,11 +86,11 @@ let run state fn =
 
     match runResult with
       | Ok(result, s) ->
-        logCommandResults s
+        logCommandErrors s
         do! runTeardown(s)
         return result
       | Error((e, _, _), s) ->
-        logCommandResults s
+        logCommandErrors s
         do! runTeardown(s)
         return! raise !!e
   }

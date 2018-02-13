@@ -12,7 +12,7 @@ open Fable.PowerPack
 open Fable.Import.Jest
 
 let private rb cnt () =
- execShell (sprintf "adf%d" cnt)
+  execShell (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
 
 let private doCmd x cnt =
   cmd x
@@ -23,11 +23,11 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
   expect.assertions 2
 
   command {
-        do! doCmd "rm -f /tmp/integration_test.txt && tou /tmp/integration_test.txt" 0
-        do! doCmd "echo 'hello'" 1
-        do! doCmd "echo 'goodbye'" 2
-        do! doCmd "echo 'another command'" 3
-        do! doCmd "echo 'done'" 4
+        do! doCmd "rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt" 0
+        do! doCmd "echo \"hello\"" 1
+        do! doCmd "echo \"goodbye\"" 2
+        do! doCmd "echo \"another command\"" 3
+        do! doCmd "echo \"done\"" 4
 
         return! cmd "cat /tmp/integration_test.txt"
       }
@@ -40,7 +40,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
 
             match x with
               | Ok y ->
-                y == (Stdout("rollback4\nrollback3\nrollback2\nrollback1\n"), Stderr(""))
+                y == (Stdout("rollback4\nrollback3\nrollback2\nrollback1\nrollback0\n"), Stderr(""))
               | Error (e, _, _) ->
                 failwithf "Error reading from /tmp/integration_test.txt %s" e.message
           }

@@ -41,4 +41,4 @@ testAsync "info event" <| fun () ->
             )
 
         toMatchSnapshot json
-      } |> run []
+      } |> run ([], [])

@@ -33,13 +33,12 @@ let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>>
       | Error e -> Error(e, (logs @ [Error e], rollbacks))
     )
 
-let cmd (x:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
-  execShell x
-    |> wrapWithState s
-
-let pipeToShellCmd (leftCmd:string) (rightCmd:string) (s:PromiseResultS list):JS.Promise<CommandResult<Out, Err>> =
+let pipeToShellCmd (leftCmd:string) (rightCmd:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
   ChildProcess.exec (sprintf "%s | %s" leftCmd (shellCommand rightCmd)) None
-    |> wrapWithState s
+    |> Promise.map (function
+      | Ok x -> Ok(x, (logs @ [Ok x], rollbacks))
+      | Error e -> Error(e, (logs @ [Error e], rollbacks))
+    )
 
 let ignoreCmd p =
   p

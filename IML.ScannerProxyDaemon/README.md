@@ -4,4 +4,4 @@ A persistent process that forwards scanner updates received on local socket to t
 
 ## Overview
 
-This service lessons on the device-scanner socket and when data is received it is encapsulated and sent over an authenticated HTTPS connection to the IML manager.
+This service listens on the device-scanner socket and when data is received, encapsulates and transmits over an authenticated HTTPS connection to the device-aggregator.

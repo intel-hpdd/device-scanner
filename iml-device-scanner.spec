@@ -2,10 +2,12 @@
 
 %define     base_name device-scanner
 %define     prefix_name iml-%{base_name}
+%define     proxy_base_name scanner-proxy
+%define     proxy_prefix_name iml-%{proxy_base_name}
 Name:       %{prefix_name}2
-Version:    2.0.0
+Version:    2.1.0
 Release:    %{package_release}%{?dist}
-Summary:    Builds an in-memory representation of devices. Uses udev rules to handle change events.
+Summary:    Builds an in-memory representation of devices. Uses udev rules to handle change events. Forwards to aggregator.
 License:    MIT
 Group:      System Environment/Libraries
 URL:        https://github.com/intel-hpdd/%{base_name}
@@ -23,7 +25,8 @@ Requires: socat
 Obsoletes: %{prefix_name}
 
 %description
-Builds an in-memory representation of devices using udev and zed.
+device-scanner-daemon builds an in-memory representation of devices using udev and zed.
+scanner-proxy-daemon forwards device-scanner updates received on local socket to the device aggregator over HTTPS.
 
 %prep
 %setup -q -n package
@@ -35,9 +38,14 @@ Builds an in-memory representation of devices using udev and zed.
 mkdir -p %{buildroot}%{_unitdir}
 cp dist/device-scanner-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
 cp dist/device-scanner-daemon/%{base_name}.service %{buildroot}%{_unitdir}
+cp dist/scanner-proxy-daemon/%{proxy_base_name}.service %{buildroot}%{_unitdir}
+cp dist/scanner-proxy-daemon/%{proxy_base_name}.path %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}%{_libdir}/%{prefix_name}-daemon
 cp dist/device-scanner-daemon/device-scanner-daemon %{buildroot}%{_libdir}/%{prefix_name}-daemon
+
+mkdir -p %{buildroot}%{_libdir}/%{proxy_prefix_name}-daemon
+cp dist/scanner-proxy-daemon/scanner-proxy-daemon %{buildroot}%{_libdir}/%{proxy_prefix_name}-daemon
 
 mkdir -p %{buildroot}/lib/udev
 cp dist/listeners/udev-listener %{buildroot}/lib/udev/udev-listener
@@ -70,6 +78,9 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{prefix_name}-daemon/device-scanner-daemon
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
+%attr(0755,root,root)%{_libdir}/%{proxy_prefix_name}-daemon/scanner-proxy-daemon
+%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.service
+%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.path
 %attr(0755,root,root)/lib/udev/udev-listener
 %attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-device-scanner.rules
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/history_event-scanner.sh
@@ -90,11 +101,15 @@ echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 if [ $1 -eq 1 ] ; then
   systemctl enable %{base_name}.socket
   systemctl start %{base_name}.socket
+  systemctl enable %{proxy_base_name}.service
+  systemctl start %{proxy_base_name}.service
   udevadm trigger --action=change --subsystem-match=block
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
+  systemctl stop %{proxy_base_name}.service
+  systemctl disable %{proxy_base_name}.service
   systemctl stop %{base_name}.service
   systemctl disable %{base_name}.service
   systemctl stop %{base_name}.socket
@@ -103,6 +118,9 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %changelog
+* Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
+- Major change, integrate scanner-proxy project
+
 * Mon Jan 22 2018 Joe Grund <joe.grund@intel.com> - 2.0.0-1
 - Breaking change, the API has changed output format
 

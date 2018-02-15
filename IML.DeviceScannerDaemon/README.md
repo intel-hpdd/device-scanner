@@ -14,7 +14,7 @@ We use unix domain sockets to communicate with the outside world.
 
 Consumers can send a JSON Request over the socket to retrieve the current listing:
 
-`{ "ACTION": "info" }`
+`"Info"`
 
 ## Architecture
 

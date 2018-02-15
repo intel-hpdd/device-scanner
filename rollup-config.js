@@ -26,6 +26,15 @@ export default [
     plugins: getPlugins()
   },
   {
+    input: 'IML.ScannerProxyDaemon/src/IML.ScannerProxyDaemon.fsproj',
+    external: ['stream', 'net', 'child_process', 'buffer', 'https', 'fs', 'path'],
+    output: {
+      file: './dist/scanner-proxy-daemon/scanner-proxy-daemon',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
     input: 'IML.Listeners/UdevListener/UdevListener.fsproj',
     external: ['net', 'buffer'],
     output: {

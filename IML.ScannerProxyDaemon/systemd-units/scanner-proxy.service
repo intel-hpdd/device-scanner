@@ -1,0 +1,11 @@
+[Unit]
+Description=IML Scanner Proxy Daemon
+Requires=device-scanner.service
+After=device-scanner.service
+
+[Service]
+Restart=always
+Environment=NODE_ENV=production
+ExecStart=/usr/bin/node /usr/lib64/iml-scanner-proxy-daemon/scanner-proxy-daemon
+StandardOutput=journal
+StandardError=journal

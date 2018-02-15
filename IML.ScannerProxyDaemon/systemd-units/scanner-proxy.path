@@ -1,0 +1,8 @@
+[Unit]
+Description=IML Scanner Proxy Path
+
+[Path]
+DirectoryNotEmpty=/var/lib/chroma/settings
+
+[Install]
+WantedBy=default.target

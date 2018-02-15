@@ -31,7 +31,7 @@ jobs:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
         - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
-        - docker exec -i libzfs-dotnet bash -c "npm pub"
+        - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+-.+$
       language: generic

@@ -2,7 +2,7 @@
   "name": "@iml/device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -44,11 +44,11 @@
     "cp-cli": "1.0.2",
     "del-cli": "^1.1.0",
     "fable-utils": "^1.0.6",
-    "jest": "^22.2.1",
+    "jest": "^22.3.0",
     "jest-fable-preprocessor": "^1.4.0",
-    "jest-junit": "^3.5.0",
+    "jest-junit": "^3.6.0",
     "pre-commit": "1.2.2",
-    "rollup": "^0.55.3",
+    "rollup": "^0.56.0",
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

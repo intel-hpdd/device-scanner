@@ -41,6 +41,11 @@ let sendPostRequest data =
 
 let clientSock = net.connect("/var/run/device-scanner.sock")
 printfn "Connecting to device scanner..."
+
+clientSock
+  |> Writable.write (buffer.Buffer.from "\"Info\"")
+  |> ignore
+
 clientSock
   |> LineDelimited.create()
   |> Readable.onError (fun (e:exn) ->

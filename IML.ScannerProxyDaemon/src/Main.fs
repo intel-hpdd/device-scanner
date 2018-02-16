@@ -10,7 +10,7 @@ open PowerPack.Stream
 
 open ProxyHandlers
 
-let private libPath x = path.join("/var", "lib", "chroma", x)
+let private libPath x = path.join(path.sep, "var", "lib", "chroma", x)
 
 let private readConfigFile (x) =
   (fs.readFileSync (libPath x)) :> obj
@@ -47,7 +47,6 @@ clientSock
   |> Readable.onError (fun (e:exn) ->
     eprintfn "Unable to parse Json from device scanner %s, %s" e.Message e.StackTrace
   )
-  |> map dataHandler
   |> iter sendPostRequest
   |> ignore
 

@@ -4,14 +4,10 @@ open TestFixtures
 open Fable.Import.Jest
 open Matchers
 open ProxyHandlers
-open Fable.PowerPack
 
 testList "Data Handler" [
   Test("Should return result of buffer on incoming Json", fun () ->
     updateJson
-      |> dataHandler
-      |> Result.unwrapResult
-      |> (fun x -> x.toString())
       |> toMatchSnapshot
   )
 

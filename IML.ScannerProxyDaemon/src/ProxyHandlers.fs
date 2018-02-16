@@ -13,9 +13,6 @@ module Option =
     | Some x -> x
     | None -> failwithf message
 
-let dataHandler (x:string) =
-  x |> buffer.Buffer.from |> Ok
-
 let filterFileName name =
   Seq.filter (fun x -> (buffer.Buffer.from(x, "base64").toString()) = name)
 

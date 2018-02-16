@@ -10,7 +10,7 @@ open PowerPack.Stream
 
 open ProxyHandlers
 
-let private libPath x = path.join("var", "lib", "chroma", x)
+let private libPath x = path.join("/var", "lib", "chroma", x)
 
 let private readConfigFile (x) =
   (fs.readFileSync (libPath x)) :> obj
@@ -41,6 +41,7 @@ let sendPostRequest data =
 
 let clientSock = net.connect("/var/run/device-scanner.sock")
 printfn "Connecting to device scanner..."
+
 clientSock
   |> LineDelimited.create()
   |> Readable.onError (fun (e:exn) ->
@@ -49,3 +50,8 @@ clientSock
   |> map dataHandler
   |> iter sendPostRequest
   |> ignore
+
+clientSock
+  |> Writable.write (buffer.Buffer.from "\"Info\"\n")
+  |> ignore
+

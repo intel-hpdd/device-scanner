@@ -101,19 +101,21 @@ echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 if [ $1 -eq 1 ] ; then
   systemctl enable %{base_name}.socket
   systemctl start %{base_name}.socket
-  systemctl enable %{proxy_base_name}.service
-  systemctl start %{proxy_base_name}.service
   udevadm trigger --action=change --subsystem-match=block
+  systemctl enable %{proxy_base_name}.path
+  systemctl start %{proxy_base_name}.path
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
+  systemctl stop %{proxy_base_name}.path
+  systemctl disable %{proxy_base_name}.path
   systemctl stop %{proxy_base_name}.service
   systemctl disable %{proxy_base_name}.service
-  systemctl stop %{base_name}.service
-  systemctl disable %{base_name}.service
   systemctl stop %{base_name}.socket
   systemctl disable %{base_name}.socket
+  systemctl stop %{base_name}.service
+  systemctl disable %{base_name}.service
   rm /var/run/%{base_name}.sock
 fi
 

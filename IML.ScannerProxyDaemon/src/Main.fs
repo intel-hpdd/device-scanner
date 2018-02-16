@@ -10,7 +10,7 @@ open PowerPack.Stream
 
 open ProxyHandlers
 
-let private libPath x = path.join("var", "lib", "chroma", x)
+let private libPath x = path.join("/var", "lib", "chroma", x)
 
 let private readConfigFile (x) =
   (fs.readFileSync (libPath x)) :> obj

@@ -35,7 +35,7 @@ let getManagerUrl dirName =
     |> Seq.toList
     |> filterFileName "server"
     |> Seq.map (
-      (fun x -> (fs.readFileSync (dirName + x)).toString())
+      (fun x -> (fs.readFileSync (path.join(dirName, x))).toString())
         >> ofJson<Collections.Map<string,string>>
         >> parseUrl
     )

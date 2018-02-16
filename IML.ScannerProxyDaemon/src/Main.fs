@@ -43,10 +43,6 @@ let clientSock = net.connect("/var/run/device-scanner.sock")
 printfn "Connecting to device scanner..."
 
 clientSock
-  |> Writable.write (buffer.Buffer.from "\"Info\"")
-  |> ignore
-
-clientSock
   |> LineDelimited.create()
   |> Readable.onError (fun (e:exn) ->
     eprintfn "Unable to parse Json from device scanner %s, %s" e.Message e.StackTrace
@@ -54,3 +50,8 @@ clientSock
   |> map dataHandler
   |> iter sendPostRequest
   |> ignore
+
+clientSock
+  |> Writable.write (buffer.Buffer.from "\"Info\"\n")
+  |> ignore
+

@@ -75,10 +75,6 @@ __EOF"
     rm -rf /builddir
     cp -r /vagrant /builddir
     cd /builddir
-    npm i --ignore-scripts
-    scl enable rh-dotnet20 "npm run restore && dotnet fable npm-build"
-    npm pack
-    rename 'iml-' '' iml-device-scanner-*.tgz
     npm run mock
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
     RELEASE=$(git rev-list HEAD | wc -l)

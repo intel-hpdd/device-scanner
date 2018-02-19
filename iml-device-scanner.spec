@@ -1,5 +1,3 @@
-%{?!package_release: %define package_release 1}
-
 %define     base_name device-scanner
 %define     prefix_name iml-%{base_name}
 %define     proxy_base_name scanner-proxy
@@ -7,32 +5,46 @@
 Name:       %{prefix_name}2
 Version:    2.1.0
 Release:    %{package_release}%{?dist}
-Summary:    Builds an in-memory representation of devices. Uses udev rules to handle change events. Forwards to aggregator.
+Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
 URL:        https://github.com/intel-hpdd/%{base_name}
-Source0:    http://registry.npmjs.org/@iml/%{base_name}/-/%{base_name}-%{version}.tgz
+# Forcing local source because rpkg in copr does not seem to have a way
+# to build source in the same way a package manager would.
+Source0:    %{prefix_name}-%{version}.tgz
 
 ExclusiveArch: %{nodejs_arches}
 
 BuildRequires: nodejs-packaging
+BuildRequires: nodejs
+BuildRequires: npm
+BuildRequires: mono-devel
+BuildRequires: %{?scl_prefix}rh-dotnet20
 BuildRequires: systemd
 
 Requires: nodejs
 Requires: iml-node-libzfs
 Requires: socat
 
-Obsoletes: %{prefix_name}
+Obsoletes: iml-device-scanner
 
 %description
-device-scanner-daemon builds an in-memory representation of devices using udev and zed.
-scanner-proxy-daemon forwards device-scanner updates received on local socket to the device aggregator over HTTPS.
+device-scanner-daemon builds an in-memory representation of
+devices using udev and zed.
+scanner-proxy-daemon forwards device-scanner updates received
+on local socket to the device aggregator over HTTPS.
 
 %prep
-%setup -q -n package
+%setup
 
 %build
-#nothing to do
+scl enable rh-dotnet20 - << EOF
+set -e
+export DOTNET_CLI_TELEMETRY_OPTOUT=1
+npm i --ignore-scripts
+npm run restore
+dotnet fable npm-build
+EOF
 
 %install
 mkdir -p %{buildroot}%{_unitdir}
@@ -121,7 +133,7 @@ fi
 
 %changelog
 * Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
-- Major change, integrate scanner-proxy project
+- Minor change, integrate scanner-proxy project
 
 * Mon Jan 22 2018 Joe Grund <joe.grund@intel.com> - 2.0.0-1
 - Breaking change, the API has changed output format

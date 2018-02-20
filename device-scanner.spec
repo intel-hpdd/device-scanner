@@ -4,7 +4,7 @@
 %define     proxy_prefix_name iml-%{proxy_base_name}
 Name:       %{prefix_name}2
 Version:    2.1.0
-Release:    %{package_release}%{?dist}
+Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries

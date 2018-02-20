@@ -77,8 +77,7 @@ __EOF"
     cd /builddir
     npm run mock
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
-    RELEASE=$(git rev-list HEAD | wc -l)
-    RPM_NAME=iml-device-scanner2-$PACKAGE_VERSION-$RELEASE.el7.centos.x86_64.rpm
+    RPM_NAME=iml-device-scanner2-$PACKAGE_VERSION-1.el7.centos.x86_64.rpm
     docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
     yum install -y ./$RPM_NAME
     SHELL

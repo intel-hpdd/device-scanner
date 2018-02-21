@@ -4,8 +4,9 @@
 
 module IML.ScannerProxyDaemon.ProxyHandlers
 
-open Fable.Import.Node
 open Fable.Core.JsInterop
+open Fable.Import.Node
+open PowerPack.Stream
 open System
 
 module Option =
@@ -38,3 +39,53 @@ let getManagerUrl dirName =
     )
     |> Seq.tryHead
     |> Option.expect "did not find 'server' file"
+
+let private libPath x = path.join(path.sep, "var", "lib", "chroma", x)
+
+let private readConfigFile (x) =
+  (fs.readFileSync (libPath x)) :> obj
+
+let private getOpts () =
+  let opts = createEmpty<Https.RequestOptions>
+  opts.hostname <- Some (getManagerUrl (libPath "settings"))
+  opts.port <- Some 443
+  opts.path <- Some "/iml-device-aggregator"
+  opts.method <- Some Http.Methods.Post
+  opts.rejectUnauthorized <- Some false
+  opts.cert <- Some (readConfigFile "self.crt")
+  opts.key <- Some (readConfigFile "private.pem")
+  let headers =
+    createObj [
+      "Content-Type" ==> "application/json"
+    ]
+  opts.headers <- Some headers
+  opts
+
+type Message =
+  | Data of string
+  | Heartbeat
+
+let transmit data =
+  https.request (getOpts())
+    |> Readable.onError (fun (e:exn) ->
+      eprintfn "Unable to generate HTTPS request %s, %s" e.Message e.StackTrace
+    )
+    |> Writable.``end``(Some data)
+
+let sendMessage = function
+  | Heartbeat ->
+    printfn "Proxy heartbeat %A" (toJson Heartbeat)
+    transmit (toJson Heartbeat)
+  | Data x ->
+    printfn "Proxy update %A" (toJson (Data x))
+    transmit (toJson (Data x))
+
+let createTimer timerInterval eventHandler =
+    let timer = new System.Timers.Timer(float timerInterval)
+    timer.AutoReset <- true
+
+    timer.Elapsed.Add eventHandler
+
+    async {
+        timer.Start()
+    }

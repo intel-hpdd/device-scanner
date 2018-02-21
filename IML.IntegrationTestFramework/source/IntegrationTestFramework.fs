@@ -11,16 +11,12 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
 
-
-type CommandError = Err
-type CommandResult = Out
 type CommandRollback = unit -> ChildProcess.ChildProcessPromiseResult
-type State = Result<CommandResult, CommandError> list * CommandRollback list
+type State = Result<Out, Err> list * CommandRollback list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 
 let shellCommand (cmd:string) =
   let newCommand = sprintf "ssh devicescannernode '%s'" cmd
-  printfn "Running command: %s" newCommand
   newCommand
 
 let execShell x =
@@ -54,22 +50,22 @@ let rollback (rb:CommandRollback) (p:JS.Promise<CommandResult<'a, 'b>>):JS.Promi
       | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
     )
 
-let private logCommandErrors (results, _) =
+let private logCommands (results, _) =
   results
-    |> List.map (function
-      | Error (e, _, _) -> sprintf "%s" !!e
-      | Ok _ -> ""
+    |> List.iter (function
+      | Error (e, _, _) -> eprintfn "%A" !!e
+      | Ok x -> printfn "%A" x
     )
-    |> List.filter(fun x -> x <> "")
-    |> List.iter(fun x -> eprintfn "%s" x)
 
-
-let private runTeardown ((_, rollbacks):State) =
+let private runTeardown ((logs, rollbacks):State) =
+  let teardownLogs = []
   rollbacks
     |> List.fold (fun acc rb ->
       acc
         |> Promise.bind(function
-          | Ok _ -> rb()
+          | Ok (stdout, _) ->
+
+            rb()
           | Error e -> failwith (sprintf "Error rolling back: %A" !!e)
         )
     ) (Promise.lift(Ok(Stdout(""), Stderr(""))))
@@ -85,11 +81,14 @@ let run state fn =
 
     match runResult with
       | Ok(result, s) ->
-        logCommandErrors s
         do! runTeardown(s)
+        logCommands s
         return result
       | Error((e, _, _), s) ->
-        logCommandErrors s
         do! runTeardown(s)
+        logCommands s
         return! raise !!e
   }
+
+let startCommand p =
+  p |> run ([], [])

@@ -31,7 +31,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
 
         return! cmd "cat /tmp/integration_test.txt"
       }
-        |> run ([], [])
+        |> startCommand
         |> Promise.bind (fun x ->
           x == (Stdout(""), Stderr(""))
 

@@ -8,13 +8,15 @@ let toJson =
 
 let updateJson = toJson """
 {
-  "props": [],
-  "zfs": {},
-  "zpools": {
-    "0x20BCB4328106D5D1": {
-      "state": "EXPORTED",
-      "guid": "0x20BCB4328106D5D1",
-      "name": "testPool1"
+  "zed": {
+    "props": [],
+    "zfs": [],
+    "zpools": {
+      "0x20BCB4328106D5D1": {
+        "state": "EXPORTED",
+        "guid": "0x20BCB4328106D5D1",
+        "name": "testPool1"
+      }
     }
   },
   "blockDevices": {

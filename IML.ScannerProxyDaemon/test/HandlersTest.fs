@@ -1,9 +1,9 @@
-module IML.ScannerProxyDaemon.ProxyHandlersTest
+module IML.ScannerProxyDaemon.HandlersTest
 
 open TestFixtures
 open Fable.Import.Jest
 open Matchers
-open ProxyHandlers
+open Handlers
 
 testList "Data Handler" [
   Test("Should return result of buffer on incoming Json", fun () ->

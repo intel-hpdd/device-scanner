@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.ScannerProxyDaemon.ProxyHandlers
+module IML.ScannerProxyDaemon.Handlers
 
 open Fable.Core.JsInterop
 open Fable.Import.Node

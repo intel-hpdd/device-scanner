@@ -7,7 +7,7 @@ module IML.ScannerProxyDaemon.Proxy
 open Fable.Import.Node
 open PowerPack.Stream
 
-open ProxyHandlers
+open Handlers
 
 let heartbeatInterval = 10000  // msec
 

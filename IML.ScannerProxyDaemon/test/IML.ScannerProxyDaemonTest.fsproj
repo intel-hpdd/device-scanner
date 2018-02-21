@@ -6,7 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../src/IML.ScannerProxyDaemon.fsproj" />
     <Compile Include="TestFixtures.fs" />
-    <Compile Include="ProxyHandlersTest.fs" />
+    <Compile Include="HandlersTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

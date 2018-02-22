@@ -11,7 +11,7 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open Fable.Import.Jest
 
-let private rb cnt () =
+let private rb cnt _ =
   execShell (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
 
 let private doCmd x cnt =

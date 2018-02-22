@@ -11,13 +11,13 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
 
-type CommandRollback = unit -> ChildProcess.ChildProcessPromiseResult
-type State = Result<Out, Err> list * CommandRollback list
+type RollbackState = Result<Stdout, Stderr> list
+type RollbackCommand = RollbackState -> JS.Promise<Result<Stdout * RollbackState, Stderr * RollbackState>>
+type State = Result<Out, Err> list * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 
-let shellCommand (cmd:string) =
-  let newCommand = sprintf "ssh devicescannernode '%s'" cmd
-  newCommand
+let shellCommand =
+  sprintf "ssh devicescannernode '%s'"
 
 let execShell x =
   ChildProcess.exec (shellCommand x) None
@@ -43,52 +43,36 @@ let ignoreCmd p =
       | Error (e, s) -> Error(e, s)
     )
 
-let rollback (rb:CommandRollback) (p:JS.Promise<CommandResult<'a, 'b>>):JS.Promise<CommandResult<'a, 'b>> =
+let rollback (rb:RollbackCommand) (p:JS.Promise<CommandResult<'a, 'b>>):JS.Promise<CommandResult<'a, 'b>> =
   p
     |> Promise.map(function
       | Ok (x, (logs, rollbacks)) -> Ok (x, (logs, rb :: rollbacks))
       | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
     )
 
-let private logCommands (results, _) =
+let private logCommands results =
   results
     |> List.iter (function
       | Error (e, _, _) -> eprintfn "%A" !!e
       | Ok x -> printfn "%A" x
     )
 
+let private getState fn = function
+  | Ok(_, s) -> fn s
+  | Error(_, s) -> fn s
+
+
 let private runTeardown ((logs, rollbacks):State) =
-  let teardownLogs = []
-  rollbacks
-    |> List.fold (fun acc rb ->
-      acc
-        |> Promise.bind(function
-          | Ok (stdout, _) ->
+    rollbacks
+      |> List.reduce (fun r1 r2 ->
+        (fun _ -> r2) >>= r1
+      )
+      |> run logs
 
-            rb()
-          | Error e -> failwith (sprintf "Error rolling back: %A" !!e)
-        )
-    ) (Promise.lift(Ok(Stdout(""), Stderr(""))))
-    |> Promise.map (function
-      | Ok _ -> ()
-      | Error e ->
-        failwith (sprintf "Error rolling back: %A" !!e)
-    )
-
-let run state fn =
-  promise {
-    let! runResult = run state fn
-
-    match runResult with
-      | Ok(result, s) ->
-        do! runTeardown(s)
-        logCommands s
-        return result
-      | Error((e, _, _), s) ->
-        do! runTeardown(s)
-        logCommands s
-        return! raise !!e
-  }
+let run (state:State) fn =
+  run state fn
+    |> Promise.bind (getState runTeardown)
+    |> Promise.map (getState logCommands)
 
 let startCommand p =
   p |> run ([], [])

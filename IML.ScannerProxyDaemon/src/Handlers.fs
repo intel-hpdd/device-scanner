@@ -42,8 +42,8 @@ let getManagerUrl dirName =
 
 let private libPath x = path.join(path.sep, "var", "lib", "chroma", x)
 
-let private readConfigFile (x) =
-  (fs.readFileSync (libPath x)) :> obj
+let private readConfigFile =
+  libPath >> fs.readFileSync
 
 let private getOpts () =
   let opts = createEmpty<Https.RequestOptions>
@@ -52,8 +52,8 @@ let private getOpts () =
   opts.path <- Some "/iml-device-aggregator"
   opts.method <- Some Http.Methods.Post
   opts.rejectUnauthorized <- Some false
-  opts.cert <- Some (readConfigFile "self.crt")
-  opts.key <- Some (readConfigFile "private.pem")
+  opts.cert <- Some (readConfigFile "self.crt" :> obj)
+  opts.key <- Some (readConfigFile "private.pem" :> obj)
   let headers =
     createObj [
       "Content-Type" ==> "application/json"
@@ -65,12 +65,12 @@ type Message =
   | Data of string
   | Heartbeat
 
-let transmit data =
+let transmit payload =
   https.request (getOpts())
     |> Readable.onError (fun (e:exn) ->
       eprintfn "Unable to generate HTTPS request %s, %s" e.Message e.StackTrace
     )
-    |> Writable.``end``(Some data)
+    |> Writable.``end``(Some payload)
 
 let sendMessage = function
   | Heartbeat ->

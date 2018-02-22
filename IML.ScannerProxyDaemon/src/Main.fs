@@ -22,7 +22,7 @@ clientSock
   |> Readable.onError (fun (e:exn) ->
     eprintfn "Unable to parse Json from device scanner %s, %s" e.Message e.StackTrace
   )
-  |> iter (fun x -> sendMessage (Message.Data x))
+  |> iter (Message.Data >> sendMessage)
   |> ignore
 
 clientSock

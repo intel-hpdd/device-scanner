@@ -7,11 +7,11 @@ module IML.ScannerProxyDaemon.Proxy
 open Fable.Import.Node
 open PowerPack.Stream
 
-open Handlers
+open CommonLibrary
+open Heartbeat
+open Transmit
 
-let heartbeatInterval = 10000  // msec
-
-createTimer heartbeatInterval (fun _ -> sendMessage Message.Heartbeat)
+createTimer heartbeatInterval (fun _ -> transmitMessage Heartbeat)
   |> Async.StartImmediate
 
 let clientSock = net.connect("/var/run/device-scanner.sock")
@@ -22,7 +22,7 @@ clientSock
   |> Readable.onError (fun (e:exn) ->
     eprintfn "Unable to parse Json from device scanner %s, %s" e.Message e.StackTrace
   )
-  |> iter (Message.Data >> sendMessage)
+  |> iter (Data >> transmitMessage)
   |> ignore
 
 clientSock

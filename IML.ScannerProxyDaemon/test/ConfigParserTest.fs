@@ -1,16 +1,15 @@
-module IML.ScannerProxyDaemon.HandlersTest
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
-open TestFixtures
+module IML.ScannerProxyDaemon.ConfigParserTest
+
 open Fable.Import.Jest
 open Matchers
-open Handlers
+
+open ConfigParser
 
 testList "Data Handler" [
-  Test("Should return result of buffer on incoming Json", fun () ->
-    updateJson
-      |> toMatchSnapshot
-  )
-
   Test("Should filter out all but the base64 encoded string of 'server'", fun () ->
     [| "foo"; "bar"; "c2VydmVy" |]
       |> (filterFileName "server")

@@ -13,20 +13,30 @@ open Matchers
 open CommonLibrary
 open Transmit
 
-let testTransmit = jest.fn1()
-let testSend = sendMessage testTransmit
-
 testList "Send Message" [
-  Test("Should return serialised Data message on incoming update", fun () ->
-    updateJson
-      |> Data
-      |> testSend
-    expect.Invoke(testTransmit).toBeCalledWith(JsInterop.toJson (Data updateJson))
-  )
+  let withSetup f ():unit =
+    f();
 
-  Test("Should return serialised Heartbeat message on incoming heartbeat", fun () ->
-    Heartbeat
-      |> testSend
-    expect.Invoke(testTransmit).toBeCalledWith(JsInterop.toJson Heartbeat)
-  )
+  yield! testFixture withSetup [
+    "Should return serialised Data message on incoming update", fun () ->
+      let mutable mock = id
+      mock <- jest.fn1()
+      let testSend = sendMessage mock
+
+      updateJson
+        |> Data
+        |> testSend
+        |> ignore
+      expect.Invoke(mock).toBeCalledWith(JsInterop.toJson (Data updateJson))
+
+    "Should return serialised Heartbeat message on incoming heartbeat", fun () ->
+      let mutable mock = id
+      mock <- jest.fn1()
+      let testSend = sendMessage mock
+
+      Heartbeat
+        |> testSend
+        |> ignore
+      expect.Invoke(mock).toBeCalledWith(JsInterop.toJson Heartbeat)
+  ]
 ]

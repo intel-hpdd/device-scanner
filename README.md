@@ -3,4 +3,37 @@
 [![Build Status](https://travis-ci.org/intel-hpdd/device-scanner.svg?branch=master)](https://travis-ci.org/intel-hpdd/device-scanner)
 [![Greenkeeper badge](https://badges.greenkeeper.io/intel-hpdd/device-scanner.svg)](https://greenkeeper.io/)
 
-Builds an in-memory representation of devices. Uses [udev](http://www.reactivated.net/writing_udev_rules.html) rules to handle change events.
+This repo provides a [persistent daemon](IML.DeviceScannerDaemon) That holds block devices + ZFS devices in memory.
+
+It also provides [listeners](IML.Listeners) that emit changes to the daemon.
+
+Finally, it also provides a proxy [proxy](IML.ScannerProxyDaemon) that transforms the unix domain socket events to HTTP POSTs.
+
+## Architecture
+
+```
+    ┌───────────────┐ ┌───────────────┐
+    │  Udev Script  │ │    ZEDlet     │
+    └───────────────┘ └───────────────┘
+            │                 │
+            └────────┬────────┘
+                     ▼
+          ┌─────────────────────┐
+          │ Unix Domain Socket  │
+          └─────────────────────┘
+                     │
+                     ▼
+       ┌───────────────────────────┐
+       │   Device Scanner Daemon   │
+       └───────────────────────────┘
+                     │
+                     ▼
+          ┌─────────────────────┐
+          │ Unix Domain Socket  │
+          └─────────────────────┘
+                     │
+                     ▼
+           ┌──────────────────┐
+           │ Consumer Process │
+           └──────────────────┘
+```

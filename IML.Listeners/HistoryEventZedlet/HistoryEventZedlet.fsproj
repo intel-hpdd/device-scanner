@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="../../IML.Types/IML.Types.fsproj">
+    <ProjectReference Include="../../IML.Types/src/IML.Types.fsproj">
       <Name>IML.Types.fsproj</Name>
     </ProjectReference>
   </ItemGroup>

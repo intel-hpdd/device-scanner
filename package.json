@@ -9,10 +9,10 @@
   },
   "scripts": {
     "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test",
+    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --projects IML.Types/test",
     "test": "dotnet fable npm-jest",
     "integration-test": "jest --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
-    "test-watch": "jest --projects IML.DeviceScannerDaemon --watchAll",
+    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --projects IML.Types/test --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "build": "del-cli ./dist/**; rollup -c rollup-config.js",
     "docs": "mkdir -p ./dist/docs && remark ./IML.DeviceScannerDaemon/README.md -u remark-man > ./dist/docs/device-scanner.8",

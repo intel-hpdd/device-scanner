@@ -2,7 +2,7 @@
 %define     prefix_name iml-%{base_name}
 %define     proxy_base_name scanner-proxy
 %define     proxy_prefix_name iml-%{proxy_base_name}
-Name:       %{prefix_name}2
+Name:       %{prefix_name}
 Version:    2.1.0
 Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
@@ -25,8 +25,6 @@ BuildRequires: systemd
 Requires: nodejs
 Requires: iml-node-libzfs
 Requires: socat
-
-Obsoletes: iml-device-scanner
 
 %description
 device-scanner-daemon builds an in-memory representation of
@@ -104,7 +102,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/vdev_add-scanner.sh
 %{_sysconfdir}/zfs/zed.d/*.sh
 
-%triggerin -- zfs
+%triggerin -- zfs >= 0.7.5
 /sbin/modprobe zfs
 systemctl enable zfs-zed.service
 systemctl start zfs-zed.service

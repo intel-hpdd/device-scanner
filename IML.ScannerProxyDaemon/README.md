@@ -1,4 +1,4 @@
-# device-scanner-daemon
+# scanner-proxy-daemon
 
 A persistent process that forwards scanner updates received on local socket to the device aggregator over HTTPS.
 

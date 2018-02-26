@@ -2,16 +2,13 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.ScannerProxyDaemon.ProxyHandlers
+module IML.ScannerProxyDaemon.ConfigParser
 
-open Fable.Import.Node
 open Fable.Core.JsInterop
+open Fable.Import.Node
 open System
 
-module Option =
-  let expect message = function
-    | Some x -> x
-    | None -> failwithf message
+open CommonLibrary
 
 let filterFileName name =
   Seq.filter (fun x -> (buffer.Buffer.from(x, "base64").toString()) = name)
@@ -38,3 +35,8 @@ let getManagerUrl dirName =
     )
     |> Seq.tryHead
     |> Option.expect "did not find 'server' file"
+
+let libPath x = path.join(path.sep, "var", "lib", "chroma", x)
+
+let readConfigFile =
+  libPath >> fs.readFileSync

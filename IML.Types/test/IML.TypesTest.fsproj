@@ -4,7 +4,8 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="CommandTypes.fs" />
+    <ProjectReference Include="../src/IML.Types.fsproj" />
+    <Compile Include="CommandTypesTest.fs" />
   </ItemGroup>
-  <Import Project="..\.paket\Paket.Restore.targets" />
+  <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

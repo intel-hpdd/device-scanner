@@ -1,6 +1,6 @@
-// Copyright (c) 2018 Intel Corporation. All rights reserved. 
-// Use of this source code is governed by a MIT-style 
-// license that can be found in the LICENSE file. 
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
 module IML.Types.CommandTypes
 
@@ -36,7 +36,7 @@ module Vdev =
   type State = State of string
 
 type ZedCommand =
-  | Init 
+  | Init
   | CreateZpool of Zpool.Name * Zpool.Guid * Zpool.State
   | ImportZpool of Zpool.Guid * Zpool.State
   | ExportZpool of Zpool.Guid * Zpool.State
@@ -47,12 +47,21 @@ type ZedCommand =
   | SetZfsProp of Zpool.Guid * Zfs.Name * Prop.Key * Prop.Value
   | AddVdev of Zpool.Guid
 
-type UdevCommand = 
+type UdevCommand =
   | Add of string
   | Change of string
   | Remove of string
 
+/// This is for backcompat with v1
+/// of device-scanner.
+/// Once we stop supporting v1 of device-scanner, we
+/// can drop this.
+[<StringEnum>]
+type ACTION =
+  | Info
+
 type Command =
   | Info
-  | ZedCommand of ZedCommand 
+  | ZedCommand of ZedCommand
   | UdevCommand of UdevCommand
+  | ACTION of ACTION

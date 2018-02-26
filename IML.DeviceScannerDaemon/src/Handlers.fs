@@ -5,6 +5,7 @@
 module IML.DeviceScannerDaemon.Handlers
 
 open IML.Types.CommandTypes
+open Fable.Core
 open Udev
 open Zed
 
@@ -14,6 +15,7 @@ let private scan init update =
   fun (x) ->
     state <- update state x
     state
+
 
 type Data = {
   blockDevices: BlockDevices;
@@ -42,7 +44,6 @@ let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
                     zed = zed;
                 }
               )
-
           | UdevCommand x ->
             Udev.update state.blockDevices x
               |> Result.map (fun blockDevices ->
@@ -50,8 +51,22 @@ let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
                     blockDevices = blockDevices;
                 }
               )
-          | Info ->
+          | Command.Info | ACTION _ ->
             Ok state
-        | x -> x
+      | x -> x
 
-let handler = scan init update
+let private handler = scan init update
+
+[<Erase>]
+type BackCompat =
+  | V1 of BlockDevices
+  | Vx of Data
+
+let backCompatHandler x =
+  x
+  |> handler
+  |> Result.map (fun d ->
+    match x with
+      | ACTION _ -> V1 d.blockDevices
+      | _ -> Vx d
+  )

@@ -4,7 +4,7 @@
 %define     proxy_prefix_name iml-%{proxy_base_name}
 Name:       %{prefix_name}2
 Version:    2.1.0
-Release:    1%{?dist}
+Release:    2%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
@@ -31,6 +31,12 @@ Obsoletes: iml-device-scanner
 %description
 device-scanner-daemon builds an in-memory representation of
 devices using udev and zed.
+
+%package iml-scanner-proxy
+Summary:    Forwards device-scanner updates to device-aggregator
+License:    MIT
+Group:      System Environment/Libraries
+%description iml-scanner-proxy
 scanner-proxy-daemon forwards device-scanner updates received
 on local socket to the device aggregator over HTTPS.
 
@@ -91,9 +97,6 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{prefix_name}-daemon/device-scanner-daemon
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
-%attr(0755,root,root)%{_libdir}/%{proxy_prefix_name}-daemon/scanner-proxy-daemon
-%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.service
-%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.path
 %attr(0755,root,root)/lib/udev/udev-listener
 %attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-device-scanner.rules
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/history_event-scanner.sh
@@ -103,6 +106,12 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/pool_import-scanner.sh
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/vdev_add-scanner.sh
 %{_sysconfdir}/zfs/zed.d/*.sh
+
+%files iml-scanner-proxy
+%dir %{_libdir}/%{proxy_prefix_name}-daemon
+%attr(0755,root,root)%{_libdir}/%{proxy_prefix_name}-daemon/scanner-proxy-daemon
+%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.service
+%attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.path
 
 %triggerin -- zfs
 /sbin/modprobe zfs
@@ -115,16 +124,16 @@ if [ $1 -eq 1 ] ; then
   systemctl enable %{base_name}.socket
   systemctl start %{base_name}.socket
   udevadm trigger --action=change --subsystem-match=block
+fi
+
+%post iml-scanner-proxy
+if [ $1 -eq 1 ] ; then
   systemctl enable %{proxy_base_name}.path
   systemctl start %{proxy_base_name}.path
 fi
 
 %preun
 if [ $1 -eq 0 ] ; then
-  systemctl stop %{proxy_base_name}.path
-  systemctl disable %{proxy_base_name}.path
-  systemctl stop %{proxy_base_name}.service
-  systemctl disable %{proxy_base_name}.service
   systemctl stop %{base_name}.socket
   systemctl disable %{base_name}.socket
   systemctl stop %{base_name}.service
@@ -132,7 +141,18 @@ if [ $1 -eq 0 ] ; then
   rm /var/run/%{base_name}.sock
 fi
 
+%preun iml-scanner-proxy
+if [ $1 -eq 0 ] ; then
+  systemctl stop %{proxy_base_name}.path
+  systemctl disable %{proxy_base_name}.path
+  systemctl stop %{proxy_base_name}.service
+  systemctl disable %{proxy_base_name}.service
+fi
+
 %changelog
+* Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2
+- make scanner-proxy a sub-package (separate rpm)
+
 * Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
 - Minor change, integrate scanner-proxy project
 

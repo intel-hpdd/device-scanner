@@ -11,8 +11,9 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
 
-type RollbackState = Result<Stdout, Stderr> list
-type RollbackCommand = RollbackState -> JS.Promise<Result<Stdout * RollbackState, Stderr * RollbackState>>
+type RollbackState = Result<Out, Err> list
+type RollbackCommandState = JS.Promise<Result<Out * RollbackState, Err * RollbackState>>
+type RollbackCommand = RollbackState -> RollbackCommandState
 type State = Result<Out, Err> list * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 

@@ -11,8 +11,12 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open Fable.Import.Jest
 
-let private rb cnt _ =
+let private rb cnt (rollbackState:RollbackState) =
   execShell (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
+    |> Promise.map(function
+      | Ok out -> Ok(out, rollbackState)
+      | Error err -> Error(err, rollbackState)
+    )
 
 let private doCmd x cnt =
   cmd x
@@ -32,8 +36,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         return! cmd "cat /tmp/integration_test.txt"
       }
         |> startCommand
-        |> Promise.bind (fun x ->
-          x == (Stdout(""), Stderr(""))
+        |> Promise.bind (fun _ ->
 
           promise {
             let! x = execShell "cat /tmp/integration_test.txt"

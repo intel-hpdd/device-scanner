@@ -30,11 +30,12 @@ Requires: socat
 device-scanner-daemon builds an in-memory representation of
 devices using udev and zed.
 
-%package iml-scanner-proxy
+%package proxy
 Summary:    Forwards device-scanner updates to device-aggregator
 License:    MIT
 Group:      System Environment/Libraries
-%description iml-scanner-proxy
+Requires:   %{prefix_name}
+%description proxy
 scanner-proxy-daemon forwards device-scanner updates received
 on local socket to the device aggregator over HTTPS.
 
@@ -105,7 +106,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/vdev_add-scanner.sh
 %{_sysconfdir}/zfs/zed.d/*.sh
 
-%files iml-scanner-proxy
+%files proxy
 %dir %{_libdir}/%{proxy_prefix_name}-daemon
 %attr(0755,root,root)%{_libdir}/%{proxy_prefix_name}-daemon/scanner-proxy-daemon
 %attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.service
@@ -125,7 +126,7 @@ if [ $1 -eq 1 ] ; then
   udevadm trigger --action=change --subsystem-match=block
 fi
 
-%post iml-scanner-proxy
+%post proxy
 if [ $1 -eq 1 ] ; then
   systemctl enable %{proxy_base_name}.path
   systemctl start %{proxy_base_name}.path
@@ -140,7 +141,7 @@ if [ $1 -eq 0 ] ; then
   rm /var/run/%{base_name}.sock
 fi
 
-%preun iml-scanner-proxy
+%preun proxy
 if [ $1 -eq 0 ] ; then
   systemctl stop %{proxy_base_name}.path
   systemctl disable %{proxy_base_name}.path
@@ -150,7 +151,7 @@ fi
 
 %changelog
 * Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2
-- make scanner-proxy a sub-package (separate rpm)
+- Make scanner-proxy a sub-package (separate rpm)
 
 * Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
 - Minor change, integrate scanner-proxy project

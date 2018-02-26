@@ -43,3 +43,24 @@ jobs:
         script: ./travis_wait "./include/travis/run_in_centos7_docker.sh include/travis/copr-deploy.sh"
         on:
           all_branches: true
+    - stage: deploy
+      env: Type='bintray development deploy'
+      language: csharp
+      dotnet: 2.1.4
+      mono: latest
+      # if: branch = master AND env(TRAVIS_TAG) IS blank
+      script:
+        - nvm install 8
+        - npm i
+        - npm run restore
+        - dotnet fable npm-build
+        - npm pack
+        - rename 's/^iml\-//' iml-device-scanner-*.tgz
+        - npm run mock
+        - PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
+        - RELEASE=$(git rev-list HEAD | wc -l)
+        - RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-$RELEASE.el7.centos.x86_64.rpm
+        - HEADER=$(node -p -e "require('./.deploy_bintray.json').contentType")
+        - DETAILS=$(node -p -e "require('./.deploy_bintray.json').jsonDetails")
+        - docker exec -i mock bash -xec "curl -H '$HEADER' -X POST -d '$DETAILS' -u$BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/packages/intel-hpdd/intelhpdd-build"
+        - docker exec -i mock bash -xec "curl -T /var/lib/mock/epel-7-x86_64/result/$RPM_NAME -u$BINTRAY_USER:$BINTRAY_KEY https://api.bintray.com/content/intel-hpdd/intelhpdd-build/iml-device-scanner/$PACKAGE_VERSION/$RPM_NAME?publish=1"

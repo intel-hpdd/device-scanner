@@ -1,0 +1,4 @@
+{
+  "contentType": "Content-Type: application/json",
+  "jsonDetails": "{\"name\":\"iml-device-scanner\",\"desc\":\"Builds an in-memory representation of devices. Uses udev rules to handle change events\",\"labels\":[\"persistence\"],\"licenses\":[\"MIT\"],\"vcs_url\":\"https://github.com/intel-hpdd/device-scanner\",\"website_url\":\"https://github.com/intel-hpdd/device-scanner\",\"issue_tracker_url\":\"https://github.com/intel-hpdd/device-scanner/issues\",\"github_repo\":\"intel-hpdd/device-scanner\",\"public_download_numbers\":false,\"public_stats\":false}"
+}

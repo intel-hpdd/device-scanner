@@ -30,7 +30,7 @@ let serverHandler (c:Net.Socket):unit =
     |> Readable.onError (fun (e:JS.Error) ->
       eprintfn "Unable to parse message %s" e.message
     )
-    |> map handler
+    |> map backCompatHandler
     |> map (
       toJson
         >> fun x -> x + "\n"

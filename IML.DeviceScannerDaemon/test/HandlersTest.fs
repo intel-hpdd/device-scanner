@@ -12,7 +12,7 @@ open IML.Types.CommandTypes
 
 testList "Data Handler" [
   let withSetup f ():unit =
-    f (handler)
+    f (backCompatHandler)
 
   yield! testFixture withSetup [
     "Should call end with map for info event", fun (handler) ->

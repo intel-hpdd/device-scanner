@@ -126,10 +126,28 @@ if [ $1 -eq 1 ] ; then
   udevadm trigger --action=change --subsystem-match=block
 fi
 
+if [ $1 -gt 1 ] ; then
+  systemctl daemon-reload
+  systemctl stop %{base_name}.socket
+  systemctl stop %{base_name}.service
+  systemctl start %{base_name}.socket
+  udevadm trigger --action=change --subsystem-match=block
+fi
+
 %post proxy
 if [ $1 -eq 1 ] ; then
   systemctl enable %{proxy_base_name}.path
   systemctl start %{proxy_base_name}.path
+fi
+
+if [ $1 -gt 1 ] ; then
+  systemctl daemon-reload
+  systemctl stop %{proxy_base_name}.service
+
+  if [ -f "/var/lib/chroma/settings" ] ; then
+    touch /var/lib/chroma/settings
+  fi
+
 fi
 
 %preun
@@ -152,6 +170,7 @@ fi
 %changelog
 * Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2
 - Make scanner-proxy a sub-package (separate rpm)
+- Handle upgrade scenarios
 
 * Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
 - Minor change, integrate scanner-proxy project

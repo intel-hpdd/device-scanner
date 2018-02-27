@@ -15,14 +15,10 @@ let sendData (x:Command) =
 
   let client = net.connect opts
 
-  client.once("connect", fun () ->
   x
     |> toJson
     |> buffer.Buffer.from
     |> client.``end``
-  )
-    |> ignore
-
 
 let env = Globals.``process``.env
 

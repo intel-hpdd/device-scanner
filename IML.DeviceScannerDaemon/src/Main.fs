@@ -31,6 +31,7 @@ let serverHandler (c:Net.Socket):unit =
       | _ -> Connections.addConn (Connections.Ephemeral c)
     )
     |> map backCompatHandler
+    |> Readable.onError raise
     |> map (
       toJson
         >> fun x -> x + "\n"

@@ -120,13 +120,11 @@ systemctl start zfs-zed.service
 echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 
 %post
-if [ $1 -eq 1 ] ; then
+if [ $1 -eq 1 ]; then
   systemctl enable %{base_name}.socket
   systemctl start %{base_name}.socket
   udevadm trigger --action=change --subsystem-match=block
-fi
-
-if [ $1 -gt 1 ] ; then
+elif [ $1 -eq 2 ]; then
   systemctl daemon-reload
   systemctl stop %{base_name}.socket
   systemctl stop %{base_name}.service
@@ -135,19 +133,16 @@ if [ $1 -gt 1 ] ; then
 fi
 
 %post proxy
-if [ $1 -eq 1 ] ; then
+if [ $1 -eq 1 ]; then
   systemctl enable %{proxy_base_name}.path
   systemctl start %{proxy_base_name}.path
-fi
-
-if [ $1 -gt 1 ] ; then
+elif [ $1 -eq 2 ] ; then
   systemctl daemon-reload
   systemctl stop %{proxy_base_name}.service
 
-  if [ -f "/var/lib/chroma/settings" ] ; then
+  if [ -f "/var/lib/chroma/settings" ]; then
     touch /var/lib/chroma/settings
   fi
-
 fi
 
 %preun

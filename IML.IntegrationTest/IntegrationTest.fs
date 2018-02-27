@@ -14,7 +14,6 @@ open Fable.Import.Node.PowerPack.ChildProcess
 
 let scannerInfo =
   pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
-
 let unwrapObject a =
     match a with
     | Json.Object a -> Map.ofArray a
@@ -30,6 +29,7 @@ let unwrapDeviceData = Json.ofString >> unwrapResult >> unwrapObject >> Map.find
 testAsync "info event" <| fun () ->
   command {
         let! (Stdout(x), _) = scannerInfo
+
         let json =
           x
             |> unwrapDeviceData
@@ -39,6 +39,9 @@ testAsync "info event" <| fun () ->
               key <> "/devices/virtual/block/dm-2" &&
               key <> "/devices/virtual/block/dm-3"
             )
+            |> sprintf "%A"
 
         toMatchSnapshot json
-      } |> startCommand
+        return (Stdout(""), Stderr(""))
+      }
+      |> startCommand

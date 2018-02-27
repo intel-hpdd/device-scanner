@@ -4,16 +4,17 @@
 
 module IML.DeviceScannerDaemon.Server
 
-open Fable.Import.Node
-open Fable.Import.Node.PowerPack.Stream
 open Fable.Import
+open Fable.Import.Node
+open Buffer
+open PowerPack.Stream
 open Fable.Core.JsInterop
 open Handlers
 open IML.Types.CommandTypes
 
-let private parser x =
+let private parser (x:Buffer) =
   try
-    x
+    x.toString()
       |> ofJson<Command>
       |> Ok
   with
@@ -25,7 +26,6 @@ let serverHandler (c:Net.Socket):unit =
 
   c
     |> Readable.onEnd (Connections.removeConn c)
-    |> LineDelimited.create()
     |> map parser
     |> Readable.onError (fun (e:JS.Error) ->
       eprintfn "Unable to parse message %s" e.message

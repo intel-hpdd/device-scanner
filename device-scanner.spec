@@ -136,7 +136,7 @@ fi
 if [ $1 -eq 1 ]; then
   systemctl enable %{proxy_base_name}.path
   systemctl start %{proxy_base_name}.path
-elif [ $1 -eq 2 ] ; then
+elif [ $1 -eq 2 ]; then
   systemctl daemon-reload
   systemctl stop %{proxy_base_name}.service
 
@@ -146,7 +146,7 @@ elif [ $1 -eq 2 ] ; then
 fi
 
 %preun
-if [ $1 -eq 0 ] ; then
+if [ $1 -eq 0 ]; then
   systemctl stop %{base_name}.socket
   systemctl disable %{base_name}.socket
   systemctl stop %{base_name}.service
@@ -155,7 +155,7 @@ if [ $1 -eq 0 ] ; then
 fi
 
 %preun proxy
-if [ $1 -eq 0 ] ; then
+if [ $1 -eq 0 ]; then
   systemctl stop %{proxy_base_name}.path
   systemctl disable %{proxy_base_name}.path
   systemctl stop %{proxy_base_name}.service

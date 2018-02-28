@@ -11,11 +11,16 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
 
-type RollbackState = Result<Out, Err> list
+type RollbackResult = Result<(string * Out), (string * Err)>
+type RollbackState = RollbackResult list
 type RollbackCommandState = JS.Promise<Result<Out * RollbackState, Err * RollbackState>>
 type RollbackCommand = RollbackState -> RollbackCommandState
-type State = Result<Out, Err> list * RollbackCommand list
+type State = RollbackState * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
+type RollbackResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
+type CommandResponseResult = Result<string * string, string * string>
+type StringTransformer = string -> string
+type SideAffect<'a> = 'a -> unit
 
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
@@ -26,22 +31,24 @@ let execShell x =
 let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
   execShell x
     |> Promise.map (function
-      | Ok x -> Ok(x, (logs @ [Ok x], rollbacks))
-      | Error e -> Error(e, (logs @ [Error e], rollbacks))
+      | Ok r -> Ok(r, (logs @ [Ok (x, r)], rollbacks))
+      | Error e -> Error(e, (logs @ [Error (x, e)], rollbacks))
     )
-let addToRollbackState (rollbackState:RollbackState) : (JS.Promise<Result<Out, Err>> -> JS.Promise<Result<Out * RollbackState, Err * RollbackState>>) =
+let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackResult<Out, Err>>) =
   Promise.map(function
-    | Ok out -> Ok(out, rollbackState @ [Ok out])
-    | Error err -> Error(err, rollbackState @ [Error err])
+    | Ok out ->
+      Ok(out, rollbackState @ [Ok (cmd, out)])
+    | Error err -> Error(err, rollbackState @ [Error (cmd, err)])
   )
 let pipeToShellCmd (leftCmd:string) (rightCmd:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
-  ChildProcess.exec (sprintf "%s | %s" leftCmd (shellCommand rightCmd)) None
+  let cmd = sprintf "%s | %s" leftCmd (shellCommand rightCmd)
+  ChildProcess.exec cmd None
     |> Promise.map (function
-      | Ok x -> Ok(x, (logs @ [Ok x], rollbacks))
-      | Error e -> Error(e, (logs @ [Error e], rollbacks))
+      | Ok x -> Ok(x, (logs @ [Ok (cmd, x)], rollbacks))
+      | Error e -> Error(e, (logs @ [Error (cmd, e)], rollbacks))
     )
 
-let ignoreCmd : (JS.Promise<CommandResult<Out, Err>> -> JS.Promise<Result<unit * State, Err * State>>) =
+let ignoreCmd : (JS.Promise<CommandResult<Out, Err>> -> JS.Promise<CommandResult<unit, Err>>) =
   Promise.map (function
     | Ok (_, s) -> Ok((), s)
     | Error (e, s) -> Error(e, s)
@@ -54,18 +61,43 @@ let rollback (rb:RollbackCommand) (p:JS.Promise<CommandResult<Out, Err>>) : JS.P
       | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
     )
 
-let private logCommands (results:Result<Out, Err> list) : string list =
-  results
-    |> List.map (function
-      | Error (e, _, _) ->
-        let msg = sprintf "/%A" !!e
-        eprintfn "%A" msg
-        msg
-      | Ok x ->
-        let msg = sprintf "%A" x
-        printfn "%A" msg
-        msg
-    )
+let errToString ((execError:ChildProcess.ExecError), _, Stderr(y)): string =
+  sprintf "%A - %A" !!execError y
+
+let rollbackResultToString: (RollbackResult -> string * string) = function
+  | Ok ((cmd:string), (Stdout(x), _)) -> (cmd, x)
+  | Error ((cmd:string), e) -> (cmd, errToString e)
+
+let rollbackResultToResultString: (RollbackResult -> CommandResponseResult) = function
+  | Ok ((cmd:string), (Stdout(x), _)) -> Ok(cmd, x)
+  | Error ((cmd:string), e) -> Error(cmd, errToString e)
+
+let mapRollbackResultToResultString: RollbackResult list -> CommandResponseResult list = List.map rollbackResultToResultString
+let mapRollbackResultToString: RollbackResult list -> (string * string) list = List.map (rollbackResultToString)
+
+let private removeNewlineFromEnd (s:string): string =
+  if s.EndsWith("\n") then
+    s.Remove (s.Length - 1)
+  else
+    s
+let writeStdoutMsg (msgFn: StringTransformer): SideAffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
+let writeStderrMsg (msgFn: StringTransformer): SideAffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
+
+let logCommands (title:string) : SideAffect<(_ * StatefulResult<RollbackState, Out, Err>)> =
+  snd
+    >> (function
+      | Ok (_, logs) | Error (_, logs) ->
+        Globals.process.stdout.write (sprintf "-------------------------------------------------
+  Test logs for: %s
+-------------------------------------------------\n" title) |> ignore
+        logs |> mapRollbackResultToResultString |> List.iter (function
+          | Error (cmd, r) ->
+            r
+              |> writeStdoutMsg (sprintf "Command Error: %s: \nError Details: %s\n" cmd)
+          | Ok (cmd, r) ->
+            r
+              |> writeStdoutMsg (sprintf "Command: %s \nResult: %s\n" cmd)
+        ))
 
 let private getState<'a, 'b> (fn: 'a -> 'b) : (Result<Out * 'a, Err * 'a> -> 'b) = function
   | Ok(_, s) ->
@@ -73,7 +105,12 @@ let private getState<'a, 'b> (fn: 'a -> 'b) : (Result<Out * 'a, Err * 'a> -> 'b)
   | Error(_, s) ->
     fn s
 
-let private runTeardown ((logs, rollbacks):State): StatefulPromiseResult<RollbackState, Out, Err>=
+let private attachToPromise<'a, 'b> (r:'a): JS.Promise<'b> -> JS.Promise<'a * 'b> =
+  Promise.map(fun x ->
+    (r, x)
+  )
+
+let private runTeardown ((logs, rollbacks):State): StatefulPromiseResult<RollbackState, Out, Err> =
   if not(List.isEmpty rollbacks) then
     rollbacks
       |> List.reduce(fun r1 r2 ->
@@ -83,10 +120,12 @@ let private runTeardown ((logs, rollbacks):State): StatefulPromiseResult<Rollbac
   else
     Promise.lift(Ok((Stdout(""), Stderr("")), logs))
 
-let run (state:State) (fn:StateS<State, Out, Err>): JS.Promise<string list> =
+let run (state:State) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
   run state fn
-    |> Promise.bind (getState runTeardown)
-    |> Promise.map (getState logCommands)
+    |> Promise.bind (fun r ->
+      r
+        |> ((getState runTeardown) >> (attachToPromise r))
+    )
 
-let startCommand (p:StateS<State, Out, Err>): JS.Promise<string list> =
-  p |> run ([], [])
+let startCommand (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
+  fn |> run ([], [])

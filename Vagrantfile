@@ -39,7 +39,7 @@ Vagrant.configure("2") do |config|
   #
   config.vm.define "device-scanner", primary: true do |device_scanner|
     device_scanner.vm.provider "virtualbox" do |v|
-      v.memory = 1024
+      v.memory = 2048
       v.name = "device-scanner"
 
       file_to_disk = './tmp/device_scanner.vdi'

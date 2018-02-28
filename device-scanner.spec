@@ -34,7 +34,7 @@ devices using udev and zed.
 Summary:    Forwards device-scanner updates to device-aggregator
 License:    MIT
 Group:      System Environment/Libraries
-Requires:   %{prefix_name}
+Requires:   %{prefix_name} = %{version}-%{release}
 %description proxy
 scanner-proxy-daemon forwards device-scanner updates received
 on local socket to the device aggregator over HTTPS.

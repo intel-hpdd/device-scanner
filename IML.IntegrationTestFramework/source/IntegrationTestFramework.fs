@@ -20,7 +20,6 @@ type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string, string * string>
 type StringTransformer = string -> string
-type SideEffect<'a> = 'a -> unit
 
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
@@ -80,10 +79,10 @@ let private removeNewlineFromEnd (s:string): string =
     s.Remove (s.Length - 1)
   else
     s
-let writeStdoutMsg (msgFn: StringTransformer): SideEffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
-let writeStderrMsg (msgFn: StringTransformer): SideEffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
+let writeStdoutMsg (msgFn: StringTransformer): string -> unit = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
+let writeStderrMsg (msgFn: StringTransformer): string -> unit = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
 
-let logCommands (title:string) : SideEffect<(_ * StatefulResult<RollbackState, Out, Err>)> =
+let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) -> unit =
   snd
     >> (function
       | Ok (_, logs) | Error (_, logs) ->
@@ -129,4 +128,4 @@ let run (state:State) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<S
 
 let startCommand (title:string) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
   fn |> run ([], [])
-    |> Promise.tap(logCommands title)
+    |> Promise.tap (logCommands title)

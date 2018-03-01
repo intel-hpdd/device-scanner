@@ -14,7 +14,6 @@ open Fable.Import.Jest
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack.Json
 
-let tap f x = f x; x
 let scannerInfo =
   pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
 let unwrapObject a =
@@ -37,7 +36,7 @@ testAsync "info event" <| fun () ->
     return! scannerInfo
   }
   |> startCommand "Info Event"
-  |> Promise.map (tap (fun (r, _) ->
+  |> Promise.map (fun (r, _) ->
       let json =
         r
           |> resultOutput
@@ -51,5 +50,4 @@ testAsync "info event" <| fun () ->
           |> toJson
 
       toMatchSnapshot json
-    )
   )

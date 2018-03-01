@@ -38,7 +38,6 @@ let private doBadRbCmd (x:string): State -> JS.Promise<CommandResult<unit, Err>>
   cmd x
     >> rollback badRb
     >> ignoreCmd
-let tap f x = f x; x
 
 testAsync "Stateful Promise should rollback starting with the last command" <| fun () ->
   expect.assertions 4

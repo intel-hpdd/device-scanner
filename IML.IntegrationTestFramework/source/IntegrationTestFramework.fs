@@ -22,7 +22,6 @@ type CommandResponseResult = Result<string * string, string * string>
 type StringTransformer = string -> string
 type SideEffect<'a> = 'a -> unit
 
-let tap f x = f x; x
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
 
@@ -130,4 +129,4 @@ let run (state:State) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<S
 
 let startCommand (title:string) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
   fn |> run ([], [])
-    |> Promise.map(tap (logCommands title))
+    |> Promise.tap(logCommands title)

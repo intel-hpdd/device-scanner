@@ -79,8 +79,15 @@ let private removeNewlineFromEnd (s:string): string =
   else
     s
 
+let strLength (s:string): int =
+  s.Length
+
 let stdErrText (s:string): string =
-  sprintf "\x1b[31mStderr: %s\x1b[0" s
+  let str = sprintf "Stderr: %s" s
+  if s.Length > 0 then
+    sprintf "\x1b[31m%s\x1b[0m" str
+  else
+    str
 
 let stdOutText (s:string): string =
   sprintf "Stdout: %s" s
@@ -98,11 +105,11 @@ let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) ->
 -------------------------------------------------\n" title) |> ignore
         logs |> mapRollbackResultToResultString |> List.iter (function
           | Error (cmd, stdout, stderr) ->
-            [stdOutText(stdout); stdErrText(stderr)]
-              |> writeStdoutMsg (sprintf "Command Error: %s: \n    %s\n    %s\n\n" cmd)
+            [stdOutText stdout; stdErrText stderr]
+              |> writeStdoutMsg (sprintf "Command Error: %s \n    %s\n    %s\n\n" cmd)
 
           | Ok (cmd, stdout, stderr) ->
-            [stdOutText(stdout); stdErrText(stderr)]
+            [stdOutText stdout; stdErrText stderr]
               |> writeStdoutMsg (sprintf "Command: %s \n    %s\n    %s\n\n" cmd)
         ))
 

@@ -54,16 +54,16 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
           match rollbackResult with
             | Ok (_, logs) ->
               logs |> mapRollbackResultToString  == [
-                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-                ("echo \"hello\"", "hello\n");
-                ("echo \"goodbye\"", "goodbye\n");
-                ("echo \"another command\"", "another command\n");
-                ("echo \"done\"", "done\n");
-                ("echo \"rollback4\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback3\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback2\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback1\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback0\" >> /tmp/integration_test.txt", "")
+                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+                ("echo \"hello\"", "hello\n", "");
+                ("echo \"goodbye\"", "goodbye\n", "");
+                ("echo \"another command\"", "another command\n", "");
+                ("echo \"done\"", "done\n", "");
+                ("echo \"rollback4\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback3\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback2\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback1\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback0\" >> /tmp/integration_test.txt", "", "")
               ]
             | Error (e, _) -> failwithf "Logs should not contain an error. %A" e
 
@@ -71,11 +71,11 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
           match commandResult with
             | Ok ((Stdout(cmdResult), _), (logs, _)) ->
               logs |> mapRollbackResultToString == [
-                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-                ("echo \"hello\"", "hello\n");
-                ("echo \"goodbye\"", "goodbye\n");
-                ("echo \"another command\"", "another command\n");
-                ("echo \"done\"", "done\n")
+                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+                ("echo \"hello\"", "hello\n", "");
+                ("echo \"goodbye\"", "goodbye\n", "");
+                ("echo \"another command\"", "another command\n", "");
+                ("echo \"done\"", "done\n", "")
               ]
               cmdResult == "done\n"
             | Error (e, _) ->
@@ -107,12 +107,12 @@ testAsync "Stateful Promise should stop executing commands and rollback when an 
           match rollbackResult with
             Ok (_, logs) ->
               logs |> mapRollbackResultToString == [
-                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-                ("echo \"hello\"", "hello\n");
-                ("ech \"goodbye\"", "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"goodbye\\\"'\"} - \"bash: ech: command not found\\n\"");
-                ("echo \"rollback2\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback1\" >> /tmp/integration_test.txt", "");
-                ("echo \"rollback0\" >> /tmp/integration_test.txt", "");
+                ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+                ("echo \"hello\"", "hello\n", "");
+                ("ech \"goodbye\"", "", "bash: ech: command not found\n");
+                ("echo \"rollback2\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback1\" >> /tmp/integration_test.txt", "", "");
+                ("echo \"rollback0\" >> /tmp/integration_test.txt", "", "");
               ]
             | Error (e, _) -> failwithf "Rollbacks should not have had an error: %A" e
 
@@ -150,21 +150,21 @@ testAsync "Stateful promise should log commands and rollback commands when an er
           failwithf "Rollbacks should have hit the error case:"
         | Error (_, logs) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command\"", "command\n");
-            ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n");
-            ("echo \"final command\"", "final command\n");
-            ("echo \"rollback2\" >> /tmp/integration_test.txt", "");
-            ("ech \"badcommand\" >> /tmp/integration_test.txt", "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"badcommand\\\" >> /tmp/integration_test.txt'\"} - \"bash: ech: command not found\\n\"")
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command\"", "command\n", "");
+            ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n", "");
+            ("echo \"final command\"", "final command\n", "");
+            ("echo \"rollback2\" >> /tmp/integration_test.txt", "", "");
+            ("ech \"badcommand\" >> /tmp/integration_test.txt", "", "bash: ech: command not found\n")
           ]
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command\"", "command\n");
-            ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n");
-            ("echo \"final command\"", "final command\n");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command\"", "command\n", "");
+            ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n", "");
+            ("echo \"final command\"", "final command\n", "");
           ]
           cmdResult == "final command\n"
         | Error (e, _) ->
@@ -195,19 +195,19 @@ testAsync "Stateful promise should log commands and single rollback command when
       match rollbackResult with
         Ok (_, logs) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
-            ("echo \"rollback0\" >> /tmp/integration_test.txt", "");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
+            ("echo \"rollback0\" >> /tmp/integration_test.txt", "", "");
           ]
         | Error (e, _) -> failwithf "Rollbacks should not have had an error: %A" e
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
           ]
           cmdResult == "command2\n"
         | Error (e, _) -> failwithf "The last command should not be an error: %A" !!e
@@ -238,18 +238,18 @@ testAsync "Stateful promise should log commands and rollback error when the only
           failwithf "Rollbacks should have hit the error case:"
         | Error (_, logs) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
-            ("ech \"badcommand\" >> /tmp/integration_test.txt", "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"badcommand\\\" >> /tmp/integration_test.txt'\"} - \"bash: ech: command not found\\n\"")
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
+            ("ech \"badcommand\" >> /tmp/integration_test.txt", "", "bash: ech: command not found\n")
           ]
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
           ]
           cmdResult == "command2\n"
         | Error (e, _) ->
@@ -279,18 +279,18 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
       match rollbackResult with
         Ok (_, logs) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
           ]
         | Error (e, _) -> failwithf "Rollbacks should not have had an error: %A" e
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
           logs |> mapRollbackResultToString == [
-            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "");
-            ("echo \"command1\"", "command1\n");
-            ("echo \"command2\"", "command2\n");
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
           ]
           cmdResult == "command2\n"
         | Error (e, _) ->

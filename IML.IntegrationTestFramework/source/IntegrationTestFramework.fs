@@ -78,7 +78,15 @@ let private removeNewlineFromEnd (s:string): string =
     s.Remove (s.Length - 1)
   else
     s
+
+let stdErrText (s:string): string =
+  sprintf "\x1b[31mStderr: %s\x1b[0" s
+
+let stdOutText (s:string): string =
+  sprintf "Stdout: %s" s
+
 let writeStdoutMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stdout.write >> ignore
+
 let writeStderrMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stderr.write >> ignore
 
 let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) -> unit =
@@ -90,11 +98,12 @@ let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) ->
 -------------------------------------------------\n" title) |> ignore
         logs |> mapRollbackResultToResultString |> List.iter (function
           | Error (cmd, stdout, stderr) ->
-            [stdout; stderr]
-              |> writeStdoutMsg (sprintf "Command Error: %s: \nStdout: %s\n Stderr: %s\n\n" cmd)
+            [stdOutText(stdout); stdErrText(stderr)]
+              |> writeStdoutMsg (sprintf "Command Error: %s: \n    %s\n    %s\n\n" cmd)
+
           | Ok (cmd, stdout, stderr) ->
-            [stdout; stderr]
-              |> writeStdoutMsg (sprintf "Command: %s \nStdout: %s\n Stderr: %s\n\n" cmd)
+            [stdOutText(stdout); stdErrText(stderr)]
+              |> writeStdoutMsg (sprintf "Command: %s \n    %s\n    %s\n\n" cmd)
         ))
 
 let private getState<'a, 'b> (fn: 'a -> 'b) : (Result<Out * 'a, Err * 'a> -> 'b) = function

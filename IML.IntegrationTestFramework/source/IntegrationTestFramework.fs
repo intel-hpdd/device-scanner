@@ -18,8 +18,7 @@ type RollbackCommand = RollbackState -> RollbackCommandState
 type State = RollbackState * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
-type CommandResponseResult = Result<string * string, string * string>
-type StringTransformer = string -> string
+type CommandResponseResult = Result<string * string * string, string * string * string>
 
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
@@ -63,24 +62,24 @@ let rollback (rb:RollbackCommand) (p:JS.Promise<CommandResult<Out, Err>>) : JS.P
 let errToString ((execError:ChildProcess.ExecError), _, Stderr(y)): string =
   sprintf "%A - %A" !!execError y
 
-let rollbackResultToString: (RollbackResult -> string * string) = function
-  | Ok ((cmd:string), (Stdout(x), _)) -> (cmd, x)
-  | Error ((cmd:string), e) -> (cmd, errToString e)
+let rollbackResultToString: (RollbackResult -> string * string * string) = function
+  | Ok ((cmd:string), (Stdout(x), Stderr(y))) -> (cmd, x, y)
+  | Error ((cmd:string), (_, Stdout(x), Stderr(y))) -> (cmd, x, y)
 
 let rollbackResultToResultString: (RollbackResult -> CommandResponseResult) = function
-  | Ok ((cmd:string), (Stdout(x), _)) -> Ok(cmd, x)
-  | Error ((cmd:string), e) -> Error(cmd, errToString e)
+  | Ok ((cmd:string), (Stdout(x), Stderr(y))) -> Ok(cmd, x, y)
+  | Error ((cmd:string), (_, Stdout(x), Stderr(y))) -> Error(cmd, x, y)
 
 let mapRollbackResultToResultString: RollbackResult list -> CommandResponseResult list = List.map rollbackResultToResultString
-let mapRollbackResultToString: RollbackResult list -> (string * string) list = List.map (rollbackResultToString)
+let mapRollbackResultToString: RollbackResult list -> (string * string * string) list = List.map (rollbackResultToString)
 
 let private removeNewlineFromEnd (s:string): string =
   if s.EndsWith("\n") then
     s.Remove (s.Length - 1)
   else
     s
-let writeStdoutMsg (msgFn: StringTransformer): string -> unit = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
-let writeStderrMsg (msgFn: StringTransformer): string -> unit = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
+let writeStdoutMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stdout.write >> ignore
+let writeStderrMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stderr.write >> ignore
 
 let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) -> unit =
   snd
@@ -90,12 +89,12 @@ let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) ->
   Test logs for: %s
 -------------------------------------------------\n" title) |> ignore
         logs |> mapRollbackResultToResultString |> List.iter (function
-          | Error (cmd, r) ->
-            r
-              |> writeStdoutMsg (sprintf "Command Error: %s: \nError Details: %s\n\n" cmd)
-          | Ok (cmd, r) ->
-            r
-              |> writeStdoutMsg (sprintf "Command: %s \nResult: %s\n\n" cmd)
+          | Error (cmd, stdout, stderr) ->
+            [stdout; stderr]
+              |> writeStdoutMsg (sprintf "Command Error: %s: \nStdout: %s\n Stderr: %s\n\n" cmd)
+          | Ok (cmd, stdout, stderr) ->
+            [stdout; stderr]
+              |> writeStdoutMsg (sprintf "Command: %s \nStdout: %s\n Stderr: %s\n\n" cmd)
         ))
 
 let private getState<'a, 'b> (fn: 'a -> 'b) : (Result<Out * 'a, Err * 'a> -> 'b) = function

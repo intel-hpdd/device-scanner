@@ -12,6 +12,7 @@ open IML.IntegrationTestFramework.IntegrationTestFramework
 
 open Fable.Import.Jest
 open Fable.Import.Node.PowerPack
+open Fable.PowerPack.Json
 
 let tap f x = f x; x
 let scannerInfo =
@@ -35,8 +36,7 @@ testAsync "info event" <| fun () ->
   command {
     return! scannerInfo
   }
-  |> startCommand
-  |> Promise.map (tap (logCommands "Info Event"))
+  |> startCommand "Info Event"
   |> Promise.map (tap (fun (r, _) ->
       let json =
         r
@@ -48,7 +48,7 @@ testAsync "info event" <| fun () ->
             key <> "/devices/virtual/block/dm-2" &&
             key <> "/devices/virtual/block/dm-3"
           )
-          |> sprintf "%A"
+          |> toJson
 
       toMatchSnapshot json
     )

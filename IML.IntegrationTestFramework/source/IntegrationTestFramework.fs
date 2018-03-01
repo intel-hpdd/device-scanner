@@ -20,8 +20,9 @@ type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string, string * string>
 type StringTransformer = string -> string
-type SideAffect<'a> = 'a -> unit
+type SideEffect<'a> = 'a -> unit
 
+let tap f x = f x; x
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
 
@@ -80,10 +81,10 @@ let private removeNewlineFromEnd (s:string): string =
     s.Remove (s.Length - 1)
   else
     s
-let writeStdoutMsg (msgFn: StringTransformer): SideAffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
-let writeStderrMsg (msgFn: StringTransformer): SideAffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
+let writeStdoutMsg (msgFn: StringTransformer): SideEffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stdout.write >> ignore
+let writeStderrMsg (msgFn: StringTransformer): SideEffect<string> = removeNewlineFromEnd >> msgFn >> Globals.process.stderr.write >> ignore
 
-let logCommands (title:string) : SideAffect<(_ * StatefulResult<RollbackState, Out, Err>)> =
+let logCommands (title:string) : SideEffect<(_ * StatefulResult<RollbackState, Out, Err>)> =
   snd
     >> (function
       | Ok (_, logs) | Error (_, logs) ->
@@ -93,10 +94,10 @@ let logCommands (title:string) : SideAffect<(_ * StatefulResult<RollbackState, O
         logs |> mapRollbackResultToResultString |> List.iter (function
           | Error (cmd, r) ->
             r
-              |> writeStdoutMsg (sprintf "Command Error: %s: \nError Details: %s\n" cmd)
+              |> writeStdoutMsg (sprintf "Command Error: %s: \nError Details: %s\n\n" cmd)
           | Ok (cmd, r) ->
             r
-              |> writeStdoutMsg (sprintf "Command: %s \nResult: %s\n" cmd)
+              |> writeStdoutMsg (sprintf "Command: %s \nResult: %s\n\n" cmd)
         ))
 
 let private getState<'a, 'b> (fn: 'a -> 'b) : (Result<Out * 'a, Err * 'a> -> 'b) = function
@@ -127,5 +128,6 @@ let run (state:State) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<S
         |> ((getState runTeardown) >> (attachToPromise r))
     )
 
-let startCommand (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
+let startCommand (title:string) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
   fn |> run ([], [])
+    |> Promise.map(tap (logCommands title))

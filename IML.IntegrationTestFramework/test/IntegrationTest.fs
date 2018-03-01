@@ -50,8 +50,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         do! doRbCmd "echo \"another command\"" 3
         return! rbCmd "echo \"done\"" 4
       }
-        |> startCommand
-        |> Promise.map (tap (logCommands "Stateful Promise should rollback starting with the last command"))
+        |> startCommand "Stateful Promise should rollback starting with the last command"
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             | Ok (_, logs) ->
@@ -67,7 +66,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
                 ("echo \"rollback1\" >> /tmp/integration_test.txt", "");
                 ("echo \"rollback0\" >> /tmp/integration_test.txt", "")
               ]
-            | Error (e, _) -> failwithf "Logs should not contain an error. %A" !!e
+            | Error (e, _) -> failwithf "Logs should not contain an error. %A" e
 
 
           match commandResult with
@@ -81,7 +80,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
               ]
               cmdResult == "done\n"
             | Error (e, _) ->
-              failwithf "The last command should not be an error: %A" !!e
+              failwithf "The last command should not be an error: %A" e
 
           promise {
             let! x = execShell "cat /tmp/integration_test.txt"
@@ -104,8 +103,7 @@ testAsync "Stateful Promise should stop executing commands and rollback when an 
         do! doRbCmd "echo \"another command\"" 3
         return! rbCmd "echo \"done\"" 4
       }
-        |> startCommand
-        |> Promise.map (tap (logCommands "Stateful Promise should stop executing commands and rollback when an error occurs"))
+        |> startCommand "Stateful Promise should stop executing commands and rollback when an error occurs"
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             Ok (_, logs) ->
@@ -146,8 +144,7 @@ testAsync "Stateful promise should log commands and rollback commands when an er
     do! doBadRbCmd "echo \"a command with a bad rollback\""
     return! rbCmd "echo \"final command\"" 2
   }
-    |> startCommand
-    |> Promise.map (tap (logCommands "Stateful promise should log commands and rollback commands when an error occurs during rollback"))
+    |> startCommand "Stateful promise should log commands and rollback commands when an error occurs during rollback"
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_) ->
@@ -194,8 +191,7 @@ testAsync "Stateful promise should log commands and single rollback command when
     do! doRbCmd "echo \"command1\"" 0
     return! cmd "echo \"command2\""
   }
-    |> startCommand
-    |> Promise.map (tap (logCommands "Stateful promise should log commands and single rollback command when there is only 1 rollback"))
+    |> startCommand "Stateful promise should log commands and single rollback command when there is only 1 rollback"
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_, logs) ->
@@ -236,8 +232,7 @@ testAsync "Stateful promise should log commands and rollback error when the only
     do! doBadRbCmd "echo \"command1\""
     return! cmd "echo \"command2\""
   }
-    |> startCommand
-    |> Promise.map (tap (logCommands "Stateful promise should log commands and rollback error when the only rollback fails"))
+    |> startCommand "Stateful promise should log commands and rollback error when the only rollback fails"
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_) ->
@@ -280,8 +275,7 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
     do! doCmd "echo \"command1\""
     return! cmd "echo \"command2\""
   }
-    |> startCommand
-    |> Promise.map (tap (logCommands "Stateful promise should log commands when there are no rollbacks"))
+    |> startCommand "Stateful promise should log commands when there are no rollbacks"
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_, logs) ->

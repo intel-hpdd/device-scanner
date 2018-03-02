@@ -51,11 +51,11 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         return! rbCmd "echo \"done\"" 4
       }
         |> startCommand "Stateful Promise should rollback starting with the last command"
-        |> Promise.map removeKnownHostWarningFromResult
+        |> Promise.map (cleanState)
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             | Ok (_, logs) ->
-              logs |> mapRollbackResultToString  == [
+              logs |> mapResultToString  == [
                 ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
                 ("echo \"hello\"", "hello\n", "");
                 ("echo \"goodbye\"", "goodbye\n", "");
@@ -72,7 +72,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
 
           match commandResult with
             | Ok ((Stdout(cmdResult), _), (logs, _)) ->
-              logs |> mapRollbackResultToString == [
+              logs |> mapResultToString == [
                 ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
                 ("echo \"hello\"", "hello\n", "");
                 ("echo \"goodbye\"", "goodbye\n", "");
@@ -108,7 +108,7 @@ testAsync "Stateful Promise should stop executing commands and rollback when an 
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             Ok (_, logs) ->
-              logs |> mapRollbackResultToString == [
+              logs |> mapResultToString == [
                 ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
                 ("echo \"hello\"", "hello\n", "");
                 ("ech \"goodbye\"", "", "bash: ech: command not found\n");
@@ -151,7 +151,7 @@ testAsync "Stateful promise should log commands and rollback commands when an er
         Ok (_) ->
           failwithf "Rollbacks should have hit the error case:"
         | Error (_, logs) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command\"", "command\n", "");
             ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n", "");
@@ -162,7 +162,7 @@ testAsync "Stateful promise should log commands and rollback commands when an er
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command\"", "command\n", "");
             ("echo \"a command with a bad rollback\"", "a command with a bad rollback\n", "");
@@ -196,7 +196,7 @@ testAsync "Stateful promise should log commands and single rollback command when
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_, logs) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -206,7 +206,7 @@ testAsync "Stateful promise should log commands and single rollback command when
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -239,7 +239,7 @@ testAsync "Stateful promise should log commands and rollback error when the only
         Ok (_) ->
           failwithf "Rollbacks should have hit the error case:"
         | Error (_, logs) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -248,7 +248,7 @@ testAsync "Stateful promise should log commands and rollback error when the only
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -280,7 +280,7 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
     |> Promise.bind (fun (commandResult, rollbackResult) ->
       match rollbackResult with
         Ok (_, logs) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -289,7 +289,7 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
 
       match commandResult with
         | Ok ((Stdout(cmdResult), _), (logs, _)) ->
-          logs |> mapRollbackResultToString == [
+          logs |> mapResultToString == [
             ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
             ("echo \"command1\"", "command1\n", "");
             ("echo \"command2\"", "command2\n", "");
@@ -311,25 +311,36 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
 
 testList "removeKnownHostWarningFromResult" [
   let withSetup f ():unit =
-    f(removeKnownHostWarningFromResult)
+    f(cleanState)
 
   yield! testFixture withSetup [
     "should filter out known host warning from stderr", fun (fn) ->
     let execError = createEmpty<ExecError>
-    let state:StatefulResult<State, Out, Err> = Ok((Stdout("cmd"), Stderr("")), ([], []))
-    let rollbackResult1 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.")))
-    let rollbackResult2 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.5.25' (ECDSA) to the list of known hosts.")))
-    let rollbackResult3 = Error("command", (execError, Stdout("stdout"), Stderr("Warning: Permanently added '10.0.7.30' (ECDSA) to the list of known hosts.")))
-    let rollbackResult4 = Ok("command", (Stdout("stdout"), Stderr("some other string")))
-    let rollbackResult5 = Error("command", (execError, Stdout("stdout"), Stderr("some other string")))
+    let result1 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.")))
+    let result2 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.5.25' (ECDSA) to the list of known hosts.")))
+    let result3 = Error("command", (execError, Stdout("stdout"), Stderr("Warning: Permanently added '10.0.7.30' (ECDSA) to the list of known hosts.")))
+    let result4 = Ok("command", (Stdout("stdout"), Stderr("some other string")))
+    let result5 = Error("command", (execError, Stdout("stdout"), Stderr("some other string")))
 
-    let rollbackState:StatefulResult<RollbackState, Out, Err> = Ok((Stdout("cmd"), Stderr("")), [rollbackResult1; rollbackResult2; rollbackResult3; rollbackResult4; rollbackResult5])
+    let rollbackState:StatefulResult<RollbackState, Out, Err> = Ok((Stdout("cmd"), Stderr("")), [result1; result2; result3; result4; result5])
+    let commandState:StatefulResult<State, Out, Err> = Ok((Stdout("cmd"), Stderr("")), ([result1; result2; result3; result4; result5], []))
 
-    let (_, rollbackResult) = fn (state, rollbackState)
+    let (commandResult, rollbackResult) = fn (commandState, rollbackState)
     match rollbackResult with
       | Ok (_, resultList) | Error (_, resultList) ->
         resultList
-          |> mapRollbackResultToString == [
+          |> mapResultToString == [
+            ("command", "stdout", "");
+            ("command", "stdout", "");
+            ("command", "stdout", "");
+            ("command", "stdout", "some other string");
+            ("command", "stdout", "some other string")
+          ]
+
+    match commandResult with
+      | Ok (_, (resultList, _)) | Error(_, (resultList, _)) ->
+        resultList
+          |> mapResultToString == [
             ("command", "stdout", "");
             ("command", "stdout", "");
             ("command", "stdout", "");

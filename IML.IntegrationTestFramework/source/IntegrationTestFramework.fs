@@ -21,10 +21,10 @@ type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
-let shellCommand =
+let shellCommand: string -> string =
   sprintf "ssh devicescannernode '%s'"
 
-let execShell x =
+let execShell (x:string): ChildProcessPromiseResult =
   ChildProcess.exec (shellCommand x) None
 
 let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
@@ -42,14 +42,20 @@ let removeKnownHostFromRollbackResult: RollbackResult -> RollbackResult = functi
   | Ok (cmd, (stdout, Stderr(stderr))) -> Ok (cmd, (stdout, Stderr(removeKnownHostWarning stderr)))
   | Error (cmd, (err, stdout, Stderr(stderr))) -> Error (cmd, (err, stdout, Stderr(removeKnownHostWarning stderr)))
 
-let removeKnownHostWarningFromResult ((commandResult:StatefulResult<State, Out, Err>), (rollbackResult:StatefulResult<RollbackState, Out, Err>)) =
-  let updatedRollbackResult =
-    match rollbackResult with
+let removeKnownHostWarningFromCommandState: (StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>) -> StatefulResult<State, Out, Err> =
+  fst
+    >> function
+      | Ok (x, (rollbackState, commands)) -> Ok(x, (rollbackState |> List.map(removeKnownHostFromRollbackResult), commands))
+      | Error (x, (rollbackState, commands)) -> Error(x, (rollbackState |> List.map(removeKnownHostFromRollbackResult), commands))
+
+let removeKnownHostWarningFromRollbackState: (StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>) -> StatefulResult<RollbackState, Out, Err> =
+  snd
+    >> function
       | Ok (x, rollbackState) -> Ok(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
       | Error (x, rollbackState) -> Error(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
 
-  (commandResult, updatedRollbackResult)
-
+let cleanState (s:(StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>)): (StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>) =
+  ((removeKnownHostWarningFromCommandState s), (removeKnownHostWarningFromRollbackState s))
 
 let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackStateResult<Out, Err>>) =
   Promise.map(function
@@ -88,8 +94,8 @@ let rollbackResultToResultString: (RollbackResult -> CommandResponseResult) = fu
   | Ok ((cmd:string), (Stdout(x), Stderr(y))) -> Ok(cmd, x, y)
   | Error ((cmd:string), (_, Stdout(x), Stderr(y))) -> Error(cmd, x, y)
 
-let mapRollbackResultToResultString: RollbackResult list -> CommandResponseResult list = List.map rollbackResultToResultString
-let mapRollbackResultToString: RollbackResult list -> (string * string * string) list = List.map (rollbackResultToString)
+let mapResultToResultString: RollbackResult list -> CommandResponseResult list = List.map rollbackResultToResultString
+let mapResultToString: RollbackResult list -> (string * string * string) list = List.map (rollbackResultToString)
 
 let private removeNewlineFromEnd (s:string): string =
   match s.EndsWith("\n") with
@@ -116,7 +122,7 @@ let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) ->
         Globals.process.stdout.write (sprintf "-------------------------------------------------
   Test logs for: %s
 -------------------------------------------------\n" title) |> ignore
-        logs |> mapRollbackResultToResultString |> List.iter (function
+        logs |> mapResultToResultString |> List.iter (function
           | Error (cmd, stdout, stderr) ->
             [stdOutText stdout; stdErrText stderr]
               |> writeStdoutMsg (sprintf "Command Error: %s \n    %s\n    %s\n\n" cmd)

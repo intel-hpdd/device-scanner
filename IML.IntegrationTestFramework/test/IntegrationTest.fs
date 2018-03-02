@@ -12,6 +12,7 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open Fable.Import
 open Fable.Import.Jest
+open Fable.Import.Node.ChildProcess
 
 let private rb (cnt:int) (rollbackState:RollbackState): JS.Promise<RollbackStateResult<Out, Err>> =
   let cmd = (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
@@ -308,37 +309,47 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
       }
     )
 
-testList "Stderr output" [
+testList "removeKnownHostWarningFromResult" [
   let withSetup f ():unit =
-    let state:StatefulResult<State, Out, Err> = Ok((Stdout("cmd"), Stderr("")), ([], []))
-    let rollbackResult1 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n")))
-    let rollbackResult2 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.5.25' (ECDSA) to the list of known hosts.\n")))
-
-    let rollbackState:StatefulResult<RollbackState, Out, Err> = Ok((Stdout("cmd"), Stderr("")), [rollbackResult1; rollbackResult2])
-
-    f(removeKnownHostWarningFromResult, state, rollbackState)
+    f(removeKnownHostWarningFromResult)
 
   yield! testFixture withSetup [
-    "should filter out known host warning", fun (fn, state, rollbackState) ->
-      let (_, rollbackResult) = fn (state, rollbackState)
-      match rollbackResult with
-        | Ok (_, resultList) | Error (_, resultList) ->
-          resultList
-            |> List.iter (function
-              | Ok (_, (Stdout(x), Stderr(y))) ->
-                x == "stdout"
-                y == ""
-              | Error(_, (_, Stdout(x), Stderr(y))) ->
-                x == "stdout"
-                y == ""
-            )
+    "should filter out known host warning from stderr", fun (fn) ->
+    let execError = createEmpty<ExecError>
+    let state:StatefulResult<State, Out, Err> = Ok((Stdout("cmd"), Stderr("")), ([], []))
+    let rollbackResult1 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.")))
+    let rollbackResult2 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.5.25' (ECDSA) to the list of known hosts.")))
+    let rollbackResult3 = Error("command", (execError, Stdout("stdout"), Stderr("Warning: Permanently added '10.0.7.30' (ECDSA) to the list of known hosts.")))
+    let rollbackResult4 = Ok("command", (Stdout("stdout"), Stderr("some other string")))
+    let rollbackResult5 = Error("command", (execError, Stdout("stdout"), Stderr("some other string")))
 
-    // "should not change color of empty text", fun (fn) ->
-    //   let r = fn ""
-    //   r == "Stderr: "
+    let rollbackState:StatefulResult<RollbackState, Out, Err> = Ok((Stdout("cmd"), Stderr("")), [rollbackResult1; rollbackResult2; rollbackResult3; rollbackResult4; rollbackResult5])
 
-    // "should change color of text to red", fun (fn) ->
-    //   let r = fn "bash: ech: command not found\n"
-    //   r == "\x1b[31mStderr: bash: ech: command not found\n\x1b[0m"
+    let (_, rollbackResult) = fn (state, rollbackState)
+    match rollbackResult with
+      | Ok (_, resultList) | Error (_, resultList) ->
+        resultList
+          |> mapRollbackResultToString == [
+            ("command", "stdout", "");
+            ("command", "stdout", "");
+            ("command", "stdout", "");
+            ("command", "stdout", "some other string");
+            ("command", "stdout", "some other string")
+          ]
+  ]
+]
+
+testList "Stderr logging" [
+  let withSetup f ():unit =
+    f(stdErrText)
+
+  yield! testFixture withSetup [
+    "should not change color of empty text", fun (fn) ->
+      let r = fn ""
+      r == "Stderr: "
+
+    "should change color of text to red", fun (fn) ->
+      let r = fn "bash: ech: command not found\n"
+      r == "\x1b[31mStderr: bash: ech: command not found\n\x1b[0m"
   ]
 ]

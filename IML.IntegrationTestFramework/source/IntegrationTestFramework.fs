@@ -4,13 +4,13 @@
 
 module IML.IntegrationTestFramework.IntegrationTestFramework
 
-open System.Text.RegularExpressions
 open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack
 open IML.StatefulPromise.StatefulPromise
+open System.Text.RegularExpressions
 
 type RollbackResult = Result<(string * Out), (string * Err)>
 type RollbackState = RollbackResult list
@@ -20,11 +20,6 @@ type State = RollbackState * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string * string, string * string * string>
-
-let (|Regex|_|) pattern input =
-  let m = Regex.Match(input, pattern)
-  if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
-  else None
 
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
@@ -40,18 +35,18 @@ let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>>
     )
 
 let removeKnownHostWarning: string -> string = function
-  | Regex @"Warning: Permanently added '\d+\.\d+\.\d+\.\d+' \(ECDSA\) to the list of known hosts\.\n" [] -> ""
+  | x when Regex.Match(x, @"Warning: Permanently added '\d+\.\d+\.\d+\.\d+' \(ECDSA\) to the list of known hosts\.").Success -> ""
   | x -> x
 
 let removeKnownHostFromRollbackResult: RollbackResult -> RollbackResult = function
-  | Ok (cmd, stdout) -> Ok (cmd, stdout)
+  | Ok (cmd, (stdout, Stderr(stderr))) -> Ok (cmd, (stdout, Stderr(removeKnownHostWarning stderr)))
   | Error (cmd, (err, stdout, Stderr(stderr))) -> Error (cmd, (err, stdout, Stderr(removeKnownHostWarning stderr)))
 
 let removeKnownHostWarningFromResult ((commandResult:StatefulResult<State, Out, Err>), (rollbackResult:StatefulResult<RollbackState, Out, Err>)) =
   let updatedRollbackResult =
     match rollbackResult with
       | Ok (x, rollbackState) -> Ok(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
-      | Error (x, rollbackState)  -> Error(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
+      | Error (x, rollbackState) -> Error(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
 
   (commandResult, updatedRollbackResult)
 
@@ -104,7 +99,6 @@ let private removeNewlineFromEnd (s:string): string =
 let stdErrText (s:string): string =
   let str = sprintf "Stderr: %s" s
   match s with
-    | "Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n" -> ""
     | "" -> str
     | _ -> sprintf "\x1b[31m%s\x1b[0m" str
 

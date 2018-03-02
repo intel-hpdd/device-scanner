@@ -51,7 +51,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         return! rbCmd "echo \"done\"" 4
       }
         |> startCommand "Stateful Promise should rollback starting with the last command"
-        //|> Promise.map removeKnownHostWarningFromResult
+        |> Promise.map removeKnownHostWarningFromResult
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             | Ok (_, logs) ->

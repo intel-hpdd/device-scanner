@@ -17,7 +17,7 @@ type RollbackCommandState = JS.Promise<Result<Out * RollbackState, Err * Rollbac
 type RollbackCommand = RollbackState -> RollbackCommandState
 type State = RollbackState * RollbackCommand list
 type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
-type RollbackResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
+type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
 let shellCommand =
@@ -32,7 +32,7 @@ let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>>
       | Ok r -> Ok(r, (logs @ [Ok (x, r)], rollbacks))
       | Error e -> Error(e, (logs @ [Error (x, e)], rollbacks))
     )
-let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackResult<Out, Err>>) =
+let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackStateResult<Out, Err>>) =
   Promise.map(function
     | Ok out ->
       Ok(out, rollbackState @ [Ok (cmd, out)])
@@ -74,20 +74,16 @@ let mapRollbackResultToResultString: RollbackResult list -> CommandResponseResul
 let mapRollbackResultToString: RollbackResult list -> (string * string * string) list = List.map (rollbackResultToString)
 
 let private removeNewlineFromEnd (s:string): string =
-  if s.EndsWith("\n") then
-    s.Remove (s.Length - 1)
-  else
-    s
-
-let strLength (s:string): int =
-  s.Length
+  match s.EndsWith("\n") with
+    | true -> s.Remove (s.Length - 1)
+    | false -> s
 
 let stdErrText (s:string): string =
   let str = sprintf "Stderr: %s" s
-  if s.Length > 0 then
-    sprintf "\x1b[31m%s\x1b[0m" str
-  else
-    str
+  match s with
+    | "Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n" -> ""
+    | "" -> str
+    | _ -> sprintf "\x1b[31m%s\x1b[0m" str
 
 let stdOutText (s:string): string =
   sprintf "Stdout: %s" s
@@ -125,14 +121,15 @@ let private attachToPromise<'a, 'b> (r:'a): JS.Promise<'b> -> JS.Promise<'a * 'b
   )
 
 let private runTeardown ((logs, rollbacks):State): StatefulPromiseResult<RollbackState, Out, Err> =
-  if not(List.isEmpty rollbacks) then
-    rollbacks
-      |> List.reduce(fun r1 r2 ->
-        (fun _ -> r2) >>= r1
-      )
-      |> run logs
-  else
-    Promise.lift(Ok((Stdout(""), Stderr("")), logs))
+  match rollbacks |> (not << List.isEmpty) with
+    | true ->
+      rollbacks
+        |> List.reduce(fun r1 r2 ->
+          (fun _ -> r2) >>= r1
+        )
+        |> run logs
+    | _ ->
+      Promise.lift(Ok((Stdout(""), Stderr("")), logs))
 
 let run (state:State) (fn:StateS<State, Out, Err>): (JS.Promise<StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>>) =
   run state fn

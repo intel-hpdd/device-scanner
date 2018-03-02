@@ -13,7 +13,7 @@ open Fable.PowerPack
 open Fable.Import
 open Fable.Import.Jest
 
-let private rb (cnt:int) (rollbackState:RollbackState): JS.Promise<RollbackResult<Out, Err>> =
+let private rb (cnt:int) (rollbackState:RollbackState): JS.Promise<RollbackStateResult<Out, Err>> =
   let cmd = (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
   cmd |> (execShell >> (addToRollbackState cmd rollbackState))
 
@@ -30,7 +30,7 @@ let rbCmd (x:string) (cnt:int): State -> JS.Promise<CommandResult<Out, Err>> =
   cmd x
     >> rollback (rb cnt)
 
-let badRb (rollbackState:RollbackState): JS.Promise<RollbackResult<Out, Err>> =
+let badRb (rollbackState:RollbackState): JS.Promise<RollbackStateResult<Out, Err>> =
   let cmd = "ech \"badcommand\" >> /tmp/integration_test.txt"
   cmd |> (execShell >> (addToRollbackState cmd rollbackState))
 
@@ -306,3 +306,22 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
             failwithf "Error reading from /tmp/integraton_test.txt %s" e.message
       }
     )
+
+testList "Stderr output" [
+  let withSetup f ():unit =
+    f(stdErrText)
+
+  yield! testFixture withSetup [
+    "should filter out known host warning", fun (fn) ->
+      let r = fn "Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n"
+      r == ""
+
+    "should not change color of empty text", fun (fn) ->
+      let r = fn ""
+      r == "Stderr: "
+
+    "should change color of text to red", fun (fn) ->
+      let r = fn "bash: ech: command not found\n"
+      r == "\x1b[31mStderr: bash: ech: command not found\n\x1b[0m"
+  ]
+]

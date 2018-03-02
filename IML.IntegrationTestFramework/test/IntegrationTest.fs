@@ -50,6 +50,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         return! rbCmd "echo \"done\"" 4
       }
         |> startCommand "Stateful Promise should rollback starting with the last command"
+        //|> Promise.map removeKnownHostWarningFromResult
         |> Promise.bind (fun (commandResult, rollbackResult) ->
           match rollbackResult with
             | Ok (_, logs) ->
@@ -309,19 +310,35 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
 
 testList "Stderr output" [
   let withSetup f ():unit =
-    f(stdErrText)
+    let state:StatefulResult<State, Out, Err> = Ok((Stdout("cmd"), Stderr("")), ([], []))
+    let rollbackResult1 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n")))
+    let rollbackResult2 = Ok("command", (Stdout("stdout"), Stderr("Warning: Permanently added '10.0.5.25' (ECDSA) to the list of known hosts.\n")))
+
+    let rollbackState:StatefulResult<RollbackState, Out, Err> = Ok((Stdout("cmd"), Stderr("")), [rollbackResult1; rollbackResult2])
+
+    f(removeKnownHostWarningFromResult, state, rollbackState)
 
   yield! testFixture withSetup [
-    "should filter out known host warning", fun (fn) ->
-      let r = fn "Warning: Permanently added '10.0.0.10' (ECDSA) to the list of known hosts.\n"
-      r == ""
+    "should filter out known host warning", fun (fn, state, rollbackState) ->
+      let (_, rollbackResult) = fn (state, rollbackState)
+      match rollbackResult with
+        | Ok (_, resultList) | Error (_, resultList) ->
+          resultList
+            |> List.iter (function
+              | Ok (_, (Stdout(x), Stderr(y))) ->
+                x == "stdout"
+                y == ""
+              | Error(_, (_, Stdout(x), Stderr(y))) ->
+                x == "stdout"
+                y == ""
+            )
 
-    "should not change color of empty text", fun (fn) ->
-      let r = fn ""
-      r == "Stderr: "
+    // "should not change color of empty text", fun (fn) ->
+    //   let r = fn ""
+    //   r == "Stderr: "
 
-    "should change color of text to red", fun (fn) ->
-      let r = fn "bash: ech: command not found\n"
-      r == "\x1b[31mStderr: bash: ech: command not found\n\x1b[0m"
+    // "should change color of text to red", fun (fn) ->
+    //   let r = fn "bash: ech: command not found\n"
+    //   r == "\x1b[31mStderr: bash: ech: command not found\n\x1b[0m"
   ]
 ]

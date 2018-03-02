@@ -4,6 +4,7 @@
 
 module IML.IntegrationTestFramework.IntegrationTestFramework
 
+open System.Text.RegularExpressions
 open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.Node
@@ -20,6 +21,11 @@ type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
+let (|Regex|_|) pattern input =
+  let m = Regex.Match(input, pattern)
+  if m.Success then Some(List.tail [ for g in m.Groups -> g.Value ])
+  else None
+
 let shellCommand =
   sprintf "ssh devicescannernode '%s'"
 
@@ -32,10 +38,27 @@ let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>>
       | Ok r -> Ok(r, (logs @ [Ok (x, r)], rollbacks))
       | Error e -> Error(e, (logs @ [Error (x, e)], rollbacks))
     )
+
+let removeKnownHostWarning: string -> string = function
+  | Regex @"Warning: Permanently added '\d+\.\d+\.\d+\.\d+' \(ECDSA\) to the list of known hosts\.\n" [] -> ""
+  | x -> x
+
+let removeKnownHostFromRollbackResult: RollbackResult -> RollbackResult = function
+  | Ok (cmd, stdout) -> Ok (cmd, stdout)
+  | Error (cmd, (err, stdout, Stderr(stderr))) -> Error (cmd, (err, stdout, Stderr(removeKnownHostWarning stderr)))
+
+let removeKnownHostWarningFromResult ((commandResult:StatefulResult<State, Out, Err>), (rollbackResult:StatefulResult<RollbackState, Out, Err>)) =
+  let updatedRollbackResult =
+    match rollbackResult with
+      | Ok (x, rollbackState) -> Ok(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
+      | Error (x, rollbackState)  -> Error(x, rollbackState |> List.map(removeKnownHostFromRollbackResult))
+
+  (commandResult, updatedRollbackResult)
+
+
 let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackStateResult<Out, Err>>) =
   Promise.map(function
-    | Ok out ->
-      Ok(out, rollbackState @ [Ok (cmd, out)])
+    | Ok out -> Ok(out, rollbackState @ [Ok (cmd, out)])
     | Error err -> Error(err, rollbackState @ [Error (cmd, err)])
   )
 let pipeToShellCmd (leftCmd:string) (rightCmd:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =

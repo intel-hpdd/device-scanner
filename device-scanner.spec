@@ -113,10 +113,6 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.path
 
 %triggerin -- zfs >= 0.7.5
-
-/sbin/modprobe zfs
-systemctl enable zfs-zed.service
-systemctl start zfs-zed.service
 echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 
 %post

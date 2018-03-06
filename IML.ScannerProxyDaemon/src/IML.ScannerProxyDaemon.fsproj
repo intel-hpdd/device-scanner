@@ -4,7 +4,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="CommonLibrary.fs" />
-    <Compile Include="Heartbeat.fs" />
     <Compile Include="ConfigParser.fs" />
     <Compile Include="Transmit.fs" />
     <Compile Include="Main.fs" />

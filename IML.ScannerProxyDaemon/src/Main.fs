@@ -6,13 +6,13 @@ module IML.ScannerProxyDaemon.Proxy
 
 open Fable.Import.Node
 open PowerPack.Stream
+open Fable.Import
 
 open CommonLibrary
-open Heartbeat
 open Transmit
 
-createTimer heartbeatInterval (fun _ -> transmitMessage Heartbeat)
-  |> Async.StartImmediate
+JS.setInterval (fun _ -> transmitMessage Heartbeat) 10000
+  |> ignore
 
 let clientSock = net.connect("/var/run/device-scanner.sock")
 printfn "Proxy connecting to device scanner..."

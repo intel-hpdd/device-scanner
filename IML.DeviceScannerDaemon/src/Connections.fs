@@ -21,7 +21,7 @@ let mutable conns:Connection list = []
 let addConn c =
   conns <- c :: conns
 
-let removeConn (c) =
+let removeConn c =
   conns <- List.filter ((<>) c) conns
 
 let createConn c = function

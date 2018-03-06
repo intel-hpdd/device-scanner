@@ -53,7 +53,7 @@ let private writeOrEnd (d:Data) = function
       d.blockDevices
         |> toBuffer
 
-    removeConn (ReadOnly c)
+    removeConn (V1 c)
     c.``end`` x
   | ReadOnly c ->
     removeConn (ReadOnly c)

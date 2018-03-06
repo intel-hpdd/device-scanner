@@ -8,11 +8,11 @@
     "access": "public"
   },
   "scripts": {
-    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --projects IML.Types/test",
+    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --coverage",
+    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
     "test": "dotnet fable npm-jest",
     "integration-test": "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
-    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise/test --projects IML.Types/test --watchAll",
+    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "prebuild": "del-cli ./dist/**",
     "build": "rollup -c rollup-config.js",

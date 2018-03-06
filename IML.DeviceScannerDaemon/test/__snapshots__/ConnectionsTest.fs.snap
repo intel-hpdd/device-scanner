@@ -1,0 +1,12 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`writing a connection 1`] = `
+"{
+  \\"blockDevices\\": {},
+  \\"zed\\": {
+    \\"zpools\\": {},
+    \\"zfs\\": [],
+    \\"props\\": []
+  }
+}"
+`;

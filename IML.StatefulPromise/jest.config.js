@@ -1,5 +1,5 @@
 module.exports = {
   preset: 'jest-fable-preprocessor',
-  displayName: 'IML.Types tests',
+  displayName: 'Stateful Promise Tests',
   snapshotSerializers: ['../buffer-serializer']
 };

@@ -6,42 +6,60 @@ module IML.DeviceScannerDaemon.Connections
 
 open Fable.Core.JsInterop
 open Fable.Import.Node
+open Handlers
+open IML.Types.CommandTypes
+
 open Fable.Import.Node.PowerPack.Stream
 
-/// Due to backcompat with Python sockets,
-/// We need to support half open connections.
-/// Because of this, we need to model persistent
-/// and ephemeral connections.
 type Connection =
-  | Persistent of Net.Socket
-  | Ephemeral of Net.Socket
+  | V1 of Net.Socket
+  | V2 of Net.Socket
+  | ReadOnly of Net.Socket
 
 let mutable conns:Connection list = []
 
-let removeConn (c) () =
+let addConn c =
+  conns <- c :: conns
+
+let removeConn c =
   conns <- List.filter ((<>) c) conns
 
-let addConn = function
-  | Persistent c ->
-    Readable.onEnd (removeConn (Persistent c)) c
-      |> ignore
-    conns <- Persistent c :: conns
-  | Ephemeral c ->
-    conns <- Ephemeral c :: conns
+let createConn c = function
+    | Info ->
+      Readable.onEnd (fun () -> removeConn (V2 c)) c
+        |> ignore
+      addConn (V2 c)
+    | ACTION _ ->
+      addConn (V1 c)
+    | _ ->
+      addConn (ReadOnly c)
 
 let private removeDestroyed = function
-  | Ephemeral _ -> true
-  | Persistent c -> not (!!c?destroyed)
+  | V1 _ | ReadOnly _ -> true
+  | V2 c -> not (!!c?destroyed)
 
-let private writeOrEnd x = function
-  | Ephemeral c ->
-    removeConn (Ephemeral c) ()
-    Writable.``end`` (Some x) c
-  | Persistent c ->
-    Writable.write x c
+let toBuffer x =
+    x
+    |> toJson
+    |> fun x -> x + "\n"
+    |> buffer.Buffer.from
+
+let private writeOrEnd (d:Data) = function
+  | V2 c ->
+    c.write (toBuffer d)
       |> ignore
+  | V1 c ->
+    let x =
+      d.blockDevices
+        |> toBuffer
 
-let writeConns x =
+    removeConn (V1 c)
+    c.``end`` x
+  | ReadOnly c ->
+    removeConn (ReadOnly c)
+    c.``end`` ()
+
+let writeConns (x:Data) =
   conns <- List.filter removeDestroyed conns
 
   conns

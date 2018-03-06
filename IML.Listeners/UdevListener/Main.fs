@@ -1,6 +1,6 @@
-// Copyright (c) 2018 Intel Corporation. All rights reserved. 
-// Use of this source code is governed by a MIT-style 
-// license that can be found in the LICENSE file. 
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
 module IML.UdevListener
 
@@ -10,7 +10,7 @@ open IML.Listeners.CommonLibrary
 
 let o = JSON.stringify env
 
-let cmd = 
+let cmd =
   match Udev.getAction() with
     | Udev.Add -> Add o
     | Udev.Change -> Change o

@@ -52,7 +52,7 @@
     "pre-commit": "1.2.2",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.56.3",
+    "rollup": "^0.56.4",
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

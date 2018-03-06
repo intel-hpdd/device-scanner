@@ -17,7 +17,7 @@ NUGET
       System.Collections.Immutable (>= 1.4) - restriction: >= netstandard1.6
       System.Reflection.Metadata (>= 1.5) - restriction: >= netstandard1.6
       System.Runtime.Loader (>= 4.3) - restriction: >= netstandard1.6
-    Fable.Core (1.3.8)
+    Fable.Core (1.3.9)
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6
       NETStandard.Library (>= 1.6.1) - restriction: >= netstandard1.6
     Fable.Import.Browser (1.1.1) - restriction: >= netstandard1.6
@@ -40,18 +40,18 @@ NUGET
       Fable.Core (>= 1.3.8) - restriction: >= netstandard1.6
       Fable.Import.Browser (>= 1.0) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6
-    FSharp.Compiler.Service (20.0.1) - restriction: >= netcoreapp2.0
-      FSharp.Core (>= 4.1.18) - restriction: && (< net45) (>= netstandard1.6)
-      NETStandard.Library (>= 1.6.1) - restriction: && (< net45) (>= netstandard1.6)
-      System.Collections.Immutable (>= 1.3.1) - restriction: || (>= net45) (>= netstandard1.6)
-      System.Diagnostics.Process (>= 4.1) - restriction: && (< net45) (>= netstandard1.6)
-      System.Diagnostics.TraceSource (>= 4.0) - restriction: && (< net45) (>= netstandard1.6)
-      System.Reflection.Emit (>= 4.3) - restriction: && (< net45) (>= netstandard1.6)
-      System.Reflection.Metadata (>= 1.4.1) - restriction: && (< net45) (>= netstandard1.6)
-      System.Reflection.TypeExtensions (>= 4.3) - restriction: && (< net45) (>= netstandard1.6)
-      System.Runtime.Loader (>= 4.0) - restriction: && (< net45) (>= netstandard1.6)
-      System.Security.Cryptography.Algorithms (>= 4.3) - restriction: && (< net45) (>= netstandard1.6)
-      System.ValueTuple (>= 4.4) - restriction: && (< net45) (>= netstandard1.6)
+    FSharp.Compiler.Service (21.0.1) - restriction: >= netcoreapp2.0
+      FSharp.Core (>= 4.1.18) - restriction: || (>= net45) (>= netstandard2.0)
+      Microsoft.DiaSymReader (>= 1.1) - restriction: || (>= net45) (>= netstandard2.0)
+      Microsoft.DiaSymReader.PortablePdb (>= 1.2) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Collections.Immutable (>= 1.3.1) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Diagnostics.Process (>= 4.1) - restriction: && (< net45) (>= netstandard2.0)
+      System.Diagnostics.TraceSource (>= 4.0) - restriction: && (< net45) (>= netstandard2.0)
+      System.Reflection.Emit (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
+      System.Reflection.Metadata (>= 1.4.2) - restriction: || (>= net45) (>= netstandard2.0)
+      System.Reflection.TypeExtensions (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
+      System.Runtime.Loader (>= 4.0) - restriction: && (< net45) (>= netstandard2.0)
+      System.Security.Cryptography.Algorithms (>= 4.3) - restriction: && (< net45) (>= netstandard2.0)
     FSharp.Core (4.3.4) - redirects: force
       System.Collections (>= 4.0.11) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Console (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
@@ -76,6 +76,26 @@ NUGET
       System.Threading.Thread (>= 4.0) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.ThreadPool (>= 4.0.10) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
       System.Threading.Timer (>= 4.0.1) - restriction: && (< net45) (>= netstandard1.6) (< netstandard2.0)
+    Microsoft.DiaSymReader (1.2) - restriction: >= netcoreapp2.0
+      Microsoft.Net.Compilers (>= 2.3) - restriction: || (>= net20) (>= netstandard1.1)
+      NETStandard.Library (>= 1.6.1) - restriction: && (< net20) (>= netstandard1.1)
+    Microsoft.DiaSymReader.PortablePdb (1.4) - restriction: >= netcoreapp2.0
+      Microsoft.DiaSymReader (>= 1.2) - restriction: >= portable-net45+win8
+      System.Collections (>= 4.3) - restriction: >= netstandard1.1
+      System.Collections.Immutable (>= 1.3.1) - restriction: >= portable-net45+win8
+      System.Diagnostics.Debug (>= 4.3) - restriction: >= netstandard1.1
+      System.Globalization (>= 4.3) - restriction: >= netstandard1.1
+      System.IO (>= 4.3) - restriction: >= netstandard1.1
+      System.Linq (>= 4.3) - restriction: >= netstandard1.1
+      System.Reflection (>= 4.3) - restriction: >= netstandard1.1
+      System.Reflection.Metadata (>= 1.4.2) - restriction: >= portable-net45+win8
+      System.Reflection.Primitives (>= 4.3) - restriction: >= netstandard1.1
+      System.Runtime (>= 4.3) - restriction: >= netstandard1.1
+      System.Runtime.Extensions (>= 4.3) - restriction: >= netstandard1.1
+      System.Runtime.InteropServices (>= 4.3) - restriction: >= netstandard1.1
+      System.Text.Encoding (>= 4.3) - restriction: >= netstandard1.1
+      System.Threading (>= 4.3) - restriction: >= netstandard1.1
+    Microsoft.Net.Compilers (2.6.1) - restriction: >= netcoreapp2.0
     Microsoft.NETCore.App (2.0.5) - restriction: >= netcoreapp2.0
       Microsoft.NETCore.DotNetHostPolicy (>= 2.0.5) - restriction: >= netcoreapp2.0
       Microsoft.NETCore.Platforms (>= 2.0.1) - restriction: >= netcoreapp2.0
@@ -638,7 +658,6 @@ NUGET
       Microsoft.NETCore.Platforms (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net451) (>= netstandard1.2) (< win81) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net451+win81+wpa81)
       Microsoft.NETCore.Targets (>= 1.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net451) (>= netstandard1.2) (< win81) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net451+win81+wpa81)
       System.Runtime (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net451) (>= netstandard1.2) (< win81) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net451+win81+wpa81)
-    System.ValueTuple (4.4) - restriction: >= netcoreapp2.0
     System.Xml.ReaderWriter (4.3.1) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.6) (< netstandard2.0) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (< netstandard1.3) (>= netstandard1.6)) (&& (< monoandroid) (< net45) (< netstandard1.4) (>= netstandard1.6)) (&& (< monoandroid) (< net45) (< netstandard1.5) (>= netstandard1.6)) (&& (< net45) (>= netstandard1.6) (< portable-net451+win81+wpa81)) (&& (>= net46) (< netstandard1.4) (>= netstandard1.6)) (&& (>= netstandard1.6) (< portable-net45+win8+wpa81)) (&& (>= netstandard1.6) (>= uap10.0))
       System.Collections (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
       System.Diagnostics.Debug (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
@@ -668,6 +687,6 @@ NUGET
       System.Text.Encoding (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
       System.Threading (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
       System.Xml.ReaderWriter (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (< portable-net45+win8+wp8+wpa81)
-    Thot.Json (1.0)
-      Fable.Core (>= 1.3.7) - restriction: >= netstandard1.6
-      FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6
+    Thot.Json (1.1)
+      Fable.Core (>= 1.3.9) - restriction: >= netstandard2.0
+      FSharp.Core (>= 4.3.4) - restriction: >= netstandard2.0

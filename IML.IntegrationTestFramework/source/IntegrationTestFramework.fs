@@ -111,15 +111,15 @@ let stdErrText (s:string): string =
 let stdOutText (s:string): string =
   sprintf "Stdout: %s" s
 
-let writeStdoutMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stdout.write >> ignore
+let writeStdoutMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.``process``.stdout.write >> ignore
 
-let writeStderrMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.process.stderr.write >> ignore
+let writeStderrMsg (msgFn: string -> string -> string): string list -> unit = (List.map removeNewlineFromEnd) >> (List.reduce msgFn) >> Globals.``process``.stderr.write >> ignore
 
 let logCommands (title:string): (_ * StatefulResult<RollbackState, Out, Err>) -> unit =
   snd
     >> (function
       | Ok (_, logs) | Error (_, logs) ->
-        Globals.process.stdout.write (sprintf "-------------------------------------------------
+        Globals.``process``.stdout.write (sprintf "-------------------------------------------------
   Test logs for: %s
 -------------------------------------------------\n" title) |> ignore
         logs |> mapResultToResultString |> List.iter (function

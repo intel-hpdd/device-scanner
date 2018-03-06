@@ -1,28 +1,25 @@
 sudo: required
+language: generic
 services:
   - docker
 
 jobs:
   include:
     - stage: test
-      language: generic
       env: Type='virus scan'
       script:
         - ./include/travis/virus-scan.sh
     - stage: test
-      language: generic
       env: Type='build'
       script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
     - stage: test
-      language: generic
       env: Type='unit test'
       script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && npm test'
     - stage: deploy
-      language: generic
       if: branch =~ ^v\d+\.\d+\.\d+$
       script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
@@ -31,7 +28,6 @@ jobs:
         - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+-.+$
-      language: generic
       env: Type='Copr deploy'
       before_deploy:
         - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in include/copr-mfl.enc -out include/copr-mfl -d

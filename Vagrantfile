@@ -42,16 +42,21 @@ Vagrant.configure("2") do |config|
       v.memory = 2048
       v.name = "device-scanner"
 
-      file_to_disk = './tmp/device_scanner.vdi'
+      for i in 1..9 do
+        disk = "./tmp/disk#{i}.vdi"
 
-      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '091118FC1221NCJ6G8GG']
+        unless File.exist?(disk)
+          v.customize ["createmedium", "disk",
+            "--filename", disk,
+            "--size", "100",
+            "--format", "VDI",
+            "--variant", "fixed"
+          ]
+        end
 
-      unless File.exist?(file_to_disk)
-        v.customize ['createhd', '--filename', file_to_disk, '--size', 500 * 1024]
+        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', i, '--type', 'hdd', '--medium', disk]
+        v.customize ['setextradata', :id, "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber", "081118FC1221NCJ6G8G#{i}"]
       end
-
-      v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', file_to_disk]
-      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port1/SerialNumber', '081118FC1221NCJ6G8GG']
     end
 
     device_scanner.vm.hostname = $device_scanner_hostname

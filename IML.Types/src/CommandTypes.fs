@@ -62,6 +62,6 @@ type ACTION =
 
 type Command =
   | Info
+  | ACTION of ACTION
   | ZedCommand of ZedCommand
   | UdevCommand of UdevCommand
-  | ACTION of ACTION

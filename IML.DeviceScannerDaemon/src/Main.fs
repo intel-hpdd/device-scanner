@@ -26,18 +26,9 @@ let serverHandler (c:Net.Socket):unit =
       eprintfn "Unable to parse message %s" e.Message
       c.``end``()
     )
-    |> tap (function
-      | Info -> Connections.addConn (Connections.Persistent c)
-      | _ -> Connections.addConn (Connections.Ephemeral c)
-    )
-    |> map backCompatHandler
+    |> tap (Connections.createConn c)
+    |> map handler
     |> Readable.onError raise
-    |> map (
-      toJson
-        >> fun x -> x + "\n"
-        >> buffer.Buffer.from
-        >> Ok
-    )
     |> iter Connections.writeConns
     |> ignore
 

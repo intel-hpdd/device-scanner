@@ -6,24 +6,27 @@ module IML.DeviceScannerDaemon.ConnectionsTest
 
 open Fable.Import.Node
 open Fable.Import.Jest
+open IML.Types.CommandTypes
+open Handlers
 open Matchers
 
 
+
 test "adding a connection" <| fun () ->
-  let c = Connections.Persistent (net.Socket.Create())
+  let c = Connections.V2 (net.Socket.Create())
 
   Connections.addConn c
 
   Connections.conns == [c]
 
-  Connections.removeConn c ()
+  Connections.removeConn c
 
 test "removing a connection" <| fun () ->
-  let c = Connections.Ephemeral (net.Socket.Create())
+  let c = Connections.V1 (net.Socket.Create())
 
   Connections.addConn c
 
-  Connections.removeConn c ()
+  Connections.removeConn c
 
   Connections.conns == []
 
@@ -33,9 +36,19 @@ testDone "writing a connection" <| fun (d) ->
 
   let server =
     net.createServer(fun c ->
-      Connections.addConn (Connections.Persistent c)
+      Connections.createConn c Info
 
-      Connections.writeConns (buffer.Buffer.from "foo")
+      let d = {
+        blockDevices = Map.empty;
+        zed =
+          {
+            zpools = Map.empty;
+            zfs = Set.empty;
+            props = Set.empty;
+          };
+      }
+
+      Connections.writeConns d
     )
 
   server.listen(fun () ->
@@ -44,7 +57,7 @@ testDone "writing a connection" <| fun (d) ->
     let sock = net.createConnection address
 
     sock.once("data", fun (x) ->
-      x == buffer.Buffer.from "foo"
+      toMatchSnapshot x
 
       sock.``end``()
 

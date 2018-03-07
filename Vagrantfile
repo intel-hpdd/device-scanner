@@ -42,7 +42,17 @@ Vagrant.configure("2") do |config|
       v.memory = 2048
       v.name = "device-scanner"
 
-      for i in 1..9 do
+      disk1 = './tmp/disk1.vdi'
+      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1221NCJ6G801']
+      unless File.exist?(disk1)
+        v.customize ['createhd', '--filename', disk1, '--size', 500 * 1024]
+      end
+
+      v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
+      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1221NCJ6G801']
+
+      for i in 2..29 do
+        id = i.to_s.rjust(2, '0')
         disk = "./tmp/disk#{i}.vdi"
 
         unless File.exist?(disk)
@@ -55,7 +65,7 @@ Vagrant.configure("2") do |config|
         end
 
         v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', i, '--type', 'hdd', '--medium', disk]
-        v.customize ['setextradata', :id, "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber", "081118FC1221NCJ6G8G#{i}"]
+        v.customize ['setextradata', :id, "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber", "081118FC1221NCJ6G8#{id}"]
       end
     end
 

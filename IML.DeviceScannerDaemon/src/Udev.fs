@@ -100,7 +100,7 @@ type UEvent =
               } : UEvent)
         |> required "MAJOR" string
         |> required "MINOR" string
-        |> required "DEVLINKS" (map (Option.map (splitSpace >> (Array.map Path))) (option string))
+        |> optional "DEVLINKS" (map (Option.map (splitSpace >> (Array.map Path))) (option string)) None
         |> required "DEVNAME" (map Path string)
         |> required "DEVPATH" (map DevPath string)
         |> required "DEVTYPE" string
@@ -124,9 +124,8 @@ type UEvent =
         |> optional "MD_UUID" (option string) None
 
 let uEventDecoder x =
-  match decodeString UEvent.Decoder x with
-    | Ok y -> Ok y
-    | Error y -> Error (exn y)
+  decodeString UEvent.Decoder x
+    |> Result.mapError exn
 
 type BlockDevices = Map<DevPath, UEvent>
 

@@ -112,7 +112,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_base_name}.path
 
-%triggerin -- zfs >= 0.7.5
+%triggerin -- zfs > 0.7.4
 systemctl kill -s SIGHUP zfs-zed.service
 echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 

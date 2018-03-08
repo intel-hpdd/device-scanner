@@ -95,6 +95,7 @@ __EOF"
     RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-2.el7.centos.x86_64.rpm
     docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
     yum install -y ./$RPM_NAME
+    systemctl stop docker
     SHELL
   end
 

@@ -23,7 +23,7 @@ SHELL
 
 Vagrant.configure("2") do |config|
   config.vm.box = "manager-for-lustre/centos74-1708-base"
-  config.vm.synced_folder ".", "/vagrant"
+  config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
   config.vm.boot_timeout = 600
   config.ssh.username = 'root'
   config.ssh.password = 'vagrant'

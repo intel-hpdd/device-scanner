@@ -3,5 +3,5 @@ module.exports = {
   preset: 'jest-fable-preprocessor',
   displayName: 'Integration tests',
   bail: true,
-  snapshotSerializers: ['../device-mapper-serializer.js']
+  snapshotSerializers: ['../object-serializer.js']
 };

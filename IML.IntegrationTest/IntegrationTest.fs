@@ -11,6 +11,7 @@ open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
 
 open Fable.Import.Jest
+open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open Fable.PowerPack.Json
 
@@ -42,6 +43,7 @@ testAsync "info event" <| fun () ->
           |> resultOutput
           |> unwrapDeviceData
           |> toJson
+          |> buffer.Buffer.from
 
       toMatchSnapshot json
   )

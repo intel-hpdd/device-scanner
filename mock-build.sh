@@ -28,6 +28,7 @@ EOF
 chown -R mockbuild:mock /builddir
 
 cd /builddir/
+git clean -dfx
 rpkg make-source
 RELEASE=$(git rev-list HEAD | wc -l)
 

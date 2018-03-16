@@ -67,3 +67,13 @@ testAsync "remove a device" <| fun () ->
   }
   |> startCommand "removing a device"
   |> Promise.map serializeDecodedAndMatch
+
+testAsync "add a device" <| fun () ->
+  command {
+    do! (setDeviceState "sdc" "offline") >> rollbackError (rbSetDeviceState "sdc" "running") >> ignoreCmd
+    do! (deleteDevice "sdc") >> rollbackError (rbScanForDisk ()) >> ignoreCmd
+    do! (scanForDisk ()) >> ignoreCmd
+    return! scannerInfo
+  }
+  |> startCommand "adding a device"
+  |> Promise.map serializeDecodedAndMatch

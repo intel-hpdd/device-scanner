@@ -14,30 +14,30 @@ open Fable.Import
 open Fable.Import.Jest
 open Fable.Import.Node.ChildProcess
 
-let private rb (cnt:int) (rollbackState:RollbackState): JS.Promise<RollbackStateResult<Out, Err>> =
-  let cmd = (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
-  cmd |> (execShell >> (addToRollbackState cmd rollbackState))
+let rb (cnt:int): RollbackState -> RollbackCommandState =
+  rbCmd (sprintf "echo \"rollback%d\" >> /tmp/integration_test.txt" cnt)
 
 let private doRbCmd (x:string) (cnt:int): State -> JS.Promise<CommandResult<unit, Err>> =
   cmd x
     >> rollback (rb cnt)
     >> ignoreCmd
 
+let private doRbErrorCmd (x:string) (cnt:int): State -> JS.Promise<CommandResult<unit, Err>> =
+  cmd x
+    >> rollbackError (rb cnt)
+    >> ignoreCmd
+
 let private doCmd (x:string): State -> JS.Promise<CommandResult<unit, Err>> =
   cmd x
     >> ignoreCmd
 
-let rbCmd (x:string) (cnt:int): State -> JS.Promise<CommandResult<Out, Err>> =
+let rbCountCmd (x:string) (cnt:int): State -> JS.Promise<CommandResult<Out, Err>> =
   cmd x
     >> rollback (rb cnt)
 
-let badRb (rollbackState:RollbackState): JS.Promise<RollbackStateResult<Out, Err>> =
-  let cmd = "ech \"badcommand\" >> /tmp/integration_test.txt"
-  cmd |> (execShell >> (addToRollbackState cmd rollbackState))
-
 let private doBadRbCmd (x:string): State -> JS.Promise<CommandResult<unit, Err>> =
   cmd x
-    >> rollback badRb
+    >> rollback (rbCmd "ech \"badcommand\" >> /tmp/integration_test.txt")
     >> ignoreCmd
 
 testAsync "Stateful Promise should rollback starting with the last command" <| fun () ->
@@ -48,7 +48,7 @@ testAsync "Stateful Promise should rollback starting with the last command" <| f
         do! doRbCmd "echo \"hello\"" 1
         do! doRbCmd "echo \"goodbye\"" 2
         do! doRbCmd "echo \"another command\"" 3
-        return! rbCmd "echo \"done\"" 4
+        return! rbCountCmd "echo \"done\"" 4
       }
         |> startCommand "Stateful Promise should rollback starting with the last command"
         |> Promise.map (cleanState)
@@ -102,7 +102,7 @@ testAsync "Stateful Promise should stop executing commands and rollback when an 
         do! doRbCmd "echo \"hello\"" 1
         do! doRbCmd "ech \"goodbye\"" 2
         do! doRbCmd "echo \"another command\"" 3
-        return! rbCmd "echo \"done\"" 4
+        return! rbCountCmd "echo \"done\"" 4
       }
         |> startCommand "Stateful Promise should stop executing commands and rollback when an error occurs"
         |> Promise.bind (fun (commandResult, rollbackResult) ->
@@ -143,7 +143,7 @@ testAsync "Stateful promise should log commands and rollback commands when an er
     do! doRbCmd "rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt" 0
     do! doRbCmd "echo \"command\"" 1
     do! doBadRbCmd "echo \"a command with a bad rollback\""
-    return! rbCmd "echo \"final command\"" 2
+    return! rbCountCmd "echo \"final command\"" 2
   }
     |> startCommand "Stateful promise should log commands and rollback commands when an error occurs during rollback"
     |> Promise.bind (fun (commandResult, rollbackResult) ->
@@ -304,6 +304,80 @@ testAsync "Stateful promise should log commands when there are no rollbacks" <| 
         match x with
           | Ok y ->
             y == (Stdout(""), Stderr(""))
+          | Error (e, _, _) ->
+            failwithf "Error reading from /tmp/integraton_test.txt %s" e.message
+      }
+    )
+
+testAsync "Stateful promise rollback error should not execute if command does not error" <| fun () ->
+  command {
+    do! doCmd "rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt"
+    do! doRbErrorCmd "echo \"command1\"" 1
+    return! cmd "echo \"command2\""
+  }
+    |> startCommand "Stateful promise should log commands when there are no rollbacks"
+    |> Promise.bind (fun (commandResult, rollbackResult) ->
+      match rollbackResult with
+        Ok (_, logs) ->
+          logs |> mapResultToString == [
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
+          ]
+        | Error (e, _) -> failwithf "Rollbacks should not have had an error: %A" e
+
+      match commandResult with
+        | Ok ((Stdout(cmdResult), _), (logs, _)) ->
+          logs |> mapResultToString == [
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("echo \"command1\"", "command1\n", "");
+            ("echo \"command2\"", "command2\n", "");
+          ]
+          cmdResult == "command2\n"
+        | Error (e, _) ->
+          failwithf "The last command should not be an error: %A" !!e
+
+      promise {
+        let! x = execShell "cat /tmp/integration_test.txt"
+
+        match x with
+          | Ok y ->
+            y == (Stdout(""), Stderr(""))
+          | Error (e, _, _) ->
+            failwithf "Error reading from /tmp/integraton_test.txt %s" e.message
+      }
+    )
+
+testAsync "Stateful promise rollback error should execute if command errors" <| fun () ->
+  command {
+    do! doCmd "rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt"
+    do! doRbErrorCmd "ech \"command1\"" 1
+    return! cmd "echo \"command2\""
+  }
+    |> startCommand "Stateful promise should log commands when there are no rollbacks"
+    |> Promise.bind (fun (commandResult, rollbackResult) ->
+      match rollbackResult with
+        Ok (_, logs) ->
+          logs |> mapResultToString == [
+            ("rm -f /tmp/integration_test.txt && touch /tmp/integration_test.txt", "", "");
+            ("ech \"command1\"", "", "bash: ech: command not found\n");
+            ("echo \"rollback1\" >> /tmp/integration_test.txt", "", "")
+          ]
+        | Error (e, _) -> failwithf "Rollbacks should not have had an error: %A" e
+
+      match commandResult with
+        | Ok (_) ->
+          failwithf "Command result should have matched the error case."
+        | Error (e, _) ->
+          let myError = e |> errToString
+          myError == "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"command1\\\"'\"} - \"bash: ech: command not found\\n\""
+
+      promise {
+        let! x = execShell "cat /tmp/integration_test.txt"
+
+        match x with
+          | Ok y ->
+            y == (Stdout("rollback1\n"), Stderr(""))
           | Error (e, _, _) ->
             failwithf "Error reading from /tmp/integraton_test.txt %s" e.message
       }

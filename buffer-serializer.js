@@ -1,7 +1,7 @@
 const buffer = require('buffer');
 
 module.exports = {
-  print(x, serialize, indent) {
+  print(x, serialize) {
     const val = x.toString();
     try {
       return serialize(JSON.stringify(JSON.parse(val), null, 2));
@@ -12,5 +12,5 @@ module.exports = {
 
   test(x) {
     return x && buffer.Buffer.isBuffer(x);
-  },
+  }
 };

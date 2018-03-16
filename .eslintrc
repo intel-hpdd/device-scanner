@@ -1,0 +1,69 @@
+{
+  "plugins": [
+    "prettier"
+  ],
+  "globals": {
+    "module": true
+  },
+  "rules": {
+    "no-useless-escape": "off",
+    "no-unused-vars": [
+      "error",
+      {
+        "varsIgnorePattern": "Inferno$"
+      }
+    ],
+    "linebreak-style": [
+      2,
+      "unix"
+    ],
+    "no-func-assign": 0,
+    "no-constant-condition": 0,
+    "no-unsafe-finally": 0,
+    "curly": [
+      2,
+      "multi",
+      "consistent"
+    ],
+    "eqeqeq": [
+      "error",
+      "allow-null"
+    ],
+    "camelcase": [
+      "error",
+      {
+        "properties": "never"
+      }
+    ],
+    "no-var": "error",
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "all",
+        "ignoreReadBeforeAssign": false
+      }
+    ],
+    "prettier/prettier": [
+      "error",
+      {
+        "singleQuote": true
+      }
+    ]
+  },
+  "env": {
+    "es6": true,
+    "browser": true,
+    "jest": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 6,
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+  "extends": [
+    "eslint:recommended",
+    "prettier"
+  ]
+}

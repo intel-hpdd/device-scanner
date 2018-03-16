@@ -27,7 +27,15 @@ export default [
   },
   {
     input: 'IML.ScannerProxyDaemon/src/IML.ScannerProxyDaemon.fsproj',
-    external: ['stream', 'net', 'child_process', 'buffer', 'https', 'fs', 'path'],
+    external: [
+      'stream',
+      'net',
+      'child_process',
+      'buffer',
+      'https',
+      'fs',
+      'path'
+    ],
     output: {
       file: './dist/scanner-proxy-daemon/scanner-proxy-daemon',
       format: 'cjs'
@@ -103,5 +111,5 @@ export default [
       format: 'cjs'
     },
     plugins: getPlugins()
-  },
+  }
 ];

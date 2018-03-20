@@ -7,22 +7,26 @@
   "publishConfig": {
     "access": "public"
   },
-  "files": [
-    "dist/"
-  ],
+  "files": ["dist/"],
   "scripts": {
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
-    "eslint": "eslint ./",
-    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
+    "eslint": "eslint *.js **/*.js",
+    "coverage":
+      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --coverage",
+    "jest":
+      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
     "test": "dotnet fable npm-jest",
-    "integration-test": "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
-    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types --watchAll",
+    "integration-test":
+      "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
+    "test-watch":
+      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types --watchAll",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "prebuild": "del-cli ./dist/**",
     "build": "rollup -c rollup-config.js",
-    "docs": "mkdir -p ./dist/docs && remark ./IML.DeviceScannerDaemon/README.md -u remark-man > ./dist/docs/device-scanner.8",
-    "postbuild": "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon && cp-cli IML.ScannerProxyDaemon/systemd-units dist/scanner-proxy-daemon && npm run docs",
+    "docs":
+      "mkdir -p ./dist/docs && remark ./IML.DeviceScannerDaemon/README.md -u remark-man > ./dist/docs/device-scanner.8",
+    "postbuild":
+      "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon && cp-cli IML.ScannerProxyDaemon/systemd-units dist/scanner-proxy-daemon && npm run docs",
     "premock": "docker run  -di --privileged --name mock intelhpdd/mock /usr/sbin/init",
     "mock": "docker cp -a ./ mock:/builddir",
     "postmock": "docker exec -i mock bash -xec './builddir/mock-build.sh'"
@@ -35,10 +39,7 @@
     "ancestorSeparator": " › ",
     "usePathForSuiteName": "true"
   },
-  "pre-commit": [
-    "eslint",
-    "test"
-  ],
+  "pre-commit": ["eslint", "test"],
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"
@@ -51,7 +52,7 @@
     "babel-preset-env": "^1.6.1",
     "cp-cli": "1.0.2",
     "del-cli": "^1.1.0",
-    "eslint": "^4.18.2",
+    "eslint": "^4.19.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-prettier": "^2.6.0",
     "fable-utils": "^1.0.6",
@@ -62,7 +63,7 @@
     "prettier": "^1.11.1",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.56.5",
+    "rollup": "^0.57.1",
     "rollup-plugin-cleanup": "^2.0.0",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

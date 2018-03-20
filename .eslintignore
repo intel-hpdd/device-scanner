@@ -1,0 +1,10 @@
+include
+node_modules
+tmp
+paket-files
+obj
+bin
+dist
+.vagrant
+.paket
+paket.*

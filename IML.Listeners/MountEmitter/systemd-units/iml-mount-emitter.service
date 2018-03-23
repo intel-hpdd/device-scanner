@@ -1,0 +1,12 @@
+[Unit]
+Description=IML Mount Emitter
+
+[Service]
+Restart=always
+Environment=NODE_ENV=production
+ExecStart=stdbuf -o L findmnt --poll | /usr/lib64/iml-mount-emitter/mount-emitter
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=default.target

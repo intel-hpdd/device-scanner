@@ -52,6 +52,13 @@ type UdevCommand =
   | Change of string
   | Remove of string
 
+[<StringEnum>]
+type MountCommand =
+  | Mount of string
+  | Umount of string
+  | Remount of string
+  | Move of string
+
 /// This is for backcompat with v1
 /// of device-scanner.
 /// Once we stop supporting v1 of device-scanner, we
@@ -65,3 +72,4 @@ type Command =
   | ACTION of ACTION
   | ZedCommand of ZedCommand
   | UdevCommand of UdevCommand
+  | MountCommand of MountCommand

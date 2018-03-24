@@ -6,6 +6,13 @@ module IML.Types.CommandTypes
 
 open Fable.Core
 
+[<Erase>]
+type BdevPath = BdevPath of string
+[<Erase>]
+type MountPoint = MountPoint of string
+[<Erase>]
+type FsType = FsType of string
+
 [<RequireQualifiedAccess>]
 module Zpool =
   [<Erase>]
@@ -52,12 +59,22 @@ type UdevCommand =
   | Change of string
   | Remove of string
 
-[<StringEnum>]
+[<RequireQualifiedAccess>]
+module Mount =
+  [<Erase>]
+  type MountPoint = MountPoint of string
+  [<Erase>]
+  type BdevPath = BdevPath of string
+  [<Erase>]
+  type FsType = FsType of string
+  [<Erase>]
+  type Options = Options of string
+
 type MountCommand =
-  | Mount of string
-  | Umount of string
-  | Remount of string
-  | Move of string
+  | Mount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Umount of Mount.MountPoint
+  | Remount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Move of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
 
 /// This is for backcompat with v1
 /// of device-scanner.

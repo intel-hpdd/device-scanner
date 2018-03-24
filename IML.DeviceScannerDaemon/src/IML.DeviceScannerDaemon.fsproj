@@ -11,6 +11,7 @@
     <Compile Include="CommonLibrary.fs" />
     <Compile Include="Udev.fs" />
     <Compile Include="Zed.fs" />
+    <Compile Include="Mount.fs" />
     <Compile Include="Handlers.fs" />
     <Compile Include="Connections.fs" />
     <Compile Include="Main.fs" />

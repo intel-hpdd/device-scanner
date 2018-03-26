@@ -12,7 +12,7 @@
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "eslint": "eslint *.js **/*.js",
     "test":
-      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
+      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types --projects IML.CommonLibrary",
     "coverage": "npm t -- --coverage",
     "test-watch": "npm t -- --watchAll",
     "pre-commit-test": "dotnet fable npm-test -- --no-cache",

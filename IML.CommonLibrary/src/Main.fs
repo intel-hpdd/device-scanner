@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 
-module IML.DeviceScannerDaemon.CommonLibrary
+module IML.CommonLibrary
 
 [<RequireQualifiedAccess>]
 module Option =
@@ -26,3 +26,26 @@ type MaybeBuilder() =
     member __.ReturnFrom(x) = x
 
 let maybe = MaybeBuilder();
+
+[<RequireQualifiedAccess>]
+module Hex =
+
+  let private hexchar_to_int = function
+    | x when x >= '0' && x <= '9' -> int x - int '0'
+    | x when x >= 'A' && x <= 'F' -> int x - int 'A' + 10
+    | x when x >= 'a' && x <= 'f' -> int x - int 'a' + 10
+    | 'x' | 'X' -> 0
+    | x -> failwithf "expected hex char, got %A" x
+
+  let toString(xs: string): string =
+      xs
+        |> Seq.fold (fun acc x ->
+          let r = new bigint(hexchar_to_int x)
+
+          match acc with
+            | Some x -> Some (x * 16I + r)
+            | None -> Some r
+        ) None
+        |> Option.get
+        |> sprintf "%O"
+

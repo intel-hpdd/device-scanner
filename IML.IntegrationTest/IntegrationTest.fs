@@ -7,7 +7,6 @@ module IML.IntegrationTest.IntegrationTest
 open Fable.Core.JsInterop
 open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
-
 open Fable.Import
 open Fable.Import.Jest
 open Matchers
@@ -19,15 +18,16 @@ open Json
 let settle () =
   cmd "udevadm settle"
 
-let scannerInfo =
+let sleep () =
+  cmd "sleep 1"
+
+let scannerInfo () =
   pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
-let unwrapObject a =
-    match a with
+let unwrapObject = function
     | Json.Object a -> Map.ofArray a
     | _ -> failwith "Invalid JSON, it must be an object"
 
-let unwrapResult a =
-  match a with
+let unwrapResult = function
   | Ok x -> x
   | Error e -> failwith !!e
 
@@ -63,7 +63,8 @@ let matchResultToSnapshot (r:StatefulResult<State, Out, Err>, _): unit =
 
 testAsync "info event" <| fun () ->
   command {
-    return! scannerInfo
+    do! settle() >> ignoreCmd
+    return! scannerInfo()
   }
   |> startCommand "Info Event"
   |> Promise.map matchResultToSnapshot
@@ -72,7 +73,8 @@ testAsync "remove a device" <| fun () ->
   command {
     do! (setDeviceState "sdc" "offline") >> rollbackError (rbSetDeviceState "sdc" "running") >> ignoreCmd
     do! (deleteDevice "sdc") >> rollback (rbScanForDisk ()) >> ignoreCmd
-    return! scannerInfo
+    do! settle() >> ignoreCmd
+    return! scannerInfo()
   }
   |> startCommand "removing a device"
   |> Promise.map matchResultToSnapshot

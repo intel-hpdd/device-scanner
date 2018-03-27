@@ -7,6 +7,7 @@ module IML.MountEmitter
 open IML.Listeners.CommonLibrary
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
+open IML.Types.CommandTypes
 
 type Row = (string *  string * string * string * string)
 
@@ -24,8 +25,23 @@ Globals.``process``.stdin
   |> Stream.map toRow
   |> Stream.filter (notHeader >> Ok)
   |> Stream.map(fun x ->  //function
-    printf "output %A" x
-    x |> Ok
+    match x with
+    | a, b, c, d, e ->
+      match a with
+      | "mount" ->
+        Command.MountCommand (Mount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
+          |> Ok
+      | "umount" ->
+        Command.MountCommand (Umount (Mount.MountPoint b))
+          |> Ok
+      // | "reount" ->
+        // Command.MountCommand (Reount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
+          // |> Ok
+      // | "move" ->
+        // Command.MountCommand (Move (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
+          // |> Ok
+        // Move (MountPoint, BdevPath, FsType, Options)
+      | _ -> failwithf "did not get expected row, got %A" a
   )
   |> Stream.iter sendData
   |> ignore

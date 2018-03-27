@@ -1,6 +1,5 @@
-dotnet-fable
 Fable.Core
-Fable.Import.NodeLibzfs 
+Fable.Import.NodeLibzfs
 Fable.Import.Node.PowerPack
 Fable.Import.Node
 Fable.PowerPack

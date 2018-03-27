@@ -13,11 +13,13 @@
   "scripts": {
     "eslint-check": "eslint --print-config .eslintrc.js | eslint-config-prettier-check",
     "eslint": "eslint *.js **/*.js",
-    "coverage": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --coverage",
-    "jest": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
-    "test": "dotnet fable npm-jest",
-    "integration-test": "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
-    "test-watch": "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types --watchAll",
+    "test":
+      "jest --projects IML.DeviceScannerDaemon --projects IML.ScannerProxyDaemon --projects IML.StatefulPromise --projects IML.Types",
+    "coverage": "npm t -- --coverage",
+    "test-watch": "npm t -- --watchAll",
+    "pre-commit-test": "dotnet fable npm-test -- --no-cache",
+    "integration-test":
+      "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
     "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
     "prebuild": "del-cli ./dist/**",
     "build": "rollup -c rollup-config.js",
@@ -35,10 +37,7 @@
     "ancestorSeparator": " › ",
     "usePathForSuiteName": "true"
   },
-  "pre-commit": [
-    "eslint",
-    "test"
-  ],
+  "pre-commit": ["eslint", "pre-commit-test"],
   "repository": {
     "type": "git",
     "url": "git@github.com:intel-hpdd/device-scanner.git"

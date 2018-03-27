@@ -23,8 +23,9 @@ Globals.``process``.stdin
   |> Stream.map (fun x -> Ok (x.Split ' ')) // replace with split
   |> Stream.map toRow
   |> Stream.filter (notHeader >> Ok)
-  |> Stream.map(function
-
+  |> Stream.map(fun x ->  //function
+    printf "output %A" x
+    x |> Ok
   )
   |> Stream.iter sendData
   |> ignore

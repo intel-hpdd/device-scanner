@@ -2,25 +2,18 @@ module IML.MountEmitterTest
 
 open Fable.Import.Jest
 open Matchers
+open Fable.Import.Node.PowerPack.Stream
+open IML.MountEmitter
+open IML.Types.CommandTypes
 
-open Fable.Core.JsInterop
+test "header then data" <| fun () ->
+  streams {
+    yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
 
-describe "mocking external" <| fun () ->
-  let mutable CommonLibrary: obj = null
-  let mutable mockMatcher: Matcher<string, float> = null
-
-  beforeEach <| fun () ->
-    mockMatcher <- Matcher<string, float>()
-
-    jest.mock("commonLibrary", fun () ->
-      createObj ["sendData" ==> mockMatcher.Mock]
+    yield "mount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
+  }
+    |> transform
+    |> iter (fun xs ->
+      xs == Command.MountCommand (Mount (Mount.MountPoint "/mnt/fs-OST0002", Mount.BdevPath "/dev/sdd", Mount.FsType "lustre", Mount.Options "ro"))
     )
-
-    CommonLibrary <- Fable.Import.Node.Globals.require.Invoke "commonLibrary"
-
-
-  test "should work with mocking external deps" <| fun () ->
-    open IML.MountEmitter
-    Globals.``process``.send "hello\n"
-
-    toBe "foo" mockMatcher.LastCall
+    |> ignore

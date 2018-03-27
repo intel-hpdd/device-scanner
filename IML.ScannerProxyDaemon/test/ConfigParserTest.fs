@@ -12,14 +12,13 @@ open ConfigParser
 testList "Data Handler" [
   Test("Should filter out all but the base64 encoded string of 'server'", fun () ->
     [| "foo"; "bar"; "c2VydmVy" |]
-      |> (filterFileName "server")
+      |> filterFileName "server"
       |> Seq.toArray
       |> toMatchSnapshot
   )
 
   Test("Should parse url from map", fun () ->
-    Map.empty
-      |> Map.add "url" "https://foo.com:443/agent/"
+    Map.ofList [("url", "https://foo.com:443/agent/")]
       |> parseUrl
       |> toMatchSnapshot
   )

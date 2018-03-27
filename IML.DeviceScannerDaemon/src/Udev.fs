@@ -8,7 +8,7 @@ open Fable.Core
 open JsInterop
 open IML
 open Types.CommandTypes
-open DeviceScannerDaemon.CommonLibrary
+open IML.CommonLibrary
 open Thot.Json.Decode
 
 [<Erase>]

@@ -15,28 +15,21 @@ open Transmit
 
 testList "Send Message" [
   let withSetup f ():unit =
-    f();
+    f(Matcher())
 
   yield! testFixture withSetup [
-    "Should return serialised Data message on incoming update", fun () ->
-      let mutable mock = id
-      mock <- jest.fn1()
-      let testSend = sendMessage mock
-
+    "Should return serialised Data message on incoming update", fun m ->
       updateJson
         |> Data
-        |> testSend
+        |> sendMessage m.Mock
         |> ignore
-      expect.Invoke(mock).toBeCalledWith(JsInterop.toJson (Data updateJson))
 
-    "Should return serialised Heartbeat message on incoming heartbeat", fun () ->
-      let mutable mock = id
-      mock <- jest.fn1()
-      let testSend = sendMessage mock
-
+      m <?> JsInterop.toJson (Data updateJson);
+    "Should return serialised Heartbeat message on incoming heartbeat", fun m ->
       Heartbeat
-        |> testSend
+        |> sendMessage m.Mock
         |> ignore
-      expect.Invoke(mock).toBeCalledWith(JsInterop.toJson Heartbeat)
+
+      m <?> JsInterop.toJson Heartbeat;
   ]
 ]

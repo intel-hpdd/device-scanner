@@ -57,6 +57,10 @@ Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MountEmitter", "IML.Listene
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "MountEmitterTest", "IML.Listeners\MountEmitter\test\MountEmitterTest.fsproj", "{F7C35BDF-6FBB-4056-8228-018FCAD53DE1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IML.CommonLibrary", "IML.CommonLibrary", "{B7ED5624-DEC8-4073-B9FF-1C26650E57DE}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "IML.CommonLibraryTest", "IML.CommonLibrary\test\IML.CommonLibraryTest.fsproj", "{B5BDA837-2D74-4D1F-8BC1-F9CFE4569B8B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

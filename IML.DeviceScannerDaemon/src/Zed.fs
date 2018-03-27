@@ -6,7 +6,7 @@ module IML.DeviceScannerDaemon.Zed
 
 open Fable.Core
 open IML.Types.CommandTypes
-open CommonLibrary
+open IML.CommonLibrary
 open libzfs
 
 [<RequireQualifiedAccess>]

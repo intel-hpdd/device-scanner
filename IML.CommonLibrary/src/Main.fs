@@ -3,7 +3,9 @@
 // license that can be found in the LICENSE file.
 
 
-module IML.DeviceScannerDaemon.CommonLibrary
+module IML.CommonLibrary
+
+open System
 
 [<RequireQualifiedAccess>]
 module Option =
@@ -26,3 +28,10 @@ type MaybeBuilder() =
     member __.ReturnFrom(x) = x
 
 let maybe = MaybeBuilder();
+
+[<RequireQualifiedAccess>]
+module Hex =
+  let toBignumString(x: string): string =
+    Convert.ToUInt64(x, 16)
+        |> sprintf "%O"
+

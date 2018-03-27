@@ -19,6 +19,9 @@ let settle () =
   cmd "udevadm settle"
     >> ignoreCmd
 
+let sleep () =
+  cmd "sleep 1"
+
 let scannerInfo =
   (fun _ -> pipeToShellCmd "echo '\"Stream\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock")
     >>= settle()
@@ -28,6 +31,12 @@ let rbScanForDisk (): RollbackState -> RollbackCommandState =
 
 let rbSetDeviceState (name:string) (state:string): RollbackState -> RollbackCommandState =
   rbCmd (sprintf "echo \"%s\" > /sys/block/%s/device/state" state name)
+
+let rbRmPart (device:string) (partId:int) =
+  rbCmd (sprintf "parted %s -s rm %d" device partId)
+
+let rbWipefs (device:string) =
+  rbCmd (sprintf "wipefs -a %s" device)
 
 let setDeviceState (name:string) (state:string): State -> JS.Promise<CommandResult<Out, Err>> =
   cmd (sprintf "echo \"%s\" > /sys/block/%s/device/state" state name)
@@ -41,6 +50,18 @@ let scanForDisk () =
 let resultOutput: StatefulResult<State, Out, Err> -> string = function
   | Ok ((Stdout(r), _), _) -> r
   | Error (e) -> failwithf "Command failed: %A" e
+
+let mkLabel (disk:string) (label:string) =
+  cmd (sprintf "parted %s -s mklabel %s" disk label)
+
+let mkPart (disk:string) (diskType:string) (start:int) (finish:int) =
+  cmd (sprintf "parted -a opt %s -s mkpart %s ext4 %d %d" disk diskType start finish)
+
+let mkfs (fstype:string) (disk:string) =
+  cmd (sprintf "mkfs -t %s %s" fstype disk)
+
+let e2Label  (disk:string) (label:string) =
+  cmd (sprintf "e2label %s %s" disk label)
 
 let serializeDecodedAndMatch (r, _) =
   r
@@ -76,4 +97,16 @@ testAsync "add a device" <| fun () ->
     return! scannerInfo
   }
   |> startCommand "adding a device"
+  |> Promise.map serializeDecodedAndMatch
+
+testAsync "create a partition" <| fun () ->
+  command {
+    do! (mkLabel "/dev/sdc" "gpt") >> ignoreCmd
+    do! (mkPart "/dev/sdc" "primary" 1 100) >> rollback (rbRmPart "/dev/sdc" 1) >> ignoreCmd
+    do! sleep() >> ignoreCmd
+    do! (mkfs "ext4" "/dev/sdc1") >> rollback (rbWipefs "/dev/sdc1") >> ignoreCmd
+    do! (e2Label "/dev/sdc1" "black_label") >> ignoreCmd
+    return! scannerInfo
+  }
+  |> startCommand "creating a partition"
   |> Promise.map serializeDecodedAndMatch

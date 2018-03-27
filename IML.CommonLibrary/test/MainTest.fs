@@ -28,4 +28,4 @@ test "hex parse to string" <| fun () ->
   expect.assertions (xs.Length)
 
   Set.ofList xs
-    |> Set.iter(fun (l, r) -> (Hex.toString l) === r)
+    |> Set.iter(fun (l, r) -> (Hex.toBignumString l) === r)

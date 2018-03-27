@@ -37,7 +37,7 @@ module Hex =
     | 'x' | 'X' -> 0
     | x -> failwithf "expected hex char, got %A" x
 
-  let toString(xs: string): string =
+  let toBignumString(xs: string): string =
       xs
         |> Seq.fold (fun acc x ->
           let r = new bigint(hexchar_to_int x)

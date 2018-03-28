@@ -4,27 +4,48 @@
 
 module IML.DeviceScannerDaemon.UdevTest
 
-open TestFixtures
 open Udev
 open Fable.Import.Jest
 open Matchers
+open Fixtures
+open IML.CommonLibrary
+open IML.Types.CommandTypes
+open Fable.PowerPack
+open Thot.Json
+open IML.Types
+open IML.Types.UeventTypes
 
+let private blockDevices = Map.empty
 
-let matcher x =
+let private snap (x:Result<BlockDevices, exn>) =
   x
-    |> update Map.empty
-    |> Result.map Map.toList
+    |> Result.unwrap
+    |> UeventTypes.BlockDevices.encoder
+    |> Encode.encode 2
     |> toMatchSnapshot
 
-test "Matching Events" <| fun () ->
-  expect.assertions 5
+test "Adding a new blockdevice" <| fun () ->
+  (UdevCommand.Add (fixtures.add))
+    |> update blockDevices
+    |> snap
 
-  matcher addUdev
+test "Changing a blockdevice" <| fun () ->
+  let blockDevices' =
+    (UdevCommand.Add (fixtures.add))
+      |> update blockDevices
+      |> Result.unwrap
 
-  matcher addDiskUdev
+  (UdevCommand.Change (fixtures.change))
+    |> update blockDevices'
+    |> snap
 
-  matcher addDmUdev
+test "Removing a blockdevice" <| fun () ->
+  let blockDevices' =
+    (UdevCommand.Add (fixtures.add))
+      |> update blockDevices
+      |> Result.unwrap
 
-  matcher removeUdev
-
-  matcher addMdraidUdev
+  (UdevCommand.Remove (fixtures.remove))
+    |> update blockDevices'
+    |> Result.unwrap
+    |> (==) Map.empty

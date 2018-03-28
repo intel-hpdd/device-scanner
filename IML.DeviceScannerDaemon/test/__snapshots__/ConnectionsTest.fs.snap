@@ -2,11 +2,7 @@
 
 exports[`writing a connection 1`] = `
 "{
-  \\"blockDevices\\": {},
-  \\"zed\\": {
-    \\"zpools\\": {},
-    \\"zfs\\": [],
-    \\"props\\": []
-  }
+  \\"zed\\": {},
+  \\"blockDevices\\": {}
 }"
 `;

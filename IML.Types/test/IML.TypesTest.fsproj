@@ -5,7 +5,9 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../src/IML.Types.fsproj" />
+    <Compile Include="Fixtures.fs" />
     <Compile Include="CommandTypesTest.fs" />
+    <Compile Include="UeventTypesTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

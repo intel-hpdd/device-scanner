@@ -10,10 +10,8 @@ open IML.Types.CommandTypes
 open Handlers
 open Matchers
 
-
-
 test "adding a connection" <| fun () ->
-  let c = Connections.V2 (net.Socket.Create())
+  let c = Connections.Stream (net.Socket.Create())
 
   Connections.addConn c
 
@@ -22,7 +20,7 @@ test "adding a connection" <| fun () ->
   Connections.removeConn c
 
 test "removing a connection" <| fun () ->
-  let c = Connections.V1 (net.Socket.Create())
+  let c = Connections.Stream (net.Socket.Create())
 
   Connections.addConn c
 
@@ -36,16 +34,11 @@ testDone "writing a connection" <| fun (d) ->
 
   let server =
     net.createServer(fun c ->
-      Connections.createConn c Info
+      Connections.createConn c Stream
 
       let d = {
         blockDevices = Map.empty;
-        zed =
-          {
-            zpools = Map.empty;
-            zfs = Set.empty;
-            props = Set.empty;
-          };
+        zed = Map.empty;
       }
 
       Connections.writeConns d

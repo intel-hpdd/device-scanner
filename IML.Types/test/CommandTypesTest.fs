@@ -5,53 +5,126 @@
 module IML.Types.CommandTypesTest
 
 open Fable.Import.Jest
-open Matchers
 open Fable.Core.JsInterop
+open Fable.Import
+open Matchers
 open CommandTypes
+open Thot.Json
 
+let encoder enc x =
+  enc x
+    |> Encode.encode 2
 
-test "v1 Action from JSON" <| fun () ->
-  let x:Command = ofJson "{ \"ACTION\": \"info\" }"
+let decoder dec =
+  dec
+    |> Decode.decodeString
 
-  match x with
-    | ACTION _ -> ()
-    | x -> failwithf "expected ACTION.info, got %A" x
+let zedEncode = encoder ZedCommand.encode
+let zedDecode = decoder ZedCommand.decode
 
+let zedTestPrefix = "encoding ZED commands"
 
-test "Info from JSON" <| fun () ->
-  let x:Command = ofJson "\"Info\""
-
-  match x with
-    | Info -> ()
-    | x -> failwithf "expected info, got %A" x
-
-testList "ZedCommand" [
-  let withSetup fn () =
-    fn(function
-      | ZedCommand x -> x
-      | x -> failwithf "expected ZedCommand, got %A" x
-    )
-
-
-  yield! testFixture withSetup [
-    "matches Init", fun fn ->
-      "{\"ZedCommand\":\"Init\"}"
-        |> ofJson
-        |> fn
-        |> function
-          | Init -> ()
-          | x -> failwithf "expected Init, got %A" x;
-    "matches CreateZpool", fun fn ->
-      "{\"ZedCommand\": {\"CreateZpool\":[\"foo\",\"3xa\",\"BLAH\"]}}"
-        |> ofJson
-        |> fn
-        |> function
-          | CreateZpool (n, g, s) ->
-            n == Zpool.Name "foo"
-            g == Zpool.Guid "3xa"
-            s == Zpool.State "BLAH"
-          | x -> failwithf "expected Init, got %A" x;
-  ]
+let zedCommands = [
+    ("Init", ZedCommand.Init);
+    ("CreateZpool", ZedCommand.CreateZpool (Zpool.Name "test", Zpool.Guid "0x6b289bd5ee51b853", Zpool.State "ACTIVE"));
+    ("ImportZPool", ZedCommand.ImportZpool (Zpool.Name "test", Zpool.Guid "0x6b289bd5ee51b853", Zpool.State "ACTIVE"));
+    ("ExportZPool", ZedCommand.ExportZpool (Zpool.Guid "0x6b289bd5ee51b853", Zpool.State "EXPORTED"));
+    ("DestroyZPool", ZedCommand.DestroyZpool (Zpool.Guid "0x6b289bd5ee51b853"));
+    ("CreateZfs", ZedCommand.CreateZfs (Zpool.Guid "0x6b289bd5ee51b853", Zfs.Name "test/ds"));
+    ("DestroyZfs", ZedCommand.DestroyZfs (Zpool.Guid "0x6b289bd5ee51b853", Zfs.Name "test/ds"));
+    ("SetZpoolProp", ZedCommand.SetZpoolProp (Zpool.Guid "0x6b289bd5ee51b853", "lustre:mgsnode", "10.14.82.0@tcp:10.14.82.1@tcp"));
+    ("AddVdev", ZedCommand.AddVdev (Zpool.Guid "0x6b289bd5ee51b853"));
 ]
 
+zedCommands
+  |> List.map (fun ((name, cmd)) ->
+    Test(name, fun () ->
+      cmd
+        |> zedEncode
+        |> toMatchSnapshot
+    )
+  )
+  |> testList zedTestPrefix
 
+let udevEncode = encoder UdevCommand.encode
+let udevDecode = decoder UdevCommand.decode
+
+let udevTestPrefix = "encoding Udev commands"
+
+let udevCommands = [
+  ("Add", UdevCommand.Add "\"foo\"");
+  ("Change", UdevCommand.Change "\"foo\"");
+  ("Remove", UdevCommand.Change "\"foo\"");
+]
+
+udevCommands
+  |> List.map (fun ((name, cmd)) ->
+    Test(name, fun () ->
+      cmd
+        |> udevEncode
+        |> toMatchSnapshot
+    )
+  )
+  |> testList udevTestPrefix
+
+let commandTestPrefix = "encoding Commands"
+
+let commands = [
+  ("Stream", Command.Stream)
+  ("ZedCommand", Command.ZedCommand ZedCommand.Init);
+  ("UdevCommand", Command.UdevCommand (UdevCommand.Add "\"foo\""));
+]
+
+commands
+  |> List.map (fun ((name, cmd)) ->
+    Test(name, fun () ->
+      cmd
+        |> Command.encoder
+        |> toMatchSnapshot
+    )
+  )
+  |> testList commandTestPrefix
+
+// Reuse our snapshots to test decoding
+let snaps:obj = importAll "./__snapshots__/CommandTypesTest.fs.snap"
+
+zedCommands
+  |> List.map (fun ((name, cmd)) ->
+    let caseName = sprintf "%s %s 1" zedTestPrefix name
+    let o:string =
+      !!snaps?(caseName)
+      |> String.filter (fun x -> x <> '\n')
+
+    Test(name, fun () ->
+      zedDecode !!(JS.JSON.parse o) == Ok cmd
+    )
+  )
+  |> testList "decoding ZED commands"
+
+udevCommands
+  |> List.map (fun ((name, cmd)) ->
+    let caseName = sprintf "%s %s 1" udevTestPrefix name
+
+    let o:string =
+      !!snaps?(caseName)
+      |> String.filter (fun x -> x <> '\n')
+
+    Test(name, fun () ->
+      udevDecode !!(JS.JSON.parse o) == Ok cmd
+    )
+  )
+  |> testList "decoding Udev commands"
+
+commands
+  |> List.map (fun ((name, cmd)) ->
+    let caseName = sprintf "%s %s 1" commandTestPrefix name
+
+    let o:string =
+      !!snaps?(caseName)
+      |> String.filter (fun x -> x <> '\n')
+
+    Test(name, fun () ->
+      Command.decoder !!(JS.JSON.parse o) == Ok cmd
+    )
+  )
+  |> testList "decoding Commands"

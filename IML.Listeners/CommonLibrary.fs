@@ -16,7 +16,7 @@ let sendData (x:Command) =
   let client = net.connect opts
 
   x
-    |> toJson
+    |> Command.encoder
     |> buffer.Buffer.from
     |> client.``end``
 

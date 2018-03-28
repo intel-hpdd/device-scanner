@@ -26,5 +26,5 @@ clientSock
   |> ignore
 
 clientSock
-  |> Writable.write (buffer.Buffer.from "\"Info\"\n")
+  |> Writable.write (buffer.Buffer.from "\"Stream\"\n")
   |> ignore

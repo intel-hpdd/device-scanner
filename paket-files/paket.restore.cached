@@ -1,15 +1,15 @@
 STORAGE: NONE
 NUGET
   remote: https://www.nuget.org/api/v2
-    dotnet-fable (1.3.12) - clitool: true
+    dotnet-fable (1.3.14) - clitool: true
       Dotnet.ProjInfo (>= 0.9) - restriction: >= netcoreapp2.0
-      Fable.Compiler (>= 1.3.12) - restriction: >= netcoreapp2.0
+      Fable.Compiler (>= 1.3.14) - restriction: >= netcoreapp2.0
       Fable.Core (>= 1.3.12) - restriction: >= netcoreapp2.0
       FSharp.Core (>= 4.2.3) - restriction: >= netcoreapp2.0
       Microsoft.NETCore.App (>= 2.0) - restriction: >= netcoreapp2.0
     Dotnet.ProjInfo (0.9) - restriction: >= netcoreapp2.0
       FSharp.Core (>= 4.2.3) - restriction: && (< net45) (>= netstandard2.0)
-    Fable.Compiler (1.3.12) - restriction: >= netcoreapp2.0
+    Fable.Compiler (1.3.14) - restriction: >= netcoreapp2.0
       Fable.Core (>= 1.3.12) - restriction: >= netstandard1.6
       FSharp.Compiler.Service (>= 20.0.1) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6
@@ -34,13 +34,14 @@ NUGET
       Fable.Core (>= 1.3.8) - restriction: >= netstandard2.0
       Fable.Import.Node (>= 0.4.2) - restriction: >= netstandard2.0
       Fable.PowerPack (>= 1.3.4) - restriction: >= netstandard2.0
-    Fable.Import.NodeLibzfs (0.1.13)
-      Fable.Core (>= 1.3.8) - restriction: >= netstandard2.0
-    Fable.PowerPack (1.3.5)
+    Fable.Import.NodeLibzfs (0.2.4)
+      Fable.Core (>= 1.3.12) - restriction: >= netstandard2.0
+      Thot.Json (>= 1.1.1) - restriction: >= netstandard2.0
+    Fable.PowerPack (1.4)
       Fable.Core (>= 1.3.8) - restriction: >= netstandard1.6
       Fable.Import.Browser (>= 1.0) - restriction: >= netstandard1.6
       FSharp.Core (>= 4.2.3) - restriction: >= netstandard1.6
-    FSharp.Compiler.Service (22.0.1) - restriction: >= netcoreapp2.0
+    FSharp.Compiler.Service (22.0.3) - restriction: >= netcoreapp2.0
       FSharp.Core (>= 4.1.18) - restriction: || (>= net45) (>= netstandard2.0)
       Microsoft.DiaSymReader (>= 1.1) - restriction: || (>= net45) (>= netstandard2.0)
       Microsoft.DiaSymReader.PortablePdb (>= 1.2) - restriction: || (>= net45) (>= netstandard2.0)
@@ -687,6 +688,6 @@ NUGET
       System.Text.Encoding (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
       System.Threading (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (< portable-net45+win8+wp8+wpa81)
       System.Xml.ReaderWriter (>= 4.3) - restriction: || (&& (< monoandroid) (< monotouch) (< net45) (>= netstandard1.3) (< win8) (< wpa81) (< xamarinios) (< xamarinmac) (< xamarintvos) (< xamarinwatchos)) (&& (< monoandroid) (< net45) (>= netstandard1.0) (< netstandard1.3) (< win8) (< wp8) (< wpa81)) (< portable-net45+win8+wp8+wpa81)
-    Thot.Json (1.1)
+    Thot.Json (1.1.1)
       Fable.Core (>= 1.3.9) - restriction: >= netstandard2.0
       FSharp.Core (>= 4.3.4) - restriction: >= netstandard2.0

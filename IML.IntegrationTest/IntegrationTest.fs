@@ -16,7 +16,7 @@ open Fable.Import.Node.PowerPack
 open Fable.PowerPack.Json
 
 let scannerInfo =
-  pipeToShellCmd "echo '\"Info\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
+  pipeToShellCmd "echo '\"Stream\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock"
 let unwrapObject a =
     match a with
     | Json.Object a -> Map.ofArray a
@@ -32,11 +32,11 @@ let resultOutput: StatefulResult<State, Out, Err> -> string = function
   | Ok ((Stdout(r), _), _) -> r
   | Error (e) -> failwithf "Command failed: %A" !!e
 
-testAsync "info event" <| fun () ->
+testAsync "stream event" <| fun () ->
   command {
     return! scannerInfo
   }
-  |> startCommand "Info Event"
+  |> startCommand "Stream Event"
   |> Promise.map (fun (r, _) ->
       let json =
         r

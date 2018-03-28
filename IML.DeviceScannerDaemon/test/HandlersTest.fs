@@ -5,24 +5,13 @@
 module IML.DeviceScannerDaemon.HandlersTest
 
 open Handlers
-open TestFixtures
+open IML.CommonLibrary
 open Fable.Import.Jest
 open Matchers
 open IML.Types.CommandTypes
 
-testList "Data Handler" [
-  let withSetup f ():unit =
-    f (handler)
-
-  yield! testFixture withSetup [
-    "Should call end with map for info event", fun (handler) ->
-      handler infoUdev
-        |> toMatchSnapshot
-
-    "Should add then remove a device path", fun (handler) ->
-      expect.assertions 2
-      handler (UdevCommand addUdev) |> toMatchSnapshot
-
-      handler (UdevCommand removeUdev) |> toMatchSnapshot
-    ]
-]
+test "stream returns the current state" <| fun () ->
+  Command.Stream
+    |> handler
+    |> Result.unwrap
+    |> (==) { blockDevices = Map.empty; zed = Map.empty; }

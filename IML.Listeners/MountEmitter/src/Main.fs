@@ -26,24 +26,32 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.map (fun x -> Ok (x.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)))
     |> Stream.map toRow
     |> Stream.filter (notHeader >> Ok)
-    |> Stream.map(fun x ->  //function
+    |> Stream.map(fun x ->
       match x with
       | a, b, c, d, e ->
+        let m =
+          {
+            target = Mount.MountPoint b;
+            source = Mount.BdevPath c;
+            fstype = Mount.FsType d;
+            opts = Mount.MountOpts e
+          }
+
         match a with
         | "mount" ->
-          Command.MountCommand (Mount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
-            |> Ok
-        | "umount" ->
-          Command.MountCommand (Umount (Mount.MountPoint b))
-            |> Ok
-        // | "reount" ->
-          // Command.MountCommand (Reount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
-            // |> Ok
-        // | "move" ->
-          // Command.MountCommand (Move (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.Options e))
-            // |> Ok
-          // Move (MountPoint, BdevPath, FsType, Options)
-        | _ -> failwithf "did not get expected row, got %A" a
+          m
+            |> Mount |> MountCommand |> Ok
+        | "remount" ->
+          m
+            |> Remount |> MountCommand |> Ok
+        | "move" ->
+          m
+            |> Move |> MountCommand |> Ok
+        | "unmount" ->
+          m
+            |> Umount |> MountCommand |> Ok
+        | _ ->
+          failwithf "did not get expected row, got %A" a
     )
 
 
@@ -51,5 +59,3 @@ Globals.``process``.stdin
   |> transform
   |> Stream.iter sendData
   |> ignore
-
-// mount      /mnt/fs-OST0002 /dev/sdd lustre ro

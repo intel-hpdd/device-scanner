@@ -14,6 +14,13 @@ testAsync "header then data" <| fun () ->
   }
     |> transform
     |> tap (fun xs ->
-      xs == Command.MountCommand (Mount (Mount.MountPoint "/mnt/fs-OST0002", Mount.BdevPath "/dev/sdd", Mount.FsType "lustre", Mount.Options "ro"))
+      xs == (
+        {
+          target = (Mount.MountPoint "/mnt/fs-OST0002");
+          source = (Mount.BdevPath "/dev/sdd");
+          fstype = (Mount.FsType "lustre");
+          opts = (Mount.MountOpts "ro")
+        } |> Mount |> Command.MountCommand
+      )
     )
     |> Util.streamToPromise

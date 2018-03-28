@@ -6,13 +6,6 @@ module IML.Types.CommandTypes
 
 open Fable.Core
 
-[<Erase>]
-type BdevPath = BdevPath of string
-[<Erase>]
-type MountPoint = MountPoint of string
-[<Erase>]
-type FsType = FsType of string
-
 [<RequireQualifiedAccess>]
 module Zpool =
   [<Erase>]
@@ -68,13 +61,26 @@ module Mount =
   [<Erase>]
   type FsType = FsType of string
   [<Erase>]
-  type Options = Options of string
+  type MountOpts = MountOpts of string
+
+type MountData =
+  {
+    /// mount point
+    target: Mount.MountPoint;
+    /// mounted block device
+    source: Mount.BdevPath; //Mount.Bdev;
+    /// filesystem type
+    fstype: Mount.FsType;
+    /// mount options
+    opts: Mount.MountOpts;
+  }
+
 
 type MountCommand =
-  | Mount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
-  | Umount of Mount.MountPoint
-  | Remount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
-  | Move of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Mount of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Umount of MountData //MountPoint
+  | Remount of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Move of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
 
 /// This is for backcompat with v1
 /// of device-scanner.

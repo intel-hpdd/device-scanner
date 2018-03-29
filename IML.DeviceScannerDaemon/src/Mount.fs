@@ -11,7 +11,9 @@ type LocalMounts = Set<MountData> // Map<Mount.MountPoint, Mount.Data>
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
   match x with
+    // fixme: remove old entry matching "source", add new entry
     | Move _
+    // ???
     | Remount _ ->
       localMounts
     | Mount y ->

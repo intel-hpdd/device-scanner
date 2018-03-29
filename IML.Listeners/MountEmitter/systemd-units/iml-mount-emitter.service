@@ -4,6 +4,7 @@ Description=IML Mount Emitter
 [Service]
 Restart=always
 Environment=NODE_ENV=production
+ExecStartPre=stdbuf -o L findmnt --list | /usr/lib64/iml-mount-emitter/mount-emitter
 ExecStart=stdbuf -o L findmnt --poll | /usr/lib64/iml-mount-emitter/mount-emitter
 StandardOutput=journal
 StandardError=journal

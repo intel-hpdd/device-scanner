@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="../../CommonLibrary.fs" />
+    <Compile Include="Transform.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
   <Import Project="..\..\..\.paket\Paket.Restore.targets" />

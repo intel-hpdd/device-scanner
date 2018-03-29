@@ -4,6 +4,7 @@
 
 module IML.DeviceScannerDaemon.Handlers
 
+open Mount
 open IML.Types.CommandTypes
 open Udev
 open Zed
@@ -19,6 +20,7 @@ let private scan init update =
 type Data = {
   blockDevices: BlockDevices;
   zed: Zed.ZedData;
+  mounts: LocalMounts;
 }
 
 let init () =
@@ -30,6 +32,7 @@ let init () =
         zfs = Set.empty;
         props = Set.empty;
       };
+    mounts = Set.empty;
   }
 
 let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
@@ -48,6 +51,13 @@ let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
               |> Result.map (fun blockDevices ->
                 { state with
                     blockDevices = blockDevices;
+                }
+              )
+          | MountCommand x ->
+            Mount.update state.mounts x
+              |> Result.map (fun mounts ->
+                { state with
+                    mounts = mounts;
                 }
               )
           | Command.Info | ACTION _ ->

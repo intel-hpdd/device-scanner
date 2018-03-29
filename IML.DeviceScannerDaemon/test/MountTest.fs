@@ -4,15 +4,15 @@
 
 module IML.DeviceScannerDaemon.MountTest
 
-open TestFixtures
+// open TestFixtures
 open Mount
 open Fable.Import.Jest
 open Matchers
 
 let matcher x =
   x
-    |> update Map.empty
-    |> Result.map Map.toList
+    |> update Set.empty
+    |> Result.map Set.toList
     |> toMatchSnapshot
 
 test "Matching Events" <| fun () ->

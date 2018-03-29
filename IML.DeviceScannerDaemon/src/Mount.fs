@@ -11,11 +11,11 @@ type LocalMounts = Set<MountData> // Map<Mount.MountPoint, Mount.Data>
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
   match x with
-    | Mount y
-    | Remount y
-    | Move y ->
+    | Move _
+    | Remount _ ->
+      localMounts
+    | Mount y ->
       Set.add y localMounts
-        |> Ok
     | Umount y ->
       Set.remove y localMounts
-        |> Ok
+  |> Ok

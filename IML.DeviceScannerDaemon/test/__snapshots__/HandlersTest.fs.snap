@@ -44,6 +44,15 @@ Result {
         "tag": 1,
       },
     },
+    "mounts": FableSet {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": SetTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
     "zed": ZedData {
       "props": FableSet {
         "comparer": Comparer {
@@ -90,6 +99,15 @@ Result {
         "tag": 0,
       },
     },
+    "mounts": FableSet {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": SetTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
     "zed": ZedData {
       "props": FableSet {
         "comparer": Comparer {
@@ -132,6 +150,15 @@ Result {
         "Compare": [Function],
       },
       "tree": MapTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
+    "mounts": FableSet {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": SetTree {
         "data": undefined,
         "tag": 0,
       },

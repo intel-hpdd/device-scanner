@@ -7,6 +7,7 @@ exports[`writing a connection 1`] = `
     \\"zpools\\": {},
     \\"zfs\\": [],
     \\"props\\": []
-  }
+  },
+  \\"mounts\\": []
 }"
 `;

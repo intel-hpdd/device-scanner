@@ -47,7 +47,7 @@ let transform (x:Stream.Readable<string>) =
         | "move" ->
           m
             |> Move |> MountCommand |> Ok
-        | "unmount" ->
+        | "umount" ->
           m
             |> Umount |> MountCommand |> Ok
         | _ ->

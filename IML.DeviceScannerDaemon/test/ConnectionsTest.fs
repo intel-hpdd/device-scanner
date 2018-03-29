@@ -46,6 +46,7 @@ testDone "writing a connection" <| fun (d) ->
             zfs = Set.empty;
             props = Set.empty;
           };
+        mounts = Set.empty;
       }
 
       Connections.writeConns d

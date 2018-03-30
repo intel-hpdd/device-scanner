@@ -1,6 +1,6 @@
-// Copyright (c) 2018 Intel Corporation. All rights reserved. 
-// Use of this source code is governed by a MIT-style 
-// license that can be found in the LICENSE file. 
+// Copyright (c) 2018 Intel Corporation. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
 
 module IML.DeviceScannerDaemon.TestFixtures
@@ -839,3 +839,16 @@ let createSecondZdatasetPropertyTwoJson = toJson """
   "_": "/usr/bin/printenv"
 }
 """
+
+let private mountData =
+  {
+    target = (Mount.MountPoint "/mnt/fs-OST0002");
+    source = (Mount.BdevPath "/dev/sdd");
+    fstype = (Mount.FsType "lustre");
+    opts = (Mount.MountOpts "ro")
+  }
+
+let addMount = mountData |> Mount
+let unMount = mountData |> Umount
+let reMount = mountData |> Remount
+let moveMount = mountData |> Move

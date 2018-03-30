@@ -62,3 +62,19 @@ testAsync "list mounts after header" <| fun () ->
       )
     )
     |> Util.streamToPromise
+
+// Fixme: test sequences of events emitted by poll
+testAsync "header then mount then umount" <| fun () ->
+  let m = Matcher()
+
+  printf "%A" m.Calls
+
+  streams {
+    yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
+
+    yield "mount       /mnt/fs-OST0002 /dev/sdd lustre ro\n"
+    yield "umount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
+  }
+    |> transform
+    |> tap m.Mock
+    |> Util.streamToPromise

@@ -20,6 +20,10 @@ let private notPollHeader x = x <> pollHeader
 let private listHeader = ("mount", "TARGET", "SOURCE", "FSTYPE", "OPTIONS")
 let private notListHeader x = x <> listHeader
 
+let private toCommand action (m:MountData) =
+  m
+    |> (action >> MountCommand >> Ok)
+
 let transform (x:Stream.Readable<string>) =
   x
     |> Stream.map (buffer.Buffer.from >> Ok)
@@ -39,18 +43,9 @@ let transform (x:Stream.Readable<string>) =
           }
 
         match a with
-        | "mount" ->
-          m
-            |> Mount |> MountCommand |> Ok
-        | "remount" ->
-          m
-            |> Remount |> MountCommand |> Ok
-        | "move" ->
-          m
-            |> Move |> MountCommand |> Ok
-        | "umount" ->
-          m
-            |> Umount |> MountCommand |> Ok
-        | _ ->
-          failwithf "did not get expected row, got %A" a
+        | "mount" -> toCommand Mount m
+        | "remount" -> toCommand Remount m
+        | "move" -> toCommand Movemount m
+        | "umount" -> toCommand Umount m
+        | _ -> failwithf "did not get expected row, got %A" a
     )

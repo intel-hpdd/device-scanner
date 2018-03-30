@@ -142,6 +142,123 @@ Result {
 }
 `;
 
+exports[`Data Handler Should add then remove a mount 1`] = `
+Result {
+  "data": Data {
+    "blockDevices": FableMap {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": MapTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
+    "mounts": FableSet {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": SetTree {
+        "data": Array [
+          MountData {
+            "fstype": "lustre",
+            "opts": "ro",
+            "source": "/dev/sdd",
+            "target": "/mnt/fs-OST0002",
+          },
+        ],
+        "tag": 1,
+      },
+    },
+    "zed": ZedData {
+      "props": FableSet {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": SetTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+      "zfs": FableSet {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": SetTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+      "zpools": FableMap {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": MapTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+    },
+  },
+  "tag": 0,
+}
+`;
+
+exports[`Data Handler Should add then remove a mount 2`] = `
+Result {
+  "data": Data {
+    "blockDevices": FableMap {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": MapTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
+    "mounts": FableSet {
+      "comparer": Comparer {
+        "Compare": [Function],
+      },
+      "tree": SetTree {
+        "data": undefined,
+        "tag": 0,
+      },
+    },
+    "zed": ZedData {
+      "props": FableSet {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": SetTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+      "zfs": FableSet {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": SetTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+      "zpools": FableMap {
+        "comparer": Comparer {
+          "Compare": [Function],
+        },
+        "tree": MapTree {
+          "data": undefined,
+          "tag": 0,
+        },
+      },
+    },
+  },
+  "tag": 0,
+}
+`;
+
 exports[`Data Handler Should call end with map for info event 1`] = `
 Result {
   "data": Data {

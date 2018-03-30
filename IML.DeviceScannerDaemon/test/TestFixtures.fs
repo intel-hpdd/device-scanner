@@ -851,4 +851,4 @@ let private mountData =
 let addMount = mountData |> Mount
 let unMount = mountData |> Umount
 let reMount = mountData |> Remount
-let moveMount = mountData |> Move
+let moveMount = mountData |> Movemount

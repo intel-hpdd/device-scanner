@@ -1,5 +1,42 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Events on existing mount 1`] = `
+Result {
+  "data": FableSet {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": SetTree {
+      "data": Array [
+        MountData {
+          "fstype": "lustre",
+          "opts": "ro",
+          "source": "/dev/sdd",
+          "target": "/mnt/fs-OST0002",
+        },
+      ],
+      "tag": 1,
+    },
+  },
+  "tag": 0,
+}
+`;
+
+exports[`Events on existing mount 2`] = `
+Result {
+  "data": FableSet {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": SetTree {
+      "data": undefined,
+      "tag": 0,
+    },
+  },
+  "tag": 0,
+}
+`;
+
 exports[`Matching Events 1`] = `
 Result {
   "data": FableSet {

@@ -65,22 +65,17 @@ module Mount =
 
 type MountData =
   {
-    /// mount point
     target: Mount.MountPoint;
-    /// mounted block device
-    source: Mount.BdevPath; //Mount.Bdev;
-    /// filesystem type
+    source: Mount.BdevPath;
     fstype: Mount.FsType;
-    /// mount options
-    opts: Mount.MountOpts;
+    opts: Mount.MountOpts
   }
 
-
 type MountCommand =
-  | Mount of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
-  | Umount of MountData //MountPoint
-  | Remount of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
-  | Move of MountData //MountPoint * Mount.BdevPath * Mount.FsType * Mount.Options
+  | Mount of MountData
+  | Umount of MountData
+  | Remount of MountData
+  | Movemount of MountData
 
 /// This is for backcompat with v1
 /// of device-scanner.

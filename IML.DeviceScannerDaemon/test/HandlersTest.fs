@@ -24,5 +24,11 @@ testList "Data Handler" [
       handler (UdevCommand addUdev) |> toMatchSnapshot
 
       handler (UdevCommand removeUdev) |> toMatchSnapshot
+
+    "Should add then remove a mount", fun (handler) ->
+      expect.assertions 2
+      handler (MountCommand addMount) |> toMatchSnapshot
+
+      handler (MountCommand unMount) |> toMatchSnapshot
     ]
 ]

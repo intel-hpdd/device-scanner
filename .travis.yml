@@ -16,6 +16,8 @@ jobs:
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
     - stage: test
       language: nodejs
+      node_js:
+        - "8"
       env: Type='unit test'
       script:
         - npm i -g npm@latest codecov

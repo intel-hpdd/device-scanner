@@ -17,10 +17,10 @@ jobs:
     - stage: test
       env: Type='unit test'
       script:
+        - npm i -g codecov
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet bash -c 'npm i -g codecov && yum install -y git'
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-test'
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && codecov'
+        - codecov
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+$
       script:

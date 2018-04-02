@@ -53,6 +53,16 @@ export default [
     plugins: getPlugins()
   },
   {
+    input: 'IML.Listeners/MountEmitter/src/MountEmitter.fsproj',
+    external: ['net', 'buffer', 'stream'],
+    output: {
+      banner: '#!/usr/bin/env node',
+      file: './dist/listeners/mount-emitter',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
     input: 'IML.Listeners/HistoryEventZedlet/HistoryEventZedlet.fsproj',
     external: ['net', 'buffer'],
     output: {

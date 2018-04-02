@@ -25,7 +25,7 @@ jobs:
         - npm ci --ignore-scripts
       script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm run restore && dotnet fable npm-test'
+        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm run restore && dotnet fable npm-coverage'
         - codecov
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+$

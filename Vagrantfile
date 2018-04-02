@@ -105,6 +105,7 @@ __EOF"
   config.vm.define "test", primary: false, autostart: false do |test|
     test.vm.provider "virtualbox" do |v|
       v.memory = 1024
+      v.cpus = 2
       v.name = "test"
     end
 

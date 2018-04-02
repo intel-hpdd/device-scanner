@@ -19,9 +19,11 @@ jobs:
       node_js:
         - 8
       env: Type='unit test'
-      script:
+      before_install:
         - npm i -g npm@latest codecov
+      install:
         - npm ci --ignore-scripts
+      script:
         - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm run restore && dotnet fable npm-test'
         - codecov

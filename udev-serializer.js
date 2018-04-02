@@ -126,6 +126,27 @@ module.exports = {
           [(key, obj) => transformDevPath('/block/sdc', obj)]
         ],
         [
+          /.+\/block\/sdc\/sdc1$/,
+          '/block/sdc/sdc1',
+          [
+            (key, obj) => transformDevPath('/block/sdc/sdc1', obj),
+            (key, obj) =>
+              transformPaths(
+                [
+                  [
+                    /\/dev\/disk\/by-uuid/,
+                    '/dev/disk/by-uuid/7e3ad148-5de4-42db-ba60-8e12d32b7bff'
+                  ],
+                  [
+                    /\/dev\/disk\/by-partuuid/,
+                    '/dev/disk/by-partuuid/0bbeeb80-78a3-45bf-86c3-7507869d1dfd'
+                  ]
+                ],
+                obj
+              )
+          ]
+        ],
+        [
           /.+\/block\/sdd$/,
           '/block/sdd',
           [(key, obj) => transformDevPath('/block/sdd', obj)]

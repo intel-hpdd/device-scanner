@@ -1,4758 +1,1038 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`info event 1`] = `
+exports[`stream event 1`] = `
 "{
   \\"/devices/pci0000:00/0000:00:0d.0/ata10/host9/target9:0:0/9:0:0:0/block/sdh\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"112\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdh\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G807\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-8.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdh\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata10/host9/target9:0:0/9:0:0:0/block/sdh\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G807\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G807\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G807\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"112\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G807\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-8.0\\",
+      \\"/dev/sdh\\"
+    ],
+    \\"devName\\": \\"/dev/sdh\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata10/host9/target9:0:0/9:0:0:0/block/sdh\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G807\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G807\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G807\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata11/host10/target10:0:0/10:0:0:0/block/sdi\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"128\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdi\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G808\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-9.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdi\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata11/host10/target10:0:0/10:0:0:0/block/sdi\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G808\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G808\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G808\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"128\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G808\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-9.0\\",
+      \\"/dev/sdi\\"
+    ],
+    \\"devName\\": \\"/dev/sdi\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata11/host10/target10:0:0/10:0:0:0/block/sdi\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G808\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G808\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G808\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata12/host11/target11:0:0/11:0:0:0/block/sdj\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"144\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdj\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G809\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-10.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdj\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata12/host11/target11:0:0/11:0:0:0/block/sdj\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G809\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G809\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G809\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"144\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G809\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-10.0\\",
+      \\"/dev/sdj\\"
+    ],
+    \\"devName\\": \\"/dev/sdj\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata12/host11/target11:0:0/11:0:0:0/block/sdj\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G809\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G809\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G809\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata13/host12/target12:0:0/12:0:0:0/block/sdk\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"160\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdk\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G810\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-11.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdk\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata13/host12/target12:0:0/12:0:0:0/block/sdk\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G810\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G810\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G810\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"160\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G810\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-11.0\\",
+      \\"/dev/sdk\\"
+    ],
+    \\"devName\\": \\"/dev/sdk\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata13/host12/target12:0:0/12:0:0:0/block/sdk\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G810\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G810\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G810\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata14/host13/target13:0:0/13:0:0:0/block/sdl\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"176\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdl\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G811\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-12.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdl\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata14/host13/target13:0:0/13:0:0:0/block/sdl\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G811\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G811\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G811\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"176\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G811\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-12.0\\",
+      \\"/dev/sdl\\"
+    ],
+    \\"devName\\": \\"/dev/sdl\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata14/host13/target13:0:0/13:0:0:0/block/sdl\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G811\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G811\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G811\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata15/host14/target14:0:0/14:0:0:0/block/sdm\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"192\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdm\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G812\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-13.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdm\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata15/host14/target14:0:0/14:0:0:0/block/sdm\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G812\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G812\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G812\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"192\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G812\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-13.0\\",
+      \\"/dev/sdm\\"
+    ],
+    \\"devName\\": \\"/dev/sdm\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata15/host14/target14:0:0/14:0:0:0/block/sdm\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G812\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G812\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G812\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata16/host15/target15:0:0/15:0:0:0/block/sdn\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"208\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdn\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G813\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-14.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdn\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata16/host15/target15:0:0/15:0:0:0/block/sdn\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G813\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G813\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G813\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"208\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G813\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-14.0\\",
+      \\"/dev/sdn\\"
+    ],
+    \\"devName\\": \\"/dev/sdn\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata16/host15/target15:0:0/15:0:0:0/block/sdn\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G813\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G813\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G813\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata17/host16/target16:0:0/16:0:0:0/block/sdo\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"224\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdo\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G814\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-15.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdo\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata17/host16/target16:0:0/16:0:0:0/block/sdo\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G814\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G814\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G814\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"224\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G814\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-15.0\\",
+      \\"/dev/sdo\\"
+    ],
+    \\"devName\\": \\"/dev/sdo\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata17/host16/target16:0:0/16:0:0:0/block/sdo\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G814\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G814\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G814\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata18/host17/target17:0:0/17:0:0:0/block/sdp\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"240\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdp\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G815\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-16.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdp\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata18/host17/target17:0:0/17:0:0:0/block/sdp\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G815\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G815\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G815\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"240\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G815\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-16.0\\",
+      \\"/dev/sdp\\"
+    ],
+    \\"devName\\": \\"/dev/sdp\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata18/host17/target17:0:0/17:0:0:0/block/sdp\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G815\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G815\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G815\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata19/host18/target18:0:0/18:0:0:0/block/sdq\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"0\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdq\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G816\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-17.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdq\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata19/host18/target18:0:0/18:0:0:0/block/sdq\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G816\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G816\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G816\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"0\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G816\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-17.0\\",
+      \\"/dev/sdq\\"
+    ],
+    \\"devName\\": \\"/dev/sdq\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata19/host18/target18:0:0/18:0:0:0/block/sdq\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G816\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G816\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G816\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata20/host19/target19:0:0/19:0:0:0/block/sdr\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"16\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdr\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G817\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-18.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdr\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata20/host19/target19:0:0/19:0:0:0/block/sdr\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G817\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G817\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G817\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"16\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G817\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-18.0\\",
+      \\"/dev/sdr\\"
+    ],
+    \\"devName\\": \\"/dev/sdr\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata20/host19/target19:0:0/19:0:0:0/block/sdr\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G817\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G817\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G817\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata21/host20/target20:0:0/20:0:0:0/block/sds\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"32\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sds\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G818\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-19.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sds\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata21/host20/target20:0:0/20:0:0:0/block/sds\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G818\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G818\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G818\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"32\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G818\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-19.0\\",
+      \\"/dev/sds\\"
+    ],
+    \\"devName\\": \\"/dev/sds\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata21/host20/target20:0:0/20:0:0:0/block/sds\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G818\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G818\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G818\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata22/host21/target21:0:0/21:0:0:0/block/sdt\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"48\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdt\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G819\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-20.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdt\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata22/host21/target21:0:0/21:0:0:0/block/sdt\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G819\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G819\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G819\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"48\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G819\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-20.0\\",
+      \\"/dev/sdt\\"
+    ],
+    \\"devName\\": \\"/dev/sdt\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata22/host21/target21:0:0/21:0:0:0/block/sdt\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G819\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G819\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G819\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata23/host22/target22:0:0/22:0:0:0/block/sdu\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"64\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdu\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G820\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-21.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdu\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata23/host22/target22:0:0/22:0:0:0/block/sdu\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G820\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G820\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G820\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"64\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G820\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-21.0\\",
+      \\"/dev/sdu\\"
+    ],
+    \\"devName\\": \\"/dev/sdu\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata23/host22/target22:0:0/22:0:0:0/block/sdu\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G820\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G820\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G820\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata24/host23/target23:0:0/23:0:0:0/block/sdv\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"80\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdv\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G821\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-22.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdv\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata24/host23/target23:0:0/23:0:0:0/block/sdv\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G821\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G821\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G821\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"80\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G821\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-22.0\\",
+      \\"/dev/sdv\\"
+    ],
+    \\"devName\\": \\"/dev/sdv\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata24/host23/target23:0:0/23:0:0:0/block/sdv\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G821\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G821\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G821\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata25/host24/target24:0:0/24:0:0:0/block/sdw\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"96\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdw\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G822\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-23.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdw\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata25/host24/target24:0:0/24:0:0:0/block/sdw\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G822\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G822\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G822\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"96\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G822\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-23.0\\",
+      \\"/dev/sdw\\"
+    ],
+    \\"devName\\": \\"/dev/sdw\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata25/host24/target24:0:0/24:0:0:0/block/sdw\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G822\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G822\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G822\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata26/host25/target25:0:0/25:0:0:0/block/sdx\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"112\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdx\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G823\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-24.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdx\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata26/host25/target25:0:0/25:0:0:0/block/sdx\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G823\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G823\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G823\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"112\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G823\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-24.0\\",
+      \\"/dev/sdx\\"
+    ],
+    \\"devName\\": \\"/dev/sdx\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata26/host25/target25:0:0/25:0:0:0/block/sdx\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G823\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G823\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G823\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata27/host26/target26:0:0/26:0:0:0/block/sdy\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"128\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdy\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G824\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-25.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdy\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata27/host26/target26:0:0/26:0:0:0/block/sdy\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G824\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G824\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G824\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"128\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G824\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-25.0\\",
+      \\"/dev/sdy\\"
+    ],
+    \\"devName\\": \\"/dev/sdy\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata27/host26/target26:0:0/26:0:0:0/block/sdy\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G824\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G824\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G824\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata28/host27/target27:0:0/27:0:0:0/block/sdz\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"144\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdz\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G825\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-26.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdz\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata28/host27/target27:0:0/27:0:0:0/block/sdz\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G825\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G825\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G825\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"144\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G825\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-26.0\\",
+      \\"/dev/sdz\\"
+    ],
+    \\"devName\\": \\"/dev/sdz\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata28/host27/target27:0:0/27:0:0:0/block/sdz\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G825\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G825\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G825\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata29/host28/target28:0:0/28:0:0:0/block/sdaa\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"160\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdaa\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G826\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-27.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdaa\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata29/host28/target28:0:0/28:0:0:0/block/sdaa\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G826\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G826\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G826\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"160\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G826\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-27.0\\",
+      \\"/dev/sdaa\\"
+    ],
+    \\"devName\\": \\"/dev/sdaa\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata29/host28/target28:0:0/28:0:0:0/block/sdaa\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G826\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G826\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G826\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"0\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sda\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sda\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"81920000\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"0\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0\\",
+      \\"/dev/sda\\"
+    ],
+    \\"devName\\": \\"/dev/sda\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"81920000\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda1\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"1\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sda1\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801-part1\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0-part1\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-uuid/74b3fabd-dbf5-4cc0-a967-2c12f8113fa6\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sda1\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda1\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"partition\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        {
-          \\"String\\": \\"xfs\\"
-        }
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        {
-          \\"String\\": \\"filesystem\\"
-        }
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        {
-          \\"Number\\": 1
-        }
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"2097152\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"1\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801-part1\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0-part1\\",
+      \\"/dev/disk/by-uuid/e3131d27-2c31-4594-bf0c-bcd6f9a0c985\\",
+      \\"/dev/sda1\\"
+    ],
+    \\"devName\\": \\"/dev/sda1\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda1\\",
+    \\"devType\\": \\"partition\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\",
+    \\"idFsType\\": \\"xfs\\",
+    \\"idFsUsage\\": \\"filesystem\\",
+    \\"idPartEntryNumber\\": 1,
+    \\"size\\": \\"2097152\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda2\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"2\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sda2\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801-part2\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/lvm-pv-uuid-tVAIF5-nJY7-oKaP-wLQO-OIXp-Ggwn-0F9F70\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0-part2\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sda2\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda2\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"partition\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        {
-          \\"String\\": \\"LVM2_member\\"
-        }
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        {
-          \\"String\\": \\"raid\\"
-        }
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        {
-          \\"Number\\": 2
-        }
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"79820800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"2\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G801-part2\\",
+      \\"/dev/disk/by-id/lvm-pv-uuid-3kzU9f-LipM-TJo5-zrd1-iNuL-nBHH-WGSlGv\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-1.0-part2\\",
+      \\"/dev/sda2\\"
+    ],
+    \\"devName\\": \\"/dev/sda2\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata3/host2/target2:0:0/2:0:0:0/block/sda/sda2\\",
+    \\"devType\\": \\"partition\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\",
+    \\"idFsType\\": \\"LVM2_member\\",
+    \\"idFsUsage\\": \\"raid\\",
+    \\"idPartEntryNumber\\": 2,
+    \\"size\\": \\"79820800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata30/host29/target29:0:0/29:0:0:0/block/sdab\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"176\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdab\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G827\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-28.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdab\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata30/host29/target29:0:0/29:0:0:0/block/sdab\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G827\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G827\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G827\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"176\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G827\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-28.0\\",
+      \\"/dev/sdab\\"
+    ],
+    \\"devName\\": \\"/dev/sdab\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata30/host29/target29:0:0/29:0:0:0/block/sdab\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G827\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G827\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G827\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata31/host30/target30:0:0/30:0:0:0/block/sdac\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"192\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdac\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G828\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-29.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdac\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata31/host30/target30:0:0/30:0:0:0/block/sdac\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G828\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G828\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G828\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"192\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G828\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-29.0\\",
+      \\"/dev/sdac\\"
+    ],
+    \\"devName\\": \\"/dev/sdac\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata31/host30/target30:0:0/30:0:0:0/block/sdac\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G828\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G828\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G828\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata32/host31/target31:0:0/31:0:0:0/block/sdad\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"65\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"208\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdad\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G829\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-30.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdad\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata32/host31/target31:0:0/31:0:0:0/block/sdad\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G829\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G829\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G829\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"65\\",
+    \\"minor\\": \\"208\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G829\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-30.0\\",
+      \\"/dev/sdad\\"
+    ],
+    \\"devName\\": \\"/dev/sdad\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata32/host31/target31:0:0/31:0:0:0/block/sdad\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G829\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G829\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G829\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"16\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdb\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G830\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-2.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdb\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G830\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"1048576000\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G830\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G830\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"16\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G830\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-2.0\\",
+      \\"/dev/sdb\\"
+    ],
+    \\"devName\\": \\"/dev/sdb\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata4/host3/target3:0:0/3:0:0:0/block/sdb\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G830\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"1048576000\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G830\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G830\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata5/host4/target4:0:0/4:0:0:0/block/sdc\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"32\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdc\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G802\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-3.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdc\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata5/host4/target4:0:0/4:0:0:0/block/sdc\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G802\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G802\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G802\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"32\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G802\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-3.0\\",
+      \\"/dev/sdc\\"
+    ],
+    \\"devName\\": \\"/dev/sdc\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata5/host4/target4:0:0/4:0:0:0/block/sdc\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G802\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G802\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G802\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata6/host5/target5:0:0/5:0:0:0/block/sdd\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"48\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdd\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G803\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-4.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdd\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata6/host5/target5:0:0/5:0:0:0/block/sdd\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G803\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G803\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G803\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"48\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G803\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-4.0\\",
+      \\"/dev/sdd\\"
+    ],
+    \\"devName\\": \\"/dev/sdd\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata6/host5/target5:0:0/5:0:0:0/block/sdd\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G803\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G803\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G803\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata7/host6/target6:0:0/6:0:0:0/block/sde\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"64\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sde\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G804\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-5.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sde\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata7/host6/target6:0:0/6:0:0:0/block/sde\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G804\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G804\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G804\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"64\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G804\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-5.0\\",
+      \\"/dev/sde\\"
+    ],
+    \\"devName\\": \\"/dev/sde\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata7/host6/target6:0:0/6:0:0:0/block/sde\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G804\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G804\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G804\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata8/host7/target7:0:0/7:0:0:0/block/sdf\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"80\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdf\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G805\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-6.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdf\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata8/host7/target7:0:0/7:0:0:0/block/sdf\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G805\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G805\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G805\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"80\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G805\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-6.0\\",
+      \\"/dev/sdf\\"
+    ],
+    \\"devName\\": \\"/dev/sdf\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata8/host7/target7:0:0/7:0:0:0/block/sdf\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G805\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G805\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G805\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ata9/host8/target8:0:0/8:0:0:0/block/sdg\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"8\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"96\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/sdg\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G806\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-7.0\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/sdg\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/pci0000:00/0000:00:0d.0/ata9/host8/target8:0:0/8:0:0:0/block/sdg\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK\\"
-        }
-      ],
-      [
-        \\"ID_SERIAL\\",
-        {
-          \\"String\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G806\\"
-        }
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"204800\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G806\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G806\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_UUID\\",
-        \\"Null\\"
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"96\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_081118FC1221NCJ6G806\\",
+      \\"/dev/disk/by-path/pci-0000:00:0d.0-ata-7.0\\",
+      \\"/dev/sdg\\"
+    ],
+    \\"devName\\": \\"/dev/sdg\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ata9/host8/target8:0:0/8:0:0:0/block/sdg\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G806\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"204800\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G806\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G806\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"253\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"0\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/dm-0\\"
-            },
-            {
-              \\"String\\": \\"/dev/centos/root\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/dm-name-centos-root\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/dm-uuid-LVM-FpAffE3HiAwoAvd81g8dBirIbkC3Ogu58AIfMI4SXo1AodrQkxuO2yuvd2JOPi5j\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-uuid/45252d52-d8d6-468e-aaa0-c117b042944a\\"
-            },
-            {
-              \\"String\\": \\"/dev/mapper/centos-root\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/dm-0\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/virtual/block/dm-0\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_SERIAL\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        {
-          \\"String\\": \\"xfs\\"
-        }
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        {
-          \\"String\\": \\"filesystem\\"
-        }
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"77709312\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"8:2\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        {
-          \\"String\\": \\"40865103872B\\"
-        }
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        {
-          \\"String\\": \\"root\\"
-        }
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        {
-          \\"String\\": \\"centos\\"
-        }
-      ],
-      [
-        \\"DM_UUID\\",
-        {
-          \\"String\\": \\"LVM-FpAffE3HiAwoAvd81g8dBirIbkC3Ogu58AIfMI4SXo1AodrQkxuO2yuvd2JOPi5j\\"
-        }
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"253\\",
+    \\"minor\\": \\"0\\",
+    \\"paths\\": [
+      \\"/dev/centos/root\\",
+      \\"/dev/disk/by-id/dm-name-centos-root\\",
+      \\"/dev/disk/by-id/dm-uuid-LVM-jQnkXE3kiGdAhzhslCt2nmLZEO3Bq2Y51rSXU4VOZw0j4JVVgO8S9fjAhI88Feof\\",
+      \\"/dev/disk/by-uuid/f4a999c3-a6d2-46f3-969a-594341c77969\\",
+      \\"/dev/mapper/centos-root\\",
+      \\"/dev/dm-0\\"
+    ],
+    \\"devName\\": \\"/dev/dm-0\\",
+    \\"devPath\\": \\"/devices/virtual/block/dm-0\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": null,
+    \\"idSerial\\": null,
+    \\"idFsType\\": \\"xfs\\",
+    \\"idFsUsage\\": \\"filesystem\\",
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"77709312\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [
+      \\"8:2\\"
+    ],
+    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": \\"root\\",
+    \\"dmVgName\\": \\"centos\\",
+    \\"dmUuid\\": \\"LVM-jQnkXE3kiGdAhzhslCt2nmLZEO3Bq2Y51rSXU4VOZw0j4JVVgO8S9fjAhI88Feof\\",
+    \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
-    \\"Object\\": [
-      [
-        \\"MAJOR\\",
-        {
-          \\"String\\": \\"253\\"
-        }
-      ],
-      [
-        \\"MINOR\\",
-        {
-          \\"String\\": \\"1\\"
-        }
-      ],
-      [
-        \\"PATHS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"/dev/dm-1\\"
-            },
-            {
-              \\"String\\": \\"/dev/centos/swap\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/dm-name-centos-swap\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-id/dm-uuid-LVM-FpAffE3HiAwoAvd81g8dBirIbkC3Ogu50snmtLIcILKydXKz4EgqhgxR5Tf013zE\\"
-            },
-            {
-              \\"String\\": \\"/dev/disk/by-uuid/4af3b3ab-356b-490b-9aab-2e9786804b79\\"
-            },
-            {
-              \\"String\\": \\"/dev/mapper/centos-swap\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"DEVNAME\\",
-        {
-          \\"String\\": \\"/dev/dm-1\\"
-        }
-      ],
-      [
-        \\"DEVPATH\\",
-        {
-          \\"String\\": \\"/devices/virtual/block/dm-1\\"
-        }
-      ],
-      [
-        \\"DEVTYPE\\",
-        {
-          \\"String\\": \\"disk\\"
-        }
-      ],
-      [
-        \\"ID_VENDOR\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_MODEL\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_SERIAL\\",
-        \\"Null\\"
-      ],
-      [
-        \\"ID_FS_TYPE\\",
-        {
-          \\"String\\": \\"swap\\"
-        }
-      ],
-      [
-        \\"ID_FS_USAGE\\",
-        {
-          \\"String\\": \\"other\\"
-        }
-      ],
-      [
-        \\"ID_PART_ENTRY_NUMBER\\",
-        \\"Null\\"
-      ],
-      [
-        \\"IML_SIZE\\",
-        {
-          \\"String\\": \\"2097152\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_80\\",
-        {
-          \\"String\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_SCSI_83\\",
-        {
-          \\"String\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\"
-        }
-      ],
-      [
-        \\"IML_IS_RO\\",
-        {
-          \\"Boolean\\": false
-        }
-      ],
-      [
-        \\"IML_DM_SLAVE_MMS\\",
-        {
-          \\"Array\\": [
-            {
-              \\"String\\": \\"8:2\\"
-            }
-          ]
-        }
-      ],
-      [
-        \\"IML_DM_VG_SIZE\\",
-        {
-          \\"String\\": \\"40865103872B\\"
-        }
-      ],
-      [
-        \\"IML_MD_DEVICES\\",
-        {
-          \\"Array\\": []
-        }
-      ],
-      [
-        \\"DM_MULTIPATH_DEVICE_PATH\\",
-        \\"Null\\"
-      ],
-      [
-        \\"DM_LV_NAME\\",
-        {
-          \\"String\\": \\"swap\\"
-        }
-      ],
-      [
-        \\"DM_VG_NAME\\",
-        {
-          \\"String\\": \\"centos\\"
-        }
-      ],
-      [
-        \\"DM_UUID\\",
-        {
-          \\"String\\": \\"LVM-FpAffE3HiAwoAvd81g8dBirIbkC3Ogu50snmtLIcILKydXKz4EgqhgxR5Tf013zE\\"
-        }
-      ],
-      [
-        \\"MD_UUID\\",
-        \\"Null\\"
-      ]
-    ]
+    \\"major\\": \\"253\\",
+    \\"minor\\": \\"1\\",
+    \\"paths\\": [
+      \\"/dev/centos/swap\\",
+      \\"/dev/disk/by-id/dm-name-centos-swap\\",
+      \\"/dev/disk/by-id/dm-uuid-LVM-jQnkXE3kiGdAhzhslCt2nmLZEO3Bq2Y5RneBEC5y8iJpLzpOyt1GsL6eva0iPk3f\\",
+      \\"/dev/disk/by-uuid/bca6f9aa-e686-4073-a38a-0a18cd769cb9\\",
+      \\"/dev/mapper/centos-swap\\",
+      \\"/dev/dm-1\\"
+    ],
+    \\"devName\\": \\"/dev/dm-1\\",
+    \\"devPath\\": \\"/devices/virtual/block/dm-1\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": null,
+    \\"idSerial\\": null,
+    \\"idFsType\\": \\"swap\\",
+    \\"idFsUsage\\": \\"other\\",
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"2097152\\",
+    \\"scsi80\\": \\"SATA     VBOX HARDDISK   081118FC1221NCJ6G801\\",
+    \\"scsi83\\": \\"1ATA     VBOX HARDDISK                           081118FC1221NCJ6G801\\",
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [
+      \\"8:2\\"
+    ],
+    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": \\"swap\\",
+    \\"dmVgName\\": \\"centos\\",
+    \\"dmUuid\\": \\"LVM-jQnkXE3kiGdAhzhslCt2nmLZEO3Bq2Y5RneBEC5y8iJpLzpOyt1GsL6eva0iPk3f\\",
+    \\"mdUuid\\": null
   }
 }"
 `;

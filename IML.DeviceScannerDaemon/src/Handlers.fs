@@ -6,8 +6,9 @@ module IML.DeviceScannerDaemon.Handlers
 
 open Mount
 open IML.Types.CommandTypes
-open Udev
+open IML.Types.UeventTypes
 open Zed
+open Thot.Json
 
 let private scan init update =
   let mutable state = init()
@@ -17,25 +18,35 @@ let private scan init update =
     state
 
 
-type Data = {
+type State = {
   blockDevices: BlockDevices;
-  zed: Zed.ZedData;
+  zed: Zed;
   mounts: LocalMounts;
 }
+
+module State =
+  let encode
+    {
+      blockDevices = blockDevices;
+      zed = zed;
+    } =
+      Encode.object [
+        ("zed", Zed.encode zed)
+        ("blockDevices", BlockDevices.encoder blockDevices)
+      ]
+
+  let encoder =
+    encode
+      >> Encode.encode 0
 
 let init () =
   Ok {
     blockDevices = Map.empty;
-    zed =
-      {
-        zpools = Map.empty;
-        zfs = Set.empty;
-        props = Set.empty;
-      };
+    zed = Map.empty;
     mounts = Set.empty;
   }
 
-let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
+let update (state:Result<State, exn>) (command:Command):Result<State, exn> =
     match state with
       | Ok state ->
         match command with
@@ -60,7 +71,7 @@ let update (state:Result<Data, exn>) (command:Command):Result<Data, exn> =
                     mounts = mounts;
                 }
               )
-          | Command.Info | ACTION _ ->
+          | Command.Stream ->
             Ok state
       | x -> x
 

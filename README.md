@@ -77,7 +77,7 @@ support.
   If interaction is not required, device info can be retrieved from the device-scanner by running the following command:
 
   ```shell
-  echo '"Info"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock | jq
+  echo '"Stream"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock | jq
   ```
 
 ### Testing the app

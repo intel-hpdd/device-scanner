@@ -8,16 +8,16 @@ Internally, [@iml/node-libzfs](https://github.com/intel-hpdd/rust-libzfs/tree/ma
 
 There are two main modes to this daemon:
 
-1. Processing new incoming events.
+1.  Processing new incoming events.
 
-2. Emit current devices. In this mode we will emit our current stored info as changes occur.
+2.  Emit current devices. In this mode we will emit our current stored info as changes occur.
 
-Data can be fetched over unix domain socket by sending the JSON message `"Info"` to the running socket at `/var/run/device-scanner.sock`.
+Data can be streamed over unix domain socket by sending the JSON message `"Stream"` to the running socket at `/var/run/device-scanner.sock`.
 
 Example using `socat`:
 
 ```shell
-echo '"Info"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
+echo '"Stream"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock
 ```
 
 It's the responsibility of the caller to end the connection when finished. While the caller leaves the connection open, the `device-scanner` will emit changes (the current device tree) as they are processed. This can be useful for push-based processing.

@@ -5,10 +5,11 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../src/IML.DeviceScannerDaemon.fsproj" />
-    <Compile Include="TestFixtures.fs" />
+    <ProjectReference Include="../../IML.Types/test/IML.TypesTest.fsproj" />
     <Compile Include="ConnectionsTest.fs" />
     <Compile Include="UdevTest.fs" />
     <Compile Include="HandlersTest.fs" />
+    <Compile Include="ZedTest.fs" />
     <Compile Include="MountTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

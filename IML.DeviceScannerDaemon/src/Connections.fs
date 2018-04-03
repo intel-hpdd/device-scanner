@@ -12,8 +12,7 @@ open IML.Types.CommandTypes
 open Fable.Import.Node.PowerPack.Stream
 
 type Connection =
-  | V1 of Net.Socket
-  | V2 of Net.Socket
+  | Stream of Net.Socket
   | ReadOnly of Net.Socket
 
 let mutable conns:Connection list = []
@@ -25,41 +24,34 @@ let removeConn c =
   conns <- List.filter ((<>) c) conns
 
 let createConn c = function
-    | Info ->
-      Readable.onEnd (fun () -> removeConn (V2 c)) c
+    | Command.Stream ->
+      Readable.onEnd (fun () -> removeConn (Stream c)) c
         |> ignore
-      addConn (V2 c)
-    | ACTION _ ->
-      addConn (V1 c)
+      addConn (Stream c)
     | _ ->
       addConn (ReadOnly c)
 
 let private removeDestroyed = function
-  | V1 _ | ReadOnly _ -> true
-  | V2 c -> not (!!c?destroyed)
+  | ReadOnly _ -> true
+  | Stream c -> not (!!c?destroyed)
 
 let toBuffer x =
     x
-    |> toJson
     |> fun x -> x + "\n"
     |> buffer.Buffer.from
 
-let private writeOrEnd (d:Data) = function
-  | V2 c ->
-    c.write (toBuffer d)
+let private writeOrEnd (d:State) = function
+  | Stream c ->
+    d
+      |> State.encoder
+      |> toBuffer
+      |> c.write
       |> ignore
-  | V1 c ->
-    let x =
-      d.blockDevices
-        |> toBuffer
-
-    removeConn (V1 c)
-    c.``end`` x
   | ReadOnly c ->
     removeConn (ReadOnly c)
     c.``end`` ()
 
-let writeConns (x:Data) =
+let writeConns (x:State) =
   conns <- List.filter removeDestroyed conns
 
   conns

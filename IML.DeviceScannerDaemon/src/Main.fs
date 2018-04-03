@@ -10,18 +10,10 @@ open Fable.Core.JsInterop
 open Handlers
 open IML.Types.CommandTypes
 
-let private parser x =
-  try
-    x
-      |> ofJson<Command>
-      |> Ok
-  with
-    | ex ->
-      Error ex
 let serverHandler (c:Net.Socket):unit =
   c
     |> LineDelimited.create()
-    |> map parser
+    |> map Command.decoder
     |> Readable.onError (fun (e:exn) ->
       eprintfn "Unable to parse message %s" e.Message
       c.``end``()

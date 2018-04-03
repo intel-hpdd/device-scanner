@@ -22,7 +22,7 @@ ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", E
 # Read size from /sys and add it to the device
 ACTION=="add|change", ENV{IML_SIZE}="$attr{size}"
 
-# Sync up the device-scanner-daemon on add or remove of block device
+# Sync up the device-scanner-daemon on add, remove or change of block device
 ACTION=="add|remove|change", RUN+="/lib/udev/udev-listener"
 
 LABEL="iml_device_scanner_end"

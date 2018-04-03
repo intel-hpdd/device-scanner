@@ -4,7 +4,13 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../IML.CommonLibrary/src/IML.CommonLibrary.fsproj">
+      <Name>IML.CommonLibrary.fsproj</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="CommandTypes.fs" />
+    <Compile Include="UeventTypes.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

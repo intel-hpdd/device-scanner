@@ -40,6 +40,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "device-scanner", primary: true do |device_scanner|
     device_scanner.vm.provider "virtualbox" do |v|
       v.memory = 2048
+      v.cpus = 4
       v.name = "device-scanner"
 
       disk1 = './tmp/disk1.vdi'
@@ -71,6 +72,7 @@ Vagrant.configure("2") do |config|
 
     device_scanner.vm.hostname = $device_scanner_hostname
     device_scanner.vm.network "private_network", ip: $device_scanner_ip
+    device_scanner.vm.network :forwarded_port, host: 8080, guest: 8080
 
     device_scanner.vm.provision "shell", inline: "cat >/root/.ssh/config<<__EOF
 Host testnode
@@ -79,12 +81,9 @@ Host testnode
 __EOF"
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
-    rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-    yum-config-manager --add-repo http://download.mono-project.com/repo/centos7/
-    wget https://bintray.com/intel-hpdd/intelhpdd-build/rpm -O /etc/yum.repos.d/bintray-intel-hpdd-intelhpdd-build.repo
-    yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm
-    yum install -y centos-release-dotnet
-    yum install -y nodejs socat jq docker mono-devel rh-dotnet20 git
+    yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm yum-plugin-copr
+    yum install -y nodejs socat jq docker git
+    yum -y copr enable managerforlustre/manager-for-lustre
     systemctl start docker
     docker rm mock -f
     rm -rf /builddir
@@ -94,8 +93,9 @@ __EOF"
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
     RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-2.el7.centos.x86_64.rpm
     docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
-    yum install -y ./$RPM_NAME
+    docker rm -f mock
     systemctl stop docker
+    yum install -y ./$RPM_NAME
     SHELL
   end
 
@@ -105,6 +105,7 @@ __EOF"
   config.vm.define "test", primary: false, autostart: false do |test|
     test.vm.provider "virtualbox" do |v|
       v.memory = 1024
+      v.cpus = 2
       v.name = "test"
     end
 

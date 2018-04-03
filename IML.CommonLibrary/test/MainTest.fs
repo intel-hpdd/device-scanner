@@ -9,6 +9,35 @@ module IML.CommonLibraryTest
 open IML.CommonLibrary
 open Fable.Import.Jest
 open Matchers
+open Fable.PowerPack
+
+testList "Result extensions" [
+  Test("bindError", fun () ->
+    let r =
+      Error "uh-oh"
+        |> Result.bindError (fun _ -> Ok "all better")
+
+    r == Ok "all better"
+  );
+  Test("apply", fun () ->
+    expect.assertions 3
+
+    let (<*>) = Result.apply
+    let (<!>) = Result.map
+
+    let r = (+) <!> (Ok 5) <*> (Ok 10)
+
+    r == Ok 15
+
+    let r2 = (+) <!> (Error "nope") <*> (Ok 10)
+
+    r2 == Error "nope"
+
+    let r3 = (+) <!> (Ok 5) <*> (Error "nope")
+
+    r3 == Error "nope"
+  );
+]
 
 test "hex parse to string" <| fun () ->
   let xs =
@@ -28,4 +57,4 @@ test "hex parse to string" <| fun () ->
   expect.assertions (xs.Length)
 
   Set.ofList xs
-    |> Set.iter(fun (l, r) -> (Hex.toBignumString l) === r)
+    |> Set.iter(fun (l, r) -> (Hex.toUint64String l) === r)

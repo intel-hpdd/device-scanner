@@ -8,6 +8,31 @@ module IML.CommonLibrary
 open System
 
 [<RequireQualifiedAccess>]
+module Result =
+  let unwrap = function
+    | Ok x -> x
+    | Error _ -> failwithf "Tried to unwrap a result, but got an error."
+
+  let bindError (f: 'a -> Result<'c, 'b>) (x: Result<'c, 'a>) =
+    match x with
+      | Ok x -> Ok x
+      | Error x -> f x
+
+  let apply fn x =
+    match fn,x with
+      | Ok f, Ok x -> f x |> Ok
+      | Error e, _ | _, Error e -> Error e
+
+  let isOk = function
+    | Ok _ -> true
+    | Error _ -> false
+
+  let isError x =
+    x
+      |> isOk
+      |> not
+
+[<RequireQualifiedAccess>]
 module Option =
   let toResult e = function
     | Some x -> Ok x
@@ -31,7 +56,7 @@ let maybe = MaybeBuilder();
 
 [<RequireQualifiedAccess>]
 module Hex =
-  let toBignumString(x: string): string =
+  let toUint64String(x: string): string =
     Convert.ToUInt64(x, 16)
         |> sprintf "%O"
 

@@ -12,17 +12,25 @@ jobs:
     - stage: test
       env: Type='build'
       script:
-        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet:2.1.4-0.7.6
+        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
     - stage: test
+      language: node_js
+      node_js:
+        - 8
       env: Type='unit test'
+      before_install:
+        - npm i -g npm@latest codecov
+      install:
+        - npm ci --ignore-scripts
       script:
-        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet:2.1.4-0.7.6
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-test'
+        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
+        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm run restore && dotnet fable npm-coverage'
+        - codecov
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+$
       script:
-        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet:2.1.4-0.7.6
+        - docker run -d -it --name libzfs-dotnet -v $(pwd):/device-scanner:rw intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
         - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
         - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"

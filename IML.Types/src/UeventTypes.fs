@@ -64,6 +64,7 @@ type UEvent =
 
 module UEvent =
   let private stringProp x = Decode.required x Decode.string
+  let private stringPropOption x = Decode.required x (Decode.option Decode.string)
 
   let private optionalString = Decode.option Decode.string
   let private optionalStringProp x = Decode.optional x optionalString None
@@ -135,6 +136,68 @@ module UEvent =
   /// encoded by UEvent
   let udevDecoder x =
     Decode.decodeString udevDecode x
+      |> Result.mapError exn
+
+  let encodedDecode =
+    Decode.decode
+      (fun major minor paths devname devpath devtype
+           vendor model serial fsType fsUsage
+           partEntryNumber size scsi80 scsi83
+           readOnly dmSlaveMMs dmVgSize mdDevs
+           dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
+
+          { major = major
+            minor = minor
+            paths = paths
+            devname = devname
+            devpath = devpath
+            devtype = devtype
+            vendor = vendor
+            model = model
+            serial = serial
+            fsType = fsType
+            fsUsage = fsUsage
+            partEntryNumber = partEntryNumber
+            size =  size
+            scsi80 = scsi80
+            scsi83 = scsi83
+            readOnly = readOnly
+            dmSlaveMMs = dmSlaveMMs
+            dmVgSize = dmVgSize
+            mdDevs = mdDevs
+            dmMultipathDevpath = dmMultipathDevicePath
+            dmLvName = dmLvName
+            dmVgName = dmVgName
+            dmUUID = dmUuid
+            mdUUID = mdUuid
+            } : UEvent)
+        |> stringProp "major"
+        |> stringProp "minor"
+        |> Decode.required "paths" (Decode.array (Decode.map Path Decode.string))
+        |> Decode.required "devName" (Decode.map Path Decode.string)
+        |> Decode.required "devPath" (Decode.map DevPath Decode.string)
+        |> stringProp "devType"
+        |> stringPropOption "idVendor"
+        |> stringPropOption "idModel"
+        |> stringPropOption "idSerial"
+        |> stringPropOption "idFsType"
+        |> stringPropOption "idFsUsage"
+        |> Decode.required "idPartEntryNumber" (Decode.option Decode.int)
+        |> stringPropOption "size"
+        |> stringPropOption "scsi80"
+        |> stringPropOption "scsi83"
+        |> Decode.required "isReadOnly" (Decode.option Decode.bool)
+        |> Decode.required "dmSlaveMms" (Decode.array Decode.string)
+        |> stringPropOption "dmVgSize"
+        |> Decode.required "mdDevices" (Decode.array Decode.string)
+        |> Decode.required "dmMultipathDevicePath" (Decode.option Decode.bool)
+        |> stringPropOption "dmLvName"
+        |> stringPropOption "dmVgName"
+        |> stringPropOption "dmUuid"
+        |> stringPropOption "mdUuid"
+
+  let encodedDecoder x =
+    Decode.decodeString encodedDecode x
       |> Result.mapError exn
 
   let encoder
@@ -215,3 +278,15 @@ module BlockDevices =
             (x, UEvent.encoder y)
           )
       |> Encode.object
+
+  let decoder x =
+    x
+      |> Decode.dict UEvent.encodedDecode
+      |> Result.map (fun x ->
+          x
+            |> Map.toList
+            |> List.map (fun (k, v) ->
+              (DevPath k, v)
+            )
+            |> Map.ofList
+      )

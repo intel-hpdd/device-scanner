@@ -283,3 +283,149 @@ exports[`decode / encode UEvents  remove 2`] = `
   }
 }"
 `;
+
+exports[`decode encoded decode / encode UEvents  MdRaid 2 1`] = `
+"{
+  \\"/devices/virtual/block/md0\\": {
+    \\"major\\": \\"9\\",
+    \\"minor\\": \\"0\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/md-name-lotus-32vm6:0\\",
+      \\"/dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910\\",
+      \\"/dev/md0\\"
+    ],
+    \\"devName\\": \\"/dev/md0\\",
+    \\"devPath\\": \\"/devices/virtual/block/md0\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": null,
+    \\"idSerial\\": null,
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": null,
+    \\"size\\": \\"41910272\\",
+    \\"scsi80\\": null,
+    \\"scsi83\\": null,
+    \\"isReadOnly\\": false,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [
+      \\"/dev/sda\\",
+      \\"/dev/sdd\\"
+    ],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": \\"685b40ee:f2bc2028:f056f6d2:e292c910\\"
+  }
+}"
+`;
+
+exports[`decode encoded decode / encode UEvents  add 2 1`] = `
+"{
+  \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\": {
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"17\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1\\",
+      \\"/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\\",
+      \\"/dev/sdb1\\"
+    ],
+    \\"devName\\": \\"/dev/sdb1\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\",
+    \\"devType\\": \\"partition\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_VB304a0a0f-15e93f07\\",
+    \\"idFsType\\": \\"LVM2_member\\",
+    \\"idFsUsage\\": \\"filesystem\\",
+    \\"idPartEntryNumber\\": 1,
+    \\"size\\": \\"81784832\\",
+    \\"scsi80\\": \\"80\\",
+    \\"scsi83\\": \\"83\\",
+    \\"isReadOnly\\": true,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": true,
+    \\"dmLvName\\": \\"swap\\",
+    \\"dmVgName\\": \\"centos\\",
+    \\"dmUuid\\": \\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
+    \\"mdUuid\\": null
+  }
+}"
+`;
+
+exports[`decode encoded decode / encode UEvents  add DM 2 1`] = `
+"{
+  \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\": {
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"17\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1\\",
+      \\"/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\\",
+      \\"/dev/sdb1\\"
+    ],
+    \\"devName\\": \\"/dev/sdb1\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\",
+    \\"devType\\": \\"disk\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_VB304a0a0f-15e93f07\\",
+    \\"idFsType\\": \\"LVM2_member\\",
+    \\"idFsUsage\\": \\"filesystem\\",
+    \\"idPartEntryNumber\\": 1,
+    \\"size\\": \\"81784832\\",
+    \\"scsi80\\": \\"80\\",
+    \\"scsi83\\": \\"83\\",
+    \\"isReadOnly\\": true,
+    \\"dmSlaveMms\\": [
+      \\"8:16\\",
+      \\"8:32\\"
+    ],
+    \\"dmVgSize\\": \\"21466447872B\\",
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": true,
+    \\"dmLvName\\": \\"swap\\",
+    \\"dmVgName\\": \\"centos\\",
+    \\"dmUuid\\": \\"LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D\\",
+    \\"mdUuid\\": null
+  }
+}"
+`;
+
+exports[`decode encoded decode / encode UEvents  remove 2 1`] = `
+"{
+  \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\": {
+    \\"major\\": \\"8\\",
+    \\"minor\\": \\"17\\",
+    \\"paths\\": [
+      \\"/dev/disk/by-id/ata-VBOX_HARDDISK_VB304a0a0f-15e93f07-part1\\",
+      \\"/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1\\",
+      \\"/dev/sdb1\\"
+    ],
+    \\"devName\\": \\"/dev/sdb1\\",
+    \\"devPath\\": \\"/devices/pci0000:00/0000:00:01.1/ata1/host1/target1:0:0/1:0:0:0/block/sdb/sdb1\\",
+    \\"devType\\": \\"partition\\",
+    \\"idVendor\\": null,
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
+    \\"idSerial\\": \\"VBOX_HARDDISK_VB304a0a0f-15e93f07\\",
+    \\"idFsType\\": null,
+    \\"idFsUsage\\": null,
+    \\"idPartEntryNumber\\": 1,
+    \\"size\\": null,
+    \\"scsi80\\": null,
+    \\"scsi83\\": null,
+    \\"isReadOnly\\": null,
+    \\"dmSlaveMms\\": [],
+    \\"dmVgSize\\": null,
+    \\"mdDevices\\": [],
+    \\"dmMultipathDevicePath\\": null,
+    \\"dmLvName\\": null,
+    \\"dmVgName\\": null,
+    \\"dmUuid\\": null,
+    \\"mdUuid\\": null
+  }
+}"
+`;

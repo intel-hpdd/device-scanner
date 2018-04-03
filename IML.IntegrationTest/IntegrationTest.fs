@@ -5,8 +5,10 @@
 module IML.IntegrationTest.IntegrationTest
 
 open Fable.PowerPack
-open Fable.Import
+open Thot
 open Fable.Import.Node.PowerPack
+open IML.CommonLibrary
+open IML.Types.UeventTypes
 open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
 
@@ -31,10 +33,11 @@ testAsync "stream event" <| fun () ->
   }
   |> startCommand "Stream Event"
   |> Promise.map (fun (r, _) ->
-      let json =
         r
           |> resultOutput
-          |> JS.JSON.parse
-
-      toMatchSnapshot json
+          |> Json.Decode.decodeString (Thot.Json.Decode.field "blockDevices" BlockDevices.decoder)
+          |> Result.unwrap
+          |> BlockDevices.encoder
+          |> Json.Encode.encode 2
+          |> toMatchSnapshot
   )

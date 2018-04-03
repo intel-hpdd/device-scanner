@@ -676,7 +676,7 @@ Object {
       "dmVgSize": null,
       "idFsType": "LVM2_member",
       "idFsUsage": "raid",
-      "idModel": "LVM PV 3kzU9f-LipM-TJo5-zrd1-iNuL-nBHH-WGSlGv on /dev/sda2",
+      "idModel": "VBOX_HARDDISK",
       "idPartEntryNumber": 2,
       "idSerial": "VBOX_HARDDISK_081118FC1221NCJ6G801",
       "idVendor": null,

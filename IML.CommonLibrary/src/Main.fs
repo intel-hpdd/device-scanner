@@ -22,6 +22,7 @@ module Result =
     match fn,x with
       | Ok f, Ok x -> f x |> Ok
       | Error e, _ | _, Error e -> Error e
+
   let isOk = function
     | Ok _ -> true
     | Error _ -> false

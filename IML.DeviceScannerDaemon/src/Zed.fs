@@ -54,13 +54,13 @@ module Zed =
   let updatePool state (p:Libzfs.Pool) =
     Map.add p.guid p state
 
-  /// Given a guid, remove the cooresponding
+  /// Given a guid, remove the corresponding
   /// pool if it exists.
   let removePool state (Zpool.Guid(guid)) =
     Map.remove (Hex.toUint64String guid) state
 
   /// Given a pool and a dataset name, remove the
-  /// cooresponding dataset if it exists.
+  /// corresponding dataset if it exists.
   let removeDataset (Zfs.Name name) (pool:Libzfs.Pool):Libzfs.Pool =
       {
         pool with

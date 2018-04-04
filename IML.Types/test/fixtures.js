@@ -846,6 +846,13 @@ exports.pool = {
   ]
 };
 
+exports.mount = {
+  target: '/',
+  source: '/foo/bar',
+  fstype: 'ext4',
+  opts: 'ro'
+};
+
 Object.keys(module.exports).forEach(k => {
   module.exports[k] = JSON.stringify(module.exports[k]);
 });

@@ -5,19 +5,18 @@
 module IML.DeviceScannerDaemon.Mount
 
 open IML.Types.CommandTypes
+open MountTypes
 
-
-type LocalMounts = Set<MountData> // Map<Mount.MountPoint, Mount.Data>
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
   match x with
     // fixme: remove old entry matching "source", add new entry
-    | Movemount _
+    // | AddMount _
     // ???
-    | Remount _ ->
-      localMounts
-    | Mount y ->
-      Set.add y localMounts
-    | Umount y ->
-      Set.remove y localMounts
+    // | ReplaceMount _ ->
+      // localMounts
+    | AddMount (target, source, fstype, opts) ->
+      Set.add (LocalMount (target, source, fstype, opts)) localMounts
+    | RemoveMount (target, source, fstype, opts) ->
+      Set.remove (LocalMount (target, source, fstype, opts)) localMounts
   |> Ok

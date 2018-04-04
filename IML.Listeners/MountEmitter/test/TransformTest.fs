@@ -1,80 +1,60 @@
 module IML.MountEmitter.TransformTest
 
 open Fable.Import.Jest
-open Matchers
 open Fable.Import.Node.PowerPack.Stream
 open Transform
-open IML.Types.CommandTypes
+open Fable.PowerPack
 
-testAsync "header then mount" <| fun () ->
+let streamTap =
+  transform
+    >> tap (fun xs -> expect.Invoke(xs).toMatchSnapshot())
+    >> Util.streamToPromise
+
+let promiseMatch =
+  transform
+    >> Util.streamToPromise
+    >> Promise.map (fun xs -> expect.Invoke(xs).toMatchSnapshot())
+
+testAsync "poll mount" <| fun () ->
   streams {
     yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
-
     yield "mount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
   }
-    |> transform
-    |> tap (fun xs ->
-      xs == (
-        {
-          target = (Mount.MountPoint "/mnt/fs-OST0002");
-          source = (Mount.BdevPath "/dev/sdd");
-          fstype = (Mount.FsType "lustre");
-          opts = (Mount.MountOpts "ro")
-        } |> Mount |> Command.MountCommand
-      )
-    )
-    |> Util.streamToPromise
+    |> streamTap
 
-testAsync "header then umount" <| fun () ->
+testAsync "poll umount" <| fun () ->
   streams {
     yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
-
     yield "umount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
   }
-    |> transform
-    |> tap (fun xs ->
-      xs == (
-        {
-          target = (Mount.MountPoint "/mnt/fs-OST0002");
-          source = (Mount.BdevPath "/dev/sdd");
-          fstype = (Mount.FsType "lustre");
-          opts = (Mount.MountOpts "ro")
-        } |> Umount |> Command.MountCommand
-      )
-    )
-    |> Util.streamToPromise
+    |> streamTap
 
-testAsync "list mounts after header" <| fun () ->
+testAsync "list mount" <| fun () ->
   streams {
     yield "TARGET SOURCE FSTYPE OPTIONS\n"
-
     yield "/mnt/fs-OST0002 /dev/sdd lustre ro\n"
   }
-    |> transform
-    |> tap (fun xs ->
-      xs == (
-        {
-          target = (Mount.MountPoint "/mnt/fs-OST0002");
-          source = (Mount.BdevPath "/dev/sdd");
-          fstype = (Mount.FsType "lustre");
-          opts = (Mount.MountOpts "ro")
-        } |> Mount |> Command.MountCommand
-      )
-    )
-    |> Util.streamToPromise
+    |> streamTap
 
-// Fixme: test sequences of events emitted by poll
-testAsync "header then mount then umount" <| fun () ->
-  let m = Matcher()
-
-  printf "%A" m.Calls
-
+testAsync "poll mount then umount" <| fun () ->
   streams {
     yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
-
     yield "mount       /mnt/fs-OST0002 /dev/sdd lustre ro\n"
     yield "umount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
   }
-    |> transform
-    |> tap m.Mock
-    |> Util.streamToPromise
+    |> promiseMatch
+
+testAsync "list then poll" <| fun () ->
+  streams {
+    yield "TARGET                   SOURCE                              FSTYPE  OPTIONS\n"
+    yield "/sys                     sysfs                               sysfs   rw,nosu\n"
+    yield "/proc                    proc                                proc    rw,nosu\n"
+    yield "/run                     tmpfs                               tmpfs   rw,nosu\n"
+    yield "/                        /dev/disk/by-uuid/6fa5a72a-ba26-4588-a103-74bb6b33a763  ext4    rw,rela\n"
+    yield "/mnt/fs-OST0002          /dev/sdd                            lustre  ro\n"
+
+    yield "ACTION TARGET SOURCE FSTYPE OPTIONS\n"
+    yield "umount      /mnt/fs-OST0002 /dev/sdd lustre ro\n"
+  }
+    |> promiseMatch
+

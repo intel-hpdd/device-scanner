@@ -20,10 +20,6 @@ let private notPollHeader x = x <> pollHeader
 let private listHeader = ("mount", "TARGET", "SOURCE", "FSTYPE", "OPTIONS")
 let private notListHeader x = x <> listHeader
 
-let private toCommand action (m:MountData) =
-  m
-    |> (action >> MountCommand >> Ok)
-
 let transform (x:Stream.Readable<string>) =
   x
     |> Stream.map (buffer.Buffer.from >> Ok)
@@ -34,18 +30,12 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.filter (notListHeader >> Ok)
     |> Stream.map(function
       | a, b, c, d, e ->
-        let m =
-          {
-            target = Mount.MountPoint b;
-            source = Mount.BdevPath c;
-            fstype = Mount.FsType d;
-            opts = Mount.MountOpts e
-          }
 
         match a with
-        | "mount" -> toCommand Mount m
-        | "remount" -> toCommand Remount m
-        | "move" -> toCommand Movemount m
-        | "umount" -> toCommand Umount m
+        | "mount" -> AddMount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.MountOpts e)
+        | "umount" -> RemoveMount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.MountOpts e)
+        // | "remount" -> toCommand Remount m
+        // | "move" -> toCommand Movemount m
         | _ -> failwithf "did not get expected row, got %A" a
+        |> Command.MountCommand |> Ok
     )

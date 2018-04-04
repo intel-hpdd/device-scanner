@@ -3,7 +3,7 @@
 exports[`writing a connection 1`] = `
 "{
   \\"zed\\": {},
-  \\"blockDevices\\": {}
-  \\"mounts\\": []
+  \\"blockDevices\\": {},
+  \\"mounts\\": {}
 }"
 `;

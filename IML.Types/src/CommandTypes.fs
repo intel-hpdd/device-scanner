@@ -1,4 +1,3 @@
-// Copyright (c) 2018 Intel Corporation. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -181,32 +180,6 @@ type UdevCommand =
   | Change of string
   | Remove of string
 
-
-[<RequireQualifiedAccess>]
-module Mount =
-  [<Erase>]
-  type MountPoint = MountPoint of string
-  [<Erase>]
-  type BdevPath = BdevPath of string
-  [<Erase>]
-  type FsType = FsType of string
-  [<Erase>]
-  type MountOpts = MountOpts of string
-
-type MountData =
-  {
-    target: Mount.MountPoint;
-    source: Mount.BdevPath;
-    fstype: Mount.FsType;
-    opts: Mount.MountOpts
-  }
-
-type MountCommand =
-  | Mount of MountData
-  | Umount of MountData
-  | Remount of MountData
-  | Movemount of MountData
-
 module UdevCommand =
   let encode x =
     match x with
@@ -239,6 +212,63 @@ module UdevCommand =
           decodeRemove;
       ])
 
+[<RequireQualifiedAccess>]
+module Mount =
+  [<Erase>]
+  type MountPoint = MountPoint of string
+  [<Erase>]
+  type BdevPath = BdevPath of string
+  [<Erase>]
+  type FsType = FsType of string
+  [<Erase>]
+  type MountOpts = MountOpts of string
+
+type MountCommand =
+  | AddMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  | RemoveMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  // | ReplaceMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  // | MoveMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+
+
+module MountCommand =
+  let encode x =
+    match x with
+    | AddMount ((Mount.MountPoint target), (Mount.BdevPath source), (Mount.FsType fstype), (Mount.MountOpts opts)) ->
+        Encode.object [("AddMount", Encode.array [| Encode.string target; Encode.string source; Encode.string fstype; Encode.string opts |])]
+    | RemoveMount ((Mount.MountPoint target), (Mount.BdevPath source), (Mount.FsType fstype), (Mount.MountOpts opts)) ->
+        Encode.object [("RemoveMount", Encode.array [| Encode.string target; Encode.string source; Encode.string fstype; Encode.string opts |])]
+    |> fun x -> Encode.object [("MountCommand", x)]
+
+  let decodeAddMount =
+    Decode.field "AddMount"
+      (Decode.map4
+        (fun target source fstype opts ->
+          MountCommand.AddMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts)
+        )
+        (Decode.field "0" Decode.string)
+        (Decode.field "1" Decode.string)
+        (Decode.field "2" Decode.string)
+        (Decode.field "3" Decode.string))
+
+  let decodeRemoveMount =
+    Decode.field "RemoveMount"
+      (Decode.map4
+        (fun target source fstype opts ->
+          MountCommand.RemoveMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts)
+        )
+        (Decode.field "0" Decode.string)
+        (Decode.field "1" Decode.string)
+        (Decode.field "2" Decode.string)
+        (Decode.field "3" Decode.string))
+
+  let decode =
+    Decode.field
+      "MountCommand"
+      (Decode.oneOf [
+          decodeAddMount;
+          decodeRemoveMount;
+      ])
+
 type Command =
   | Stream
   | ZedCommand of ZedCommand
@@ -255,10 +285,16 @@ module Command =
         ZedCommand.encode x
       | UdevCommand x ->
         UdevCommand.encode x
+      | MountCommand x ->
+        MountCommand.encode x
 
   let encoder x =
     encode x
       |> Encode.encode 0
+
+  let decodeMount =
+    (Decode.map MountCommand
+      MountCommand.decode)
 
   let decodeUdev =
     (Decode.map UdevCommand
@@ -280,8 +316,9 @@ module Command =
   let decode =
     Decode.oneOf [
       decodeStream;
-      decodeUdev;
       decodeZed;
+      decodeUdev;
+      decodeMount;
     ]
 
   let decoder =

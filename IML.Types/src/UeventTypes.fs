@@ -47,6 +47,7 @@ type UEvent =
     serial: string option;
     fsType: string option;
     fsUsage: string option;
+    fsUuid: string option;
     partEntryNumber: int option;
     size: string option;
     scsi80: string option;
@@ -76,7 +77,7 @@ module UEvent =
   let udevDecode =
     Decode.decode
         (fun major minor devlinks devname devpath devtype
-             idVendor idModel idSerial idFsType idFsUsage
+             idVendor idModel idSerial idFsType idFsUsage idFsUuid
              idPartEntryNumber imlSize imlScsi80 imlScsi83
              imlIsRo imlDmSlaveMms imlDmVgSize imlMdDevices
              dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
@@ -92,6 +93,7 @@ module UEvent =
               serial = idSerial
               fsType = idFsType
               fsUsage = idFsUsage
+              fsUuid = idFsUuid
               partEntryNumber = idPartEntryNumber
               size =  imlSize
               scsi80 = imlScsi80
@@ -117,6 +119,7 @@ module UEvent =
         |> optionalStringProp "ID_SERIAL"
         |> Decode.optional "ID_FS_TYPE" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
         |> Decode.optional "ID_FS_USAGE" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
+        |> Decode.optional "ID_FS_UUID" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
         |> Decode.optional "ID_PART_ENTRY_NUMBER" (Decode.map (Option.map int) optionalString) None
         |> Decode.optional "IML_SIZE" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
         |> Decode.optional "IML_SCSI_80" (Decode.map (Option.map String.trim) optionalString) None
@@ -141,7 +144,7 @@ module UEvent =
   let encodedDecode =
     Decode.decode
       (fun major minor paths devname devpath devtype
-           vendor model serial fsType fsUsage
+           vendor model serial fsType fsUsage fsUuid
            partEntryNumber size scsi80 scsi83
            readOnly dmSlaveMMs dmVgSize mdDevs
            dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
@@ -157,6 +160,7 @@ module UEvent =
             serial = serial
             fsType = fsType
             fsUsage = fsUsage
+            fsUuid = fsUuid
             partEntryNumber = partEntryNumber
             size =  size
             scsi80 = scsi80
@@ -182,6 +186,7 @@ module UEvent =
         |> stringPropOption "idSerial"
         |> stringPropOption "idFsType"
         |> stringPropOption "idFsUsage"
+        |> stringPropOption "idFsUuid"
         |> Decode.required "idPartEntryNumber" (Decode.option Decode.int)
         |> stringPropOption "size"
         |> stringPropOption "scsi80"
@@ -213,6 +218,7 @@ module UEvent =
       serial = idSerial
       fsType = idFsType
       fsUsage = idFsUsage
+      fsUuid = idFsUuid
       partEntryNumber = idPartEntryNumber
       size =  imlSize
       scsi80 = imlScsi80
@@ -252,6 +258,7 @@ module UEvent =
         ("idSerial", Encode.option Encode.string idSerial);
         ("idFsType", Encode.option Encode.string idFsType);
         ("idFsUsage", Encode.option Encode.string idFsUsage);
+        ("idFsUuid", Encode.option Encode.string idFsUuid);
         ("idPartEntryNumber", Encode.option Encode.int idPartEntryNumber);
         ("size", Encode.option Encode.string imlSize);
         ("scsi80", Encode.option Encode.string imlScsi80);

@@ -7,6 +7,8 @@ module IML.IntegrationTest.IntegrationTest
 open Fable.PowerPack
 open Thot
 open Fable.Import
+open Fable.Core.JsInterop
+open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.CommonLibrary
 open IML.Types.UeventTypes
@@ -15,9 +17,17 @@ open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
 open Matchers
 
+let env = Globals.``process``.env
+let testInterface1 = !!env?TEST_INTERFACE_1
+let testInterface2 = !!env?TEST_INTERFACE_2
+let testInterface3 = !!env?TEST_INTERFACE_3
+
 let settle () =
   cmd "udevadm settle"
     >> ignoreCmd
+
+let rbSettle () =
+  rbCmd "udevadm settle"
 
 let sleep seconds =
   cmd (sprintf "sleep %d" seconds)
@@ -73,6 +83,16 @@ let serializeDecodedAndMatch (r, _) =
     |> Json.Encode.encode 2
     |> toMatchSnapshot
 
+let iscsiDiscoverIF1 = ISCSIAdm.iscsiDiscover testInterface1
+let iscsiLoginIF1 = ISCSIAdm.iscsiLogin testInterface1
+let iscsiLogoutIF1 = ISCSIAdm.iscsiLogout testInterface1
+let iscsiDiscoverIF2 = ISCSIAdm.iscsiDiscover testInterface2
+let iscsiLoginIF2 = ISCSIAdm.iscsiLogin testInterface2
+let iscsiLogoutIF2 = ISCSIAdm.iscsiLogout testInterface2
+let iscsiDiscoverIF3 = ISCSIAdm.iscsiDiscover testInterface3
+let iscsiLoginIF3 = ISCSIAdm.iscsiLogin testInterface3
+let iscsiLogoutIF3 = ISCSIAdm.iscsiLogout testInterface3
+
 testAsync "stream event" <| fun () ->
   command {
     return! scannerInfo
@@ -109,4 +129,17 @@ testAsync "create a partition" <| fun () ->
     return! scannerInfo
   }
   |> startCommand "creating a partition"
+  |> Promise.map serializeDecodedAndMatch
+
+testAsync "add multipath device" <| fun () ->
+  command {
+    do! cmd (iscsiDiscoverIF1()) >> ignoreCmd
+    do! cmd (iscsiLoginIF1()) >> rollback(rbCmd ("sleep 1")) >> rollback(rbSettle()) >> rollback (rbCmd (iscsiLogoutIF1())) >> ignoreCmd
+    do! cmd (iscsiDiscoverIF2()) >> ignoreCmd
+    do! cmd (iscsiLoginIF2()) >> rollback (rbCmd (iscsiLogoutIF2())) >> ignoreCmd
+    do! cmd (iscsiDiscoverIF3()) >> ignoreCmd
+    do! cmd (iscsiLoginIF3()) >> rollback (rbCmd (iscsiLogoutIF3())) >> ignoreCmd
+    return! scannerInfo
+  }
+  |> startCommand "add multipath device"
   |> Promise.map serializeDecodedAndMatch

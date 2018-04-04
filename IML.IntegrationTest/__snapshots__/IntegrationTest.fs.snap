@@ -1037,7 +1037,7 @@ exports[`remove a device 1`] = `
     \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
     \\"mdUuid\\": null
   }
-}"
+}
 `;
 
 exports[`stream event 1`] = `

@@ -1068,7 +1068,7 @@ exports[`add a device 1`] = `
     \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
     \\"mdUuid\\": null
   }
-}
+}"
 `;
 
 exports[`remove a device 1`] = `

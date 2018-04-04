@@ -3179,5 +3179,5 @@ exports[`stream event 1`] = `
     \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
     \\"mdUuid\\": null
   }
-}
+}"
 `;

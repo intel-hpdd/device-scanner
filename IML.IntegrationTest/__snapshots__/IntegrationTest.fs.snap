@@ -76,7 +76,7 @@ exports[`stream event 1`] = `
     \\"devPath\\": \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\",
     \\"devType\\": \\"partition\\",
     \\"idVendor\\": null,
-    \\"idModel\\": \\"LVM PV 3kzU9f-LipM-TJo5-zrd1-iNuL-nBHH-WGSlGv on /dev/sda2\\",
+    \\"idModel\\": \\"VBOX_HARDDISK\\",
     \\"idSerial\\": \\"VBOX_HARDDISK_081118FC1221NCJ6G801\\",
     \\"idFsType\\": \\"LVM2_member\\",
     \\"idFsUsage\\": \\"raid\\",

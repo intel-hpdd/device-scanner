@@ -1,0 +1,172 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`list mount 1`] = `
+Command {
+  "data": MountCommand {
+    "data": Array [
+      "/mnt/fs-OST0002",
+      "/dev/sdd",
+      "lustre",
+      "ro",
+    ],
+    "tag": 0,
+  },
+  "tag": 3,
+}
+`;
+
+exports[`list then poll 1`] = `
+List {
+  "head": Command {
+    "data": MountCommand {
+      "data": Array [
+        "/sys",
+        "sysfs",
+        "sysfs",
+        "rw,nosu",
+      ],
+      "tag": 0,
+    },
+    "tag": 3,
+  },
+  "tail": List {
+    "head": Command {
+      "data": MountCommand {
+        "data": Array [
+          "/proc",
+          "proc",
+          "proc",
+          "rw,nosu",
+        ],
+        "tag": 0,
+      },
+      "tag": 3,
+    },
+    "tail": List {
+      "head": Command {
+        "data": MountCommand {
+          "data": Array [
+            "/run",
+            "tmpfs",
+            "tmpfs",
+            "rw,nosu",
+          ],
+          "tag": 0,
+        },
+        "tag": 3,
+      },
+      "tail": List {
+        "head": Command {
+          "data": MountCommand {
+            "data": Array [
+              "/",
+              "/dev/disk/by-uuid/6fa5a72a-ba26-4588-a103-74bb6b33a763",
+              "ext4",
+              "rw,rela",
+            ],
+            "tag": 0,
+          },
+          "tag": 3,
+        },
+        "tail": List {
+          "head": Command {
+            "data": MountCommand {
+              "data": Array [
+                "/mnt/fs-OST0002",
+                "/dev/sdd",
+                "lustre",
+                "ro",
+              ],
+              "tag": 0,
+            },
+            "tag": 3,
+          },
+          "tail": List {
+            "head": Command {
+              "data": MountCommand {
+                "data": Array [
+                  "/mnt/fs-OST0002",
+                  "/dev/sdd",
+                  "lustre",
+                  "ro",
+                ],
+                "tag": 1,
+              },
+              "tag": 3,
+            },
+            "tail": List {
+              "head": undefined,
+              "tail": undefined,
+            },
+          },
+        },
+      },
+    },
+  },
+}
+`;
+
+exports[`poll mount 1`] = `
+Command {
+  "data": MountCommand {
+    "data": Array [
+      "/mnt/fs-OST0002",
+      "/dev/sdd",
+      "lustre",
+      "ro",
+    ],
+    "tag": 0,
+  },
+  "tag": 3,
+}
+`;
+
+exports[`poll mount then umount 1`] = `
+List {
+  "head": Command {
+    "data": MountCommand {
+      "data": Array [
+        "/mnt/fs-OST0002",
+        "/dev/sdd",
+        "lustre",
+        "ro",
+      ],
+      "tag": 0,
+    },
+    "tag": 3,
+  },
+  "tail": List {
+    "head": Command {
+      "data": MountCommand {
+        "data": Array [
+          "/mnt/fs-OST0002",
+          "/dev/sdd",
+          "lustre",
+          "ro",
+        ],
+        "tag": 1,
+      },
+      "tag": 3,
+    },
+    "tail": List {
+      "head": undefined,
+      "tail": undefined,
+    },
+  },
+}
+`;
+
+exports[`poll umount 1`] = `
+Command {
+  "data": MountCommand {
+    "data": Array [
+      "/mnt/fs-OST0002",
+      "/dev/sdd",
+      "lustre",
+      "ro",
+    ],
+    "tag": 1,
+  },
+  "tag": 3,
+}
+`;

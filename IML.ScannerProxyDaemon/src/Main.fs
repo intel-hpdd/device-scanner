@@ -8,10 +8,10 @@ open Fable.Import.Node
 open PowerPack.Stream
 open Fable.Import
 
-open CommonLibrary
+open IML.Types.MessageTypes
 open Transmit
 
-JS.setInterval (fun _ -> transmit Heartbeat) 10000
+JS.setInterval (fun _ -> transmit Message.Heartbeat) 10000
   |> ignore
 
 let clientSock = net.connect("/var/run/device-scanner.sock")

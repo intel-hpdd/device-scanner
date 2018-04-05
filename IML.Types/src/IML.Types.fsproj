@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="CommandTypes.fs" />
     <Compile Include="UeventTypes.fs" />
+    <Compile Include="MessageTypes.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

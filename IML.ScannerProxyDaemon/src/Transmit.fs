@@ -8,7 +8,7 @@ open Fable.Core.JsInterop
 open Fable.Import.Node
 open PowerPack.Stream
 
-open CommonLibrary
+open IML.Types.MessageTypes
 open ConfigParser
 
 let private opts = createEmpty<Https.RequestOptions>
@@ -26,4 +26,4 @@ let transmit (payload:Message) =
     |> Readable.onError (fun (e:exn) ->
       eprintfn "Unable to generate HTTPS request %s, %s" e.Message e.StackTrace
     )
-    |> Writable.``end``(payload |> toJson |> Some)
+    |> Writable.``end``(payload |> Message.encoder |> Some)

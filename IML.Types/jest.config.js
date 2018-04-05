@@ -3,8 +3,8 @@ module.exports = {
   displayName: 'IML.Types tests',
   snapshotSerializers: ['../buffer-serializer'],
   coveragePathIgnorePatterns: [
-    'fixtures',
-    'Fixtures',
+    '.+fixtures.js',
+    '.+Fixtures.fs',
     '/node_modules/',
     '.+\\.snap'
   ]

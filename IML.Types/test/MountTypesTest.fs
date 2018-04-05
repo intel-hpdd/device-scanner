@@ -36,10 +36,10 @@ open Fixtures
         |> toMatchSnapshot
     )
   )
-  |> testList "decode / encode UEvents "
+  |> testList "decode / encode LocalMounts "
 
 // Reuse our snapshots to test decoding
-let snaps:JS.Object = importAll "./__snapshots__/UeventTypesTest.fs.snap"
+let snaps:JS.Object = importAll "./__snapshots__/MountTypesTest.fs.snap"
 
 let ks =
   JS.Object.keys snaps
@@ -51,9 +51,9 @@ let ks =
 
       Test(k, fun () ->
         !!JS.JSON.parse(entry)
-          |> Decode.decodeString (BlockDevices.decoder)
+          |> Decode.decodeString (LocalMounts.decoder)
           |> Result.unwrap
-          |> BlockDevices.encoder
+          |> LocalMounts.encoder
           |> Thot.Json.Encode.encode 2
           |> toMatchSnapshot
       )

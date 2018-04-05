@@ -29,7 +29,7 @@ module LocalMount =
         ("target", Encode.string target);
         ("source", Encode.string source);
         ("fstype", Encode.string fstype);
-        ("target", Encode.string opts);
+        ("opts", Encode.string opts);
       ]
 
   let decode =
@@ -57,10 +57,11 @@ type LocalMounts = Set<LocalMount>
 module LocalMounts =
   let encoder x =
     x
-      |> Set.toList
-      |> List.map LocalMount.encode
+      |> Set.map LocalMount.encode
+      |> Set.toArray
+      |> Encode.array
 
   let decoder x =
     x
-      |> Decode.list LocalMount.decode
-      |> Result.map Set.ofList
+      |> Decode.array LocalMount.decode
+      |> Result.map Set.ofArray

@@ -34,6 +34,13 @@ let cmd (x:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>>
       | Error e -> Error(e, (logs @ [Error (x, e)], rollbacks))
     )
 
+let rbCmd (cmd:string) (rollbackState:RollbackState): RollbackCommandState =
+  execShell cmd
+    |> Promise.map(function
+      | Ok out -> Ok(out, rollbackState @ [Ok (cmd, out)])
+      | Error err -> Error(err, rollbackState @ [Error (cmd, err)])
+    )
+
 let removeKnownHostWarning: string -> string = function
   | x when Regex.Match(x, @"Warning: Permanently added '\d+\.\d+\.\d+\.\d+' \(ECDSA\) to the list of known hosts\.").Success -> ""
   | x -> x
@@ -57,11 +64,6 @@ let removeKnownHostWarningFromRollbackState: (StatefulResult<State, Out, Err> * 
 let cleanState (s:(StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>)): (StatefulResult<State, Out, Err> * StatefulResult<RollbackState, Out, Err>) =
   ((removeKnownHostWarningFromCommandState s), (removeKnownHostWarningFromRollbackState s))
 
-let addToRollbackState (cmd:string) (rollbackState:RollbackState) : (ChildProcessPromiseResult -> JS.Promise<RollbackStateResult<Out, Err>>) =
-  Promise.map(function
-    | Ok out -> Ok(out, rollbackState @ [Ok (cmd, out)])
-    | Error err -> Error(err, rollbackState @ [Error (cmd, err)])
-  )
 let pipeToShellCmd (leftCmd:string) (rightCmd:string) ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
   let cmd = sprintf "%s | %s" leftCmd (shellCommand rightCmd)
   ChildProcess.exec cmd None
@@ -80,6 +82,13 @@ let rollback (rb:RollbackCommand) (p:JS.Promise<CommandResult<Out, Err>>) : JS.P
   p |>
     Promise.map(function
       | Ok (x, (logs, rollbacks)) -> Ok (x, (logs, rb :: rollbacks))
+      | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
+    )
+
+let rollbackError (rb:RollbackCommand) (p:JS.Promise<CommandResult<Out, Err>>) : JS.Promise<CommandResult<Out, Err>> =
+  p |>
+    Promise.map(function
+      | Ok (x, (logs, rollbacks)) -> Ok (x, (logs, rollbacks))
       | Error (e, (logs, rollbacks)) -> Error (e, (logs, rb :: rollbacks))
     )
 

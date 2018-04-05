@@ -18,8 +18,8 @@ testList "Data Handler" [
   )
 
   Test("Should parse url from map", fun () ->
-    Map.ofList [("url", "https://foo.com:443/agent/")]
-      |> parseUrl
+    "{\"url\":\"https://foo.com:443/agent/\"}"
+      |> serverDecoder
       |> toMatchSnapshot
   )
 ]

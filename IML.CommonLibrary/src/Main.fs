@@ -11,7 +11,7 @@ open System
 module Result =
   let unwrap = function
     | Ok x -> x
-    | Error _ -> failwithf "Tried to unwrap a result, but got an error."
+    | Error x -> failwithf "Tried to unwrap a result, but got %A." x
 
   let bindError (f: 'a -> Result<'c, 'b>) (x: Result<'c, 'a>) =
     match x with
@@ -37,6 +37,10 @@ module Option =
   let toResult e = function
     | Some x -> Ok x
     | None -> Error e
+
+  let expect message = function
+    | Some x -> x
+    | None -> failwithf message
 
 [<RequireQualifiedAccess>]
 module String =

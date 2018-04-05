@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+$suffix = ENV['NAME_SUFFIX'] or ""
+
 $device_scanner_ip = "10.0.0.10"
 $test_ip = "10.0.0.11"
 $device_scanner_hostname = "devicescannernode"
@@ -37,11 +39,11 @@ Vagrant.configure("2") do |config|
   #
   # Create a device-scanner node
   #
-  config.vm.define "device-scanner", primary: true do |device_scanner|
+  config.vm.define "device-scanner#{$suffix}", primary: true do |device_scanner|
     device_scanner.vm.provider "virtualbox" do |v|
       v.memory = 2048
       v.cpus = 4
-      v.name = "device-scanner"
+      v.name = "device-scanner#{$suffix}"
 
       disk1 = './tmp/disk1.vdi'
       unless File.exist?(disk1)
@@ -102,11 +104,11 @@ __EOF"
   #
   # Create a test node
   #
-  config.vm.define "test", primary: false, autostart: false do |test|
+  config.vm.define "test#{$suffix}", primary: false, autostart: false do |test|
     test.vm.provider "virtualbox" do |v|
       v.memory = 1024
       v.cpus = 2
-      v.name = "test"
+      v.name = "test#{$suffix}"
     end
 
     test.vm.hostname = $test_hostname

@@ -1,10 +1,38 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`encoding Commands MountCommand 1`] = `"{\\"MountCommand\\":{\\"AddMount\\":[\\"/\\",\\"/foo/bar\\",\\"ext4\\",\\"rw,rela\\"]}}"`;
+
 exports[`encoding Commands Stream 1`] = `"\\"Stream\\""`;
 
 exports[`encoding Commands UdevCommand 1`] = `"{\\"UdevCommand\\":{\\"Add\\":\\"\\\\\\"foo\\\\\\"\\"}}"`;
 
 exports[`encoding Commands ZedCommand 1`] = `"{\\"ZedCommand\\":\\"Init\\"}"`;
+
+exports[`encoding Mount commands AddMount 1`] = `
+"{
+  \\"MountCommand\\": {
+    \\"AddMount\\": [
+      \\"/\\",
+      \\"/foo/bar\\",
+      \\"ext4\\",
+      \\"rw,rela\\"
+    ]
+  }
+}"
+`;
+
+exports[`encoding Mount commands RemoveMount 1`] = `
+"{
+  \\"MountCommand\\": {
+    \\"RemoveMount\\": [
+      \\"/\\",
+      \\"/foo/bar\\",
+      \\"ext4\\",
+      \\"rw,rela\\"
+    ]
+  }
+}"
+`;
 
 exports[`encoding Udev commands Add 1`] = `
 "{

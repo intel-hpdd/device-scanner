@@ -27,17 +27,19 @@ let resultOutput: StatefulResult<State, Out, Err> -> string = function
   | Ok ((Stdout(r), _), _) -> r
   | Error (e) -> failwithf "Command failed: %A" e
 
+let serializeDecodedAndMatch (r, _) =
+  r
+    |> resultOutput
+    |> Json.Decode.decodeString (Thot.Json.Decode.field "blockDevices" BlockDevices.decoder)
+    |> Result.unwrap
+    |> UdevSerializer.serialize
+    |> BlockDevices.encoder
+    |> Json.Encode.encode 2
+    |> toMatchSnapshot
+
 testAsync "stream event" <| fun () ->
   command {
     return! scannerInfo
   }
   |> startCommand "Stream Event"
-  |> Promise.map (fun (r, _) ->
-        r
-          |> resultOutput
-          |> Json.Decode.decodeString (Thot.Json.Decode.field "blockDevices" BlockDevices.decoder)
-          |> Result.unwrap
-          |> BlockDevices.encoder
-          |> Json.Encode.encode 2
-          |> toMatchSnapshot
-  )
+  |> Promise.map serializeDecodedAndMatch

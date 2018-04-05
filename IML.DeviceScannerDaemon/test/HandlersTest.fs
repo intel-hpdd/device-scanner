@@ -14,4 +14,4 @@ test "stream returns the current state" <| fun () ->
   Command.Stream
     |> handler
     |> Result.unwrap
-    |> (==) { blockDevices = Map.empty; zed = Map.empty; mounts = Map.empty; }
+    |> (==) { blockDevices = Map.empty; zed = Map.empty; localMounts = Set.empty; }

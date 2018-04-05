@@ -4,7 +4,6 @@
 
 module IML.DeviceScannerDaemon.Handlers
 
-open Mount
 open IML.Types.CommandTypes
 open IML.Types.UeventTypes
 open IML.Types.MountTypes

@@ -7,7 +7,6 @@
     <ProjectReference Include="../src/IML.ScannerProxyDaemon.fsproj" />
     <Compile Include="TestFixtures.fs" />
     <Compile Include="ConfigParserTest.fs" />
-    <Compile Include="TransmitTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

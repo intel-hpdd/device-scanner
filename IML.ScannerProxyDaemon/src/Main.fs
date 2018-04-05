@@ -11,7 +11,7 @@ open Fable.Import
 open CommonLibrary
 open Transmit
 
-JS.setInterval (fun _ -> transmitMessage Heartbeat) 10000
+JS.setInterval (fun _ -> transmit Heartbeat) 10000
   |> ignore
 
 let clientSock = net.connect("/var/run/device-scanner.sock")
@@ -22,7 +22,7 @@ clientSock
   |> Readable.onError (fun (e:exn) ->
     eprintfn "Unable to parse Json from device scanner %s, %s" e.Message e.StackTrace
   )
-  |> iter (Data >> transmitMessage)
+  |> iter (Data >> transmit)
   |> ignore
 
 clientSock

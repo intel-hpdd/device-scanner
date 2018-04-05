@@ -11,85 +11,49 @@ open IML.CommonLibrary
 open IML.Types.CommandTypes
 open Fable.PowerPack
 open Thot.Json
-open IML.Types
+open IML.Types.MountTypes
+open IML.DeviceScannerDaemon.Mount
 
 let matcher localMounts x =
   x
     |> update localMounts
-    // |> Result.map Set.toList
     |> toMatchSnapshot
 
 let private localMounts = Set.empty
 
-let private snap (x:Result<LocalMount, exn>) =
+let private decodeToTuple (s:string) =
+  let m =
+    s
+      |> LocalMount.decoder
+      |> Result.unwrap
+
+  (Mount.MountPoint m.target,
+   Mount.BdevPath m.source,
+   Mount.FsType m.fstype,
+   Mount.MountOpts m.opts)
+
+let private snap (x:Result<LocalMounts, exn>) =
   x
     |> Result.unwrap
-    |> UeventTypes.BlockDevices.encoder
+    |> LocalMounts.encoder
     |> Encode.encode 2
     |> toMatchSnapshot
 
-test "Adding a new blockdevice" <| fun () ->
-  (UdevCommand.Add (fixtures.add))
-    |> update blockDevices
+test "Adding a new mount" <| fun () ->
+  expect.assertions 1
+
+  (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
+    |> update localMounts
     |> snap
 
-test "Changing a blockdevice" <| fun () ->
-  let blockDevices' =
-    (UdevCommand.Add (fixtures.add))
-      |> update blockDevices
+test "Removing a mount" <| fun () ->
+  expect.assertions 1
+
+  let newMounts =
+    (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
+      |> update localMounts
       |> Result.unwrap
 
-  (UdevCommand.Change (fixtures.change))
-    |> update blockDevices'
+  (MountCommand.RemoveMount (fixtures.mount |> decodeToTuple))
+    |> update newMounts
     |> snap
-
-test "Removing a blockdevice" <| fun () ->
-  let blockDevices' =
-    (UdevCommand.Add (fixtures.add))
-      |> update blockDevices
-      |> Result.unwrap
-
-let private mounts =
-  let mount =
-    fixtures.pool
-      |> Libzfs.Pool.decoder
-      |> Result.unwrap
-
-  Map.ofList [(pool.guid, pool)]
-
-test "encoding pools" <| fun () ->
-  pools
-    |> Zed.encode
-    |> Json.Encode.encode 2
-    |> toMatchSnapshot
-
-test "getPoolInState" <| fun () ->
-  guid
-   |> Zed.getPoolInState pools
-   |> Result.isOk
-   |> (===) true
-test "Matching Events" <| fun () ->
-  expect.assertions 4
-
-  let matcher = matcher Set.empty
-
-  matcher addMount
-
-  matcher unMount
-
-  matcher reMount
-
-  matcher moveMount
-
-test "Events on existing mount" <| fun () ->
-  expect.assertions 2
-
-  let mounts = addMount |> update Set.empty
-  mounts
-    |> Result.map(fun lmounts ->
-      matcher lmounts addMount
-    ) |> ignore
-  mounts
-    |> Result.map(fun lmounts ->
-      matcher lmounts unMount
-    ) |> ignore

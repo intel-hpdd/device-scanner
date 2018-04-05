@@ -5,7 +5,7 @@
 module IML.DeviceScannerDaemon.Mount
 
 open IML.Types.CommandTypes
-open MountTypes
+open IML.Types.MountTypes
 
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
@@ -15,8 +15,20 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
     // ???
     // | ReplaceMount _ ->
       // localMounts
-    | AddMount (target, source, fstype, opts) ->
-      Set.add (LocalMount (target, source, fstype, opts)) localMounts
-    | RemoveMount (target, source, fstype, opts) ->
-      Set.remove (LocalMount (target, source, fstype, opts)) localMounts
+    | AddMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts) ->
+      Set.add (
+        {
+          target = target;
+          source = source;
+          fstype = fstype;
+          opts = opts;
+        }) localMounts
+    | RemoveMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts) ->
+      Set.remove (
+        {
+          target = target;
+          source = source;
+          fstype = fstype;
+          opts = opts;
+        }) localMounts
   |> Ok

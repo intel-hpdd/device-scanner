@@ -10,8 +10,8 @@ open IML.Types.MountTypes
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
   match x with
-    // fixme: remove old entry matching "source", add new entry
-    | MoveMount (
+  | MoveMount
+      (
         Mount.MountPoint target,
         Mount.BdevPath source,
         Mount.FsType fstype,
@@ -19,7 +19,8 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
         Mount.MountPoint oldTarget,
         Mount.MountOpts oldOpts
       )
-    | ReplaceMount (
+  | ReplaceMount
+      (
         Mount.MountPoint target,
         Mount.BdevPath source,
         Mount.FsType fstype,
@@ -35,16 +36,16 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
             opts = oldOpts;
           }
         ) localMounts
-
-        Set.add (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        ) localMounts
-    | AddMount (
+        |> Set.add (
+             {
+               target = target;
+               source = source;
+               fstype = fstype;
+               opts = opts;
+             }
+           )
+  | AddMount
+      (
         Mount.MountPoint target,
         Mount.BdevPath source,
         Mount.FsType fstype,
@@ -58,7 +59,8 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
             opts = opts;
           }
         ) localMounts
-    | RemoveMount (
+  | RemoveMount
+      (
         Mount.MountPoint target,
         Mount.BdevPath source,
         Mount.FsType fstype,

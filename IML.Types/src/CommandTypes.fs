@@ -238,82 +238,86 @@ type MountCommand =
 module MountCommand =
   let encode x =
     match x with
-    | AddMount (
-        (Mount.MountPoint target),
-        (Mount.BdevPath source),
-        (Mount.FsType fstype),
-        (Mount.MountOpts opts)
-      ) ->
-        Encode.object [
-          (
-             "AddMount",
-             Encode.array [|
-               Encode.string target;
-               Encode.string source;
-               Encode.string fstype;
-               Encode.string opts
-             |]
-          )
-        ]
-    | RemoveMount (
-        (Mount.MountPoint target),
-        (Mount.BdevPath source),
-        (Mount.FsType fstype),
-        (Mount.MountOpts opts)
-      ) ->
-        Encode.object [
-          (
-             "RemoveMount",
-             Encode.array [|
-               Encode.string target;
-               Encode.string source;
-               Encode.string fstype;
-               Encode.string opts
-             |]
-          )
-        ]
-    | ReplaceMount (
-        (Mount.MountPoint target),
-        (Mount.BdevPath source),
-        (Mount.FsType fstype),
-        (Mount.MountOpts opts),
-        (Mount.MountPoint oldTarget),
-        (Mount.MountOpts oldOpts)
-      ) ->
-        Encode.object [
-          (
-             "ReplaceMount",
-             Encode.array [|
-               Encode.string target;
-               Encode.string source;
-               Encode.string fstype;
-               Encode.string opts;
-               Encode.string oldTarget;
-               Encode.string oldOpts
-             |]
-          )
-        ]
-    | MoveMount (
-        (Mount.MountPoint target),
-        (Mount.BdevPath source),
-        (Mount.FsType fstype),
-        (Mount.MountOpts opts),
-        (Mount.MountPoint oldTarget),
-        (Mount.MountOpts oldOpts)
-      ) ->
-        Encode.object [
-          (
-             "MoveMount",
-             Encode.array [|
-               Encode.string target;
-               Encode.string source;
-               Encode.string fstype;
-               Encode.string opts;
-               Encode.string oldTarget;
-               Encode.string oldOpts
-             |]
-          )
-        ]
+    | AddMount
+        (
+          (Mount.MountPoint target),
+          (Mount.BdevPath source),
+          (Mount.FsType fstype),
+          (Mount.MountOpts opts)
+        ) ->
+          Encode.object [
+            (
+               "AddMount",
+               Encode.array [|
+                 Encode.string target;
+                 Encode.string source;
+                 Encode.string fstype;
+                 Encode.string opts
+               |]
+            )
+          ]
+    | RemoveMount
+        (
+          (Mount.MountPoint target),
+          (Mount.BdevPath source),
+          (Mount.FsType fstype),
+          (Mount.MountOpts opts)
+        ) ->
+          Encode.object [
+            (
+               "RemoveMount",
+               Encode.array [|
+                 Encode.string target;
+                 Encode.string source;
+                 Encode.string fstype;
+                 Encode.string opts
+               |]
+            )
+          ]
+    | ReplaceMount
+        (
+          (Mount.MountPoint target),
+          (Mount.BdevPath source),
+          (Mount.FsType fstype),
+          (Mount.MountOpts opts),
+          (Mount.MountPoint oldTarget),
+          (Mount.MountOpts oldOpts)
+        ) ->
+          Encode.object [
+            (
+               "ReplaceMount",
+               Encode.array [|
+                 Encode.string target;
+                 Encode.string source;
+                 Encode.string fstype;
+                 Encode.string opts;
+                 Encode.string oldTarget;
+                 Encode.string oldOpts
+               |]
+            )
+          ]
+    | MoveMount
+        (
+          (Mount.MountPoint target),
+          (Mount.BdevPath source),
+          (Mount.FsType fstype),
+          (Mount.MountOpts opts),
+          (Mount.MountPoint oldTarget),
+          (Mount.MountOpts oldOpts)
+        ) ->
+          Encode.object [
+            (
+               "MoveMount",
+               Encode.array [|
+                 Encode.string target;
+                 Encode.string source;
+                 Encode.string fstype;
+                 Encode.string opts;
+                 Encode.string oldTarget;
+                 Encode.string oldOpts
+               |]
+            )
+          ]
     |> fun x -> Encode.object [("MountCommand", x)]
 
   let decodeAddMount =

@@ -2,8 +2,6 @@
 Description=IML Device Scanner Daemon
 RefuseManualStart=true
 DefaultDependencies=false
-Requires=mount-emitter.service
-After=mount-emitter.service
 
 [Service]
 Restart=always

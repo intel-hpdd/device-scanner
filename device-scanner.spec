@@ -36,7 +36,7 @@ devices using udev and zed.
 Summary:    Forwards device-scanner updates to device-aggregator
 License:    MIT
 Group:      System Environment/Libraries
-Requires:   %{prefix_name} = %{version}-%{release}
+Requires:   %{base_prefixed} = %{version}-%{release}
 %description proxy
 scanner-proxy-daemon forwards device-scanner updates received
 on local socket to the device-aggregator over HTTPS.
@@ -56,26 +56,26 @@ EOF
 
 %install
 mkdir -p %{buildroot}%{_unitdir}
-cp dist/%{base-name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
-cp dist/%{base-name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
-cp dist/%{proxy-name}-daemon/%{proxy_name}.service %{buildroot}%{_unitdir}
-cp dist/%{proxy-name}-daemon/%{proxy_name}.path %{buildroot}%{_unitdir}
+cp dist/%{base_name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
+cp dist/%{base_name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
+cp dist/%{proxy_name}-daemon/%{proxy_name}.service %{buildroot}%{_unitdir}
+cp dist/%{proxy_name}-daemon/%{proxy_name}.path %{buildroot}%{_unitdir}
 cp dist/listeners/%{mount_name}.service %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}%{_libdir}/%{base_prefixed}-daemon
-cp dist/%{base-name}-daemon/%{base-name}-daemon %{buildroot}%{_libdir}/%{base_prefixed}-daemon
+cp dist/%{base_name}-daemon/%{base_name}-daemon %{buildroot}%{_libdir}/%{base_prefixed}-daemon
 
 mkdir -p %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
-cp dist/%{proxy-name}-daemon/%{proxy-name}-daemon %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
+cp dist/%{proxy_name}-daemon/%{proxy_name}-daemon %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
 
 mkdir -p %{buildroot}%{_libdir}/%{mount_prefixed}
-cp dist/listeners/%{mount-name} %{buildroot}%{_libdir}/%{mount_prefixed}
+cp dist/listeners/%{mount_name} %{buildroot}%{_libdir}/%{mount_prefixed}
 
 mkdir -p %{buildroot}/lib/udev
 cp dist/listeners/udev-listener %{buildroot}/lib/udev/udev-listener
 
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
-cp dist/listeners/99-iml-%{base-name}.rules %{buildroot}%{_sysconfdir}/udev/rules.d
+cp dist/listeners/99-iml-%{base_name}.rules %{buildroot}%{_sysconfdir}/udev/rules.d
 
 mkdir -p %{buildroot}%{_libexecdir}/zfs/zed.d/
 cp dist/listeners/history_event-scanner.sh %{buildroot}%{_libexecdir}/zfs/zed.d/history_event-scanner.sh
@@ -99,14 +99,14 @@ rm -rf %{buildroot}
 
 %files
 %dir %{_libdir}/%{base_prefixed}-daemon
-%attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base-name}-daemon
+%attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
 %dir %{_libdir}/%{mount_prefixed}
-%attr(0755,root,root)%{_libdir}/%{mount_prefixed}/%{mount-name}
+%attr(0755,root,root)%{_libdir}/%{mount_prefixed}/%{mount_name}
 %attr(0644,root,root)%{_unitdir}/%{mount_name}.service
 %attr(0755,root,root)/lib/udev/udev-listener
-%attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-%{base-name}.rules
+%attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-%{base_name}.rules
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/history_event-scanner.sh
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/pool_create-scanner.sh
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/pool_destroy-scanner.sh
@@ -117,7 +117,7 @@ rm -rf %{buildroot}
 
 %files proxy
 %dir %{_libdir}/%{proxy_prefixed}-daemon
-%attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy-name}-dsaemon
+%attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy_name}-dsaemon
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.path
 
@@ -126,7 +126,7 @@ modprobe zfs
 systemctl enable zfs-zed.service
 systemctl start zfs-zed.service
 systemctl kill -s SIGHUP zfs-zed.service
-echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base-name}.sock
+echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
 
 %post
 if [ $1 -eq 1 ]; then

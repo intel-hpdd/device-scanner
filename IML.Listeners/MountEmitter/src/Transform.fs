@@ -15,10 +15,9 @@ let private toRow = function
   | [| a; b; c; d; |] -> Ok ("mount", a, b, c, d)
   | x -> failwithf "did not get expected row data, got %A" x
 
-let private pollHeader = ("ACTION", "TARGET", "SOURCE", "FSTYPE", "OPTIONS")
-let private notPollHeader x = x <> pollHeader
-let private listHeader = ("mount", "TARGET", "SOURCE", "FSTYPE", "OPTIONS")
-let private notListHeader x = x <> listHeader
+let private notHeader = function
+  | (_, "TARGET", "SOURCE", "FSTYPE", "OPTIONS") -> false
+  | _ -> true
 
 let transform (x:Stream.Readable<string>) =
   x
@@ -26,11 +25,9 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.LineDelimited.create()
     |> Stream.map (fun x -> Ok (x.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)))
     |> Stream.map toRow
-    |> Stream.filter (notPollHeader >> Ok)
-    |> Stream.filter (notListHeader >> Ok)
+    |> Stream.filter (notHeader >> Ok)
     |> Stream.map(function
       | a, b, c, d, e ->
-
         match a with
         | "mount" -> AddMount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.MountOpts e)
         | "umount" -> RemoveMount (Mount.MountPoint b, Mount.BdevPath c, Mount.FsType d, Mount.MountOpts e)

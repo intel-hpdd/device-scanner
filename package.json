@@ -24,7 +24,7 @@
     "docs":
       "mkdir -p ./dist/docs && remark ./IML.DeviceScannerDaemon/README.md -u remark-man > ./dist/docs/device-scanner.8",
     "postbuild":
-      "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon && cp-cli IML.ScannerProxyDaemon/systemd-units dist/scanner-proxy-daemon && npm run docs",
+      "cp-cli IML.Listeners/UdevListener/udev-rules/ dist/listeners && cp-cli IML.Listeners/MountEmitter/systemd-units dist/listeners && cp-cli IML.DeviceScannerDaemon/systemd-units dist/device-scanner-daemon && cp-cli IML.ScannerProxyDaemon/systemd-units dist/scanner-proxy-daemon && npm run docs",
     "premock": "docker run  -di --privileged --name mock intelhpdd/mock /usr/sbin/init",
     "mock": "docker cp -a ./ mock:/builddir",
     "postmock": "docker exec -i mock bash -xec './builddir/mock-build.sh'"

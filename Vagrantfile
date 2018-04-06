@@ -3,19 +3,17 @@
 
 $suffix = ENV['NAME_SUFFIX'] or ""
 
-$device_scanner_ip = "10.0.0.10"
-$test_ip = "10.0.0.11"
-$device_scanner_hostname = "devicescannernode"
-$test_hostname = "testnode"
+$device_scanner_hostname = "devicescannernode#{$suffix}"
+$test_hostname = "testnode#{$suffix}"
 $public_key = IO.read('id_rsa.pub')
-
-$hostedit = <<-SHELL
-  sed -i '/.*devicescannernode$/d' /etc/hosts && echo "#{$device_scanner_ip} #{$device_scanner_hostname}" >> /etc/hosts
-  sed -i '/.*testnode$/d' /etc/hosts && echo "#{$test_ip} #{$test_hostname}" >> /etc/hosts
-SHELL
+$get_ip = "ip a | grep 'enp0s8$' | awk '{print $2}' | sed -e 's@\/[0-9]*@@'"
+$get_device_scanner_ip = "grep \"devicescannernode\" /vagrant/hosts | awk '{print $1}'"
+$get_device_scanner_host_entry = "grep devicescannernode /vagrant/hosts"
+$get_test_ip = "grep \"testnode\" /vagrant/hosts | awk '{print $1}'"
+$get_test_host_entry = "grep testnode /vagrant/hosts"
 
 $setup_public_key = <<-SHELL
-  echo '#{$public_key}' >> /root/.ssh/authorized_keys
+  echo "#{$public_key}" >> /root/.ssh/authorized_keys
 SHELL
 
 $set_key_permissions = <<-SHELL
@@ -31,7 +29,6 @@ Vagrant.configure("2") do |config|
   config.ssh.password = 'vagrant'
 
    # Setup keys
-   config.vm.provision "shell", inline: $hostedit
    config.vm.provision "file", source: "id_rsa", destination: "/root/.ssh/id_rsa"
    config.vm.provision "shell", inline: $setup_public_key
    config.vm.provision "shell", inline: $set_key_permissions
@@ -73,14 +70,14 @@ Vagrant.configure("2") do |config|
     end
 
     device_scanner.vm.hostname = $device_scanner_hostname
-    device_scanner.vm.network "private_network", ip: $device_scanner_ip
+    device_scanner.vm.network "private_network", type: "dhcp"
     device_scanner.vm.network :forwarded_port, host: 8080, guest: 8080
 
-    device_scanner.vm.provision "shell", inline: "cat >/root/.ssh/config<<__EOF
-Host testnode
-  Hostname #{$test_ip}
-  StrictHostKeyChecking no
-__EOF"
+    device_scanner.vm.provision "shell", inline: <<-SHELL
+    touch /vagrant/hosts
+    sed -i '/devicescannernode.*$/d' /vagrant/hosts
+    echo "$(#{$get_ip}) $(hostname)" >> /vagrant/hosts
+    SHELL
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
     yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm yum-plugin-copr
@@ -112,13 +109,45 @@ __EOF"
     end
 
     test.vm.hostname = $test_hostname
-    test.vm.network "private_network", ip: $test_ip
+    test.vm.network "private_network", type: "dhcp"
 
-    test.vm.provision "shell", inline: "cat >/root/.ssh/config<<__EOF
+    test.vm.provision "shell", inline: <<-SHELL
+    touch /vagrant/hosts
+    sed -i '/testnode.*$/d' /vagrant/hosts
+    echo "$(#{$get_ip}) $(hostname)" >> /vagrant/hosts
+    SHELL
+
+    test.vm.provision "shell", inline: <<-SHELL
+device_scanner_node_ip=$(#{$get_device_scanner_ip})
+test_node_ip=$(#{$get_test_ip})
+sed -i '/.*devicescannernode/d' /etc/hosts && echo "$(#{$get_device_scanner_host_entry})" >> /etc/hosts
+sed -i '/.*testnode/d' /etc/hosts && echo "$(#{$get_test_host_entry})" >> /etc/hosts
+
+cat >/root/.ssh/config<<__EOF
 Host devicescannernode
-  Hostname #{$device_scanner_ip}
+  Hostname $device_scanner_node_ip
   StrictHostKeyChecking no
-__EOF"
+
+Host #{$device_scanner_hostname}
+  Hostname $device_scanner_node_ip
+  StrictHostKeyChecking no
+__EOF
+
+ssh #{$device_scanner_hostname} "
+sed -i '/.*devicescannernode/d' /etc/hosts && echo "$(#{$get_device_scanner_host_entry})" >> /etc/hosts
+sed -i '/.*testnode/d' /etc/hosts && echo "$(#{$get_test_host_entry})" >> /etc/hosts
+
+cat >/root/.ssh/config<<__EOF
+Host testnode
+  Hostname $test_node_ip
+  StrictHostKeyChecking no
+
+Host #{$test_hostname}
+  Hostname $test_node_ip
+  StrictHostKeyChecking no
+__EOF
+"
+SHELL
 
     test.vm.provision "shell", inline: <<-SHELL
 rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"

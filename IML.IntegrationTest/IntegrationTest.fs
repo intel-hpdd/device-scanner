@@ -19,8 +19,8 @@ let settle () =
   cmd "udevadm settle"
     >> ignoreCmd
 
-let sleep () =
-  cmd "sleep 1"
+let sleep seconds =
+  cmd (sprintf "sleep %d" seconds)
 
 let scannerInfo =
   (fun _ -> pipeToShellCmd "echo '\"Stream\"'" "socat - UNIX-CONNECT:/var/run/device-scanner.sock")
@@ -103,7 +103,7 @@ testAsync "create a partition" <| fun () ->
   command {
     do! (mkLabel "/dev/sdc" "gpt") >> ignoreCmd
     do! (mkPart "/dev/sdc" "primary" 1 100) >> rollback (rbRmPart "/dev/sdc" 1) >> ignoreCmd
-    do! sleep() >> ignoreCmd
+    do! (sleep 1) >> ignoreCmd
     do! (mkfs "ext4" "/dev/sdc1") >> rollback (rbWipefs "/dev/sdc1") >> ignoreCmd
     do! (e2Label "/dev/sdc1" "black_label") >> ignoreCmd
     return! scannerInfo

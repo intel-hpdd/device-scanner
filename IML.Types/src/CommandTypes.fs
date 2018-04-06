@@ -225,19 +225,95 @@ module Mount =
   type MountOpts = MountOpts of string
 
 type MountCommand =
-  | AddMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
-  | RemoveMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
-  // | ReplaceMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
-  // | MoveMount of Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  | AddMount of
+      Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  | RemoveMount of
+      Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts
+  | ReplaceMount of
+      Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts * Mount.MountPoint * Mount.MountOpts
+  | MoveMount of
+      Mount.MountPoint * Mount.BdevPath * Mount.FsType * Mount.MountOpts * Mount.MountPoint * Mount.MountOpts
 
 
 module MountCommand =
   let encode x =
     match x with
-    | AddMount ((Mount.MountPoint target), (Mount.BdevPath source), (Mount.FsType fstype), (Mount.MountOpts opts)) ->
-        Encode.object [("AddMount", Encode.array [| Encode.string target; Encode.string source; Encode.string fstype; Encode.string opts |])]
-    | RemoveMount ((Mount.MountPoint target), (Mount.BdevPath source), (Mount.FsType fstype), (Mount.MountOpts opts)) ->
-        Encode.object [("RemoveMount", Encode.array [| Encode.string target; Encode.string source; Encode.string fstype; Encode.string opts |])]
+    | AddMount (
+        (Mount.MountPoint target),
+        (Mount.BdevPath source),
+        (Mount.FsType fstype),
+        (Mount.MountOpts opts)
+      ) ->
+        Encode.object [
+          (
+             "AddMount",
+             Encode.array [|
+               Encode.string target;
+               Encode.string source;
+               Encode.string fstype;
+               Encode.string opts
+             |]
+          )
+        ]
+    | RemoveMount (
+        (Mount.MountPoint target),
+        (Mount.BdevPath source),
+        (Mount.FsType fstype),
+        (Mount.MountOpts opts)
+      ) ->
+        Encode.object [
+          (
+             "RemoveMount",
+             Encode.array [|
+               Encode.string target;
+               Encode.string source;
+               Encode.string fstype;
+               Encode.string opts
+             |]
+          )
+        ]
+    | ReplaceMount (
+        (Mount.MountPoint target),
+        (Mount.BdevPath source),
+        (Mount.FsType fstype),
+        (Mount.MountOpts opts),
+        (Mount.MountPoint oldTarget),
+        (Mount.MountOpts oldOpts)
+      ) ->
+        Encode.object [
+          (
+             "ReplaceMount",
+             Encode.array [|
+               Encode.string target;
+               Encode.string source;
+               Encode.string fstype;
+               Encode.string opts;
+               Encode.string oldTarget;
+               Encode.string oldOpts
+             |]
+          )
+        ]
+    | MoveMount (
+        (Mount.MountPoint target),
+        (Mount.BdevPath source),
+        (Mount.FsType fstype),
+        (Mount.MountOpts opts),
+        (Mount.MountPoint oldTarget),
+        (Mount.MountOpts oldOpts)
+      ) ->
+        Encode.object [
+          (
+             "MoveMount",
+             Encode.array [|
+               Encode.string target;
+               Encode.string source;
+               Encode.string fstype;
+               Encode.string opts;
+               Encode.string oldTarget;
+               Encode.string oldOpts
+             |]
+          )
+        ]
     |> fun x -> Encode.object [("MountCommand", x)]
 
   let decodeAddMount =
@@ -262,12 +338,54 @@ module MountCommand =
         (Decode.field "2" Decode.string)
         (Decode.field "3" Decode.string))
 
+  let decodeReplaceMount =
+    Decode.field "ReplaceMount"
+      (Decode.map6
+        (fun target source fstype opts oldTarget oldOpts ->
+          MountCommand.ReplaceMount (
+            Mount.MountPoint target,
+            Mount.BdevPath source,
+            Mount.FsType fstype,
+            Mount.MountOpts opts,
+            Mount.MountPoint oldTarget,
+            Mount.MountOpts oldOpts
+          )
+        )
+        (Decode.field "0" Decode.string)
+        (Decode.field "1" Decode.string)
+        (Decode.field "2" Decode.string)
+        (Decode.field "3" Decode.string)
+        (Decode.field "4" Decode.string)
+        (Decode.field "5" Decode.string))
+
+  let decodeMoveMount =
+    Decode.field "MoveMount"
+      (Decode.map6
+        (fun target source fstype opts oldTarget oldOpts ->
+          MountCommand.ReplaceMount (
+            Mount.MountPoint target,
+            Mount.BdevPath source,
+            Mount.FsType fstype,
+            Mount.MountOpts opts,
+            Mount.MountPoint oldTarget,
+            Mount.MountOpts oldOpts
+          )
+        )
+        (Decode.field "0" Decode.string)
+        (Decode.field "1" Decode.string)
+        (Decode.field "2" Decode.string)
+        (Decode.field "3" Decode.string)
+        (Decode.field "4" Decode.string)
+        (Decode.field "5" Decode.string))
+
   let decode =
     Decode.field
       "MountCommand"
       (Decode.oneOf [
           decodeAddMount;
           decodeRemoveMount;
+          decodeReplaceMount;
+          decodeMoveMount;
       ])
 
 type Command =

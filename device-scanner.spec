@@ -117,7 +117,7 @@ rm -rf %{buildroot}
 
 %files proxy
 %dir %{_libdir}/%{proxy_prefixed}-daemon
-%attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy_name}-dsaemon
+%attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.path
 

@@ -1,3 +1,4 @@
 vagrant destroy -f
-vagrant up device-scanner test
+export NAME_SUFFIX=$(pwd | sha256sum)
+vagrant up device-scanner$NAME_SUFFIX test$NAME_SUFFIX
 vagrant destroy -f

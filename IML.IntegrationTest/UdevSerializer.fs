@@ -39,24 +39,33 @@ let private normalizeDevPaths ((devPath:DevPath), (uevent:UEvent)) =
   let newDevPath = normalizeDevPath devPath
   (newDevPath, {uevent with devpath = newDevPath})
 
+let private normalizeByPartUUID (path:Path) =
+  normalizeByPath "(/dev/disk/by-partuuid/).+" "part-uuid-XXXXX" path
+
 let private normalizePaths ((devPath:DevPath), (uevent:UEvent)) =
   let newPaths =
     uevent.paths
-      |> Array.map (normalizeByUUIDPath >> normalizeByLVMUUID >> normalizeByDmUUUID)
+      |> Array.map (normalizeByUUIDPath >> normalizeByLVMUUID >> normalizeByDmUUUID >> normalizeByPartUUID)
 
   (devPath, {uevent with paths = newPaths})
 
 let private normalizeDMUUIDs ((devPath:DevPath), (uevent:UEvent)) =
-
   let newDmUUID =
     uevent.dmUUID
       |> Option.map (k "LVM-lvmXXXXX")
 
   (devPath, {uevent with dmUUID = newDmUUID})
 
+let private normalizeFsUUIDs ((devPath:DevPath), (uevent:UEvent)) =
+  let newFsUUID =
+    uevent.fsUuid
+      |> Option.map (k "uuid-XXXXX")
+
+  (devPath, {uevent with fsUuid = newFsUUID})
+
 let serialize (x:Map<DevPath, UEvent>) =
   x
     |> Map.toList
-    |> List.map (normalizeDevPaths >> normalizePaths >> normalizeDMUUIDs)
+    |> List.map (normalizeDevPaths >> normalizePaths >> normalizeDMUUIDs >> normalizeFsUUIDs)
     |> List.sort
     |> Map.ofList

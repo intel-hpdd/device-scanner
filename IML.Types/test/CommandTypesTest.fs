@@ -10,6 +10,7 @@ open Fable.Import
 open Matchers
 open CommandTypes
 open Thot.Json
+open Fixtures
 
 let encoder enc x =
   enc x
@@ -72,9 +73,25 @@ let mountDecode = decoder MountCommand.decode
 
 let mountTestPrefix = "encoding Mount commands"
 
+let mountParamsShort =
+  Mount.MountPoint "/",
+  Mount.BdevPath "/foo/bar",
+  Mount.FsType "ext4",
+  Mount.MountOpts "rw,rela"
+
+let mountParamsLong =
+  Mount.MountPoint "/",
+  Mount.BdevPath "/foo/bar",
+  Mount.FsType "ext4",
+  Mount.MountOpts "rw,rela",
+  Mount.MountPoint "/old",
+  Mount.MountOpts "ro"
+
 let mountCommands = [
-    ("AddMount", MountCommand.AddMount (Mount.MountPoint "/", Mount.BdevPath "/foo/bar", Mount.FsType "ext4", Mount.MountOpts "rw,rela"));
-    ("RemoveMount", MountCommand.RemoveMount (Mount.MountPoint "/", Mount.BdevPath "/foo/bar", Mount.FsType "ext4", Mount.MountOpts "rw,rela"));
+    ("AddMount", MountCommand.AddMount mountParamsShort);
+    ("RemoveMount", MountCommand.RemoveMount mountParamsShort);
+    ("ReplaceMount", MountCommand.ReplaceMount mountParamsLong);
+    ("MoveMount", MountCommand.MoveMount mountParamsLong);
 ]
 
 mountCommands
@@ -90,11 +107,10 @@ mountCommands
 let commandTestPrefix = "encoding Commands"
 
 let commands = [
-  ("Stream", Command.Stream)
+  ("Stream", Command.Stream);
   ("ZedCommand", Command.ZedCommand ZedCommand.Init);
   ("UdevCommand", Command.UdevCommand (UdevCommand.Add "\"foo\""));
-  ("MountCommand", Command.MountCommand (MountCommand.AddMount
-    (Mount.MountPoint "/", Mount.BdevPath "/foo/bar", Mount.FsType "ext4", Mount.MountOpts "rw,rela")));
+  ("MountCommand", Command.MountCommand (MountCommand.AddMount mountParamsShort));
 ]
 
 commands

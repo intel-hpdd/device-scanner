@@ -21,6 +21,21 @@ exports[`encoding Mount commands AddMount 1`] = `
 }"
 `;
 
+exports[`encoding Mount commands MoveMount 1`] = `
+"{
+  \\"MountCommand\\": {
+    \\"MoveMount\\": [
+      \\"/\\",
+      \\"/foo/bar\\",
+      \\"ext4\\",
+      \\"rw,rela\\",
+      \\"/old\\",
+      \\"ro\\"
+    ]
+  }
+}"
+`;
+
 exports[`encoding Mount commands RemoveMount 1`] = `
 "{
   \\"MountCommand\\": {
@@ -29,6 +44,21 @@ exports[`encoding Mount commands RemoveMount 1`] = `
       \\"/foo/bar\\",
       \\"ext4\\",
       \\"rw,rela\\"
+    ]
+  }
+}"
+`;
+
+exports[`encoding Mount commands ReplaceMount 1`] = `
+"{
+  \\"MountCommand\\": {
+    \\"ReplaceMount\\": [
+      \\"/\\",
+      \\"/foo/bar\\",
+      \\"ext4\\",
+      \\"rw,rela\\",
+      \\"/old\\",
+      \\"ro\\"
     ]
   }
 }"

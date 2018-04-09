@@ -366,7 +366,7 @@ module MountCommand =
     Decode.field "MoveMount"
       (Decode.map6
         (fun target source fstype opts oldTarget oldOpts ->
-          MountCommand.ReplaceMount (
+          MountCommand.MoveMount (
             Mount.MountPoint target,
             Mount.BdevPath source,
             Mount.FsType fstype,

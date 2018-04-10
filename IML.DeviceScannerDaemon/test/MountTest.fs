@@ -50,15 +50,11 @@ test "Adding then removing a mount" <| fun () ->
 
 
 test "Remounting a mount with different options" <| fun () ->
-  expect.assertions 1
-
   (MountCommand.ReplaceMount mountParamsReplace)
     |> update (singleMount |> Result.unwrap)
     |> snap
 
 test "Moving a mount to a different mount-point" <| fun () ->
-  expect.assertions 1
-
   (MountCommand.MoveMount mountParamsMove)
     |> update (singleMount |> Result.unwrap)
     |> snap

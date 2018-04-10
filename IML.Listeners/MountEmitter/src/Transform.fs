@@ -20,7 +20,10 @@ let private toRow = function
   | [| a; b; c; d; e; f; |] -> Ok (a, b, c, d, e, f, "")
   // umount or header
   | [| a; b; c; d; e; f; g; |] -> Ok (a, b, c, d, e, f, g)
-  | x -> failwithf "did not get expected row data, got %A" x
+  | x ->
+    sprintf "did not get expected row contents, got %A" x
+      |> exn
+      |> Error
 
 let private notHeader = function
   | (_, "TARGET", "SOURCE", "FSTYPE", "OPTIONS", _, _) -> false

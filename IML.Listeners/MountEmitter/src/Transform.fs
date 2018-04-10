@@ -13,20 +13,20 @@ type Row = (string * string * string * string * string * string * string)
 
 let private toRow = function
   // findmnt --list (record or header)
-  | [| a; b; c; d; |] -> Ok ("mount", a, b, c, d, "", "")
+  | [| a; b; c; d; |] -> Ok ("mount", a, b, c, d, "")
   // mount
-  | [| a; b; c; d; e; |] -> Ok (a, b, c, d, e, "", "")
+  | [| a; b; c; d; e; |] -> Ok (a, b, c, d, e, "")
   // remount or move
-  | [| a; b; c; d; e; f; |] -> Ok (a, b, c, d, e, f, "")
+  | [| a; b; c; d; e; f; |] -> Ok (a, b, c, d, e, f)
   // umount or header
-  | [| a; b; c; d; e; f; g; |] -> Ok (a, b, c, d, e, f, g)
+  | [| a; b; c; d; e; f; _; |] -> Ok (a, b, c, d, e, f)
   | x ->
     sprintf "did not get expected row contents, got %A" x
       |> exn
       |> Error
 
 let private notHeader = function
-  | (_, "TARGET", "SOURCE", "FSTYPE", "OPTIONS", _, _) -> false
+  | (_, "TARGET", "SOURCE", "FSTYPE", "OPTIONS", _) -> false
   | _ -> true
 
 let transform (x:Stream.Readable<string>) =
@@ -37,7 +37,7 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.map toRow
     |> Stream.filter (notHeader >> Ok)
     |> Stream.map(function
-      | a, b, c, d, e, f, _ ->
+      | a, b, c, d, e, f ->
         let short =
           (
             Mount.MountPoint b,

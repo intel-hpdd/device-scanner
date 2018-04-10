@@ -15,7 +15,7 @@ Command {
 }
 `;
 
-exports[`list then poll 1`] = `
+exports[`list then poll mount 1`] = `
 List {
   "head": Command {
     "data": MountCommand {
@@ -82,25 +82,117 @@ List {
             "tag": 3,
           },
           "tail": List {
-            "head": Command {
-              "data": MountCommand {
-                "data": Array [
-                  "/mnt/fs-OST0002",
-                  "/dev/sdd",
-                  "lustre",
-                  "ro",
-                ],
-                "tag": 1,
-              },
-              "tag": 3,
-            },
-            "tail": List {
-              "head": undefined,
-              "tail": undefined,
-            },
+            "head": undefined,
+            "tail": undefined,
           },
         },
       },
+    },
+  },
+}
+`;
+
+exports[`list then poll move 1`] = `
+List {
+  "head": Command {
+    "data": MountCommand {
+      "data": Array [
+        "/mnt/fs-OST0002",
+        "/dev/sdd",
+        "lustre",
+        "ro",
+      ],
+      "tag": 0,
+    },
+    "tag": 3,
+  },
+  "tail": List {
+    "head": Command {
+      "data": MountCommand {
+        "data": Array [
+          "/mnt/fs-OST0002",
+          "/dev/sdd",
+          "lustre",
+          "ro",
+        ],
+        "tag": 1,
+      },
+      "tag": 3,
+    },
+    "tail": List {
+      "head": undefined,
+      "tail": undefined,
+    },
+  },
+}
+`;
+
+exports[`list then poll remount 1`] = `
+List {
+  "head": Command {
+    "data": MountCommand {
+      "data": Array [
+        "/mnt/fs-OST0002",
+        "/dev/sdd",
+        "lustre",
+        "ro",
+      ],
+      "tag": 0,
+    },
+    "tag": 3,
+  },
+  "tail": List {
+    "head": Command {
+      "data": MountCommand {
+        "data": Array [
+          "/mnt/fs-OST0002",
+          "/dev/sdd",
+          "lustre",
+          "ro",
+          "rw,rela",
+        ],
+        "tag": 2,
+      },
+      "tag": 3,
+    },
+    "tail": List {
+      "head": undefined,
+      "tail": undefined,
+    },
+  },
+}
+`;
+
+exports[`list then poll umount 1`] = `
+List {
+  "head": Command {
+    "data": MountCommand {
+      "data": Array [
+        "/mnt/fs-OST0002",
+        "/dev/sdd",
+        "lustre",
+        "ro",
+      ],
+      "tag": 0,
+    },
+    "tag": 3,
+  },
+  "tail": List {
+    "head": Command {
+      "data": MountCommand {
+        "data": Array [
+          "/mnt/fs-OST0002",
+          "/dev/sdd",
+          "lustre",
+          "ro",
+        ],
+        "tag": 1,
+      },
+      "tag": 3,
+    },
+    "tail": List {
+      "head": undefined,
+      "tail": undefined,
     },
   },
 }
@@ -110,10 +202,10 @@ exports[`poll mount 1`] = `
 Command {
   "data": MountCommand {
     "data": Array [
-      "/mnt/fs-OST0002",
-      "/dev/sdd",
-      "lustre",
-      "ro",
+      "/mnt/part1",
+      "/dev/sde1",
+      "ext4",
+      "rw,relatime,data=ordered",
     ],
     "tag": 0,
   },
@@ -181,6 +273,38 @@ List {
       },
     },
   },
+}
+`;
+
+exports[`poll move 1`] = `
+Command {
+  "data": MountCommand {
+    "data": Array [
+      "/mnt/part1a",
+      "/dev/sde1",
+      "ext4",
+      "ro,relatime,data=ordered",
+      "/mnt/part1",
+    ],
+    "tag": 3,
+  },
+  "tag": 3,
+}
+`;
+
+exports[`poll remount 1`] = `
+Command {
+  "data": MountCommand {
+    "data": Array [
+      "/mnt/part1",
+      "/dev/sde1",
+      "ext4",
+      "ro,relatime,data=ordered",
+      "rw,relatime,data=ordered",
+    ],
+    "tag": 2,
+  },
+  "tag": 3,
 }
 `;
 

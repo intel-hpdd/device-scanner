@@ -10,40 +10,6 @@ open IML.Types.MountTypes
 
 let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
   match x with
-  | MoveMount
-      (
-        Mount.MountPoint target,
-        Mount.BdevPath source,
-        Mount.FsType fstype,
-        Mount.MountOpts opts,
-        Mount.MountPoint oldTarget,
-        Mount.MountOpts oldOpts
-      )
-  | ReplaceMount
-      (
-        Mount.MountPoint target,
-        Mount.BdevPath source,
-        Mount.FsType fstype,
-        Mount.MountOpts opts,
-        Mount.MountPoint oldTarget,
-        Mount.MountOpts oldOpts
-      ) ->
-        Set.remove (
-          {
-            target = oldTarget;
-            source = source;
-            fstype = fstype;
-            opts = oldOpts;
-          }
-        ) localMounts
-        |> Set.add (
-             {
-               target = target;
-               source = source;
-               fstype = fstype;
-               opts = opts;
-             }
-           )
   | AddMount
       (
         Mount.MountPoint target,
@@ -74,4 +40,52 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
             opts = opts;
           }
         ) localMounts
+  | ReplaceMount
+      (
+        Mount.MountPoint target,
+        Mount.BdevPath source,
+        Mount.FsType fstype,
+        Mount.MountOpts opts,
+        Mount.MountOpts oldOpts
+      ) ->
+        Set.remove (
+          {
+            target = target;
+            source = source;
+            fstype = fstype;
+            opts = oldOpts;
+          }
+        ) localMounts
+        |> Set.add (
+          {
+            target = target;
+            source = source;
+            fstype = fstype;
+            opts = opts;
+          }
+        )
+  | MoveMount
+      (
+        Mount.MountPoint target,
+        Mount.BdevPath source,
+        Mount.FsType fstype,
+        Mount.MountOpts opts,
+        Mount.MountPoint oldTarget
+      ) ->
+        Set.remove (
+          {
+            target = oldTarget;
+            source = source;
+            fstype = fstype;
+            opts = opts;
+          }
+        ) localMounts
+        |> Set.add (
+          {
+            target = target;
+            source = source;
+            fstype = fstype;
+            opts = opts;
+          }
+        )
   |> Ok

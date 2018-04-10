@@ -39,11 +39,36 @@ let private snap (x:Result<LocalMounts, exn>) =
     |> Encode.encode 2
     |> toMatchSnapshot
 
+let newMounts =
+  (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
+    |> update localMounts
+    |> Result.unwrap
+
 test "Adding a new mount" <| fun () ->
   expect.assertions 1
 
   (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
     |> update localMounts
+    |> snap
+
+test "Removing a mount" <| fun () ->
+  expect.assertions 1
+
+  (MountCommand.RemoveMount (fixtures.mount |> decodeToTuple))
+    |> update newMounts
+    |> snap
+
+test "Remounting a mount with different options" <| fun () ->
+  expect.assertions 1
+
+  let newMounts =
+    (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
+      |> update localMounts
+      |> Result.unwrap
+
+  let mountTuple = (fixtures.mount |> decodeToTuple)
+  (MountCommand.ReplaceMount
+    |> update newMounts
     |> snap
 
 test "Removing a mount" <| fun () ->

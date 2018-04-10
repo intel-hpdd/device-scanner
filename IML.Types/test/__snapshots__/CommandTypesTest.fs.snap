@@ -29,8 +29,7 @@ exports[`encoding Mount commands MoveMount 1`] = `
       \\"/foo/bar\\",
       \\"ext4\\",
       \\"rw,rela\\",
-      \\"/old\\",
-      \\"ro\\"
+      \\"/old\\"
     ]
   }
 }"
@@ -57,7 +56,6 @@ exports[`encoding Mount commands ReplaceMount 1`] = `
       \\"/foo/bar\\",
       \\"ext4\\",
       \\"rw,rela\\",
-      \\"/old\\",
       \\"ro\\"
     ]
   }

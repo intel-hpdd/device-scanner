@@ -53,7 +53,7 @@ export default [
     plugins: getPlugins()
   },
   {
-    input: 'IML.Listeners/MountEmitter/src/MountEmitter.fsproj',
+    input: 'IML.Listeners/MountEmitter/src/IML.MountEmitter.fsproj',
     external: ['net', 'buffer', 'stream'],
     output: {
       banner: '#!/usr/bin/env node',

@@ -10,7 +10,6 @@ open Fable.Import
 open Matchers
 open CommandTypes
 open Thot.Json
-open Fixtures
 
 let encoder enc x =
   enc x
@@ -79,19 +78,19 @@ let mountParamsShort =
   Mount.FsType "ext4",
   Mount.MountOpts "rw,rela"
 
-let mountParamsLong =
-  Mount.MountPoint "/",
-  Mount.BdevPath "/foo/bar",
-  Mount.FsType "ext4",
-  Mount.MountOpts "rw,rela",
-  Mount.MountPoint "/old",
-  Mount.MountOpts "ro"
+let mountParamsReplace =
+  let (target, source, fstype, opts) = mountParamsShort
+  target, source, fstype, opts, Mount.MountOpts "ro"
+
+let mountParamsMove =
+  let (target, source, fstype, opts) = mountParamsShort
+  target, source, fstype, opts, Mount.MountPoint "/old"
 
 let mountCommands = [
     ("AddMount", MountCommand.AddMount mountParamsShort);
     ("RemoveMount", MountCommand.RemoveMount mountParamsShort);
-    ("ReplaceMount", MountCommand.ReplaceMount mountParamsLong);
-    ("MoveMount", MountCommand.MoveMount mountParamsLong);
+    ("ReplaceMount", MountCommand.ReplaceMount mountParamsReplace);
+    ("MoveMount", MountCommand.MoveMount mountParamsMove);
 ]
 
 mountCommands
@@ -165,7 +164,7 @@ mountCommands
       mountDecode !!(JS.JSON.parse o) == Ok cmd
     )
   )
-  |> testList "decoding Mounnt commands"
+  |> testList "decoding Mount commands"
 
 commands
   |> List.map (fun ((name, cmd)) ->

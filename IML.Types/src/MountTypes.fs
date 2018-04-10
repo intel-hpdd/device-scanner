@@ -4,11 +4,9 @@
 
 module IML.Types.MountTypes
 
-open Fable.Core
 open IML.CommonLibrary
 open Thot.Json
 
-[<Pojo>]
 type LocalMount =
   {
     target: string;

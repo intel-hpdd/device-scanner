@@ -17,14 +17,15 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
         Mount.FsType fstype,
         Mount.MountOpts opts
       ) ->
-        Set.add (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        ) localMounts
+        Set.add
+          (
+            {
+              target = target;
+              source = source;
+              fstype = fstype;
+              opts = opts;
+            }
+          ) localMounts
   | RemoveMount
       (
         Mount.MountPoint target,
@@ -32,14 +33,15 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
         Mount.FsType fstype,
         Mount.MountOpts opts
       ) ->
-        Set.remove (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        ) localMounts
+        Set.remove
+          (
+            {
+              target = target;
+              source = source;
+              fstype = fstype;
+              opts = opts;
+            }
+          ) localMounts
   | ReplaceMount
       (
         Mount.MountPoint target,
@@ -48,22 +50,24 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
         Mount.MountOpts opts,
         Mount.MountOpts oldOpts
       ) ->
-        Set.remove (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = oldOpts;
-          }
-        ) localMounts
-        |> Set.add (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        )
+        Set.remove
+          (
+            {
+              target = target;
+              source = source;
+              fstype = fstype;
+              opts = oldOpts;
+            }
+          ) localMounts
+          |> Set.add
+               (
+                 {
+                   target = target;
+                   source = source;
+                   fstype = fstype;
+                   opts = opts;
+                 }
+               )
   | MoveMount
       (
         Mount.MountPoint target,
@@ -72,20 +76,22 @@ let update (localMounts:LocalMounts) (x:MountCommand):Result<LocalMounts, exn> =
         Mount.MountOpts opts,
         Mount.MountPoint oldTarget
       ) ->
-        Set.remove (
-          {
-            target = oldTarget;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        ) localMounts
-        |> Set.add (
-          {
-            target = target;
-            source = source;
-            fstype = fstype;
-            opts = opts;
-          }
-        )
+        Set.remove
+          (
+            {
+              target = oldTarget;
+              source = source;
+              fstype = fstype;
+              opts = opts;
+            }
+          ) localMounts
+          |> Set.add
+               (
+                 {
+                   target = target;
+                   source = source;
+                   fstype = fstype;
+                   opts = opts;
+                 }
+               )
   |> Ok

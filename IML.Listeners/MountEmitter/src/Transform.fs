@@ -7,7 +7,6 @@ module IML.MountEmitter.Transform
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.Types.CommandTypes
-open Fable.Import.Node.Base.NodeJS
 
 // findmnt --poll -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS
 type Row = (string * string * string * string * string * string * string)
@@ -35,7 +34,7 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.map toRow
     |> Stream.filter (notHeader >> Ok)
     |> Stream.map(function
-      | a, b, c, d, e, f, g ->
+      | a, b, c, d, e, f, _ ->
         let short =
           (
             Mount.MountPoint b,
@@ -70,8 +69,8 @@ let transform (x:Stream.Readable<string>) =
               Mount.MountPoint f
             )
             |> Command.MountCommand |> Ok
-        //| e -> Error
-        // sprintf "did not get expected row, got %A" a |> Error
         | _ ->
-          failwithf "did not get expected row, got %A" a
+          sprintf "did not get expected row, got %A" a
+            |> exn
+            |> Error
     )

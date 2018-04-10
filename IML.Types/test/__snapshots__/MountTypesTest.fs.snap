@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`decode / encode LocalMounts  mount 1`] = `
-Object {
+LocalMount {
   "fstype": "ext4",
   "opts": "ro",
   "source": "/foo/bar",

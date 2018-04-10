@@ -1,86 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`list mount 1`] = `
-Command {
-  "data": MountCommand {
-    "data": Array [
-      "/mnt/fs-OST0002",
-      "/dev/sdd",
-      "lustre",
-      "ro",
-    ],
-    "tag": 0,
+List {
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+  "tail": List {
+    "head": undefined,
+    "tail": undefined,
   },
-  "tag": 3,
 }
 `;
 
 exports[`list then poll mount 1`] = `
 List {
-  "head": Command {
-    "data": MountCommand {
-      "data": Array [
-        "/sys",
-        "sysfs",
-        "sysfs",
-        "rw,nosu",
-      ],
-      "tag": 0,
-    },
-    "tag": 3,
-  },
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/sys\\",\\"sysfs\\",\\"sysfs\\",\\"rw,nosu\\"]}}",
   "tail": List {
-    "head": Command {
-      "data": MountCommand {
-        "data": Array [
-          "/proc",
-          "proc",
-          "proc",
-          "rw,nosu",
-        ],
-        "tag": 0,
-      },
-      "tag": 3,
-    },
+    "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/proc\\",\\"proc\\",\\"proc\\",\\"rw,nosu\\"]}}",
     "tail": List {
-      "head": Command {
-        "data": MountCommand {
-          "data": Array [
-            "/run",
-            "tmpfs",
-            "tmpfs",
-            "rw,nosu",
-          ],
-          "tag": 0,
-        },
-        "tag": 3,
-      },
+      "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/run\\",\\"tmpfs\\",\\"tmpfs\\",\\"rw,nosu\\"]}}",
       "tail": List {
-        "head": Command {
-          "data": MountCommand {
-            "data": Array [
-              "/",
-              "/dev/disk/by-uuid/6fa5a72a-ba26-4588-a103-74bb6b33a763",
-              "ext4",
-              "rw,rela",
-            ],
-            "tag": 0,
-          },
-          "tag": 3,
-        },
+        "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/\\",\\"/dev/disk/by-uuid/6fa5a72a-ba26-4588-a103-74bb6b33a763\\",\\"ext4\\",\\"rw,rela\\"]}}",
         "tail": List {
-          "head": Command {
-            "data": MountCommand {
-              "data": Array [
-                "/mnt/fs-OST0002",
-                "/dev/sdd",
-                "lustre",
-                "ro",
-              ],
-              "tag": 0,
-            },
-            "tag": 3,
-          },
+          "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
           "tail": List {
             "head": undefined,
             "tail": undefined,
@@ -94,31 +34,9 @@ List {
 
 exports[`list then poll move 1`] = `
 List {
-  "head": Command {
-    "data": MountCommand {
-      "data": Array [
-        "/mnt/fs-OST0002",
-        "/dev/sdd",
-        "lustre",
-        "ro",
-      ],
-      "tag": 0,
-    },
-    "tag": 3,
-  },
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
   "tail": List {
-    "head": Command {
-      "data": MountCommand {
-        "data": Array [
-          "/mnt/fs-OST0002",
-          "/dev/sdd",
-          "lustre",
-          "ro",
-        ],
-        "tag": 1,
-      },
-      "tag": 3,
-    },
+    "head": "{\\"MountCommand\\":{\\"MoveMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\",\\"/mnt/fs-OST0003\\"]}}",
     "tail": List {
       "head": undefined,
       "tail": undefined,
@@ -129,32 +47,9 @@ List {
 
 exports[`list then poll remount 1`] = `
 List {
-  "head": Command {
-    "data": MountCommand {
-      "data": Array [
-        "/mnt/fs-OST0002",
-        "/dev/sdd",
-        "lustre",
-        "ro",
-      ],
-      "tag": 0,
-    },
-    "tag": 3,
-  },
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
   "tail": List {
-    "head": Command {
-      "data": MountCommand {
-        "data": Array [
-          "/mnt/fs-OST0002",
-          "/dev/sdd",
-          "lustre",
-          "ro",
-          "rw,rela",
-        ],
-        "tag": 2,
-      },
-      "tag": 3,
-    },
+    "head": "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\",\\"rw,rela\\"]}}",
     "tail": List {
       "head": undefined,
       "tail": undefined,
@@ -165,31 +60,9 @@ List {
 
 exports[`list then poll umount 1`] = `
 List {
-  "head": Command {
-    "data": MountCommand {
-      "data": Array [
-        "/mnt/fs-OST0002",
-        "/dev/sdd",
-        "lustre",
-        "ro",
-      ],
-      "tag": 0,
-    },
-    "tag": 3,
-  },
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
   "tail": List {
-    "head": Command {
-      "data": MountCommand {
-        "data": Array [
-          "/mnt/fs-OST0002",
-          "/dev/sdd",
-          "lustre",
-          "ro",
-        ],
-        "tag": 1,
-      },
-      "tag": 3,
-    },
+    "head": "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
     "tail": List {
       "head": undefined,
       "tail": undefined,
@@ -199,73 +72,24 @@ List {
 `;
 
 exports[`poll mount 1`] = `
-Command {
-  "data": MountCommand {
-    "data": Array [
-      "/mnt/part1",
-      "/dev/sde1",
-      "ext4",
-      "rw,relatime,data=ordered",
-    ],
-    "tag": 0,
+List {
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"rw,relatime,data=ordered\\"]}}",
+  "tail": List {
+    "head": undefined,
+    "tail": undefined,
   },
-  "tag": 3,
 }
 `;
 
 exports[`poll mount then umount 1`] = `
 List {
-  "head": Command {
-    "data": MountCommand {
-      "data": Array [
-        "/testPool4",
-        "testPool4",
-        "zfs",
-        "rw,xattr,noacl",
-      ],
-      "tag": 0,
-    },
-    "tag": 3,
-  },
+  "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
   "tail": List {
-    "head": Command {
-      "data": MountCommand {
-        "data": Array [
-          "/testPool4/home",
-          "testPool4/home",
-          "zfs",
-          "rw,xattr,noacl",
-        ],
-        "tag": 0,
-      },
-      "tag": 3,
-    },
+    "head": "{\\"MountCommand\\":{\\"AddMount\\":[\\"/testPool4/home\\",\\"testPool4/home\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
     "tail": List {
-      "head": Command {
-        "data": MountCommand {
-          "data": Array [
-            "/testPool4/home",
-            "testPool4/home",
-            "zfs",
-            "rw,xattr,noacl",
-          ],
-          "tag": 1,
-        },
-        "tag": 3,
-      },
+      "head": "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4/home\\",\\"testPool4/home\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
       "tail": List {
-        "head": Command {
-          "data": MountCommand {
-            "data": Array [
-              "/testPool4",
-              "testPool4",
-              "zfs",
-              "rw,xattr,noacl",
-            ],
-            "tag": 1,
-          },
-          "tag": 3,
-        },
+        "head": "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
         "tail": List {
           "head": undefined,
           "tail": undefined,
@@ -277,48 +101,31 @@ List {
 `;
 
 exports[`poll move 1`] = `
-Command {
-  "data": MountCommand {
-    "data": Array [
-      "/mnt/part1a",
-      "/dev/sde1",
-      "ext4",
-      "ro,relatime,data=ordered",
-      "/mnt/part1",
-    ],
-    "tag": 3,
+List {
+  "head": "{\\"MountCommand\\":{\\"MoveMount\\":[\\"/mnt/part1a\\",\\"/dev/sde1\\",\\"ext4\\",\\"ro,relatime,data=ordered\\",\\"/mnt/part1\\"]}}",
+  "tail": List {
+    "head": undefined,
+    "tail": undefined,
   },
-  "tag": 3,
 }
 `;
 
 exports[`poll remount 1`] = `
-Command {
-  "data": MountCommand {
-    "data": Array [
-      "/mnt/part1",
-      "/dev/sde1",
-      "ext4",
-      "ro,relatime,data=ordered",
-      "rw,relatime,data=ordered",
-    ],
-    "tag": 2,
+List {
+  "head": "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"ro,relatime,data=ordered\\",\\"rw,relatime,data=ordered\\"]}}",
+  "tail": List {
+    "head": undefined,
+    "tail": undefined,
   },
-  "tag": 3,
 }
 `;
 
 exports[`poll umount 1`] = `
-Command {
-  "data": MountCommand {
-    "data": Array [
-      "/testPool4",
-      "testPool4",
-      "zfs",
-      "rw,xattr,noacl",
-    ],
-    "tag": 1,
+List {
+  "head": "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
+  "tail": List {
+    "head": undefined,
+    "tail": undefined,
   },
-  "tag": 3,
 }
 `;

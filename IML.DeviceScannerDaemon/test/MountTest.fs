@@ -6,7 +6,6 @@ module IML.DeviceScannerDaemon.MountTest
 
 open Fable.Import.Jest
 open Matchers
-open Fixtures
 open IML.CommonLibrary
 open IML.Types.CommandTypes
 open Fable.PowerPack
@@ -14,23 +13,19 @@ open Thot.Json
 open IML.Types.MountTypes
 open IML.DeviceScannerDaemon.Mount
 
-let matcher localMounts x =
-  x
-    |> update localMounts
-    |> toMatchSnapshot
+let private mountParamsShort =
+  Mount.MountPoint "/",
+  Mount.BdevPath "/foo/bar",
+  Mount.FsType "ext4",
+  Mount.MountOpts "rw,rela"
 
-let private localMounts = Set.empty
+let private mountParamsReplace =
+  let (target, source, fstype, opts) = mountParamsShort
+  target, source, fstype, Mount.MountOpts "ro", opts
 
-let private decodeToTuple (s:string) =
-  let m =
-    s
-      |> LocalMount.decoder
-      |> Result.unwrap
-
-  (Mount.MountPoint m.target,
-   Mount.BdevPath m.source,
-   Mount.FsType m.fstype,
-   Mount.MountOpts m.opts)
+let private mountParamsMove =
+  let (target, source, fstype, opts) = mountParamsShort
+  Mount.MountPoint "/new", source, fstype, opts, target
 
 let private snap (x:Result<LocalMounts, exn>) =
   x
@@ -39,46 +34,32 @@ let private snap (x:Result<LocalMounts, exn>) =
     |> Encode.encode 2
     |> toMatchSnapshot
 
-let newMounts =
-  (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
-    |> update localMounts
-    |> Result.unwrap
+let singleMount =
+  (MountCommand.AddMount mountParamsShort)
+    |> update Set.empty
 
-test "Adding a new mount" <| fun () ->
-  expect.assertions 1
+test "Adding then removing a mount" <| fun () ->
+  expect.assertions 2
 
-  (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
-    |> update localMounts
+  singleMount
     |> snap
 
-test "Removing a mount" <| fun () ->
-  expect.assertions 1
-
-  (MountCommand.RemoveMount (fixtures.mount |> decodeToTuple))
-    |> update newMounts
+  (MountCommand.RemoveMount mountParamsShort)
+    |> update (singleMount |> Result.unwrap)
     |> snap
+
 
 test "Remounting a mount with different options" <| fun () ->
   expect.assertions 1
 
-  let newMounts =
-    (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
-      |> update localMounts
-      |> Result.unwrap
-
-  let mountTuple = (fixtures.mount |> decodeToTuple)
-  (MountCommand.ReplaceMount
-    |> update newMounts
+  (MountCommand.ReplaceMount mountParamsReplace)
+    |> update (singleMount |> Result.unwrap)
     |> snap
 
-test "Removing a mount" <| fun () ->
+test "Moving a mount to a different mount-point" <| fun () ->
   expect.assertions 1
 
-  let newMounts =
-    (MountCommand.AddMount (fixtures.mount |> decodeToTuple))
-      |> update localMounts
-      |> Result.unwrap
-
-  (MountCommand.RemoveMount (fixtures.mount |> decodeToTuple))
-    |> update newMounts
+  (MountCommand.MoveMount mountParamsMove)
+    |> update (singleMount |> Result.unwrap)
     |> snap
+

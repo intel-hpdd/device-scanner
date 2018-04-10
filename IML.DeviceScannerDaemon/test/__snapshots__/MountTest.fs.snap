@@ -1,17 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Adding a new mount 1`] = `
+exports[`Adding then removing a mount 1`] = `
 "[
   {
     \\"target\\": \\"/\\",
     \\"source\\": \\"/foo/bar\\",
     \\"fstype\\": \\"ext4\\",
-    \\"opts\\": \\"ro\\"
+    \\"opts\\": \\"rw,rela\\"
   }
 ]"
 `;
 
-exports[`Removing a mount 1`] = `
+exports[`Adding then removing a mount 2`] = `"[]"`;
+
+exports[`Moving a mount to a different mount-point 1`] = `
+"[
+  {
+    \\"target\\": \\"/new\\",
+    \\"source\\": \\"/foo/bar\\",
+    \\"fstype\\": \\"ext4\\",
+    \\"opts\\": \\"rw,rela\\"
+  }
+]"
+`;
+
+exports[`Remounting a mount with different options 1`] = `
 "[
   {
     \\"target\\": \\"/\\",

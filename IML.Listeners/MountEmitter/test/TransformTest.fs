@@ -3,31 +3,28 @@ module IML.MountEmitter.TransformTest
 open Fable.Import.Jest
 open Fable.Import.Node.PowerPack.Stream
 open Transform
+open IML.Types.CommandTypes
 open Fable.PowerPack
-
-let streamTap =
-  transform
-    >> tap (fun xs -> expect.Invoke(xs).toMatchSnapshot())
-    >> Util.streamToPromise
+open Matchers
 
 let promiseMatch =
   transform
     >> Util.streamToPromise
-    >> Promise.map (fun xs -> expect.Invoke(xs).toMatchSnapshot())
+    >> Promise.map ((List.map Command.encoder) >> toMatchSnapshot)
 
 testAsync "poll mount" <| fun () ->
   streams {
     yield "ACTION     TARGET     SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
     yield "mount      /mnt/part1 /dev/sde1 ext4   rw,relatime,data=ordered\n"
   }
-    |> streamTap
+    |> promiseMatch
 
 testAsync "poll umount" <| fun () ->
   streams {
     yield "ACTION     TARGET          SOURCE         FSTYPE OPTIONS        OLD-TARGET      OLD-OPTIONS\n"
     yield "umount     /testPool4      testPool4      zfs    rw,xattr,noacl /testPool4      rw,xattr,noacl\n"
   }
-    |> streamTap
+    |> promiseMatch
 
 // mount /mnt/part1 -o remount,ro
 testAsync "poll remount" <| fun () ->
@@ -35,21 +32,21 @@ testAsync "poll remount" <| fun () ->
     yield "ACTION     TARGET     SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
     yield "remount    /mnt/part1 /dev/sde1 ext4   ro,relatime,data=ordered            rw,relatime,data=ordered\n"
   }
-    |> streamTap
+    |> promiseMatch
 
 testAsync "poll move" <| fun () ->
   streams {
     yield "ACTION     TARGET      SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
     yield "move       /mnt/part1a /dev/sde1 ext4   ro,relatime,data=ordered /mnt/part1\n"
   }
-    |> streamTap
+    |> promiseMatch
 
 testAsync "list mount" <| fun () ->
   streams {
     yield "TARGET SOURCE FSTYPE OPTIONS\n"
     yield "/mnt/fs-OST0002 /dev/sdd lustre ro\n"
   }
-    |> streamTap
+    |> promiseMatch
 
 testAsync "poll mount then umount" <| fun () ->
   streams {
@@ -103,7 +100,7 @@ testAsync "list then poll move" <| fun () ->
     yield "/mnt/fs-OST0002          /dev/sdd                            lustre  ro\n"
 
     yield "ACTION TARGET SOURCE FSTYPE OPTIONS OLD-TARGET OLD-OPTIONS\n"
-    yield "umount      /mnt/fs-OST0002 /dev/sdd lustre ro /mnt/fs-OST0003\n"
+    yield "move      /mnt/fs-OST0002 /dev/sdd lustre ro /mnt/fs-OST0003\n"
   }
     |> promiseMatch
 

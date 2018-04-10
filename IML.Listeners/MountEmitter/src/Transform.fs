@@ -8,9 +8,6 @@ open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.Types.CommandTypes
 
-// findmnt --poll -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS
-type Row = (string * string * string * string * string * string * string)
-
 let private toRow = function
   // findmnt --list (record or header)
   | [| a; b; c; d; |] -> Ok ("mount", a, b, c, d, "")

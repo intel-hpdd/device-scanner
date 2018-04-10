@@ -10,7 +10,7 @@ open Matchers
 let promiseMatch =
   transform
     >> Util.streamToPromise
-    >> Promise.map ((List.map Command.encoder) >> toMatchSnapshot)
+    >> Promise.map (List.toArray >> (Array.map Command.encoder) >> toMatchSnapshot)
 
 testAsync "poll mount" <| fun () ->
   streams {

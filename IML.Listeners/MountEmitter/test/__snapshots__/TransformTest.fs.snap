@@ -1,8 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`list mount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"rw,relatime,data=ordered\\"]}}",
+]
+`;
+
+exports[`list then poll mount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/sys\\",\\"sysfs\\",\\"sysfs\\",\\"rw,nosu\\"]}}",
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+]
+`;
+
+exports[`list then poll move 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+  "{\\"MountCommand\\":{\\"MoveMount\\":[\\"/mnt/fs-OST0003\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\",\\"/mnt/fs-OST0002\\"]}}",
+]
+`;
+
+exports[`list then poll remount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+  "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"rw,rela\\",\\"ro\\"]}}",
+]
+`;
+
+exports[`list then poll umount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+  "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/mnt/fs-OST0002\\",\\"/dev/sdd\\",\\"lustre\\",\\"ro\\"]}}",
+]
+`;
+
 exports[`poll mount 1`] = `
 Array [
   "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"rw,relatime,data=ordered\\"]}}",
+]
+`;
+
+exports[`poll mount then umount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/testPool4/home\\",\\"testPool4/home\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
+  "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4/home\\",\\"testPool4/home\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
+  "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
 ]
 `;
 
@@ -14,7 +57,7 @@ Array [
 
 exports[`poll remount 1`] = `
 Array [
-  "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"ro,relatime,data=ordered\\",\\"\\"]}}",
+  "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"ro,relatime,data=ordered\\",\\"rw,data=ordered\\"]}}",
 ]
 `;
 

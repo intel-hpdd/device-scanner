@@ -7,33 +7,23 @@ module IML.MountEmitter.Transform
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.Types.CommandTypes
-open IML.CommonLibrary
+open Fable
 
 let private toError =
   exn >> Error
 
-let private columnError = function
-  | x -> toError (sprintf "did not find expected column values for '%A' action" x)
-
 let private toSuccess =
   Command.MountCommand >> Ok
 
-let private toMap (xs:string []) =
-  let mutable pairs = Map.empty
-  let splitChar = '='
+let private toMap =
+  Array.fold (fun acc (x:string) ->
+    let idx = x.IndexOf "="
+    let k = x.Substring(0, idx)
+    let v = x.Substring(idx + 1).Trim('"')
 
-  xs
-    |> Array.map (fun x ->
-      x
-        |> fun (x:string) -> x.Split splitChar
-        |> fun xs ->
-          let (first, remainder) = Array.splitAt 1 xs
-          let remainder = Array.reduce (fun acc item -> acc + (string splitChar) + item) remainder
-
-          pairs <- Map.add (Array.head first) (remainder.Trim '"') pairs
-    ) |> ignore
-
-  pairs |> Ok
+    Map.add k v acc
+  ) Map.empty
+  >> Ok
 
 let transform (x:Stream.Readable<string>) =
   x
@@ -44,37 +34,27 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.map (fun m ->
       let short =
         (
-          Mount.MountPoint (Option.get (m.TryFind "TARGET")),
-          Mount.BdevPath (Option.get (m.TryFind "SOURCE")),
-          Mount.FsType (Option.get (m.TryFind "FSTYPE")),
-          Mount.MountOpts (Option.get (m.TryFind "OPTIONS"))
+          Mount.MountPoint (Map.find "TARGET" m),
+          Mount.BdevPath (Map.find "SOURCE" m),
+          Mount.FsType (Map.find "FSTYPE" m),
+          Mount.MountOpts (Map.find "OPTIONS" m)
         )
       let (target, source, fstype, opts) = short
       match m.TryFind "ACTION" with
-      | Some x ->
-        match x with
-        | "mount" -> AddMount short |> toSuccess
-        | "umount" -> RemoveMount short |> toSuccess
-        | "remount" ->
-          match m.TryFind "OLD-TARGET" with
-          | Some y ->
-            ReplaceMount
-              (
-                target, source, fstype, opts,
-                Mount.MountOpts y
-              ) |> toSuccess
-          | None -> columnError x
-        | "move" ->
-          match m.TryFind "OLD-TARGET" with
-          | Some y ->
-            MoveMount
-              (
-                target, source, fstype, opts,
-                Mount.MountPoint y
-              ) |> toSuccess
-          | None -> columnError x
-        | _ ->
-          toError (sprintf "unexpected action type, received %A" x)
+      | Some "mount" -> AddMount short |> toSuccess
+      | Some "umount" -> RemoveMount short |> toSuccess
+      | Some "remount" ->
+        ReplaceMount (
+          target, source, fstype, opts,
+          Mount.MountOpts (Map.find "OLD-OPTIONS" m)
+        ) |> toSuccess
+      | Some "move" ->
+        MoveMount (
+          target, source, fstype, opts,
+          Mount.MountPoint (Map.find "OLD-TARGET" m)
+        ) |> toSuccess
       // no ACTION key is populated when --poll option is not used
       | None -> AddMount short |> toSuccess
+      | Some _ ->
+        toError (sprintf "unexpected action type, received %A" x)
     )

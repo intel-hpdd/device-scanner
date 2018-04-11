@@ -4,8 +4,8 @@ Description=IML Mount Emitter
 [Service]
 Restart=always
 Environment=NODE_ENV=production
-ExecStartPre=stdbuf -o L findmnt --list | /usr/lib64/iml-mount-emitter/mount-emitter
-ExecStart=stdbuf -o L findmnt --poll -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS | /usr/lib64/iml-mount-emitter/mount-emitter
+ExecStartPre=stdbuf -o L findmnt -P | /usr/lib64/iml-mount-emitter/mount-emitter
+ExecStart=stdbuf -o L findmnt --poll -P -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS | /usr/lib64/iml-mount-emitter/mount-emitter
 StandardOutput=journal
 StandardError=journal
 

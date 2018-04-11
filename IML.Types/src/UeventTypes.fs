@@ -53,6 +53,7 @@ type UEvent =
     scsi80: string option;
     scsi83: string option;
     readOnly: bool option;
+    biosBoot: bool;
     dmSlaveMMs: string [];
     dmVgSize: string option;
     mdDevs: string [];
@@ -79,7 +80,7 @@ module UEvent =
         (fun major minor devlinks devname devpath devtype
              idVendor idModel idSerial idFsType idFsUsage idFsUuid
              idPartEntryNumber imlSize imlScsi80 imlScsi83
-             imlIsRo imlDmSlaveMms imlDmVgSize imlMdDevices
+             imlIsRo imlIsBiosBoot imlDmSlaveMms imlDmVgSize imlMdDevices
              dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
 
             { major = major
@@ -99,6 +100,7 @@ module UEvent =
               scsi80 = imlScsi80
               scsi83 = imlScsi83
               readOnly = imlIsRo
+              biosBoot = imlIsBiosBoot
               dmSlaveMMs = imlDmSlaveMms
               dmVgSize = imlDmVgSize
               mdDevs = imlMdDevices |> List.map snd |> List.toArray
@@ -125,6 +127,7 @@ module UEvent =
         |> Decode.optional "IML_SCSI_80" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.optional "IML_SCSI_83" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.optional "IML_IS_RO" (Decode.map (Option.map isOne) optionalString) None
+        |> Decode.optional "IML_IS_BIOS_BOOT"  (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_DM_SLAVE_MMS" (Decode.map splitSpace Decode.string) [||]
         |> Decode.optional "IML_DM_VG_SIZE" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) Decode.string)
@@ -146,7 +149,7 @@ module UEvent =
       (fun major minor paths devname devpath devtype
            vendor model serial fsType fsUsage fsUuid
            partEntryNumber size scsi80 scsi83
-           readOnly dmSlaveMMs dmVgSize mdDevs
+           readOnly biosBoot dmSlaveMMs dmVgSize mdDevs
            dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
 
           { major = major
@@ -166,6 +169,7 @@ module UEvent =
             scsi80 = scsi80
             scsi83 = scsi83
             readOnly = readOnly
+            biosBoot = biosBoot
             dmSlaveMMs = dmSlaveMMs
             dmVgSize = dmVgSize
             mdDevs = mdDevs
@@ -192,6 +196,7 @@ module UEvent =
         |> stringPropOption "scsi80"
         |> stringPropOption "scsi83"
         |> Decode.required "isReadOnly" (Decode.option Decode.bool)
+        |> Decode.required "isBiosBoot" Decode.bool
         |> Decode.required "dmSlaveMms" (Decode.array Decode.string)
         |> stringPropOption "dmVgSize"
         |> Decode.required "mdDevices" (Decode.array Decode.string)
@@ -224,6 +229,7 @@ module UEvent =
       scsi80 = imlScsi80
       scsi83 = imlScsi83
       readOnly = imlIsRo
+      biosBoot = imlIsBiosBoot
       dmSlaveMMs = imlDmSlaveMms
       dmVgSize = imlDmVgSize
       mdDevs = imlMdDevices
@@ -264,6 +270,7 @@ module UEvent =
         ("scsi80", Encode.option Encode.string imlScsi80);
         ("scsi83", Encode.option Encode.string imlScsi83);
         ("isReadOnly", Encode.option Encode.bool imlIsRo);
+        ("isBiosBoot", Encode.bool imlIsBiosBoot);
         ("dmSlaveMms", Encode.array (encodeStrings imlDmSlaveMms));
         ("dmVgSize", Encode.option Encode.string imlDmVgSize);
         ("mdDevices", Encode.array (encodeStrings imlMdDevices));

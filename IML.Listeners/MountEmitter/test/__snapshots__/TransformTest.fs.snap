@@ -1,36 +1,25 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`poll mount 1`] = `
-List {
-  "head": Array [
-    FableMap {
-      "comparer": Comparer {
-        "Compare": [Function],
-      },
-      "tree": MapTree {
-        "data": Array [
-          "ACTION",
-          "\\"mount\\"",
-        ],
-        "tag": 1,
-      },
-    },
-    FableMap {
-      "comparer": Comparer {
-        "Compare": [Function],
-      },
-      "tree": MapTree {
-        "data": Array [
-          "TARGET",
-          "\\"/\\"",
-        ],
-        "tag": 1,
-      },
-    },
-  ],
-  "tail": List {
-    "head": undefined,
-    "tail": undefined,
-  },
-}
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"rw,relatime,data=ordered\\"]}}",
+]
+`;
+
+exports[`poll move 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"MoveMount\\":[\\"/mnt/part1a\\",\\"/dev/sde1\\",\\"ext4\\",\\"rw,relatime,data=ordered\\",\\"/mnt/part1\\"]}}",
+]
+`;
+
+exports[`poll remount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"ReplaceMount\\":[\\"/mnt/part1\\",\\"/dev/sde1\\",\\"ext4\\",\\"ro,relatime,data=ordered\\",\\"\\"]}}",
+]
+`;
+
+exports[`poll umount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
+]
 `;

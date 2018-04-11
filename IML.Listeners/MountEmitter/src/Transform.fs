@@ -7,34 +7,33 @@ module IML.MountEmitter.Transform
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.Types.CommandTypes
+open IML.CommonLibrary
+
+let private toError =
+  exn >> Error
+
+let private columnError = function
+  | x -> toError (sprintf "did not find expected column values for '%A' action" x)
+
+let private toSuccess =
+  Command.MountCommand >> Ok
 
 let private toMap (xs:string []) =
-  let pairs = Map.empty
+  let mutable pairs = Map.empty
+  let splitChar = '='
 
   xs
     |> Array.map (fun x ->
       x
-        |> fun (x:string) -> x.Split '='
-        |> fun xs -> Map.add (Array.head xs) (Array.last xs) pairs
-    )
-    |> Ok
-// let private toRow = function
-  //findmnt --list (record or header)
-  // | [| a; b; c; d; |] -> Ok ("mount", a, b, c, d, "")
-  //mount
-  // | [| a; b; c; d; e; |] -> Ok (a, b, c, d, e, "")
-  //remount or move
-  // | [| a; b; c; d; e; f; |] -> Ok (a, b, c, d, e, f)
-  //umount or header
-  // | [| a; b; c; d; e; f; _; |] -> Ok (a, b, c, d, e, f)
-  // | x ->
-    // sprintf "did not get expected row contents, got %A" x
-      // |> exn
-      // |> Error
+        |> fun (x:string) -> x.Split splitChar
+        |> fun xs ->
+          let (first, remainder) = Array.splitAt 1 xs
+          let remainder = Array.reduce (fun acc item -> acc + (string splitChar) + item) remainder
 
-// let private notHeader = function
-  // | (_, "TARGET", "SOURCE", "FSTYPE", "OPTIONS", _) -> false
-  // | _ -> true
+          pairs <- Map.add (Array.head first) (remainder.Trim '"') pairs
+    ) |> ignore
+
+  pairs |> Ok
 
 let transform (x:Stream.Readable<string>) =
   x
@@ -42,45 +41,40 @@ let transform (x:Stream.Readable<string>) =
     |> Stream.LineDelimited.create()
     |> Stream.map (fun x -> Ok (x.Split([| ' ' |], System.StringSplitOptions.RemoveEmptyEntries)))
     |> Stream.map toMap
-    // |> Stream.filter (notHeader >> Ok)
-    // |> Stream.map(function
-      // | a, b, c, d, e, f ->
-        // let short =
-          // (
-            // Mount.MountPoint b,
-            // Mount.BdevPath c,
-            // Mount.FsType d,
-            // Mount.MountOpts e
-          // )
-        // match a with
-        // | "mount" ->
-          // AddMount short
-            // |> Command.MountCommand |> Ok
-        // | "umount" ->
-          // RemoveMount short
-            // |> Command.MountCommand |> Ok
-        // | "remount" ->
-          // ReplaceMount
-            // (
-              // Mount.MountPoint b,
-              // Mount.BdevPath c,
-              // Mount.FsType d,
-              // Mount.MountOpts e,
-              // Mount.MountOpts f
-            // )
-            // |> Command.MountCommand |> Ok
-        // | "move" ->
-          // MoveMount
-            // (
-              // Mount.MountPoint b,
-              // Mount.BdevPath c,
-              // Mount.FsType d,
-              // Mount.MountOpts e,
-              // Mount.MountPoint f
-            // )
-            // |> Command.MountCommand |> Ok
-        // | _ ->
-          // sprintf "did not get expected row, got %A" a
-            // |> exn
-            // |> Error
-    // )
+    |> Stream.map (fun m ->
+      let short =
+        (
+          Mount.MountPoint (Option.get (m.TryFind "TARGET")),
+          Mount.BdevPath (Option.get (m.TryFind "SOURCE")),
+          Mount.FsType (Option.get (m.TryFind "FSTYPE")),
+          Mount.MountOpts (Option.get (m.TryFind "OPTIONS"))
+        )
+      let (target, source, fstype, opts) = short
+      match m.TryFind "ACTION" with
+      | Some x ->
+        match x with
+        | "mount" -> AddMount short |> toSuccess
+        | "umount" -> RemoveMount short |> toSuccess
+        | "remount" ->
+          match m.TryFind "OLD-TARGET" with
+          | Some y ->
+            ReplaceMount
+              (
+                target, source, fstype, opts,
+                Mount.MountOpts y
+              ) |> toSuccess
+          | None -> columnError x
+        | "move" ->
+          match m.TryFind "OLD-TARGET" with
+          | Some y ->
+            MoveMount
+              (
+                target, source, fstype, opts,
+                Mount.MountPoint y
+              ) |> toSuccess
+          | None -> columnError x
+        | _ ->
+          toError (sprintf "unexpected action type, received %A" x)
+      // no ACTION key is populated when --poll option is not used
+      | None -> AddMount short |> toSuccess
+    )

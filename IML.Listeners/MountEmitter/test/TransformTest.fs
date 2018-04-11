@@ -10,37 +10,29 @@ open Matchers
 let promiseMatch =
   transform
     >> Util.streamToPromise
-    >> Promise.map toMatchSnapshot   //(List.toArray >> (Array.map Command.encoder) >> toMatchSnapshot)
+    >> Promise.map (List.toArray >> (Array.map Command.encoder) >> toMatchSnapshot)
 
 testAsync "poll mount" <| fun () ->
   streams {
-    yield "ACTION=\"mount\"     TARGET=\"/\"\n"    //     SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
-    // yield "mount      /mnt/part1 /dev/sde1 ext4   rw,relatime,data=ordered\n"
-  }
-    |> promiseMatch
+    yield "ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n"
+  } |> promiseMatch
 
-//testAsync "poll umount" <| fun () ->
-//  streams {
-//    yield "ACTION     TARGET          SOURCE         FSTYPE OPTIONS        OLD-TARGET      OLD-OPTIONS\n"
-//    yield "umount     /testPool4      testPool4      zfs    rw,xattr,noacl /testPool4      rw,xattr,noacl\n"
-//  }
-//    |> promiseMatch
-//
-//// mount /mnt/part1 -o remount,ro
-//testAsync "poll remount" <| fun () ->
-//  streams {
-//    yield "ACTION     TARGET     SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
-//    yield "remount    /mnt/part1 /dev/sde1 ext4   ro,relatime,data=ordered            rw,relatime,data=ordered\n"
-//  }
-//    |> promiseMatch
-//
-//testAsync "poll move" <| fun () ->
-//  streams {
-//    yield "ACTION     TARGET      SOURCE    FSTYPE OPTIONS                  OLD-TARGET OLD-OPTIONS\n"
-//    yield "move       /mnt/part1a /dev/sde1 ext4   ro,relatime,data=ordered /mnt/part1\n"
-//  }
-//    |> promiseMatch
-//
+testAsync "poll umount" <| fun () ->
+ streams {
+   yield "ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n"
+ } |> promiseMatch
+
+// mount /mnt/part1 -o remount,ro
+testAsync "poll remount" <| fun () ->
+  streams {
+    yield "ACTION=\"remount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"ro,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"rw,data=ordered\"\n"
+  } |> promiseMatch
+
+testAsync "poll move" <| fun () ->
+  streams {
+    yield "ACTION=\"move\" TARGET=\"/mnt/part1a\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"/mnt/part1\" OLD-OPTIONS=\"\"\n"
+  } |> promiseMatch
+
 //testAsync "list mount" <| fun () ->
 //  streams {
 //    yield "TARGET SOURCE FSTYPE OPTIONS\n"

@@ -34,7 +34,8 @@ export default [
       'buffer',
       'https',
       'fs',
-      'path'
+      'path',
+      'url'
     ],
     output: {
       file: './dist/scanner-proxy-daemon/scanner-proxy-daemon',

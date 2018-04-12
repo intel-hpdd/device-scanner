@@ -44,6 +44,15 @@ export default [
     plugins: getPlugins()
   },
   {
+    input: 'IML.DeviceAggregatorDaemon/src/IML.DeviceAggregatorDaemon.fsproj',
+    external: ['stream', 'child_process', 'buffer', 'http'],
+    output: {
+      file: './dist/device-aggregator-daemon/device-aggregator-daemon',
+      format: 'cjs'
+    },
+    plugins: getPlugins()
+  },
+  {
     input: 'IML.Listeners/UdevListener/UdevListener.fsproj',
     external: ['net', 'buffer'],
     output: {

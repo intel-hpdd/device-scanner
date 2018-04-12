@@ -1,0 +1,8 @@
+[Unit]
+Description=IML Device Aggregator Socket
+
+[Socket]
+ListenStream=/var/run/device-aggregator.sock
+
+[Install]
+WantedBy=sockets.target

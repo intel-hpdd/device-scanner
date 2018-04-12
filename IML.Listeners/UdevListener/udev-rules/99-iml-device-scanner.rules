@@ -22,6 +22,9 @@ ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", E
 # Read size from /sys and add it to the device
 ACTION=="add|change", ENV{IML_SIZE}="$attr{size}"
 
+# Mark a bios boot partition
+ACTION=="add|change", ENV{ID_PART_ENTRY_TYPE}=="21686148-6449-6e6f-744e-656564454649" ENV{IML_IS_BIOS_BOOT}="1"
+
 # Sync up the device-scanner-daemon on add, remove or change of block device
 ACTION=="add|remove|change", RUN+="/lib/udev/udev-listener"
 

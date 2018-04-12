@@ -1,9 +1,11 @@
 %define     base_name device-scanner
 %define     proxy_name scanner-proxy
 %define     mount_name mount-emitter
+%define     aggregator_name device-aggregator
 %define     base_prefixed iml-%{base_name}
 %define     proxy_prefixed iml-%{proxy_name}
 %define     mount_prefixed iml-%{mount_name}
+%define     aggregator_prefixed iml-%{aggregator_name}
 Name:       %{base_prefixed}
 Version:    2.1.0
 Release:    2%{?dist}

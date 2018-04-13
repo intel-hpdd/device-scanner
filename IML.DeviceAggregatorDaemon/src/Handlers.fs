@@ -7,11 +7,12 @@ module IML.DeviceAggregatorDaemon.Handlers
 open Fable.Core.JsInterop
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack.Stream
+open IML.Types.MessageTypes
 
-open CommonLibrary
 open Heartbeats
+open Fable
 
-let mutable devTree:Map<Hostname,string> = Map.empty
+let mutable devTree:Map<string,string> = Map.empty
 
 let timeoutHandler host _ =
   printfn "Aggregator received no heartbeat from host %A after %A ms" host heartbeatTimeout
@@ -46,12 +47,16 @@ let serverHandler (request:Http.IncomingMessage) (response:Http.ServerResponse) 
             | "" ->
               eprintfn "Aggregator received message but hostname was empty"
             | _ ->
-              match (ofJson x) with
-              | Heartbeat ->
-                addHeartbeat timeoutHandler (Hostname host)
-              | Data y ->
-                printfn "Aggregator received update with devices from host %s" host
-                devTree <- Map.add (Hostname host) y devTree
+              match (Message.decoder x) with
+              | Ok y ->
+                match y with
+                | Heartbeat ->
+                  addHeartbeat timeoutHandler host
+                | Data y ->
+                  printfn "Aggregator received update with devices from host %s" host
+                  devTree <- Map.add host y devTree
+              | Error y ->
+                eprintfn "Aggregator received message but message decoding failed (%A)" y
           | None ->
             eprintfn "Aggregator received message but x-ssl-client-name header was missing from request"
 

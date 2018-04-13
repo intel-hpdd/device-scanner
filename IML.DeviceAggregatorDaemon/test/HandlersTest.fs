@@ -10,8 +10,8 @@ open Fable.Import.Jest
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack.Stream
 
+open IML.Types.MessageTypes
 open Matchers
-open CommonLibrary
 open Heartbeats
 open Handlers
 open TestFixtures
@@ -19,8 +19,8 @@ open TestFixtures
 let testServerHost = "localhost"
 let testServerPort = 8181
 
-let updatePayload = updateString |> (Data >> toJson >> Some)
-let heartbeatPayload = Heartbeat |> (toJson >> Some)
+let updatePayload = updateString |> (Data >> Message.encoder >> Some)
+let heartbeatPayload = Heartbeat |> Message.encoder |> Some
 
 testList "Get and Update Tree" [
   let withSetup f ():unit =
@@ -38,7 +38,7 @@ testList "Get and Update Tree" [
 
     "should return populated tree after update", fun (handler) ->
       expect.assertions 1
-      devTree <- Map.add (Hostname "foo.com") "{blockDevices:{}}" devTree
+      devTree <- Map.add "foo.com" "{blockDevices:{}}" devTree
       handler()
         |> toMatchSnapshot
   ]

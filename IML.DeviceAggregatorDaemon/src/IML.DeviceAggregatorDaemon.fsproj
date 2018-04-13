@@ -8,7 +8,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonLibrary.fs" />
     <Compile Include="Heartbeats.fs" />
     <Compile Include="Handlers.fs" />
     <Compile Include="Server.fs" />

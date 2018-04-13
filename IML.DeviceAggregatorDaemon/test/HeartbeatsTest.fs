@@ -7,11 +7,10 @@ module IML.DeviceAggregatorDaemon.HeartbeatsTest
 open Fable.Import.Jest
 open Fable.Import.Jest.Matchers
 
-open CommonLibrary
 open Heartbeats
 open Handlers
 
-let private hostname = Hostname "foo.com"
+let private hostname = "foo.com"
 
 testList "Heartbeat" [
   let withSetup f ():unit =

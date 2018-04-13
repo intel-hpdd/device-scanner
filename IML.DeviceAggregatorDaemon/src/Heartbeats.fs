@@ -5,10 +5,9 @@
 module IML.DeviceAggregatorDaemon.Heartbeats
 
 open System
-open CommonLibrary
 
 let heartbeatTimeout = 30000
-let mutable heartbeats:Map<Hostname,Timers.Timer> = Map.empty
+let mutable heartbeats:Map<string,Timers.Timer> = Map.empty
 
 let addHeartbeat handler host =
   match Map.tryFind host heartbeats with

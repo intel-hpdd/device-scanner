@@ -71,7 +71,7 @@ Vagrant.configure("2") do |config|
 
     device_scanner.vm.hostname = $device_scanner_hostname
     device_scanner.vm.network "private_network", type: "dhcp"
-    device_scanner.vm.network :forwarded_port, host: 8080, guest: 8080
+    device_scanner.vm.network :forwarded_port, guest: 8080
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
     touch /vagrant/hosts

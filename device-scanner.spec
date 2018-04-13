@@ -41,7 +41,15 @@ Group:      System Environment/Libraries
 Requires:   %{base_prefixed} = %{version}-%{release}
 %description proxy
 scanner-proxy-daemon forwards device-scanner updates received
-on local socket to the device-aggregator over HTTPS.
+
+%package aggregator
+Summary:    Assembles global device view from multiple device scanner instances.
+License:    MIT
+Group:      System Environment/Libraries
+Requires:   %{base_prefixed} = %{version}-%{release}
+%description aggregator
+device-aggregator-daemon aggregates data received from device
+scanner instances over HTTPS.
 
 %prep
 %setup
@@ -62,6 +70,8 @@ cp dist/%{base_name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.service %{buildroot}%{_unitdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.path %{buildroot}%{_unitdir}
+cp dist/%{aggregator_name}-daemon/%{aggregator_name}.socket %{buildroot}%{_unitdir}
+cp dist/%{aggregator_name}-daemon/%{aggregator_name}.service %{buildroot}%{_unitdir}
 cp dist/listeners/%{mount_name}.service %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}%{_libdir}/%{base_prefixed}-daemon
@@ -69,6 +79,9 @@ cp dist/%{base_name}-daemon/%{base_name}-daemon %{buildroot}%{_libdir}/%{base_pr
 
 mkdir -p %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
 cp dist/%{proxy_name}-daemon/%{proxy_name}-daemon %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
+
+mkdir -p %{buildroot}%{_libdir}/%{aggregator_prefixed}-daemon
+cp dist/%{aggregator_name}-daemon/%{aggregator_name}-daemon %{buildroot}%{_libdir}/%{aggregator_prefixed}-daemon
 
 mkdir -p %{buildroot}%{_libdir}/%{mount_prefixed}
 cp dist/listeners/%{mount_name} %{buildroot}%{_libdir}/%{mount_prefixed}
@@ -123,6 +136,12 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.path
 
+%files aggregator
+%dir %{_libdir}/%{aggregator_prefixed}-daemon
+%attr(0755,root,root)%{_libdir}/%{aggregator_prefixed}-daemon/%{aggregator_name}-daemon
+%attr(0644,root,root)%{_unitdir}/%{aggregator_name}.service
+%attr(0644,root,root)%{_unitdir}/%{aggregator_name}.socket
+
 %triggerin -- zfs > 0.7.4
 modprobe zfs
 systemctl enable zfs-zed.service
@@ -145,6 +164,17 @@ elif [ $1 -eq 2 ]; then
   systemctl start %{base_name}.socket
   udevadm trigger --action=change --subsystem-match=block
   systemctl start %{mount_name}.service
+fi
+
+%post aggregator
+if [ $1 -eq 1 ]; then
+  systemctl enable %{aggregator_name}.socket
+  systemctl start %{aggregator_name}.socket
+elif [ $1 -eq 2 ]; then
+  systemctl daemon-reload
+  systemctl stop %{aggregator_name}.socket
+  systemctl stop %{aggregator_name}.service
+  systemctl start %{aggregator_name}.socket
 fi
 
 %post proxy
@@ -177,6 +207,15 @@ if [ $1 -eq 0 ]; then
   systemctl disable %{proxy_name}.path
   systemctl stop %{proxy_name}.service
   systemctl disable %{proxy_name}.service
+fi
+
+%preun aggregator
+if [ $1 -eq 0 ] ; then
+  systemctl stop %{aggregator_name}.socket
+  systemctl disable %{aggregator_name}.socket
+  systemctl stop %{aggregator_name}.service
+  systemctl disable %{aggregator_name}.service
+  rm /var/run/%{aggregator_name}.sock
 fi
 
 %changelog

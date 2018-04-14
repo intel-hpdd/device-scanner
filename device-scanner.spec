@@ -46,7 +46,6 @@ scanner-proxy-daemon forwards device-scanner updates received
 Summary:    Assembles global device view from multiple device scanner instances.
 License:    MIT
 Group:      System Environment/Libraries
-Requires:   %{base_prefixed} = %{version}-%{release}
 %description aggregator
 device-aggregator-daemon aggregates data received from device
 scanner instances over HTTPS.

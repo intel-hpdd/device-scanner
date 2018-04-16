@@ -4,23 +4,23 @@
 
 module IML.DeviceAggregatorDaemon.Heartbeats
 
-open System
-
+open Fable.Import
+open IML.CommonLibrary
 let heartbeatTimeout = 30000
-let mutable heartbeats:Map<string,Timers.Timer> = Map.empty
+let mutable heartbeats:Map<string, JS.SetTimeoutToken> = Map.empty
 
 let addHeartbeat handler host =
-  match Map.tryFind host heartbeats with
-  | Some x ->
-    x.Stop()
-    x.Start()
-  | None ->
-    let timer = new Timers.Timer(float heartbeatTimeout)
-    timer.AutoReset <- false
+  Map.tryFind host heartbeats
+    |> Option.map JS.clearTimeout
+    |> ignore
 
-    let cHandler = handler host
-    timer.Elapsed.Add cHandler
+  let onTimeout () =
+    let token = Map.find host heartbeats
+    JS.clearTimeout token
+    heartbeats <- Map.remove host heartbeats
+    (handler host)
 
-    heartbeats <- Map.add host timer heartbeats
+  let token = JS.setTimeout onTimeout heartbeatTimeout
 
-    Async.StartImmediate (async { timer.Start() })
+  Map.add host token heartbeats
+    |> ignore

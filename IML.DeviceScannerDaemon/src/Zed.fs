@@ -5,9 +5,9 @@
 module IML.DeviceScannerDaemon.Zed
 
 open IML.Types.CommandTypes
+open IML.Types.ZedTypes
 open IML.CommonLibrary
 open libzfs
-open Thot.Json
 
 let private toMap key xs =
   let folder state x =
@@ -27,20 +27,8 @@ module Libzfs =
     getDatasetbyName name
       |> Option.toResult(exn (sprintf "expected dataset with name %s to be imported" name))
 
-type Zed = Map<string, Libzfs.Pool>
-
 [<RequireQualifiedAccess>]
 module Zed =
-  let encode pools =
-    let zpoolValues =
-      pools
-        |> Map.toList
-        |> List.map (fun (x, y) ->
-          (x.ToString(), Libzfs.Pool.encode y)
-        )
-
-    Encode.object zpoolValues
-
   /// Given the state and a pool guid,
   /// Try to find the pool in the state.
   let getPoolInState state (Zpool.Guid(guid)) =

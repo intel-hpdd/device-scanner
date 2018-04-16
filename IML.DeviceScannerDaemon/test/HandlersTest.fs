@@ -9,6 +9,7 @@ open IML.CommonLibrary
 open Fable.Import.Jest
 open Matchers
 open IML.Types.CommandTypes
+open IML.Types.ScannerStateTypes
 
 test "stream returns the current state" <| fun () ->
   Command.Stream

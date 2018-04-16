@@ -5,7 +5,6 @@
 module IML.DeviceScannerDaemon.ZedTest
 
 open Zed
-open libzfs
 open IML.CommonLibrary
 open Thot
 
@@ -13,25 +12,16 @@ open Fable.Import.Jest
 open Matchers
 open Fixtures
 open Fable.PowerPack
-open Fixtures
+open IML.Types.ZedTypes
 open IML.Types.CommandTypes
 
 let private guid =
   Zpool.Guid "0xcf0b97290edafa56"
 
 let private pools =
-  let pool =
-    fixtures.pool
-      |> Libzfs.Pool.decoder
+    fixtures.pools
+      |> Json.Decode.decodeString Zed.decoder
       |> Result.unwrap
-
-  Map.ofList [(pool.guid, pool)]
-
-test "encoding pools" <| fun () ->
-  pools
-    |> Zed.encode
-    |> Json.Encode.encode 2
-    |> toMatchSnapshot
 
 test "getPoolInState" <| fun () ->
   guid
@@ -78,7 +68,7 @@ test "destroying zfs updates the state" <| fun () ->
   ZedCommand.DestroyZfs (guid, Zfs.Name "test/ds2")
     |> Zed.update pools
     |> Result.unwrap
-    |> Zed.encode
+    |> Zed.encoder
     |> Json.Encode.encode 2
     |> toMatchSnapshot
 
@@ -86,7 +76,7 @@ test "setting a new zpool prop" <| fun () ->
   ZedCommand.SetZpoolProp (guid, "foo:bar", "baz")
     |> Zed.update pools
     |> Result.unwrap
-    |> Zed.encode
+    |> Zed.encoder
     |> Json.Encode.encode 2
     |> toMatchSnapshot
 
@@ -94,6 +84,6 @@ test "setting a new zfs prop" <| fun () ->
   ZedCommand.SetZfsProp (guid, Zfs.Name "test/ds", "foo:bar", "baz")
     |> Zed.update pools
     |> Result.unwrap
-    |> Zed.encode
+    |> Zed.encoder
     |> Json.Encode.encode 2
     |> toMatchSnapshot

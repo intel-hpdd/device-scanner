@@ -7,7 +7,7 @@ module IML.DeviceScannerDaemon.ConnectionsTest
 open Fable.Import.Node
 open Fable.Import.Jest
 open IML.Types.CommandTypes
-open Handlers
+open IML.Types.ScannerStateTypes
 open Matchers
 
 test "adding a connection" <| fun () ->

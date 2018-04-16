@@ -1,7 +1,6 @@
 module IML.DeviceAggregatorDaemon.TestFixtures
 
 open Fable.Import
-open IML.Types.MessageTypes
 
 let toSerialised =
   JS.JSON.parse

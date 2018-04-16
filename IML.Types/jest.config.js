@@ -7,5 +7,6 @@ module.exports = {
     '.+Fixtures.fs',
     '/node_modules/',
     '.+\\.snap'
-  ]
+  ],
+  modulePaths: ['<rootDir>/../node_modules']
 };

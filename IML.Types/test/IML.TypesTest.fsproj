@@ -10,6 +10,8 @@
     <Compile Include="UeventTypesTest.fs" />
     <Compile Include="MountTypesTest.fs" />
     <Compile Include="MessageTypesTest.fs" />
+    <Compile Include="ZedTypesTest.fs" />
+    <Compile Include="ScannerStateTypesTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

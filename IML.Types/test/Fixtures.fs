@@ -9,7 +9,10 @@ type Fixtures = {
   addMdRaid: string;
   remove: string;
   pool: string;
+  pools: string;
   mount: string;
+  mounts: string;
+  scannerState: string;
 }
 
 let fixtures:Fixtures = importAll "./fixtures.js"

@@ -6,7 +6,7 @@ module IML.DeviceScannerDaemon.Connections
 
 open Fable.Core.JsInterop
 open Fable.Import.Node
-open Handlers
+open IML.Types.ScannerStateTypes
 open IML.Types.CommandTypes
 
 open Fable.Import.Node.PowerPack.Stream

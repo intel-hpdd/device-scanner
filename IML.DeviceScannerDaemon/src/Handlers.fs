@@ -5,10 +5,9 @@
 module IML.DeviceScannerDaemon.Handlers
 
 open IML.Types.CommandTypes
-open IML.Types.UeventTypes
-open IML.Types.MountTypes
+open IML.Types.ScannerStateTypes
+
 open Zed
-open Thot.Json
 
 let private scan init update =
   let mutable state = init()
@@ -16,30 +15,6 @@ let private scan init update =
   fun (x) ->
     state <- update state x
     state
-
-
-type State = {
-  blockDevices: BlockDevices;
-  zed: Zed;
-  localMounts: LocalMounts;
-}
-
-module State =
-  let encode
-    {
-      blockDevices = blockDevices;
-      zed = zed;
-      localMounts = localMounts;
-    } =
-      Encode.object [
-        ("zed", Zed.encode zed)
-        ("blockDevices", BlockDevices.encoder blockDevices)
-        ("localMounts", LocalMounts.encoder localMounts)
-      ]
-
-  let encoder =
-    encode
-      >> Encode.encode 0
 
 let init () =
   Ok {

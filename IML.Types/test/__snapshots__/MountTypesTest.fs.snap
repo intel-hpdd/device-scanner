@@ -1,26 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`decode / encode LocalMounts  mount 1`] = `
-LocalMount {
-  "fstype": "ext4",
-  "opts": "ro",
-  "source": "/foo/bar",
-  "target": "/",
-}
-`;
-
-exports[`decode / encode LocalMounts  mount 2`] = `
-"[
-  {
-    \\"target\\": \\"/\\",
-    \\"source\\": \\"/foo/bar\\",
-    \\"fstype\\": \\"ext4\\",
-    \\"opts\\": \\"ro\\"
-  }
-]"
-`;
-
-exports[`decode encoded decode / encode LocalMounts  mount 2 1`] = `
+exports[`decode / encode Mounts 1`] = `
 "[
   {
     \\"target\\": \\"/\\",

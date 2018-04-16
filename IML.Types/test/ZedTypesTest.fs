@@ -2,21 +2,22 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.Types.MountTypesTest
+module IML.DeviceScannerDaemon.ZedTypesTest
 
 open Fable.Import.Jest
-open Matchers
 open Thot.Json
 
+open IML.Types.ZedTypes
 open IML.CommonLibrary
 
-open MountTypes
+open Matchers
 open Fixtures
+open Fable.PowerPack
 
-test "decode / encode Mounts" <| fun () ->
-  fixtures.mounts
-    |> Decode.decodeString LocalMounts.decoder
+test "decode / encode pools" <| fun () ->
+  fixtures.pools
+    |> Decode.decodeString Zed.decoder
     |> Result.unwrap
-    |> LocalMounts.encoder
+    |> Zed.encoder
     |> Encode.encode 2
     |> toMatchSnapshot

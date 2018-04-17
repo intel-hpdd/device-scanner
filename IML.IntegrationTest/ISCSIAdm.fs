@@ -5,43 +5,33 @@
 [<RequireQualifiedAccess>]
 module IML.IntegrationTest.ISCSIAdm
 
-open Fable.Import
-open Fable.Import.Jest
-open Matchers
-open Fable.Import.Node
-open Fable.Import.Node.PowerPack
-open Fable.PowerPack
-open Json
-open System.Xml.Linq
-
-type MODE = DISCOVERY | NODE | M_FW | HOST | IFACE | SESSION
-type TYPE = SEND_TARGETS | SLP | ISNS | T_FW
+type Mode = Discovery | Node | Mfw | Host | Iface | Session
+type Type = SendTargets | Slp | Isns | Tfw
 
 
-[<Literal>]
 let defaultPort = 3260
-[<Literal>]
 let defaultTargetName = "iqn.2018-03.com.test:server"
 
 let iscsiAdm () =
   "iscsiadm"
 
-let private mode (mode:MODE) (x:string) =
-  match mode with
-    | DISCOVERY _ -> sprintf("%s -m discovery") x
-    | NODE _ -> sprintf("%s -m node") x
-    | M_FW _ -> sprintf("%s -m fw") x
-    | HOST _ -> sprintf("%s -m host") x
-    | IFACE _ -> sprintf("%s -m iface") x
-    | SESSION _ -> sprintf("%s -m session") x
+module Mode =
+  let mode (mode:Mode) (x:string) =
+    match mode with
+      | Mode.Discovery -> sprintf("%s -m discovery") x
+      | Mode.Node -> sprintf("%s -m node") x
+      | Mode.Mfw -> sprintf("%s -m fw") x
+      | Mode.Host -> sprintf("%s -m host") x
+      | Mode.Iface -> sprintf("%s -m iface") x
+      | Mode.Session -> sprintf("%s -m session") x
 
-
-let private ``type`` (t:TYPE) (x:string) =
-  match t with
-    | SEND_TARGETS _ -> sprintf("%s -t st") x
-    | SLP _ -> sprintf("%s -t slp") x
-    | ISNS _ -> sprintf("%s -t isns") x
-    | T_FW _ -> sprintf("%s -t fw") x
+module Type =
+  let ``type`` (t:Type) (x:string) =
+    match t with
+      | Type.SendTargets -> sprintf("%s -t st") x
+      | Type.Slp -> sprintf("%s -t slp") x
+      | Type.Isns -> sprintf("%s -t isns") x
+      | Type.Tfw -> sprintf("%s -t fw") x
 
 let private portal (ip:string) (port:int) (x:string) =
   sprintf("%s -p %s:%d") x ip port
@@ -57,13 +47,13 @@ let private logout (x:string) =
 
 let iscsiDiscover (ip:string) =
   iscsiAdm
-    >> (mode DISCOVERY)
-    >> (``type`` SEND_TARGETS)
+    >> (Mode.mode Mode.Discovery)
+    >> (Type.``type`` Type.SendTargets)
     >> (portal ip defaultPort)
 
 let iscsiConnection (ip:string) =
   iscsiAdm
-    >> (mode NODE)
+    >> (Mode.mode Mode.Node)
     >> (targetName defaultTargetName)
     >> (portal ip defaultPort)
 

@@ -31,12 +31,12 @@ testList "Get and Update Tree" [
     f (getTree)
 
   yield! testFixture withSetup [
-    "should return Json empty map when tree is empty", fun (handler) ->
+    "should return Json empty map when tree is empty", fun handler ->
       expect.assertions 1
       handler()
         |> toMatchSnapshot
 
-    "should return populated tree after update", fun (handler) ->
+    "should return populated tree after update", fun handler ->
       expect.assertions 1
       devTree <- Map.add "foo.com" "{blockDevices:{}}" devTree
       handler()

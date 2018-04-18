@@ -72,6 +72,9 @@ module UEvent =
   let private optionalStringProp x = Decode.optional x optionalString None
 
 
+  let majorMinor x =
+    sprintf "%s:%s" x.major x.minor
+
   /// Decodes output from Udev
   /// Will not re-decode an entry
   /// encoded by UEvent
@@ -304,3 +307,10 @@ module BlockDevices =
             )
             |> Map.ofList
       )
+
+  let tryFindByPath blockDevices x =
+    blockDevices
+      |> Map.tryFindKey(fun _ b ->
+        Array.contains x b.paths
+      )
+      |> Option.map (fun y -> Map.find y blockDevices)

@@ -23,6 +23,65 @@ let timeoutHandler host =
   printfn "Aggregator received no heartbeat from host %A" host
   devTree <- Map.remove host devTree
 
+let matchPaths (hPaths:string list) (pPaths:string list) =
+  pPaths
+    |> List.filter (fun x -> List.contains x hPaths)
+    |> (=) pPaths
+
+let discoverZpools
+    (host:string)
+    (ps:Map<string,LegacyZFSDev>)
+    (ds:Map<string,LegacyZFSDev>)
+    (blockDevices:LegacyBlockDev list) =
+  /// Identify imported pools that reside on drives this host can see
+  ///   - gather information on pools active on other hosts
+  ///   - check the local host is reporting (can see) the underlying drives of said pool
+  ///   - verify the poor we want to add hasn't also been reported as active one another host
+  ///   - verify the localhost isn't also reporting the pool as active (it shouldn't be)
+  ///   - add pool and contained datasets to those to be reported to be connected to local host
+  /// :return: the new dictionary of devices reported on the given host
+  devTree
+    // remove current host, we are looking for pools on other hosts
+    |> Map.filter (fun k _ -> k <> host)
+    |> Map.map (fun _ v ->
+      // we want pools/datasets but don't need key
+      v.zed
+        |> Map.toList
+        |> List.map snd
+        |> List.filter (fun p ->
+          let hostPaths =
+            blockDevices
+            |> List.map (fun x -> (string x.path))
+
+          p.vdev
+          |> LegacyBlockDev.getDisks
+          |> matchPaths hostPaths
+        )
+    )
+          // fold through zed-pool entries and collate shared pools & datasets
+          // (fun (ps, ds) p ->
+            //
+            // let mms =
+              // p.vdev
+                // |> getDisks
+                // |> List.map (fun x ->
+                  // let blockDev =
+                    // List.find (fun y ->
+                      // Array.contains (Path x) y.paths
+                    // ) blockDevices
+                  // blockDev.major_minor
+                // )
+//
+            // let ds':Map<string, LegacyZFSDev> =
+              // Array.fold (fun acc (d:Dataset) ->
+                // Map.add
+                  // d.guid
+                  // {
+
+
+
+    // x.size = 0 || x.is_ro = Some true
+
 let parseSysBlock (state:State) =
   let xs =
     state.blockDevices
@@ -38,6 +97,9 @@ let parseSysBlock (state:State) =
 
   let ndt = NormalizedDeviceTable.create blockDeviceNodes
 
+  let blockDeviceNodes' =
+    Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
+
   let vgs, lvs = LegacyBlockDev.parseDmDevs xs
 
   let mds = LegacyBlockDev.parseMdraidDevs xs ndt
@@ -46,12 +108,14 @@ let parseSysBlock (state:State) =
 
   let zfspools, zfsdatasets = LegacyBlockDev.parseZfs state.zed xs
 
+  // let zfspools, zfsdatasets = discoverZpools zfspools zfsdatasets xs
 
-  // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output.
+  // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output, append because type should be DU Block or ZFS
   // @TODO aggregate zfs pairs between hosts
 
+  // TODO: need encoder for all below types
   {
-    devs = blockDeviceNodes;
+    devs = blockDeviceNodes';
     lvs = lvs;
     vgs = vgs;
     mds = mds;

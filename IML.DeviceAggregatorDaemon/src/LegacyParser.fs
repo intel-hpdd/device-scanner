@@ -339,14 +339,14 @@ module LegacyBlockDev =
             Array.fold (fun acc (d:Dataset) ->
               Map.add
                 d.guid
-                ({
+                {
                     name = d.name;
                     path = d.name;
                     block_device = sprintf "zfsset:%s" d.guid;
                     uuid = d.guid;
                     size = (Array.find (fun (p:ZProp) -> p.name = "available") d.props).value;
                     drives = mms;
-                }: LegacyZFSDev)
+                }
                 acc
             ) ds p.datasets
 
@@ -358,7 +358,7 @@ module LegacyBlockDev =
                   path = p.name;
                   block_device = sprintf "zfspool:%s" p.guid;
                   uuid = p.guid;
-                  size = sprintf "%is" p.size;
+                  size = sprintf "%i" p.size;
                   drives = mms;
                 }
 
@@ -366,7 +366,7 @@ module LegacyBlockDev =
             else
               ps
 
-          (pools, ds)
+          (pools, ds')
         ) (Map.empty, Map.empty)
 
   let createFromUEvent (x:UEvent) =
@@ -403,7 +403,7 @@ module LegacyBlockDev =
     }
 
 type LegacyDevs = {
-  devs: Map<string, LegacyBlockDev>;
+  devs: Map<string, LegacyDev>;
   lvs: Map<string, Map<string, Lv>>;
   vgs: Map<string, Vg>;
   mds: Map<string, MdRaid>;

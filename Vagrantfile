@@ -113,7 +113,7 @@ Vagrant.configure("2") do |config|
   #
   # Create a test node
   #
-  config.vm.define "test#{$suffix}", primary: false, autostart: false do |test|
+  config.vm.define "test#{$suffix}", primary: false do |test|
     test.vm.provider "virtualbox" do |v|
       v.memory = 1024
       v.cpus = 2
@@ -134,7 +134,7 @@ Vagrant.configure("2") do |config|
         unless File.exist?(disk)
           v.customize ["createmedium", "disk",
             "--filename", disk,
-            "--size", "1000",
+            "--size", "100",
             "--format", "VDI",
             "--variant", "fixed"
           ]

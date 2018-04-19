@@ -13,6 +13,10 @@ open IML.CommonLibrary
 open IML.Types.ZedTypes
 open libzfs.Libzfs
 
+type LegacyDev =
+  | LegacyBlockDev of LegacyBlockDev
+  | LegacyZFSDev of LegacyZFSDev
+
 type Vg = {
   name: string;
   uuid: string;
@@ -354,7 +358,7 @@ module LegacyBlockDev =
                   path = p.name;
                   block_device = sprintf "zfspool:%s" p.guid;
                   uuid = p.guid;
-                  size = p.size;
+                  size = sprintf "%is" p.size;
                   drives = mms;
                 }
 

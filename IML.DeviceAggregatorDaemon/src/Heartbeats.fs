@@ -22,5 +22,4 @@ let addHeartbeat handler host =
 
   let token = JS.setTimeout onTimeout heartbeatTimeout
 
-  Map.add host token heartbeats
-    |> ignore
+  heartbeats <- Map.add host token heartbeats

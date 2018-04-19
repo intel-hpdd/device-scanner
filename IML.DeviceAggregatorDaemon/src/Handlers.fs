@@ -31,7 +31,7 @@ let parseSysBlock (state:State) =
       |> List.filter LegacyBlockDev.filterDevice
       |> LegacyBlockDev.linkParents
 
-  let blockDeviceNodes =
+  let blockDeviceNodes : Map<string,LegacyBlockDev> =
     xs
       |> List.map (fun x -> (x.major_minor, x))
       |> Map.ofList

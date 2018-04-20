@@ -6,7 +6,7 @@ module IML.ScannerProxyDaemon.ConfigParser
 
 open Fable.Core.JsInterop
 open Fable.Import.Node
-open Thot.Json
+open Thoth.Json
 
 open IML.CommonLibrary
 

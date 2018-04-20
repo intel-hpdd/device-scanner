@@ -5,7 +5,7 @@
 module IML.Types.MountTypes
 
 open IML.CommonLibrary
-open Thot.Json
+open Thoth.Json
 
 type LocalMount =
   {

@@ -7,7 +7,7 @@ module IML.DeviceScannerDaemon.ScannerStateTypesTest
 
 open Fable.Import.Jest
 open Matchers
-open Thot.Json
+open Thoth.Json
 
 open IML.Types.ScannerStateTypes
 open IML.CommonLibrary

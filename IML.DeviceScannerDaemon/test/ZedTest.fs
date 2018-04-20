@@ -6,7 +6,7 @@ module IML.DeviceScannerDaemon.ZedTest
 
 open Zed
 open IML.CommonLibrary
-open Thot
+open Thoth
 
 open Fable.Import.Jest
 open Matchers

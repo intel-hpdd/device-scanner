@@ -228,7 +228,7 @@ exports.pool = {
   hostid: 3914625515,
   state: 'ACTIVE',
   readonly: false,
-  size: 83886080,
+  size: '83886080',
   vdev: {
     Root: {
       children: [
@@ -921,7 +921,7 @@ exports.scannerState = {
       hostid: 532248858,
       state: 'ACTIVE',
       readonly: false,
-      size: 83886080,
+      size: '83886080',
       vdev: {
         Root: {
           children: [

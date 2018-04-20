@@ -9,7 +9,7 @@ open Fable.Core.JsInterop
 open Fable.Import
 open Matchers
 open CommandTypes
-open Thot.Json
+open Thoth.Json
 
 let encoder enc x =
   enc x

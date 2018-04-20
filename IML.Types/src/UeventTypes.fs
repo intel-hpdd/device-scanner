@@ -7,7 +7,7 @@ module IML.Types.UeventTypes
 open Fable.Core
 open JsInterop
 open IML.CommonLibrary
-open Thot.Json
+open Thoth.Json
 
 [<Erase>]
 type DevPath = DevPath of string

@@ -4,7 +4,7 @@
 
 module IML.Types.MessageTypes
 
-open Thot.Json
+open Thoth.Json
 
 type Message =
   | Data of string

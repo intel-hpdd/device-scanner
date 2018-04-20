@@ -58,6 +58,7 @@ type UEvent =
     dmVgSize: string option;
     mdDevs: string [];
     dmMultipathDevpath: bool option;
+    dmName: string option;
     dmLvName: string option;
     dmVgName: string option;
     dmUUID: string option;
@@ -84,7 +85,7 @@ module UEvent =
              idVendor idModel idSerial idFsType idFsUsage idFsUuid
              idPartEntryNumber imlSize imlScsi80 imlScsi83
              imlIsRo imlIsBiosBoot imlDmSlaveMms imlDmVgSize imlMdDevices
-             dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
+             dmMultipathDevicePath dmName dmLvName dmVgName dmUuid mdUuid ->
 
             { major = major
               minor = minor
@@ -108,6 +109,7 @@ module UEvent =
               dmVgSize = imlDmVgSize
               mdDevs = imlMdDevices |> List.map snd |> List.toArray
               dmMultipathDevpath = dmMultipathDevicePath
+              dmName = dmName
               dmLvName = dmLvName
               dmVgName = dmVgName
               dmUUID = dmUuid
@@ -135,6 +137,7 @@ module UEvent =
         |> Decode.optional "IML_DM_VG_SIZE" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) Decode.string)
         |> Decode.optional "DM_MULTIPATH_DEVICE_PATH" (Decode.map (Option.map isOne) optionalString) None
+        |> optionalStringProp "DM_NAME"
         |> optionalStringProp "DM_LV_NAME"
         |> optionalStringProp "DM_VG_NAME"
         |> optionalStringProp "DM_UUID"
@@ -153,7 +156,7 @@ module UEvent =
            vendor model serial fsType fsUsage fsUuid
            partEntryNumber size scsi80 scsi83
            readOnly biosBoot dmSlaveMMs dmVgSize mdDevs
-           dmMultipathDevicePath dmLvName dmVgName dmUuid mdUuid ->
+           dmMultipathDevicePath dmName dmLvName dmVgName dmUuid mdUuid ->
 
           { major = major
             minor = minor
@@ -177,6 +180,7 @@ module UEvent =
             dmVgSize = dmVgSize
             mdDevs = mdDevs
             dmMultipathDevpath = dmMultipathDevicePath
+            dmName = dmName
             dmLvName = dmLvName
             dmVgName = dmVgName
             dmUUID = dmUuid
@@ -204,6 +208,7 @@ module UEvent =
         |> stringPropOption "dmVgSize"
         |> Decode.required "mdDevices" (Decode.array Decode.string)
         |> Decode.required "dmMultipathDevicePath" (Decode.option Decode.bool)
+        |> stringPropOption "dmName"
         |> stringPropOption "dmLvName"
         |> stringPropOption "dmVgName"
         |> stringPropOption "dmUuid"
@@ -237,6 +242,7 @@ module UEvent =
       dmVgSize = imlDmVgSize
       mdDevs = imlMdDevices
       dmMultipathDevpath = dmMultipathDevicePath
+      dmName = dmName
       dmLvName = dmLvName
       dmVgName = dmVgName
       dmUUID = dmUuid
@@ -278,6 +284,7 @@ module UEvent =
         ("dmVgSize", Encode.option Encode.string imlDmVgSize);
         ("mdDevices", Encode.array (encodeStrings imlMdDevices));
         ("dmMultipathDevicePath", Encode.option Encode.bool dmMultipathDevicePath);
+        ("dmName", Encode.option Encode.string dmName);
         ("dmLvName", Encode.option Encode.string dmLvName);
         ("dmVgName", Encode.option Encode.string dmVgName);
         ("dmUuid", Encode.option Encode.string dmUuid);

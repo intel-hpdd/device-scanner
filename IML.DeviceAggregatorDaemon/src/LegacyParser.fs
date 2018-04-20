@@ -304,7 +304,7 @@ let parsePools (blockDevices:LegacyBlockDev list) (ps:Pool list) =
                 path = p.name;
                 block_device = sprintf "zfspool:%s" p.guid;
                 uuid = p.guid;
-                size = sprintf "%i" p.size;
+                size = p.size;
                 drives = mms;
               }
 

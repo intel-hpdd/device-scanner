@@ -4,7 +4,7 @@
 
 module IML.Types.LegacyTypes
 
-open Thot.Json
+open Thoth.Json
 open IML.Types.UeventTypes
 
 

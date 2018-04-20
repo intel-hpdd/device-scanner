@@ -15,9 +15,6 @@ open Matchers
 open Heartbeats
 open Handlers
 open TestFixtures
-open IML.Types.ScannerStateTypes
-open IML.CommonLibrary
-open Thot.Json
 
 let testServerHost = "localhost"
 let testServerPort = 8181
@@ -32,6 +29,10 @@ test "host has pool disks" <| fun () ->
 test "host doesn't have pool disks" <| fun () ->
   toEqual(matchPaths ["/foo/bar"; "/foo/baz"; "/bar/baz"] ["/foo/bar"; "/bar/boz"], true)
     |> ignore
+
+test "Discover no pools on host" <| fun () ->
+  discoverZpools "ffo.com" Map.empty Map.empty List.empty
+    |> toMatchSnapshot
 // ]
 // testList "Get and Update Tree" [
   // let withSetup f ():unit =

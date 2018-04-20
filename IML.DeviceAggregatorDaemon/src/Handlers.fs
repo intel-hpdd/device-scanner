@@ -12,7 +12,7 @@ open IML.CommonLibrary
 
 open IML.Types.MessageTypes
 open IML.Types.ScannerStateTypes
-
+open IML.Types.LegacyTypes
 open LegacyParser
 open Heartbeats
 
@@ -45,50 +45,33 @@ let discoverZpools
     |> Map.filter (fun k _ -> k <> host)
     |> Map.map (fun _ v ->
       // we want pools/datasets but don't need key
-      v.zed
-        |> Map.toList
-        |> List.map snd
-        |> List.filter (fun p ->
-          let hostPaths =
-            blockDevices
-            |> List.map (fun x -> (string x.path))
+        v.zed
+          |> Map.toList
+          |> List.map snd
+          // keep pools if we have all their drives
+          |> List.filter (fun p ->
+               let hostPaths =
+                 blockDevices
+                 |> List.map (fun x -> (string x.path))
 
-          p.vdev
-          |> LegacyBlockDev.getDisks
-          |> matchPaths hostPaths
-        )
+               p.vdev
+               |> getDisks
+               |> matchPaths hostPaths
+          )
+          |> List.filter (fun p ->
+               not (List.contains p.state ["EXPORTED"; "UNAVAIL"])
+          )
+          |> parsePools blockDevices
     )
-          // fold through zed-pool entries and collate shared pools & datasets
-          // (fun (ps, ds) p ->
-            //
-            // let mms =
-              // p.vdev
-                // |> getDisks
-                // |> List.map (fun x ->
-                  // let blockDev =
-                    // List.find (fun y ->
-                      // Array.contains (Path x) y.paths
-                    // ) blockDevices
-                  // blockDev.major_minor
-                // )
-//
-            // let ds':Map<string, LegacyZFSDev> =
-              // Array.fold (fun acc (d:Dataset) ->
-                // Map.add
-                  // d.guid
-                  // {
-
-
-
-    // x.size = 0 || x.is_ro = Some true
+//   |> Map.iter (fun h (ps, ds) -> printf "pools: %A , datasets: %A discovered on host %s" ps ds h)
 
 let parseSysBlock (state:State) =
   let xs =
     state.blockDevices
       |> Map.toList
-      |> List.map (snd >> LegacyBlockDev.createFromUEvent)
-      |> List.filter LegacyBlockDev.filterDevice
-      |> LegacyBlockDev.linkParents
+      |> List.map (snd >> createFromUEvent)
+      |> List.filter filterDevice
+      |> linkParents
 
   let blockDeviceNodes : Map<string,LegacyBlockDev> =
     xs
@@ -100,13 +83,13 @@ let parseSysBlock (state:State) =
   let blockDeviceNodes' =
     Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
 
-  let vgs, lvs = LegacyBlockDev.parseDmDevs xs
+  let vgs, lvs = parseDmDevs xs
 
-  let mds = LegacyBlockDev.parseMdraidDevs xs ndt
+  let mds = parseMdraidDevs xs ndt
 
-  let localFs = LegacyBlockDev.parseLocalFs state.blockDevices state.localMounts
+  let localFs = parseLocalFs state.blockDevices state.localMounts
 
-  let zfspools, zfsdatasets = LegacyBlockDev.parseZfs state.zed xs
+  let zfspools, zfsdatasets = parseZfs xs state.zed
 
   // let zfspools, zfsdatasets = discoverZpools zfspools zfsdatasets xs
 

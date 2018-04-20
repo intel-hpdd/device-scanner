@@ -14,6 +14,7 @@
     <Compile Include="MountTypes.fs" />
     <Compile Include="ZedTypes.fs" />
     <Compile Include="ScannerStateTypes.fs" />
+    <Compile Include="LegacyTypes.fs" />
     <Compile Include="MessageTypes.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

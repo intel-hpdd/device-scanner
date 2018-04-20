@@ -10,7 +10,7 @@ exports[`destroying zfs updates the state 1`] = `
     \\"hostid\\": null,
     \\"state\\": \\"ACTIVE\\",
     \\"readonly\\": false,
-    \\"size\\": 83886080,
+    \\"size\\": \\"83886080\\",
     \\"vdev\\": {
       \\"Root\\": {
         \\"children\\": [
@@ -651,7 +651,7 @@ Object {
   "name": "test",
   "props": Array [],
   "readonly": false,
-  "size": 83886080,
+  "size": "83886080",
   "state": "ACTIVE",
   "vdev": VDev {
     "data": Object {
@@ -759,7 +759,7 @@ exports[`setting a new zfs prop 1`] = `
     \\"hostid\\": null,
     \\"state\\": \\"ACTIVE\\",
     \\"readonly\\": false,
-    \\"size\\": 83886080,
+    \\"size\\": \\"83886080\\",
     \\"vdev\\": {
       \\"Root\\": {
         \\"children\\": [
@@ -1399,7 +1399,7 @@ exports[`setting a new zpool prop 1`] = `
     \\"hostid\\": null,
     \\"state\\": \\"ACTIVE\\",
     \\"readonly\\": false,
-    \\"size\\": 83886080,
+    \\"size\\": \\"83886080\\",
     \\"vdev\\": {
       \\"Root\\": {
         \\"children\\": [

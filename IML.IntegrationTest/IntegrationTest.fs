@@ -5,7 +5,7 @@
 module IML.IntegrationTest.IntegrationTest
 
 open Fable.PowerPack
-open Thot
+open Thoth.Json
 open Fable.Import
 open Fable.Core.JsInterop
 open Fable.Import.Node
@@ -76,11 +76,11 @@ let e2Label  (disk:string) (label:string) =
 let serializeDecodedAndMatch (r, _) =
   r
     |> resultOutput
-    |> Json.Decode.decodeString (Thot.Json.Decode.field "blockDevices" BlockDevices.decoder)
+    |> Decode.decodeString (Decode.field "blockDevices" BlockDevices.decoder)
     |> Result.unwrap
     |> UdevSerializer.serialize
     |> BlockDevices.encoder
-    |> Json.Encode.encode 2
+    |> Encode.encode 2
     |> toMatchSnapshot
 
 let iscsiDiscoverIF1 = ISCSIAdm.iscsiDiscover testInterface1

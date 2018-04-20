@@ -11,7 +11,7 @@ exports[`decode / encode scannerState 1`] = `
       \\"hostid\\": 532248858,
       \\"state\\": \\"ACTIVE\\",
       \\"readonly\\": false,
-      \\"size\\": 83886080,
+      \\"size\\": \\"83886080\\",
       \\"vdev\\": {
         \\"Root\\": {
           \\"children\\": [

@@ -5,7 +5,7 @@
 module IML.Types.ZedTypes
 
 open libzfs
-open Thot.Json
+open Thoth.Json
 
 type Zed = Map<string, Libzfs.Pool>
 

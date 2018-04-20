@@ -10,7 +10,7 @@ open Fable.Import.Jest
 open Fable.Import
 open Fable.Core.JsInterop
 open IML.CommonLibrary
-open Thot.Json
+open Thoth.Json
 open Matchers
 open Fixtures
 
@@ -35,7 +35,7 @@ open Fixtures
           (decoded.devpath, decoded);
         ]
         |> BlockDevices.encoder
-        |> Thot.Json.Encode.encode 2
+        |> Thoth.Json.Encode.encode 2
         |> toMatchSnapshot
     )
   )
@@ -57,7 +57,7 @@ let ks =
           |> Decode.decodeString (BlockDevices.decoder)
           |> Result.unwrap
           |> BlockDevices.encoder
-          |> Thot.Json.Encode.encode 2
+          |> Thoth.Json.Encode.encode 2
           |> toMatchSnapshot
       )
     )

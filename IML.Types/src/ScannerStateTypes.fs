@@ -4,7 +4,7 @@
 
 module IML.Types.ScannerStateTypes
 
-open Thot.Json
+open Thoth.Json
 
 open IML.Types.UeventTypes
 open IML.Types.MountTypes

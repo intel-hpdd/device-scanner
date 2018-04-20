@@ -9,7 +9,7 @@ open Matchers
 open IML.CommonLibrary
 open IML.Types.CommandTypes
 open Fable.PowerPack
-open Thot.Json
+open Thoth.Json
 open IML.Types.MountTypes
 open IML.DeviceScannerDaemon.Mount
 

@@ -6,7 +6,7 @@ module IML.Types.MountTypesTest
 
 open Fable.Import.Jest
 open Matchers
-open Thot.Json
+open Thoth.Json
 
 open IML.CommonLibrary
 

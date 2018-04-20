@@ -5,7 +5,7 @@
 module IML.DeviceScannerDaemon.ZedTypesTest
 
 open Fable.Import.Jest
-open Thot.Json
+open Thoth.Json
 
 open IML.Types.ZedTypes
 open IML.CommonLibrary

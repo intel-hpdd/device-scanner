@@ -5,7 +5,7 @@
 module IML.Types.CommandTypes
 
 open Fable.Core
-open Thot.Json
+open Thoth.Json
 
 [<RequireQualifiedAccess>]
 module Zpool =

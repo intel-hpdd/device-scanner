@@ -11,7 +11,7 @@ open Fixtures
 open IML.CommonLibrary
 open IML.Types.CommandTypes
 open Fable.PowerPack
-open Thot.Json
+open Thoth.Json
 open IML.Types
 open IML.Types.UeventTypes
 

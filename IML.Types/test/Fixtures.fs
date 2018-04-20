@@ -13,6 +13,9 @@ type Fixtures = {
   mount: string;
   mounts: string;
   scannerState: string;
+  legacyZFSPool: string;
+  legacyZFSDataset: string;
+  legacyBlockDev: string;
 }
 
 let fixtures:Fixtures = importAll "./fixtures.js"

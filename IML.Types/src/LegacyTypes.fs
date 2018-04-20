@@ -7,6 +7,20 @@ module IML.Types.LegacyTypes
 open Thot.Json
 open IML.Types.UeventTypes
 
+
+let private pathValue (Path x) =
+  Encode.string x
+
+let private pathValues paths =
+  paths
+    |> Array.map pathValue
+
+let private devPathValue (DevPath x) =
+  Encode.string x
+
+let private encodeStrings xs =
+  Array.map Encode.string xs
+
 type Vg = {
   name: string;
   uuid: string;
@@ -33,8 +47,50 @@ type LegacyZFSDev = {
   block_device: string;
   uuid: string;
   size: string;
-  drives: string list;
+  drives: string [];
 }
+
+module LegacyZFSDev =
+  let encode
+    {
+      name = name;
+      path = path;
+      block_device = block_device;
+      uuid = uuid;
+      size = size;
+      drives = drives;
+    } =
+      Encode.object [
+        ("name", Encode.string name);
+        ("path", Encode.string path);
+        ("block_device", Encode.string block_device);
+        ("uuid", Encode.string uuid);
+        ("size", Encode.string size);
+        ("drives", Encode.array (encodeStrings drives));
+      ]
+
+  let decode =
+    Decode.decode
+      (fun name path block_device uuid size drives ->
+        {
+          name = name
+          path = path
+          block_device = block_device
+          uuid = uuid
+          size = size
+          drives = drives
+        }
+      )
+      |> (Decode.required "name" Decode.string)
+      |> (Decode.required "path" Decode.string)
+      |> (Decode.required "block_device" Decode.string)
+      |> (Decode.required "uuid" Decode.string)
+      |> (Decode.required "size" Decode.string)
+      |> (Decode.required "drives" (Decode.array Decode.string))
+
+  let decoder =
+    Decode.decodeString decode
+      >> Result.mapError exn
 
 type LegacyBlockDev = {
   major_minor: string;
@@ -85,24 +141,10 @@ module LegacyBlockDev =
       md_uuid = md_uuid;
       md_device_paths = md_device_paths;
     } =
-
-      let pathValue (Path x) =
-        Encode.string x
-
-      let pathValues =
-        paths
-          |> Array.map pathValue
-
-      let devPathValue (DevPath x) =
-        Encode.string x
-
-      let encodeStrings xs =
-        Array.map Encode.string xs
-
       Encode.object [
         ("major_minor", Encode.string major_minor);
         ("path", pathValue path);
-        ("paths", Encode.array pathValues);
+        ("paths", Encode.array (pathValues paths));
         ("serial_80", Encode.option Encode.string serial_80);
         ("serial_83", Encode.option Encode.string serial_83);
         ("size", Encode.int size);

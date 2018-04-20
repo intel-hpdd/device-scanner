@@ -279,6 +279,7 @@ let parsePools (blockDevices:LegacyBlockDev list) (ps:Pool list) =
                 ) blockDevices
               blockDev.major_minor
             )
+            |> List.toArray
 
         let ds':Map<string, LegacyZFSDev> =
           Array.fold (fun acc (d:Dataset) ->

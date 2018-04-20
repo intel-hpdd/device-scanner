@@ -863,6 +863,54 @@ exports.mount = {
 };
 exports.mounts = [exports.mount];
 
+exports.legacyZFSPool = {
+  name: 'testPool1',
+  path: 'testPool1',
+  block_device: 'zfspool:1689599553517780274',
+  uuid: '1689599553517780274',
+  size: '20971520',
+  drives: ['32:6', '32:8']
+};
+
+exports.legacyZFSDataset = {
+  name: 'testPool1/home',
+  path: 'testPool1/home',
+  block_device: 'zfsdataset:1689599553517780274',
+  uuid: '1689599553517780274',
+  size: '20971520',
+  drives: ['32:6', '32:8']
+};
+
+exports.legacyBlockDev = {
+  major_minor: '8:0',
+  path:
+    '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:0/block/sda',
+  paths: [
+    '/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk1',
+    '/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:0',
+    '/dev/sda'
+  ],
+  serial_80: 'SQEMU    QEMU HARDDISK   disk1',
+  serial_83: '0QEMU    QEMU HARDDISK   disk1',
+  size: '20971520',
+  filesystem_type: 'linux_raid_member',
+  filesystem_usage: 'raid',
+  dev_type: 'disk',
+  dev_path:
+    '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:0/block/sda',
+  partition_number: null,
+  is_ro: false,
+  parent: null,
+  dm_multipath: null,
+  dm_lv: null,
+  dm_vg: null,
+  dm_uuid: null,
+  dm_slave_mms: [],
+  dm_vg_size: null,
+  md_uuid: null,
+  md_device_paths: []
+};
+
 exports.scannerState = {
   zed: {
     '16895995351780274': {

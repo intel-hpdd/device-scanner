@@ -10,12 +10,17 @@ open System.Text.RegularExpressions
 let private k p _ =
   p
 
+let private replace (regexp:string) (replacement:string) (path:string) =
+  Regex.Replace (path, regexp, replacement)
+
 let private normalizeDevPath (DevPath(path)) =
-  Regex.Replace (
-    path,
-    "/devices/pci0000:00/0000:00:0d.0/ata\d+/host\d+/target\d+:0:0/\d+:0:0:0/(.+)",
-    "/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/$1"
-  )
+  path
+    |> replace
+      "/devices/pci0000:00/0000:00:0d.0/ata\d+/host\d+/target\d+:0:0/\d+:0:0:0/(.+)"
+      "/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/$1"
+    |> replace
+      "/devices/platform/host\d+/session\d+/target\d+:\d:\d/\d+:\d:\d:\d/(.+)"
+      "/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/$1"
     |> DevPath
 
 let private normalizeByPath (regex:string) (replacement:string) (Path(path)) =
@@ -42,10 +47,18 @@ let private normalizeDevPaths ((devPath:DevPath), (uevent:UEvent)) =
 let private normalizeByPartUUID (path:Path) =
   normalizeByPath "(/dev/disk/by-partuuid/).+" "part-uuid-XXXXX" path
 
+let private normalizeByIp (Path(path)) =
+  Regex.Replace (
+    path,
+    "/dev/disk/by-path/ip-.+-iscsi-iqn.2018-03.com.test:server-lun-([0-9]+)",
+    "/dev/disk/by-path/ip-172.28.128.X:3260-iscsi-iqn.2018-03.com.test:server-lun-$1"
+  )
+    |> Path
+
 let private normalizePaths ((devPath:DevPath), (uevent:UEvent)) =
   let newPaths =
     uevent.paths
-      |> Array.map (normalizeByUUIDPath >> normalizeByLVMUUID >> normalizeByDmUUUID >> normalizeByPartUUID)
+      |> Array.map (normalizeByUUIDPath >> normalizeByLVMUUID >> normalizeByDmUUUID >> normalizeByPartUUID >> normalizeByIp)
 
   (devPath, {uevent with paths = newPaths})
 
@@ -63,9 +76,16 @@ let private normalizeFsUUIDs ((devPath:DevPath), (uevent:UEvent)) =
 
   (devPath, {uevent with fsUuid = newFsUUID})
 
+let private normalizeDmSlaveMms ((devPath:DevPath), (uevent:UEvent)) =
+  let newDmSlaves =
+    uevent.dmSlaveMMs
+      |> Array.map (k "xx:yy")
+
+  (devPath, {uevent with dmSlaveMMs = newDmSlaves})
+
 let serialize (x:Map<DevPath, UEvent>) =
   x
     |> Map.toList
-    |> List.map (normalizeDevPaths >> normalizePaths >> normalizeDMUUIDs >> normalizeFsUUIDs)
+    |> List.map (normalizeDevPaths >> normalizePaths >> normalizeDMUUIDs >> normalizeFsUUIDs >> normalizeDmSlaveMms)
     |> List.sort
     |> Map.ofList

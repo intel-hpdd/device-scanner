@@ -41,6 +41,21 @@ type MdRaid = {
   drives: Path [];
 }
 
+type MpathNodes = {
+  major_minor: string;
+  parent: string option;
+  serial_83: string;
+  serial_80: string;
+  path: string;
+  size: int;
+}
+
+type Mpath = {
+  name: string;
+  block_device: string;
+  nodes: MpathNodes [];
+}
+
 type LegacyZFSDev = {
   name: string;
   path: string;

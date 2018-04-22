@@ -73,7 +73,7 @@ let parseSysBlock (host:string) (state:State) =
   let xs =
     state.blockDevices
       |> Map.toList
-      |> List.map (snd >> createFromUEvent)
+      |> List.map (snd >> LegacyBlockDev.ofUEvent)
       |> List.filter filterDevice
       |> linkParents
 
@@ -97,6 +97,10 @@ let parseSysBlock (host:string) (state:State) =
 
   let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
 
+  let mpaths = Mpath.ofBlockDevices state.blockDevices
+
+  // @TODO: Add MpathNodes to the NormalizedDeviceTable.
+
   // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output, append because type should be DU Block or ZFS
 
   {
@@ -107,6 +111,7 @@ let parseSysBlock (host:string) (state:State) =
     local_fs = localFs;
     zfspools = zfspools;
     zfsdatasets = zfsdatasets;
+    mpath = mpaths;
   }
 
 let updateTree host x =

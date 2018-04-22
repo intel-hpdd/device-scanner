@@ -6,8 +6,7 @@ module IML.Types.LegacyTypes
 
 open Thoth.Json
 open IML.Types.UeventTypes
-open Thoth.Json
-
+open IML.CommonLibrary
 
 let private pathValue (Path x) = Encode.string x
 let private pathValues paths = paths |> Array.map pathValue
@@ -54,7 +53,7 @@ module Vg =
 type Lv = {
   name: string;
   uuid: string;
-  size: int;
+  size: string option;
   block_device: string;
 }
 
@@ -90,6 +89,7 @@ module Lv =
       |> Encode.object
 
 
+
 type MdRaid = {
   path: Path;
   block_device: string;
@@ -117,6 +117,58 @@ module MdRaid =
       )
       |> Encode.object
 
+
+type MpathNode = {
+  major_minor: string;
+  parent: DevPath option;
+  serial_83: string option;
+  serial_80: string option;
+  path: Path;
+  size: string option;
+}
+
+module MpathNode =
+  let ofUEvent (x:UEvent) =
+    {
+      major_minor = UEvent.majorMinor x;
+      parent = x.parent;
+      serial_83 = x.scsi83;
+      serial_80 = x.scsi80;
+      path = Array.head x.paths;
+      size = x.size
+    }
+
+type Mpath = {
+  name: string;
+  block_device: string;
+  nodes: MpathNode [];
+}
+
+module Mpath =
+  let ofBlockDevices (xs:BlockDevices) =
+    xs
+      |> Map.toArray
+      |> Array.map snd
+      |> Array.filter (fun v ->
+        v.isMpath
+      )
+      |> Array.map
+        (fun v ->
+          let x =
+            {
+              name =
+                v.dmName
+                  |> Option.expect "Mpath device did not have a name";
+              block_device = UEvent.majorMinor v;
+              nodes =
+                v.dmSlaveMMs
+                  |> Array.choose (BlockDevices.tryFindByMajorMinor xs)
+                  |> Array.map MpathNode.ofUEvent
+            }
+
+          (x.name, x)
+        )
+        |> Map.ofArray
 
 type LegacyZFSDev = {
   name: string;
@@ -184,7 +236,7 @@ type LegacyBlockDev = {
   paths: Path [];
   serial_80: string option;
   serial_83: string option;
-  size: int;
+  size: string option;
   filesystem_type: string option;
   filesystem_usage: string option;
   device_type: string;
@@ -203,6 +255,31 @@ type LegacyBlockDev = {
 }
 
 module LegacyBlockDev =
+  let ofUEvent (x:UEvent) =
+    {
+      major_minor = UEvent.majorMinor x;
+      path = Array.head x.paths;
+      paths = x.paths;
+      serial_80 = x.scsi80;
+      serial_83 = x.scsi83;
+      size = x.size;
+      filesystem_type = x.fsType;
+      filesystem_usage = x.fsUsage;
+      device_type = x.devtype;
+      device_path = x.devpath;
+      partition_number = x.partEntryNumber;
+      is_ro = x.readOnly;
+      parent = None;
+      dm_multipath = x.dmMultipathDevpath;
+      dm_lv = x.dmLvName;
+      dm_vg = x.dmVgName;
+      dm_uuid = x.dmUUID;
+      dm_slave_mms = x.dmSlaveMMs;
+      dm_vg_size = x.dmVgSize;
+      md_uuid = x.mdUUID;
+      md_device_paths = x.mdDevs;
+    }
+
   let encode
     {
       major_minor = major_minor;
@@ -233,7 +310,7 @@ module LegacyBlockDev =
         ("paths", Encode.array (pathValues paths));
         ("serial_80", Encode.option Encode.string serial_80);
         ("serial_83", Encode.option Encode.string serial_83);
-        ("size", Encode.int size);
+        ("size", Encode.option Encode.string size);
         ("filesystem_type", Encode.option Encode.string filesystem_type);
         ("filesystem_usage", Encode.option Encode.string filesystem_usage);
         ("device_type", Encode.string device_type);
@@ -357,6 +434,7 @@ type LegacyDevTree = {
   zfspools: Map<string, LegacyZFSDev>
   zfsdatasets: Map<string, LegacyZFSDev>
   local_fs: Map<string, (string * string)>
+  mpath: Map<string, Mpath>;
 }
 
 module LegacyDevTree =

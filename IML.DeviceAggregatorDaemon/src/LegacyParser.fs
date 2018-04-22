@@ -12,10 +12,6 @@ open IML.CommonLibrary
 open IML.Types.LegacyTypes
 open libzfs.Libzfs
 
-let private devPathRegex = "^/dev/[^/]+$"
-let private diskByIdRegex = "^/dev/disk/by-id/"
-let private diskByPathRegex = "^/dev/disk/by-path/"
-let private mapperPathRegex = "^/dev/mapper/"
 
 module NormalizedDeviceTable =
   let private filterByRegex r (Path(p)) =
@@ -39,16 +35,16 @@ module NormalizedDeviceTable =
         let paths = x.paths
 
         let devPaths =
-          Array.filter (filterByRegex devPathRegex) paths
+          Array.filter (filterByRegex UEvent.devPathRegex) paths
 
         let diskByIdPaths =
-          Array.filter (filterByRegex diskByIdRegex) paths
+          Array.filter (filterByRegex UEvent.diskByIdRegex) paths
 
         let diskByPathPaths =
-          Array.filter (filterByRegex diskByPathRegex) paths
+          Array.filter (filterByRegex UEvent.diskByPathRegex) paths
 
         let mapperPaths =
-          Array.filter (filterByRegex mapperPathRegex) paths
+          Array.filter (filterByRegex UEvent.mapperPathRegex) paths
 
         let table =
           addNormalizedDevices devPaths diskByPathPaths t
@@ -63,7 +59,7 @@ module NormalizedDeviceTable =
               |> Option.isSome
           )
           |> List.collect (fun v ->
-            let r = Array.filter (filterByRegex mapperPathRegex) x.paths
+            let r = Array.filter (filterByRegex UEvent.mapperPathRegex) x.paths
 
             v.dm_slave_mms
               |> List.ofArray
@@ -73,7 +69,7 @@ module NormalizedDeviceTable =
 
                 let paths =
                   dev.paths
-                    |> Array.filter (filterByRegex diskByIdRegex)
+                    |> Array.filter (filterByRegex UEvent.diskByIdRegex)
 
                 (paths, r)
               )
@@ -100,20 +96,6 @@ module NormalizedDeviceTable =
     findPath p
 
 
-let private precedence = [|
-    mapperPathRegex;
-    diskByIdRegex;
-    diskByPathRegex;
-    ".+";
-|]
-
-let private idx (Path(x)) =
-  Array.findIndex (fun p ->
-    Regex.Match(x, p).Success
-  ) precedence
-
-let private sortPaths =
-  Array.sortBy idx
 
 let linkParents xs =
   let disks =
@@ -136,7 +118,7 @@ let linkParents xs =
     )
 
 let filterDevice (x:LegacyBlockDev) =
-  x.size = 0 || x.is_ro = Some true
+  x.size = Some "0" || x.size = None || x.is_ro = Some true
 
 let parseLvmUUids (dmUuid:string option) =
   let lvmPfix = "LVM-"
@@ -314,36 +296,3 @@ let parsePools (blockDevices:LegacyBlockDev list) (ps:Pool list) =
 
         (pools, ds')
       ) (Map.empty, Map.empty)
-
-let createFromUEvent (x:UEvent) =
-  let sorted = sortPaths x.paths
-
-  let size =
-    x.size
-      |> Option.map int
-      |> Option.defaultValue 0
-      |> (*) 512
-
-  {
-    major_minor = UEvent.majorMinor x;
-    path = Array.head sorted;
-    paths = sorted;
-    serial_80 = x.scsi80;
-    serial_83 = x.scsi83;
-    size = size;
-    filesystem_type = x.fsType;
-    filesystem_usage = x.fsUsage;
-    device_type = x.devtype;
-    device_path = x.devpath;
-    partition_number = x.partEntryNumber;
-    is_ro = x.readOnly;
-    parent = None;
-    dm_multipath = x.dmMultipathDevpath;
-    dm_lv = x.dmLvName;
-    dm_vg = x.dmVgName;
-    dm_uuid = x.dmUUID;
-    dm_slave_mms = x.dmSlaveMMs;
-    dm_vg_size = x.dmVgSize;
-    md_uuid = x.mdUUID;
-    md_device_paths = x.mdDevs;
-  }

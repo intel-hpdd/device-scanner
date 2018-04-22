@@ -103,8 +103,6 @@ Vagrant.configure("2") do |config|
     systemctl enable multipathd
     systemctl start multipathd
     echo "InitiatorName=iqn.2018-03.com.test:client" > /etc/iscsi/initiatorname.iscsi
-    systemctl start iscsid
-    systemctl enable iscsid
     systemctl start iscsi
     systemctl enable iscsi
     SHELL

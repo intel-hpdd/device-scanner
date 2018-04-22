@@ -892,7 +892,7 @@ exports.legacyBlockDev = {
   ],
   serial_80: 'SQEMU    QEMU HARDDISK   disk1',
   serial_83: '0QEMU    QEMU HARDDISK   disk1',
-  size: 20971520,
+  size: '20971520',
   filesystem_type: 'linux_raid_member',
   filesystem_usage: 'raid',
   device_type: 'disk',

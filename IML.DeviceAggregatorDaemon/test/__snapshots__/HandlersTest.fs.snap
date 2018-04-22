@@ -1,15 +1,26 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Discover no pools on host 1`] = `
-FableMap {
-  "comparer": Comparer {
-    "Compare": [Function],
+Array [
+  FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
   },
-  "tree": MapTree {
-    "data": undefined,
-    "tag": 0,
+  FableMap {
+    "comparer": Comparer {
+      "Compare": [Function],
+    },
+    "tree": MapTree {
+      "data": undefined,
+      "tag": 0,
+    },
   },
-}
+]
 `;
 
 exports[`Server should receive empty tree in get response without prior update 1`] = `"{}"`;

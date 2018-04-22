@@ -68,7 +68,7 @@ module Lv =
       Encode.object [
         ("name", Encode.string name);
         ("uuid", Encode.string uuid);
-        ("size", Encode.int size);
+        ("size", Encode.option Encode.string size);
         ("block_device", Encode.string block_device);
       ]
 
@@ -169,6 +169,7 @@ module Mpath =
           (x.name, x)
         )
         |> Map.ofArray
+
 
 type LegacyZFSDev = {
   name: string;
@@ -373,7 +374,7 @@ module LegacyBlockDev =
       |> Decode.required "paths" (Decode.array (Decode.map Path Decode.string))
       |> optionalString "serial_80"
       |> optionalString "serial_83"
-      |> Decode.required "size" Decode.int
+      |> optionalString "size"
       |> optionalString "filesystem_type"
       |> optionalString "filesystem_usage"
       |> Decode.required "device_type" Decode.string

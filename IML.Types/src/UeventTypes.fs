@@ -4,10 +4,17 @@
 
 module IML.Types.UeventTypes
 
+open System.Text.RegularExpressions
+
+open Fable.Import.Node
+
 open Fable.Core
 open JsInterop
-open IML.CommonLibrary
+
 open Thoth.Json
+
+open IML.CommonLibrary
+
 
 [<Erase>]
 type DevPath = DevPath of string
@@ -42,6 +49,7 @@ type UEvent =
     devname: Path;
     devpath: DevPath;
     devtype: string;
+    parent: DevPath option;
     vendor: string option;
     model: string option;
     serial: string option;
@@ -54,6 +62,7 @@ type UEvent =
     scsi83: string option;
     readOnly: bool option;
     biosBoot: bool;
+    isMpath: bool;
     dmSlaveMMs: string [];
     dmVgSize: string option;
     mdDevs: string [];
@@ -72,6 +81,34 @@ module UEvent =
   let private optionalString = Decode.option Decode.string
   let private optionalStringProp x = Decode.optional x optionalString None
 
+  let private convertSize x =
+    x
+      |> Option.map int
+      |> Option.map ((*) 512)
+      |> Option.map string
+
+  let majorMinor x =
+    sprintf "%s:%s" x.major x.minor
+
+  let devPathRegex = "^/dev/[^/]+$"
+  let diskByIdRegex = "^/dev/disk/by-id/"
+  let diskByPathRegex = "^/dev/disk/by-path/"
+  let mapperPathRegex = "^/dev/mapper/"
+
+  let private precedence = [|
+    mapperPathRegex;
+    diskByIdRegex;
+    diskByPathRegex;
+    ".+";
+  |]
+
+  let private idx (Path(x)) =
+    Array.findIndex (fun p ->
+      Regex.Match(x, p).Success
+    ) precedence
+
+  let private sortPaths =
+    Array.sortBy idx
 
   let majorMinor x =
     sprintf "%s:%s" x.major x.minor
@@ -84,15 +121,19 @@ module UEvent =
         (fun major minor devlinks devname devpath devtype
              idVendor idModel idSerial idFsType idFsUsage idFsUuid
              idPartEntryNumber imlSize imlScsi80 imlScsi83
-             imlIsRo imlIsBiosBoot imlDmSlaveMms imlDmVgSize imlMdDevices
+             imlIsRo imlIsBiosBoot imlIsMpath imlDmSlaveMms imlDmVgSize imlMdDevices
              dmMultipathDevicePath dmName dmLvName dmVgName dmUuid mdUuid ->
 
             { major = major
               minor = minor
-              paths = Array.append devlinks [| devname |]
+              paths =
+                [| devname |]
+                  |> Array.append devlinks
+                  |> sortPaths
               devname = devname
               devpath = devpath
               devtype = devtype
+              parent = None
               vendor = idVendor
               model = idModel
               serial = idSerial
@@ -105,6 +146,7 @@ module UEvent =
               scsi83 = imlScsi83
               readOnly = imlIsRo
               biosBoot = imlIsBiosBoot
+              isMpath = imlIsMpath
               dmSlaveMMs = imlDmSlaveMms
               dmVgSize = imlDmVgSize
               mdDevs = imlMdDevices |> List.map snd |> List.toArray
@@ -128,11 +170,12 @@ module UEvent =
         |> Decode.optional "ID_FS_USAGE" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
         |> Decode.optional "ID_FS_UUID" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
         |> Decode.optional "ID_PART_ENTRY_NUMBER" (Decode.map (Option.map int) optionalString) None
-        |> Decode.optional "IML_SIZE" (Decode.map (Option.bind String.emptyStrToNone) optionalString) None
+        |> Decode.optional "IML_SIZE" (Decode.map (Option.bind (String.emptyStrToNone >> convertSize)) optionalString) None
         |> Decode.optional "IML_SCSI_80" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.optional "IML_SCSI_83" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.optional "IML_IS_RO" (Decode.map (Option.map isOne) optionalString) None
-        |> Decode.optional "IML_IS_BIOS_BOOT"  (Decode.map isOne Decode.string) false
+        |> Decode.optional "IML_IS_BIOS_BOOT" (Decode.map isOne Decode.string) false
+        |> Decode.optional "IML_IS_MPATH" (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_DM_SLAVE_MMS" (Decode.map splitSpace Decode.string) [||]
         |> Decode.optional "IML_DM_VG_SIZE" (Decode.map (Option.map String.trim) optionalString) None
         |> Decode.custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) Decode.string)
@@ -152,10 +195,10 @@ module UEvent =
 
   let encodedDecode =
     Decode.decode
-      (fun major minor paths devname devpath devtype
+      (fun major minor paths devname devpath devtype parent
            vendor model serial fsType fsUsage fsUuid
            partEntryNumber size scsi80 scsi83
-           readOnly biosBoot dmSlaveMMs dmVgSize mdDevs
+           readOnly biosBoot isMpath dmSlaveMMs dmVgSize mdDevs
            dmMultipathDevicePath dmName dmLvName dmVgName dmUuid mdUuid ->
 
           { major = major
@@ -164,6 +207,7 @@ module UEvent =
             devname = devname
             devpath = devpath
             devtype = devtype
+            parent = parent
             vendor = vendor
             model = model
             serial = serial
@@ -176,6 +220,7 @@ module UEvent =
             scsi83 = scsi83
             readOnly = readOnly
             biosBoot = biosBoot
+            isMpath = isMpath
             dmSlaveMMs = dmSlaveMMs
             dmVgSize = dmVgSize
             mdDevs = mdDevs
@@ -192,6 +237,7 @@ module UEvent =
         |> Decode.required "devName" (Decode.map Path Decode.string)
         |> Decode.required "devPath" (Decode.map DevPath Decode.string)
         |> stringProp "devType"
+        |> Decode.required "parent" (Decode.map (Option.map DevPath) (Decode.option Decode.string))
         |> stringPropOption "idVendor"
         |> stringPropOption "idModel"
         |> stringPropOption "idSerial"
@@ -204,6 +250,7 @@ module UEvent =
         |> stringPropOption "scsi83"
         |> Decode.required "isReadOnly" (Decode.option Decode.bool)
         |> Decode.required "isBiosBoot" Decode.bool
+        |> Decode.required "isMpath" Decode.bool
         |> Decode.required "dmSlaveMms" (Decode.array Decode.string)
         |> stringPropOption "dmVgSize"
         |> Decode.required "mdDevices" (Decode.array Decode.string)
@@ -225,6 +272,7 @@ module UEvent =
       paths = paths
       devname = devName
       devpath = devPath
+      parent = parent
       devtype = devType
       vendor = idVendor
       model = idModel
@@ -238,6 +286,7 @@ module UEvent =
       scsi83 = imlScsi83
       readOnly = imlIsRo
       biosBoot = imlIsBiosBoot
+      isMpath = imlIsMpath
       dmSlaveMMs = imlDmSlaveMms
       dmVgSize = imlDmVgSize
       mdDevs = imlMdDevices
@@ -267,6 +316,7 @@ module UEvent =
         ("paths", Encode.array pathValues);
         ("devName", pathValue devName);
         ("devPath", devPathValue devPath);
+        ("parent", Encode.option devPathValue parent);
         ("devType", Encode.string devType);
         ("idVendor", Encode.option Encode.string idVendor);
         ("idModel", Encode.option Encode.string idModel);
@@ -280,6 +330,7 @@ module UEvent =
         ("scsi83", Encode.option Encode.string imlScsi83);
         ("isReadOnly", Encode.option Encode.bool imlIsRo);
         ("isBiosBoot", Encode.bool imlIsBiosBoot);
+        ("isMpath", Encode.bool imlIsMpath);
         ("dmSlaveMms", Encode.array (encodeStrings imlDmSlaveMms));
         ("dmVgSize", Encode.option Encode.string imlDmVgSize);
         ("mdDevices", Encode.array (encodeStrings imlMdDevices));
@@ -315,9 +366,35 @@ module BlockDevices =
             |> Map.ofList
       )
 
+  let linkParents x =
+    let disks =
+      x
+        |> Map.filter (fun _ x -> x.devtype = "disk")
+
+    x
+      |> Map.map (fun (DevPath k) x ->
+        let parent =
+          path.dirname k
+            |> DevPath
+            |> fun v -> Map.tryFind v disks
+            |> Option.map (fun v -> v.devpath)
+
+        {
+          x with
+            parent = parent
+        }
+      )
+
   let tryFindByPath blockDevices x =
     blockDevices
       |> Map.tryFindKey(fun _ b ->
         Array.contains x b.paths
+      )
+      |> Option.map (fun y -> Map.find y blockDevices)
+
+  let tryFindByMajorMinor blockDevices x =
+    blockDevices
+      |> Map.tryFindKey (fun _ b ->
+        UEvent.majorMinor b = x
       )
       |> Option.map (fun y -> Map.find y blockDevices)

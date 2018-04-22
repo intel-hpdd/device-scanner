@@ -13,7 +13,9 @@ let update (blockDevices:BlockDevices) (x:UdevCommand):Result<BlockDevices, exn>
     | Add o | Change o ->
       UEvent.udevDecoder o
         |> Result.map (fun d ->
-          Map.add d.devpath d blockDevices
+          blockDevices
+            |> Map.add d.devpath d
+            |> BlockDevices.linkParents
         )
     | Remove o ->
       UEvent.udevDecoder o

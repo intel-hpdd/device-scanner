@@ -110,9 +110,6 @@ module UEvent =
   let private sortPaths =
     Array.sortBy idx
 
-  let majorMinor x =
-    sprintf "%s:%s" x.major x.minor
-
   /// Decodes output from Udev
   /// Will not re-decode an entry
   /// encoded by UEvent

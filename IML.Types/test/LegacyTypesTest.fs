@@ -12,12 +12,23 @@ open IML.CommonLibrary
 
 open LegacyTypes
 open Fixtures
-open IML.Types.LegacyTypes
 
 test "decode / encode LegacyDev types" <| fun () ->
   fixtures.legacyZFSPool
-    |> Decode.decodeString LegacyZFSDev.decode
+    |> LegacyZFSDev.decoder
     |> Result.unwrap
     |> LegacyZFSDev.encode
     // |> Encode.encode 2
+    |> toMatchSnapshot
+
+  fixtures.legacyZFSDataset
+    |> LegacyZFSDev.decoder
+    |> Result.unwrap
+    |> LegacyZFSDev.encode
+    |> toMatchSnapshot
+
+  fixtures.legacyBlockDev
+    |> LegacyBlockDev.decoder
+    |> Result.unwrap
+    |> LegacyBlockDev.encode
     |> toMatchSnapshot

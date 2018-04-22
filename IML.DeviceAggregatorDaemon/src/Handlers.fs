@@ -33,18 +33,16 @@ let discoverZpools
     (ps:Map<string,LegacyZFSDev>)
     (ds:Map<string,LegacyZFSDev>)
     (blockDevices:LegacyBlockDev list) =
-  /// Identify imported pools that reside on drives this host can see
-  ///   - gather information on pools active on other hosts
-  ///   - check the local host is reporting (can see) the underlying drives of said pool
-  ///   - verify the poor we want to add hasn't also been reported as active one another host
-  ///   - verify the localhost isn't also reporting the pool as active (it shouldn't be)
-  ///   - add pool and contained datasets to those to be reported to be connected to local host
-  /// :return: the new dictionary of devices reported on the given host
+
+  let mutable pools = ps
+  let mutable datasets = ds
+
   devTree
     // remove current host, we are looking for pools on other hosts
     |> Map.filter (fun k _ -> k <> host)
     |> Map.map (fun _ v ->
       // we want pools/datasets but don't need key
+      let (pps, dds) =
         v.zed
           |> Map.toList
           |> List.map snd
@@ -62,10 +60,16 @@ let discoverZpools
                not (List.contains p.state ["EXPORTED"; "UNAVAIL"])
           )
           |> parsePools blockDevices
+      pps
+        |> Map.iter (fun k v -> pools <- Map.add k v pools)
+      dds
+        |> Map.iter (fun k v -> datasets <- Map.add k v datasets)
     )
+    |> ignore
 //   |> Map.iter (fun h (ps, ds) -> printf "pools: %A , datasets: %A discovered on host %s" ps ds h)
+  (pools, datasets)
 
-let parseSysBlock (state:State) =
+let parseSysBlock (host:string) (state:State) =
   let xs =
     state.blockDevices
       |> Map.toList
@@ -91,12 +95,10 @@ let parseSysBlock (state:State) =
 
   let zfspools, zfsdatasets = parseZfs xs state.zed
 
-  // let zfspools, zfsdatasets = discoverZpools zfspools zfsdatasets xs
+  let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
 
   // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output, append because type should be DU Block or ZFS
-  // @TODO aggregate zfs pairs between hosts
 
-  // TODO: need encoder for all below types
   {
     devs = blockDeviceNodes';
     lvs = lvs;
@@ -118,6 +120,7 @@ let serverHandler (request:Http.IncomingMessage) (response:Http.ServerResponse) 
   match request.method with
     | Some "GET" ->
       devTree
+        |> Map.map (fun k v -> parseSysBlock k v |> LegacyDevTree.encoder)
         |> toJson
         |> buffer.Buffer.from
         |> response.``end``

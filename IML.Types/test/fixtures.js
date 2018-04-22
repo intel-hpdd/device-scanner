@@ -892,11 +892,11 @@ exports.legacyBlockDev = {
   ],
   serial_80: 'SQEMU    QEMU HARDDISK   disk1',
   serial_83: '0QEMU    QEMU HARDDISK   disk1',
-  size: '20971520',
+  size: 20971520,
   filesystem_type: 'linux_raid_member',
   filesystem_usage: 'raid',
-  dev_type: 'disk',
-  dev_path:
+  device_type: 'disk',
+  device_path:
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:0/block/sda',
   partition_number: null,
   is_ro: false,

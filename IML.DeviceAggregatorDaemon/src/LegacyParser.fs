@@ -10,7 +10,7 @@ open IML.Types.LegacyTypes
 open libzfs.Libzfs
 
 let filterDevice (x:LegacyBlockDev) =
-  x.size = Some "0" || x.size = None || x.is_ro = Some true
+  x.size <> Some "0" && x.size <> None && x.is_ro <> Some true
 
 let parseLvmUUids (dmUuid:string option) =
   let lvmPfix = "LVM-"

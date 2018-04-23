@@ -14,12 +14,13 @@ open IML.Types.MessageTypes
 open Matchers
 open Heartbeats
 open Handlers
-open TestFixtures
+open IML.Types.Fixtures
 
 let testServerHost = "localhost"
 let testServerPort = 8181
 
-let updatePayload = updateString |> (Data >> Message.encoder >> Some)
+/// scanner output
+let updatePayload = fixtures.scannerState |> (Data >> Message.encoder >> Some)
 let heartbeatPayload = Heartbeat |> Message.encoder |> Some
 
 test "host has pool disks" <| fun () ->
@@ -113,14 +114,14 @@ testList "Server" [
     devTree <- Map.empty
 
   yield! testFixtureDone withSetup [
-    "should receive empty tree in get response without prior update", fun get _ _ _ ->
-      expect.assertions 1
-      get()
+    // "should receive empty tree in get response without prior update", fun get _ _ _ ->
+      // expect.assertions 1
+      // get()
 
-//    "should receive updated tree in get response after post with update", fun _ _ postThenGet _ ->
-//      expect.assertions 1
-//      postThenGet updatePayload
-//
+    "should receive updated tree in get response after post with update", fun _ _ postThenGet _ ->
+      expect.assertions 1
+      postThenGet updatePayload
+
 //    "should receive empty tree in get response after post with update but no header entry", fun get post _ _ ->
 //      expect.assertions 1
 //      let headers =

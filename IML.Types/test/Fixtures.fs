@@ -1,4 +1,4 @@
-module Fixtures
+module IML.Types.Fixtures
 
 open Fable.Core.JsInterop
 

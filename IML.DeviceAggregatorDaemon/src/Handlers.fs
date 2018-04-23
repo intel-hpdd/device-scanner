@@ -129,6 +129,7 @@ let serverHandler (request:Http.IncomingMessage) (response:Http.ServerResponse) 
         |> buffer.Buffer.from
         |> response.``end``
     | Some "POST" ->
+      printf "POST"
       request
         |> Stream.reduce "" (fun acc x -> Ok (acc + x.toString("utf-8")))
         |> Stream.iter (fun x ->

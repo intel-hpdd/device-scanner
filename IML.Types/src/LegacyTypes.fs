@@ -20,7 +20,7 @@ let private optionalInt x = optional' Decode.int x
 let private optionalBool x = optional' Decode.bool x
 
 
-/// This type serves as a virtual tree.
+/// This type serves as a virtual tree (though right now it's assumed to be a graph).
 /// There is a precedence that determines
 /// canonical path. The precedence is:
 ///

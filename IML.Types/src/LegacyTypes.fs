@@ -14,6 +14,11 @@ let private pathValues paths = paths |> Array.map pathValue
 let private devPathValue (DevPath x) = Encode.string x
 let private encodeStrings xs = Array.map Encode.string xs
 
+let private encodeDict encoder m =
+  m
+    |> Map.map (fun _ y -> encoder y)
+    |> Encode.dict
+
 let private optional' t x = Decode.optional x (Decode.option t) None
 let private optionalString x = optional' Decode.string x
 let private optionalInt x = optional' Decode.int x
@@ -138,13 +143,8 @@ module Vg =
         ("pvs_major_minor", Encode.array (encodeStrings pvs_major_minor));
       ]
 
-  let encoder x =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encode y)
-      )
-      |> Encode.object
+  let encoder =
+    encodeDict encode
 
 
 type Lv = {
@@ -169,22 +169,8 @@ module Lv =
         ("block_device", Encode.string block_device);
       ]
 
-  let encoder' x =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encode y)
-      )
-      |> Encode.object
-
   let encoder (x:Map<string, Map<string, Lv>>) =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encoder' y)
-      )
-      |> Encode.object
-
+    encodeDict (encodeDict encode) x
 
 
 type MdRaid = {
@@ -206,14 +192,8 @@ module MdRaid =
         ("drives", Encode.array (pathValues drives));
       ]
 
-  let encoder x =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encode y)
-      )
-      |> Encode.object
-
+  let encoder =
+    encodeDict encode
 
 type MpathNode = {
   major_minor: string;
@@ -305,13 +285,8 @@ module LegacyZFSDev =
         ("drives", Encode.array (encodeStrings drives));
       ]
 
-  let encoder x =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encode y)
-      )
-      |> Encode.object
+  let encoder =
+    encodeDict encode
 
   let decode =
     Decode.decode
@@ -435,13 +410,8 @@ module LegacyBlockDev =
         ("md_device_paths", Encode.array (encodeStrings md_device_paths));
       ]
 
-  let encoder x =
-    x
-      |> Map.toList
-      |> List.map (fun (x, y) ->
-           (x, encode y)
-      )
-      |> Encode.object
+  let encoder =
+    encodeDict encode
 
   let decode =
     Decode.decode
@@ -528,12 +498,7 @@ let private localFsEncoder (x:Map<string,(string * string)>) =
       |> encodeStrings
       |> Encode.array
 
-  x
-    |> Map.toList
-    |> List.map (fun (x, y) ->
-         (x, encode y)
-      )
-    |> Encode.object
+  encodeDict encode x
 
 type LegacyDevTree = {
   devs: Map<string, LegacyDev>

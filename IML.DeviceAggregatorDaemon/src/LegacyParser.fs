@@ -2,98 +2,12 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module rec IML.DeviceAggregatorDaemon.LegacyParser
+module IML.DeviceAggregatorDaemon.LegacyParser
 
-open System.Text.RegularExpressions
-
-open Fable.Import.Node
 open IML.Types.UeventTypes
 open IML.CommonLibrary
 open IML.Types.LegacyTypes
 open libzfs.Libzfs
-
-
-module NormalizedDeviceTable =
-  let private filterByRegex r (Path(p)) =
-    Regex.Match(p, r).Success
-
-  let addNormalizedDevices xs ys m =
-    Array.fold (fun m x ->
-      ys
-        |> Array.filter(fun y -> y <> x)
-        |> Array.fold (fun m y -> Map.add x y m) m
-    ) m xs
-
-  let create (m:Map<string, LegacyBlockDev>) =
-    let xs =
-      m
-        |> Map.toList
-        |> List.map snd
-
-    xs
-      |> List.fold (fun t x ->
-        let paths = x.paths
-
-        let devPaths =
-          Array.filter (filterByRegex UEvent.devPathRegex) paths
-
-        let diskByIdPaths =
-          Array.filter (filterByRegex UEvent.diskByIdRegex) paths
-
-        let diskByPathPaths =
-          Array.filter (filterByRegex UEvent.diskByPathRegex) paths
-
-        let mapperPaths =
-          Array.filter (filterByRegex UEvent.mapperPathRegex) paths
-
-        let table =
-          addNormalizedDevices devPaths diskByPathPaths t
-            |> addNormalizedDevices devPaths diskByIdPaths
-            |> addNormalizedDevices diskByPathPaths mapperPaths
-            |> addNormalizedDevices diskByIdPaths mapperPaths
-
-        xs
-          |> List.filter (fun v ->
-            v.dm_uuid
-              |> Option.filter(fun x -> x.StartsWith("mpath-"))
-              |> Option.isSome
-          )
-          |> List.collect (fun v ->
-            let r = Array.filter (filterByRegex UEvent.mapperPathRegex) x.paths
-
-            v.dm_slave_mms
-              |> List.ofArray
-              |> List.map (fun x ->
-                let dev =
-                  Map.find x m
-
-                let paths =
-                  dev.paths
-                    |> Array.filter (filterByRegex UEvent.diskByIdRegex)
-
-                (paths, r)
-              )
-          )
-          |> List.fold (fun t (l, r) ->
-            addNormalizedDevices l r t
-          ) table
-
-    ) Map.empty
-
-  let normalizedDevicePath t p =
-    let mutable visited = Set.empty
-
-    let rec findPath p =
-      if Set.contains p visited then
-        p
-      else
-        match Map.tryFind p t with
-          | Some x ->
-            visited <- Set.add x visited
-            findPath x
-          | None -> p
-
-    findPath p
 
 let filterDevice (x:LegacyBlockDev) =
   x.size = Some "0" || x.size = None || x.is_ro = Some true
@@ -219,12 +133,6 @@ let rec getDisks (vdev:VDev) =
       [ children; spares; cache; ]
         |> List.collect collectChildDisks
 
-let parseZfs (blockDevices:LegacyBlockDev list) (zed:IML.Types.ZedTypes.Zed) =
-  zed
-    |> Map.toList
-    |> List.map snd
-    |> parsePools blockDevices
-
 let parsePools (blockDevices:LegacyBlockDev list) (ps:Pool list) =
   ps
     |> List.fold
@@ -274,3 +182,9 @@ let parsePools (blockDevices:LegacyBlockDev list) (ps:Pool list) =
 
         (pools, ds')
       ) (Map.empty, Map.empty)
+
+let parseZfs (blockDevices:LegacyBlockDev list) (zed:IML.Types.ZedTypes.Zed) =
+  zed
+    |> Map.toList
+    |> List.map snd
+    |> parsePools blockDevices

@@ -19,6 +19,45 @@ let private optionalString x = optional' Decode.string x
 let private optionalInt x = optional' Decode.int x
 let private optionalBool x = optional' Decode.bool x
 
+
+/// This type serves as a virtual tree.
+/// There is a precedence that determines
+/// canonical path. The precedence is:
+///
+///
+///                  ┌────────────────────────────┐
+///                  │           /dev/*           │
+///                  └────────────────────────────┘
+///                                 │
+///                ┌────────────────┼────────────────┐
+///                │                │                │
+///                ▼                │                ▼
+/// ┌────────────────────────────┐  │ ┌────────────────────────────┐
+/// │    /dev/disk/by-path/*     │  │ │     /dev/disk/by-id/*      │
+/// └────────────────────────────┘  │ └────────────────────────────┘
+///                │                │                │
+///                │                │                │
+///                │                │                │
+///                │                │                │
+///                │                ▼                │
+///                │ ┌────────────────────────────┐  │
+///                └▶│       /dev/mapper/*        │◀─┘
+///                  └────────────────────────────┘
+///
+///
+/// Given the actual data structure is a map,
+/// the user can lookup a node anywhere along the path,
+/// and resolve it to it's furthest point along the tree.
+///
+/// Also, given the whole structure is built off of
+/// known logic, and we have all the parts we need to
+/// construct at each tick, we should remove this data
+/// structure and determine the canonical path when needed by computing the
+/// device nodes.
+///
+/// Even futher than that, we should not have a singular canonical path, but
+/// preserve the aliases and allow any of them to be lookup keys.
+
 type NormalizedDeviceTable = Map<Path, Path>
 
 module NormalizedDeviceTable =
@@ -54,37 +93,10 @@ module NormalizedDeviceTable =
         let mapperPaths =
           Array.filter (filterByRegex UEvent.mapperPathRegex) paths
 
-        let table =
-          addNormalizedDevices devPaths diskByPathPaths t
-            |> addNormalizedDevices devPaths diskByIdPaths
-            |> addNormalizedDevices diskByPathPaths mapperPaths
-            |> addNormalizedDevices diskByIdPaths mapperPaths
-
-        xs
-          |> List.filter (fun v ->
-            v.dm_uuid
-              |> Option.filter(fun x -> x.StartsWith("mpath-"))
-              |> Option.isSome
-          )
-          |> List.collect (fun v ->
-            let r = Array.filter (filterByRegex UEvent.mapperPathRegex) x.paths
-
-            v.dm_slave_mms
-              |> List.ofArray
-              |> List.map (fun x ->
-                let dev =
-                  Map.find x m
-
-                let paths =
-                  dev.paths
-                    |> Array.filter (filterByRegex UEvent.diskByIdRegex)
-
-                (paths, r)
-              )
-          )
-          |> List.fold (fun t (l, r) ->
-            addNormalizedDevices l r t
-          ) table
+        addNormalizedDevices devPaths diskByPathPaths t
+          |> addNormalizedDevices devPaths diskByIdPaths
+          |> addNormalizedDevices diskByPathPaths mapperPaths
+          |> addNormalizedDevices diskByIdPaths mapperPaths
 
     ) Map.empty
 

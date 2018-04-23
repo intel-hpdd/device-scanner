@@ -75,7 +75,6 @@ let parseSysBlock (host:string) (state:State) =
       |> Map.toList
       |> List.map (snd >> LegacyBlockDev.ofUEvent)
       |> List.filter filterDevice
-      |> linkParents
 
   let blockDeviceNodes : Map<string,LegacyBlockDev> =
     xs

@@ -95,28 +95,6 @@ module NormalizedDeviceTable =
 
     findPath p
 
-
-
-let linkParents xs =
-  let disks =
-    xs
-      |> List.filter (fun x -> x.device_type = "disk")
-
-  xs
-    |> List.map (fun x ->
-      let (DevPath devPath) = x.device_path
-
-      let parent = path.dirname devPath |> DevPath
-
-      match List.tryFind (fun d -> d.device_path = parent) disks with
-        | Some d ->
-          {
-             x with
-              parent = Some d.major_minor
-          }
-        | None -> x
-    )
-
 let filterDevice (x:LegacyBlockDev) =
   x.size = Some "0" || x.size = None || x.is_ro = Some true
 

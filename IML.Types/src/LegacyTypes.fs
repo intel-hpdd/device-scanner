@@ -416,7 +416,7 @@ module LegacyDev =
       )
       |> Encode.object
 
-let private local_fs_encoder (x:Map<string,(string * string)>) =
+let private localFsEncoder (x:Map<string,(string * string)>) =
   let encode y =
     let (a, b) = y
     Encode.object [ ("a", Encode.string a); ("b", Encode.string b) ]
@@ -448,7 +448,7 @@ module LegacyDevTree =
       mds = mds;
       zfspools = zfspools;
       zfsdatasets = zfsdatasets;
-      local_fs = local_fs;
+      local_fs = localFs;
     } =
       Encode.object [
         ("devs", LegacyDev.encoder devs)
@@ -457,7 +457,7 @@ module LegacyDevTree =
         ("mds", MdRaid.encoder mds)
         ("zfspools", LegacyZFSDev.encoder zfspools)
         ("zfsdatasets", LegacyZFSDev.encoder zfsdatasets)
-        ("local_fs", local_fs_encoder local_fs)
+        ("local_fs", localFsEncoder localFs)
       ]
 
   let encoder =

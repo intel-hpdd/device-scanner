@@ -523,9 +523,11 @@ module LegacyDev =
       |> Encode.object
 
 let private localFsEncoder (x:Map<string,(string * string)>) =
-  let encode y =
-    let (a, b) = y
-    Encode.object [ ("a", Encode.string a); ("b", Encode.string b) ]
+  let encode (a, b) =
+    [| a; b |]
+      |> encodeStrings
+      |> Encode.array
+
   x
     |> Map.toList
     |> List.map (fun (x, y) ->

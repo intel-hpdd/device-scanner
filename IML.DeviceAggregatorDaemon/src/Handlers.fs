@@ -15,6 +15,7 @@ open IML.Types.ScannerStateTypes
 open IML.Types.LegacyTypes
 open LegacyParser
 open Heartbeats
+open Thoth.Json
 
 let mutable devTree:Map<string, State> = Map.empty
 
@@ -118,7 +119,7 @@ let parseSysBlock (host:string) (state:State) =
 
 let updateTree host x =
   let state =
-    State.decoder x
+    Decode.decodeString State.decoder x
       |> Result.unwrap
 
   Map.add host state devTree
@@ -132,7 +133,6 @@ let serverHandler (request:Http.IncomingMessage) (response:Http.ServerResponse) 
         |> buffer.Buffer.from
         |> response.``end``
     | Some "POST" ->
-      printf "POST"
       request
         |> Stream.reduce "" (fun acc x -> Ok (acc + x.toString("utf-8")))
         |> Stream.iter (fun x ->

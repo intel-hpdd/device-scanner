@@ -19,7 +19,7 @@ open IML.Types.Fixtures
 let testServerHost = "localhost"
 let testServerPort = 8181
 
-/// scanner output
+/// scanner output forwarded from the proxy
 let updatePayload = fixtures.scannerState |> (Data >> Message.encoder >> Some)
 let heartbeatPayload = Heartbeat |> Message.encoder |> Some
 
@@ -114,51 +114,48 @@ testList "Server" [
     devTree <- Map.empty
 
   yield! testFixtureDone withSetup [
-    // "should receive empty tree in get response without prior update", fun get _ _ _ ->
-      // expect.assertions 1
-      // get()
+    "should receive empty tree in get response without prior update", fun get _ _ _ ->
+      expect.assertions 1
+      get()
 
     "should receive updated tree in get response after post with update", fun _ _ postThenGet _ ->
       expect.assertions 1
       postThenGet updatePayload
 
-//    "should receive empty tree in get response after post with update but no header entry", fun get post _ _ ->
-//      expect.assertions 1
-//      let headers =
-//        createObj [
-//          "Content-Type" ==> "application/json"
-//        ]
-//
-//      post "foo.com" (Some headers)
-//        |> Writable.onFinish get
-//        |> Writable.``end`` updatePayload
-//
-//    "should receive empty tree in get response after post with update but empty hostname", fun get post _ _ ->
-//      expect.assertions 1
-//      post "" None
-//        |> Writable.onFinish get
-//        |> Writable.``end`` updatePayload
+    "should receive empty tree in get response after post with update but no header entry", fun get post _ _ ->
+      expect.assertions 1
+      let headers =
+        createObj [
+          "Content-Type" ==> "application/json"
+        ]
 
-    // fixme: seems to be using a real-timer rather than a fake
-    // "should receive empty tree in get response after post with heartbeat", fun _ _ postThenGet _ ->
-      // expect.assertions 1
-      // jest.useFakeTimers()
-        // |> ignore
-      // postThenGet heartbeatPayload
-      // jest.runAllTimers()
-      // jest.useRealTimers()
-        // |> ignore
+      post "foo.com" (Some headers)
+        |> Writable.onFinish get
+        |> Writable.``end`` updatePayload
 
- //   "should receive empty tree in get response after patch with update", fun get _ _ patch->
- //     expect.assertions 1
- //     patch "foo.com" None
- //       |> Writable.onFinish get
- //       |> Writable.``end`` updatePayload
+    "should receive empty tree in get response after post with update but empty hostname", fun get post _ _ ->
+      expect.assertions 1
+      post "" None
+        |> Writable.onFinish get
+        |> Writable.``end`` updatePayload
 
- //   "should receive updated tree in get response after updates from multiple hosts", fun _ post postThenGet _ ->
- //     expect.assertions 1
- //     post "bar.com" None
- //       |> Writable.onFinish (fun () -> postThenGet updatePayload)
- //       |> Writable.``end`` updatePayload
+    "should receive empty tree in get response after post with heartbeat", fun _ _ postThenGet _ ->
+      expect.assertions 1
+      jest.useFakeTimers()
+        |> ignore
+      postThenGet heartbeatPayload
+      jest.runAllTimers()
+
+    "should receive empty tree in get response after patch with update", fun get _ _ patch->
+      expect.assertions 1
+      patch "foo.com" None
+        |> Writable.onFinish get
+        |> Writable.``end`` updatePayload
+
+    "should receive updated tree in get response after updates from multiple hosts", fun _ post postThenGet _ ->
+      expect.assertions 1
+      post "bar.com" None
+        |> Writable.onFinish (fun () -> postThenGet updatePayload)
+        |> Writable.``end`` updatePayload
   ]
 ]

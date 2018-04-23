@@ -5,11 +5,8 @@
 module IML.Types.LegacyTypesTest
 
 open Fable.Import.Jest
-open Matchers
-open Thoth.Json
-
 open IML.CommonLibrary
-
+open Matchers
 open LegacyTypes
 open Fixtures
 
@@ -18,7 +15,6 @@ test "decode / encode LegacyDev types" <| fun () ->
     |> LegacyZFSDev.decoder
     |> Result.unwrap
     |> LegacyZFSDev.encode
-    // |> Encode.encode 2
     |> toMatchSnapshot
 
   fixtures.legacyZFSDataset

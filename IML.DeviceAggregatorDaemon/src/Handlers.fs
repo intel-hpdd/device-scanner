@@ -94,6 +94,9 @@ let parseSysBlock (host:string) (state:State) =
 
   let mds = parseMdraidDevs xs ndt
 
+  // @TODO Add mds to NormalizedDeviceTable as in: https://github.com/intel-hpdd/intel-manager-for-lustre/blob/master/chroma-agent/chroma_agent/device_plugins/linux_components/block_devices.py#L200-L223
+  // @TODO Update diagram on NormalizedDeviceTable to reflect this
+
   let localFs = parseLocalFs state.blockDevices state.localMounts
 
   let zfspools, zfsdatasets = parseZfs xs state.zed

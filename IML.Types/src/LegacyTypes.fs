@@ -2,11 +2,12 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.Types.LegacyTypes
+module rec IML.Types.LegacyTypes
 
 open Thoth.Json
 open IML.Types.UeventTypes
 open IML.CommonLibrary
+open System.Text.RegularExpressions
 
 let private pathValue (Path x) = Encode.string x
 let private pathValues paths = paths |> Array.map pathValue
@@ -17,6 +18,102 @@ let private optional' t x = Decode.optional x (Decode.option t) None
 let private optionalString x = optional' Decode.string x
 let private optionalInt x = optional' Decode.int x
 let private optionalBool x = optional' Decode.bool x
+
+
+/// This type serves as a virtual tree (though right now it's assumed to be a graph).
+/// There is a precedence that determines
+/// canonical path. The precedence is:
+///
+///
+///                  ┌────────────────────────────┐
+///                  │           /dev/*           │
+///                  └────────────────────────────┘
+///                                 │
+///                ┌────────────────┼────────────────┐
+///                │                │                │
+///                ▼                │                ▼
+/// ┌────────────────────────────┐  │ ┌────────────────────────────┐
+/// │    /dev/disk/by-path/*     │  │ │     /dev/disk/by-id/*      │
+/// └────────────────────────────┘  │ └────────────────────────────┘
+///                │                │                │
+///                │                │                │
+///                │                │                │
+///                │                │                │
+///                │                ▼                │
+///                │ ┌────────────────────────────┐  │
+///                └▶│       /dev/mapper/*        │◀─┘
+///                  └────────────────────────────┘
+///
+///
+/// Given the actual data structure is a map,
+/// the user can lookup a node anywhere along the path,
+/// and resolve it to it's furthest point along the tree.
+///
+/// Also, given the whole structure is built off of
+/// known logic, and we have all the parts we need to
+/// construct at each tick, we should remove this data
+/// structure and determine the canonical path when needed by computing the
+/// device nodes.
+///
+/// Even futher than that, we should not have a singular canonical path, but
+/// preserve the aliases and allow any of them to be lookup keys.
+
+type NormalizedDeviceTable = Map<Path, Path>
+
+module NormalizedDeviceTable =
+  let private filterByRegex r (Path(p)) =
+    Regex.Match(p, r).Success
+
+  let addNormalizedDevices xs ys (m:NormalizedDeviceTable): NormalizedDeviceTable =
+    Array.fold (fun m x ->
+      ys
+        |> Array.filter(fun y -> y <> x)
+        |> Array.fold (fun m y -> Map.add x y m) m
+    ) m xs
+
+  let create (m:Map<string, LegacyBlockDev>) =
+    let xs =
+      m
+        |> Map.toList
+        |> List.map snd
+
+    xs
+      |> List.fold (fun t x ->
+        let paths = x.paths
+
+        let devPaths =
+          Array.filter (filterByRegex UEvent.devPathRegex) paths
+
+        let diskByIdPaths =
+          Array.filter (filterByRegex UEvent.diskByIdRegex) paths
+
+        let diskByPathPaths =
+          Array.filter (filterByRegex UEvent.diskByPathRegex) paths
+
+        let mapperPaths =
+          Array.filter (filterByRegex UEvent.mapperPathRegex) paths
+
+        addNormalizedDevices devPaths diskByPathPaths t
+          |> addNormalizedDevices devPaths diskByIdPaths
+          |> addNormalizedDevices diskByPathPaths mapperPaths
+          |> addNormalizedDevices diskByIdPaths mapperPaths
+
+    ) Map.empty
+
+  let normalizedDevicePath t p =
+    let mutable visited = Set.empty
+
+    let rec findPath p =
+      if Set.contains p visited then
+        p
+      else
+        match Map.tryFind p t with
+          | Some x ->
+            visited <- Set.add x visited
+            findPath x
+          | None -> p
+
+    findPath p
 
 
 type Vg = {
@@ -59,12 +156,12 @@ type Lv = {
 
 module Lv =
   let encode
-    {
+    ({
       name = name;
       uuid = uuid;
       size = size;
       block_device = block_device;
-    } =
+    }:Lv) =
       Encode.object [
         ("name", Encode.string name);
         ("uuid", Encode.string uuid);
@@ -98,11 +195,11 @@ type MdRaid = {
 
 module MdRaid =
   let encode
-    {
+    ({
       path = path;
       block_device = block_device;
       drives = drives;
-    } =
+    }:MdRaid) =
       Encode.object [
         ("path", pathValue path);
         ("block_device", Encode.string block_device);
@@ -169,6 +266,15 @@ module Mpath =
           (x.name, x)
         )
         |> Map.ofArray
+
+  let addToNdt mpaths ndt =
+    Map.fold
+      (fun state k (v:Mpath) ->
+        Array.fold (fun ndt (x:MpathNode) ->
+          NormalizedDeviceTable.addNormalizedDevices [| x.path |]  [| Path (sprintf "/dev/mapper/%s" k) |] ndt
+        ) state v.nodes
+
+      ) ndt mpaths
 
 
 type LegacyZFSDev = {

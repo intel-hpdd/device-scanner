@@ -16,7 +16,6 @@ open IML.Types.LegacyTypes
 open LegacyParser
 open Heartbeats
 
-
 let mutable devTree:Map<string, State> = Map.empty
 
 let timeoutHandler host =
@@ -81,10 +80,15 @@ let parseSysBlock (host:string) (state:State) =
       |> List.map (fun x -> (x.major_minor, x))
       |> Map.ofList
 
-  let ndt = NormalizedDeviceTable.create blockDeviceNodes
-
   let blockDeviceNodes' =
     Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
+
+  let mpaths = Mpath.ofBlockDevices state.blockDevices
+
+  let ndt =
+    blockDeviceNodes
+      |> NormalizedDeviceTable.create
+      |> Mpath.addToNdt mpaths
 
   let vgs, lvs = parseDmDevs xs
 
@@ -95,10 +99,6 @@ let parseSysBlock (host:string) (state:State) =
   let zfspools, zfsdatasets = parseZfs xs state.zed
 
   let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
-
-  let mpaths = Mpath.ofBlockDevices state.blockDevices
-
-  // @TODO: Add MpathNodes to the NormalizedDeviceTable.
 
   // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output, append because type should be DU Block or ZFS
 

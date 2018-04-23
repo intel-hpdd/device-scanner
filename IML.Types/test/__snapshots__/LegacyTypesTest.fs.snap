@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`decode / encode LegacyDev types 1`] = `
+Object {
+  "block_device": "zfspool:1689599553517780274",
+  "drives": Array [
+    "32:6",
+    "32:8",
+  ],
+  "name": "testPool1",
+  "path": "testPool1",
+  "size": "20971520",
+  "uuid": "1689599553517780274",
+}
+`;
+
+exports[`decode / encode LegacyDev types 2`] = `
+Object {
+  "block_device": "zfsdataset:1689599553517780274",
+  "drives": Array [
+    "32:6",
+    "32:8",
+  ],
+  "name": "testPool1/home",
+  "path": "testPool1/home",
+  "size": "20971520",
+  "uuid": "1689599553517780274",
+}
+`;
+
+exports[`decode / encode LegacyDev types 3`] = `
+Object {
+  "device_path": "/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:0/block/sda",
+  "device_type": "disk",
+  "dm_lv": null,
+  "dm_multipath": null,
+  "dm_slave_mms": Array [],
+  "dm_uuid": null,
+  "dm_vg": null,
+  "dm_vg_size": null,
+  "filesystem_type": "linux_raid_member",
+  "filesystem_usage": "raid",
+  "is_ro": false,
+  "major_minor": "8:0",
+  "md_device_paths": Array [],
+  "md_uuid": null,
+  "parent": null,
+  "partition_number": null,
+  "path": "/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:0/block/sda",
+  "paths": Array [
+    "/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk1",
+    "/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:0",
+    "/dev/sda",
+  ],
+  "serial_80": "SQEMU    QEMU HARDDISK   disk1",
+  "serial_83": "0QEMU    QEMU HARDDISK   disk1",
+  "size": "20971520",
+}
+`;

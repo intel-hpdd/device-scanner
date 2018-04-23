@@ -18,7 +18,14 @@ const getPlugins = () => [
 export default [
   {
     input: 'IML.DeviceScannerDaemon/src/IML.DeviceScannerDaemon.fsproj',
-    external: ['stream', 'net', 'child_process', 'buffer', '@iml/node-libzfs'],
+    external: [
+      'stream',
+      'child_process',
+      'buffer',
+      'net',
+      'path',
+      '@iml/node-libzfs'
+    ],
     output: {
       file: './dist/device-scanner-daemon/device-scanner-daemon',
       format: 'cjs'
@@ -45,7 +52,14 @@ export default [
   },
   {
     input: 'IML.DeviceAggregatorDaemon/src/IML.DeviceAggregatorDaemon.fsproj',
-    external: ['stream', 'child_process', 'buffer', 'http'],
+    external: [
+      'stream',
+      'child_process',
+      'buffer',
+      'http',
+      'path',
+      '@iml/node-libzfs'
+    ],
     output: {
       file: './dist/device-aggregator-daemon/device-aggregator-daemon',
       format: 'cjs'

@@ -60,6 +60,10 @@ export default [
       'path',
       '@iml/node-libzfs'
     ],
+    treeshake: {
+      pureExternalModules: true,
+      propertyReadSideEffects: false
+    },
     output: {
       file: './dist/device-aggregator-daemon/device-aggregator-daemon',
       format: 'cjs'

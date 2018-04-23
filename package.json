@@ -58,10 +58,10 @@
     "jest-fable-preprocessor": "^1.4.0",
     "jest-junit": "^3.6.0",
     "pre-commit": "1.2.2",
-    "prettier": "^1.12.0",
+    "prettier": "^1.12.1",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.58.0",
+    "rollup": "^0.58.2",
     "rollup-plugin-cleanup": "^2.0.1",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

@@ -479,10 +479,8 @@ type LegacyDev =
 module LegacyDev =
 
   let encode = function
-    | LegacyBlockDev x ->
-      Encode.object [ ("legacyblockdev", LegacyBlockDev.encode x) ]
-    | LegacyZFSDev x ->
-      Encode.object [ ("legacyzfsdev", LegacyZFSDev.encode x) ]
+    | LegacyBlockDev x -> LegacyBlockDev.encode x
+    | LegacyZFSDev x -> LegacyZFSDev.encode x
 
   let encoder x =
     x

@@ -52,14 +52,7 @@ export default [
   },
   {
     input: 'IML.DeviceAggregatorDaemon/src/IML.DeviceAggregatorDaemon.fsproj',
-    external: [
-      'stream',
-      'child_process',
-      'buffer',
-      'http',
-      'path',
-      '@iml/node-libzfs'
-    ],
+    external: ['stream', 'child_process', 'buffer', 'http', 'path'],
     treeshake: {
       pureExternalModules: true,
       propertyReadSideEffects: false

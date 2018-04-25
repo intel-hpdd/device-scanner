@@ -2,6 +2,7 @@
 Description=IML Scanner Proxy Daemon
 Requires=device-scanner.service
 After=device-scanner.service
+BindsTo=scanner-proxy.path
 
 [Service]
 Restart=always

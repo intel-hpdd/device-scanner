@@ -151,7 +151,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_presetdir}/99-%{aggregator_name}.preset
 
 %triggerin -- zfs > 0.7.4
-if [modprobe zfs -eq 0]; then
+if modprobe zfs; then
   systemctl enable zfs-zed.service
   systemctl start zfs-zed.service
   systemctl kill -s SIGHUP zfs-zed.service

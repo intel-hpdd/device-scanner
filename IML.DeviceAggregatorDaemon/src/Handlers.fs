@@ -81,7 +81,7 @@ let parseSysBlock (host:string) (state:State) =
       |> List.map (fun x -> (x.major_minor, x))
       |> Map.ofList
 
-  let blockDeviceNodes' =
+  let mutable blockDeviceNodes' =
     Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
 
   let mpaths = Mpath.ofBlockDevices state.blockDevices
@@ -95,7 +95,10 @@ let parseSysBlock (host:string) (state:State) =
 
   let mds = parseMdraidDevs xs ndt
 
-  // @TODO Add mds to NormalizedDeviceTable as in: https://github.com/intel-hpdd/intel-manager-for-lustre/blob/master/chroma-agent/chroma_agent/device_plugins/linux_components/block_devices.py#L200-L223
+  // let ndt' =
+    // ndt
+      // |> MdRaid.addToNdt mds
+
   // @TODO Update diagram on NormalizedDeviceTable to reflect this
 
   let localFs = parseLocalFs state.blockDevices state.localMounts
@@ -104,7 +107,11 @@ let parseSysBlock (host:string) (state:State) =
 
   let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
 
-  // @TODO update blockDeviceNodes map with zfsPool, zfsdataset output, append because type should be DU Block or ZFS
+  // update blockDeviceNodes map with zfs pools and datasets
+  Map(Seq.concat [ (Map.toSeq zfspools) ; (Map.toSeq zfsdatasets) ])
+    |> Map.iter (fun k v ->
+         blockDeviceNodes' <- Map.add k (LegacyDev.LegacyZFSDev v) blockDeviceNodes'
+       )
 
   {
     devs = blockDeviceNodes';

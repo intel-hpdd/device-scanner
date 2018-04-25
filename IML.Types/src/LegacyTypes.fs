@@ -195,6 +195,12 @@ module MdRaid =
   let encoder =
     encodeDict encode
 
+  let addToNdt mds ndt =
+    Map.fold (fun state _ (v:MdRaid) ->
+      NormalizedDeviceTable.addNormalizedDevices [| v.path |]  v.drives state
+    ) ndt mds
+
+
 type MpathNode = {
   major_minor: string;
   parent: DevPath option;

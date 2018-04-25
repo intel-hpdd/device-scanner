@@ -192,7 +192,7 @@ fi
 %preun
 if [ $1 -eq 0 ]; then
   systemctl stop %{mount_name}.service
-  systemctl disable %{mount_name}.socket
+  systemctl disable %{mount_name}.service
   systemctl stop %{base_name}.socket
   systemctl disable %{base_name}.socket
   systemctl stop %{base_name}.service

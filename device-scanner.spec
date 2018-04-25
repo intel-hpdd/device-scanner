@@ -184,6 +184,7 @@ fi
 
 %preun
 %systemd_preun %{base_name}.socket
+%systemd_preun %{base_name}.service
 
 if [ $1 -eq 0 ]; then
   rm /var/run/%{base_name}.sock
@@ -191,9 +192,11 @@ fi
 
 %preun proxy
 %systemd_preun %{proxy_name}.path
+%systemd_preun %{proxy_name}.service
 
 %preun aggregator
 %systemd_preun %{aggregator_name}.socket
+%systemd_preun %{aggregator_name}.service
 
 if [ $1 -eq 0 ] ; then
   rm /var/run/%{aggregator_name}.sock

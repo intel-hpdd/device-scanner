@@ -1,6 +1,7 @@
 [Unit]
 Description=IML Mount Emitter
 PartOf=device-scanner.socket
+After=device-scanner.socket
 
 [Service]
 Restart=always

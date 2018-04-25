@@ -1,7 +1,7 @@
 [Unit]
 Description=IML Device Aggregator Daemon
 RefuseManualStart=true
-BindsTo=device-scanner.socket
+BindsTo=device-aggregator.socket
 
 [Service]
 Restart=always

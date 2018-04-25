@@ -165,6 +165,7 @@ fi
 
 if [ $1 -eq 1 ]; then
   systemctl start %{base_name}.socket
+  systemctl start %{mount_name}.service
   udevadm trigger --action=change --subsystem-match=block
 fi
 

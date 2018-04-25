@@ -24,6 +24,8 @@ BuildRequires: nodejs
 BuildRequires: npm
 BuildRequires: mono-devel
 BuildRequires: %{?scl_prefix}rh-dotnet20
+
+%{?systemd_requires}
 BuildRequires: systemd
 
 Requires: nodejs
@@ -65,12 +67,16 @@ EOF
 
 %install
 mkdir -p %{buildroot}%{_unitdir}
+mkdir -p %{buildroot}%{_presetdir}
 cp dist/%{base_name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
+cp dist/%{base_name}-daemon/99-%{base_name}.preset %{buildroot}%{_presetdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.service %{buildroot}%{_unitdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.path %{buildroot}%{_unitdir}
+cp dist/%{proxy_name}-daemon/99-%{proxy_name}.preset %{buildroot}%{_presetdir}
 cp dist/%{aggregator_name}-daemon/%{aggregator_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{aggregator_name}-daemon/%{aggregator_name}.service %{buildroot}%{_unitdir}
+cp dist/%{aggregator_name}-daemon/99-%{aggregator_name}.preset %{buildroot}%{_presetdir}
 cp dist/listeners/%{mount_name}.service %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}%{_libdir}/%{base_prefixed}-daemon
@@ -116,6 +122,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
+%attr(0644,root,root)%{_presetdir}/99-%{base_name}.preset
 %dir %{_libdir}/%{mount_prefixed}
 %attr(0755,root,root)%{_libdir}/%{mount_prefixed}/%{mount_name}
 %attr(0644,root,root)%{_unitdir}/%{mount_name}.service
@@ -134,88 +141,80 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.path
+%attr(0644,root,root)%{_presetdir}/99-%{proxy_name}.preset
 
 %files aggregator
 %dir %{_libdir}/%{aggregator_prefixed}-daemon
 %attr(0755,root,root)%{_libdir}/%{aggregator_prefixed}-daemon/%{aggregator_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{aggregator_name}.service
 %attr(0644,root,root)%{_unitdir}/%{aggregator_name}.socket
+%attr(0644,root,root)%{_presetdir}/99-%{aggregator_name}.preset
 
 %triggerin -- zfs > 0.7.4
-modprobe zfs
-systemctl enable zfs-zed.service
-systemctl start zfs-zed.service
-systemctl kill -s SIGHUP zfs-zed.service
-echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
-
-%post
-if [ $1 -eq 1 ]; then
-  systemctl enable %{base_name}.socket
-  systemctl start %{base_name}.socket
-  udevadm trigger --action=change --subsystem-match=block
-  systemctl enable %{mount_name}.service
-  systemctl start %{mount_name}.service
-elif [ $1 -eq 2 ]; then
-  systemctl daemon-reload
-  systemctl stop %{mount_name}.service
-  systemctl stop %{base_name}.socket
-  systemctl stop %{base_name}.service
-  systemctl start %{base_name}.socket
-  udevadm trigger --action=change --subsystem-match=block
-  systemctl start %{mount_name}.service
+if modprobe zfs; then
+  systemctl enable zfs-zed.service
+  systemctl start zfs-zed.service
+  systemctl kill -s SIGHUP zfs-zed.service
+  echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
 fi
 
-%post aggregator
+%post
+%systemd_post %{base_name}.socket
+%systemd_post %{base_name}.service
+%systemd_post %{mount_name}.service
+
 if [ $1 -eq 1 ]; then
-  systemctl enable %{aggregator_name}.socket
-  systemctl start %{aggregator_name}.socket
-elif [ $1 -eq 2 ]; then
-  systemctl daemon-reload
-  systemctl stop %{aggregator_name}.socket
-  systemctl stop %{aggregator_name}.service
-  systemctl start %{aggregator_name}.socket
+  systemctl start %{base_name}.socket
+  udevadm trigger --action=change --subsystem-match=block
 fi
 
 %post proxy
-if [ $1 -eq 1 ]; then
-  systemctl enable %{proxy_name}.path
-  systemctl start %{proxy_name}.path
-elif [ $1 -eq 2 ]; then
-  systemctl daemon-reload
-  systemctl stop %{proxy_name}.service
+%systemd_post %{proxy_name}.path
 
-  if [ -f "/var/lib/chroma/settings" ]; then
-    touch /var/lib/chroma/settings
-  fi
+if [ $1 -eq 1 ]; then
+  systemctl start %{proxy_name}.path
+fi
+
+%post aggregator
+%systemd_post %{aggregator_name}.socket
+
+if [ $1 -eq 1 ]; then
+  systemctl start %{aggregator_name}.socket
 fi
 
 %preun
+%systemd_preun %{base_name}.socket
+%systemd_preun %{base_name}.service
+
 if [ $1 -eq 0 ]; then
-  systemctl stop %{mount_name}.service
-  systemctl disable %{mount_name}.socket
-  systemctl stop %{base_name}.socket
-  systemctl disable %{base_name}.socket
-  systemctl stop %{base_name}.service
-  systemctl disable %{base_name}.service
   rm /var/run/%{base_name}.sock
 fi
 
 %preun proxy
-if [ $1 -eq 0 ]; then
-  systemctl stop %{proxy_name}.path
-  systemctl disable %{proxy_name}.path
-  systemctl stop %{proxy_name}.service
-  systemctl disable %{proxy_name}.service
-fi
+%systemd_preun %{proxy_name}.path
+%systemd_preun %{proxy_name}.service
 
 %preun aggregator
+%systemd_preun %{aggregator_name}.socket
+%systemd_preun %{aggregator_name}.service
+
 if [ $1 -eq 0 ] ; then
-  systemctl stop %{aggregator_name}.socket
-  systemctl disable %{aggregator_name}.socket
-  systemctl stop %{aggregator_name}.service
-  systemctl disable %{aggregator_name}.service
   rm /var/run/%{aggregator_name}.sock
 fi
+
+%postun
+%systemd_postun_with_restart %{base_name}.socket
+
+if [ $1 -ge 1 ] ; then
+  udevadm trigger --action=change --subsystem-match=block
+  systemctl start %{mount_name}.service
+fi
+
+%postun proxy
+%systemd_postun_with_restart %{proxy_name}.path
+
+%postun aggregator
+%systemd_postun_with_restart %{aggregator_name}.socket
 
 %changelog
 * Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2

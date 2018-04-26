@@ -109,8 +109,8 @@ let parseSysBlock (host:string) (state:State) =
 
   // update blockDeviceNodes map with zfs pools and datasets
   Map(Seq.concat [ (Map.toSeq zfspools) ; (Map.toSeq zfsdatasets) ])
-    |> Map.iter (fun k v ->
-         blockDeviceNodes' <- Map.add k (LegacyDev.LegacyZFSDev v) blockDeviceNodes'
+    |> Map.iter (fun _ v ->
+         blockDeviceNodes' <- Map.add v.block_device (LegacyDev.LegacyZFSDev v) blockDeviceNodes'
        )
 
   {

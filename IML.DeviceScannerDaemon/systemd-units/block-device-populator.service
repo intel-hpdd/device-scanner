@@ -1,0 +1,6 @@
+[Unit]
+Description=IML Block Device Populator
+
+[Service]
+ExecStart=/usr/sbin/udevadm trigger --action=change --subsystem-match=block
+Type=oneshot

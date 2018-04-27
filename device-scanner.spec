@@ -7,8 +7,8 @@
 %define     mount_prefixed iml-%{mount_name}
 %define     aggregator_prefixed iml-%{aggregator_name}
 Name:       %{base_prefixed}
-Version:    2.1.0
-Release:    2%{?dist}
+Version:    2.1.1
+Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
@@ -218,6 +218,11 @@ fi
 %systemd_postun_with_restart %{aggregator_name}.socket
 
 %changelog
+* Tue Apr 24 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.1-1
+- Add mount detection to device-scanner
+- Integrate device-aggregator
+- Move device munging inside aggregator
+
 * Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2
 - Make scanner-proxy a sub-package (separate rpm)
 - Handle upgrade scenarios

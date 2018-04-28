@@ -1,0 +1,5 @@
+enable device-scanner.*
+enable mount-emitter.service
+enable swap-emitter.*
+enable block-device-populator.service
+enable zed-populator.service

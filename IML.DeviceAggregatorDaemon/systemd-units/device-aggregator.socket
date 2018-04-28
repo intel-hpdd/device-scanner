@@ -3,6 +3,7 @@ Description=IML Device Aggregator Socket
 
 [Socket]
 ListenStream=/var/run/device-aggregator.sock
+RemoveOnStop=true
 
 [Install]
 WantedBy=sockets.target

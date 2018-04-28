@@ -66,3 +66,9 @@ Array [
   "{\\"MountCommand\\":{\\"RemoveMount\\":[\\"/testPool4\\",\\"testPool4\\",\\"zfs\\",\\"rw,xattr,noacl\\"]}}",
 ]
 `;
+
+exports[`swap mount 1`] = `
+Array [
+  "{\\"MountCommand\\":{\\"AddMount\\":[\\"swap\\",\\"/dev/mapper/centos-swap\\",\\"swap\\",\\"defaults\\"]}}",
+]
+`;

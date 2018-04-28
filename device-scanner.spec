@@ -41,6 +41,7 @@ Summary:    Forwards device-scanner updates to device-aggregator
 License:    MIT
 Group:      System Environment/Libraries
 Requires:   %{base_prefixed} = %{version}-%{release}
+Requires: nodejs
 %description proxy
 scanner-proxy-daemon forwards device-scanner updates received
 
@@ -48,6 +49,7 @@ scanner-proxy-daemon forwards device-scanner updates received
 Summary:    Assembles global device view from multiple device scanner instances.
 License:    MIT
 Group:      System Environment/Libraries
+Requires: nodejs
 %description aggregator
 device-aggregator-daemon aggregates data received from device
 scanner instances over HTTPS.
@@ -70,14 +72,18 @@ mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_presetdir}
 cp dist/%{base_name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
-cp dist/%{base_name}-daemon/99-%{base_name}.preset %{buildroot}%{_presetdir}
+cp dist/%{base_name}-daemon/block-device-populator.service %{buildroot}%{_unitdir}
+cp dist/%{base_name}-daemon/zed-populator.service %{buildroot}%{_unitdir}
+cp dist/%{base_name}-daemon/00-%{base_name}.preset %{buildroot}%{_presetdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.service %{buildroot}%{_unitdir}
 cp dist/%{proxy_name}-daemon/%{proxy_name}.path %{buildroot}%{_unitdir}
-cp dist/%{proxy_name}-daemon/99-%{proxy_name}.preset %{buildroot}%{_presetdir}
+cp dist/%{proxy_name}-daemon/00-%{proxy_name}.preset %{buildroot}%{_presetdir}
 cp dist/%{aggregator_name}-daemon/%{aggregator_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{aggregator_name}-daemon/%{aggregator_name}.service %{buildroot}%{_unitdir}
-cp dist/%{aggregator_name}-daemon/99-%{aggregator_name}.preset %{buildroot}%{_presetdir}
+cp dist/%{aggregator_name}-daemon/00-%{aggregator_name}.preset %{buildroot}%{_presetdir}
 cp dist/listeners/%{mount_name}.service %{buildroot}%{_unitdir}
+cp dist/listeners/swap-emitter.timer %{buildroot}%{_unitdir}
+cp dist/listeners/swap-emitter.service %{buildroot}%{_unitdir}
 
 mkdir -p %{buildroot}%{_libdir}/%{base_prefixed}-daemon
 cp dist/%{base_name}-daemon/%{base_name}-daemon %{buildroot}%{_libdir}/%{base_prefixed}-daemon
@@ -120,9 +126,13 @@ rm -rf %{buildroot}
 %files
 %dir %{_libdir}/%{base_prefixed}-daemon
 %attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base_name}-daemon
+%attr(0644,root,root)%{_unitdir}/block-device-populator.service
+%attr(0644,root,root)%{_unitdir}/zed-populator.service
+%attr(0644,root,root)%{_unitdir}/swap-emitter.timer
+%attr(0644,root,root)%{_unitdir}/swap-emitter.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
-%attr(0644,root,root)%{_presetdir}/99-%{base_name}.preset
+%attr(0644,root,root)%{_presetdir}/00-%{base_name}.preset
 %dir %{_libdir}/%{mount_prefixed}
 %attr(0755,root,root)%{_libdir}/%{mount_prefixed}/%{mount_name}
 %attr(0644,root,root)%{_unitdir}/%{mount_name}.service
@@ -141,14 +151,14 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{proxy_prefixed}-daemon/%{proxy_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.service
 %attr(0644,root,root)%{_unitdir}/%{proxy_name}.path
-%attr(0644,root,root)%{_presetdir}/99-%{proxy_name}.preset
+%attr(0644,root,root)%{_presetdir}/00-%{proxy_name}.preset
 
 %files aggregator
 %dir %{_libdir}/%{aggregator_prefixed}-daemon
 %attr(0755,root,root)%{_libdir}/%{aggregator_prefixed}-daemon/%{aggregator_name}-daemon
 %attr(0644,root,root)%{_unitdir}/%{aggregator_name}.service
 %attr(0644,root,root)%{_unitdir}/%{aggregator_name}.socket
-%attr(0644,root,root)%{_presetdir}/99-%{aggregator_name}.preset
+%attr(0644,root,root)%{_presetdir}/00-%{aggregator_name}.preset
 
 %triggerin -- zfs > 0.7.4
 if modprobe zfs; then
@@ -160,13 +170,14 @@ fi
 
 %post
 %systemd_post %{base_name}.socket
-%systemd_post %{base_name}.service
 %systemd_post %{mount_name}.service
+%systemd_post swap-emitter.timer
 
 if [ $1 -eq 1 ]; then
   systemctl start %{base_name}.socket
   systemctl start %{mount_name}.service
-  udevadm trigger --action=change --subsystem-match=block
+  systemctl start swap-emitter.timer
+  systemctl start block-device-populator.service
 fi
 
 %post proxy
@@ -186,10 +197,11 @@ fi
 %preun
 %systemd_preun %{base_name}.socket
 %systemd_preun %{base_name}.service
-
-if [ $1 -eq 0 ]; then
-  rm /var/run/%{base_name}.sock
-fi
+%systemd_preun %{mount_name}.service
+%systemd_preun block-device-populator.service
+%systemd_preun zed-populator.service
+%systemd_preun swap-emitter.timer
+%systemd_preun swap-emitter.service
 
 %preun proxy
 %systemd_preun %{proxy_name}.path
@@ -198,10 +210,6 @@ fi
 %preun aggregator
 %systemd_preun %{aggregator_name}.socket
 %systemd_preun %{aggregator_name}.service
-
-if [ $1 -eq 0 ] ; then
-  rm /var/run/%{aggregator_name}.sock
-fi
 
 %postun
 %systemd_postun_with_restart %{base_name}.socket

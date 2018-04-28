@@ -1,3 +1,0 @@
-enable device-scanner.service
-enable device-scanner.socket
-enable mount-emitter.service

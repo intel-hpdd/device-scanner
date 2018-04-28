@@ -44,6 +44,12 @@ let private normalizeDevPaths ((devPath:DevPath), (uevent:UEvent)) =
   let newDevPath = normalizeDevPath devPath
   (newDevPath, {uevent with devpath = newDevPath})
 
+let private normalizeParents (devPath, (uevent:UEvent)) =
+  (devPath, {
+    uevent with
+      parent = (Option.map normalizeDevPath uevent.parent)
+  })
+
 let private normalizeByPartUUID (path:Path) =
   normalizeByPath "(/dev/disk/by-partuuid/).+" "part-uuid-XXXXX" path
 
@@ -86,6 +92,13 @@ let private normalizeDmSlaveMms ((devPath:DevPath), (uevent:UEvent)) =
 let serialize (x:Map<DevPath, UEvent>) =
   x
     |> Map.toList
-    |> List.map (normalizeDevPaths >> normalizePaths >> normalizeDMUUIDs >> normalizeFsUUIDs >> normalizeDmSlaveMms)
+    |> List.map (
+        normalizeDevPaths
+        >> normalizeParents
+        >> normalizePaths
+        >> normalizeDMUUIDs
+        >> normalizeFsUUIDs
+        >> normalizeDmSlaveMms
+      )
     |> List.sort
     |> Map.ofList

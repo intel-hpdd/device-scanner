@@ -46,7 +46,7 @@
     "@iml/node-libzfs": "0.1.17"
   },
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.3",
     "babel-preset-env": "^1.6.1",
     "cp-cli": "^1.1.2",
     "del-cli": "^1.1.0",
@@ -56,12 +56,12 @@
     "fable-utils": "^1.0.6",
     "jest": "^22.4.3",
     "jest-fable-preprocessor": "^1.4.0",
-    "jest-junit": "^3.6.0",
+    "jest-junit": "^3.7.0",
     "pre-commit": "1.2.2",
-    "prettier": "^1.12.0",
+    "prettier": "^1.12.1",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.58.0",
+    "rollup": "^0.58.2",
     "rollup-plugin-cleanup": "^2.0.1",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

@@ -12,6 +12,11 @@ let promiseMatch =
     >> Util.streamToPromise
     >> Promise.map (List.toArray >> (Array.map Command.encoder) >> toMatchSnapshot)
 
+testAsync "swap mount" <| fun () ->
+  streams {
+    yield "TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n"
+  } |> promiseMatch
+
 testAsync "poll mount" <| fun () ->
   streams {
     yield "ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n"

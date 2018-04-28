@@ -1,8 +1,9 @@
 [Unit]
 Description=IML Scanner Proxy Daemon
-Requires=device-scanner.service
+RefuseManualStart=true
+Requires=device-scanner.socket
 After=device-scanner.service
-BindsTo=scanner-proxy.path
+PartOf=scanner-proxy.path
 
 [Service]
 Restart=always

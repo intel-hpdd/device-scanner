@@ -58,4 +58,3 @@ test "Moving a mount to a different mount-point" <| fun () ->
   (MountCommand.MoveMount mountParamsMove)
     |> update (singleMount |> Result.unwrap)
     |> snap
-

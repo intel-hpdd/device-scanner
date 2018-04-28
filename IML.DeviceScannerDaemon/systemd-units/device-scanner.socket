@@ -4,6 +4,7 @@ DefaultDependencies=false
 
 [Socket]
 ListenStream=/var/run/device-scanner.sock
+RemoveOnStop=true
 
 [Install]
 WantedBy=sockets.target

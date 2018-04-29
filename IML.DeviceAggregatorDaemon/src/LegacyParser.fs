@@ -9,8 +9,9 @@ open IML.CommonLibrary
 open IML.Types.LegacyTypes
 open libzfs.Libzfs
 
-let filterDevice (x:LegacyBlockDev) =
-  x.size <> Some "0" && x.size <> None && x.is_ro <> Some true
+let filterDevice (x:UEvent) =
+
+  x.size <> Some "0" && x.size <> None && x.readOnly <> Some true && not x.biosBoot
 
 let parseLvmUUids (dmUuid:string option) =
   let lvmPfix = "LVM-"

@@ -14,6 +14,10 @@ open Thoth.Json
 open Matchers
 open Fixtures
 
+test "decoding LvmUuids" <| fun () ->
+  let str = "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83Ch5TjlWtPw1BCu2ytrGIjlgzeo7oEtu"
+  (decodeLvmUuids str) == Ok ("pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8", "3Ch5TjlWtPw1BCu2ytrGIjlgzeo7oEtu")
+
 [
   ("add", fixtures.add);
   ("add DM", fixtures.addDm);

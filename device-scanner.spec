@@ -99,6 +99,7 @@ cp dist/listeners/%{mount_name} %{buildroot}%{_libdir}/%{mount_prefixed}
 
 mkdir -p %{buildroot}/lib/udev
 cp dist/listeners/udev-listener %{buildroot}/lib/udev/udev-listener
+cp dist/listeners/vg_size %{buildroot}/lib/udev/vg_size
 
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
 cp dist/listeners/99-iml-%{base_name}.rules %{buildroot}%{_sysconfdir}/udev/rules.d
@@ -137,6 +138,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{mount_prefixed}/%{mount_name}
 %attr(0644,root,root)%{_unitdir}/%{mount_name}.service
 %attr(0755,root,root)/lib/udev/udev-listener
+%attr(0755,root,root)/lib/udev/vg_size
 %attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-%{base_name}.rules
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/history_event-scanner.sh
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/pool_create-scanner.sh

@@ -145,7 +145,7 @@ exports.addDm = {
   IML_SCSI_83: '83',
   IML_IS_RO: '1',
   IML_DM_SLAVE_MMS: '8:16 8:32',
-  IML_DM_VG_SIZE: '  21466447872B',
+  IML_DM_VG_SIZE: '21466447872',
   DM_MULTIPATH_DEVICE_PATH: '1',
   DM_NAME: 'centos-swap',
   DM_LV_NAME: 'swap',
@@ -930,8 +930,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:1/block/sde': {
@@ -966,8 +967,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:1/block/sde/sde1': {
@@ -1004,8 +1006,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:2/block/sdd': {
@@ -1040,8 +1043,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:3/block/sdc': {
@@ -1076,8 +1080,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:3/block/sdc/sdc1': {
@@ -1117,8 +1122,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:3/block/sdc/sdc9': {
@@ -1155,8 +1161,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:4/block/sdb': {
@@ -1191,8 +1198,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:06.0/virtio2/block/vda': {
@@ -1226,8 +1234,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda1': {
@@ -1262,8 +1271,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda2': {
@@ -1298,8 +1308,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: null
     },
     '/devices/virtual/block/dm-0': {
@@ -1331,14 +1342,14 @@ exports.scannerState = {
       isBiosBoot: false,
       isMpath: false,
       dmSlaveMms: ['252:2'],
-      dmVgSize: '20946354176B',
+      dmVgSize: '20946354176',
       mdDevices: [],
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: 'lv_root',
+      lvUuid: '3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz',
       dmVgName: 'vg_00',
-      dmUuid:
-        'LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83Ch5TjlWtPw1BCu2ytrGIjlgzeo7oEtu',
+      vgUuid: 'pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8',
       mdUuid: null
     },
     '/devices/virtual/block/dm-1': {
@@ -1370,14 +1381,14 @@ exports.scannerState = {
       isBiosBoot: false,
       isMpath: false,
       dmSlaveMms: ['252:2'],
-      dmVgSize: '20946354176B',
+      dmVgSize: '20946354176',
       mdDevices: [],
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: 'lv_swap',
+      lvUuid: '3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz',
       dmVgName: 'vg_00',
-      dmUuid:
-        'LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz',
+      vgUuid: 'pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8',
       mdUuid: null
     },
     '/devices/virtual/block/md126': {
@@ -1414,8 +1425,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: '4681a769:b5e662ad:c622d1d4:db91f5c4'
     },
     '/devices/virtual/block/md127': {
@@ -1452,8 +1464,9 @@ exports.scannerState = {
       dmMultipathDevicePath: null,
       dmName: null,
       dmLvName: null,
+      lvUuid: null,
       dmVgName: null,
-      dmUuid: null,
+      vgUuid: null,
       mdUuid: '4469795b:65e0ea35:190101ca:93fe194f'
     }
   },

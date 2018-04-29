@@ -68,12 +68,17 @@ let private normalizePaths ((devPath:DevPath), (uevent:UEvent)) =
 
   (devPath, {uevent with paths = newPaths})
 
-let private normalizeDMUUIDs ((devPath:DevPath), (uevent:UEvent)) =
-  let newDmUUID =
-    uevent.dmUUID
-      |> Option.map (k "LVM-lvmXXXXX")
+let private normalizeLvUUIDs ((devPath:DevPath), (uevent:UEvent)) =
+  (devPath, {
+    uevent with
+      lvUuid = Option.map (k "XXXXX") uevent.lvUuid
+  })
 
-  (devPath, {uevent with dmUUID = newDmUUID})
+let private normalizeVgUUIDs ((devPath:DevPath), (uevent:UEvent)) =
+  (devPath, {
+    uevent with
+      vgUuid = Option.map (k "XXXXX") uevent.vgUuid
+  })
 
 let private normalizeFsUUIDs ((devPath:DevPath), (uevent:UEvent)) =
   let newFsUUID =
@@ -96,7 +101,8 @@ let serialize (x:Map<DevPath, UEvent>) =
         normalizeDevPaths
         >> normalizeParents
         >> normalizePaths
-        >> normalizeDMUUIDs
+        >> normalizeLvUUIDs
+        >> normalizeVgUUIDs
         >> normalizeFsUUIDs
         >> normalizeDmSlaveMms
       )

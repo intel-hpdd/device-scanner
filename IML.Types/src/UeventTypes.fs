@@ -38,6 +38,29 @@ let private matchedKeyValuePairs (fieldPred: string -> bool) (decoder : Decode.D
         |> List.map (fun key -> (key, value?(key) |> Decode.unwrap decoder))
         |> Ok
 
+let decodeLvmUuids (value:obj) =
+  let lvmPfix = "LVM-"
+  let uuidLen = 32
+
+  if Decode.Helpers.isString value then
+    let dmUuid:string = unbox value
+
+    if not (dmUuid.StartsWith lvmPfix) then
+      Decode.FailMessage (sprintf "%s does not appear to be dmUuid" dmUuid)
+        |> Error
+    else
+      let uuids = dmUuid.[lvmPfix.Length..]
+
+      if uuids.Length <> (uuidLen * 2) then
+        Decode.FailMessage (sprintf "%s does not have the expected length" dmUuid)
+          |> Error
+      else
+        (uuids.[0..(uuidLen - 1)], uuids.[uuidLen..])
+          |> Ok
+  else
+    Decode.BadPrimitive ("a string", value)
+      |> Error
+
 /// The data emitted after processing a
 /// udev block device add | change | remove event
 [<Pojo>]
@@ -69,8 +92,9 @@ type UEvent =
     dmMultipathDevpath: bool option;
     dmName: string option;
     dmLvName: string option;
+    lvUuid: string option;
     dmVgName: string option;
-    dmUUID: string option;
+    vgUuid: string option;
     mdUUID: string option;
   }
 
@@ -150,8 +174,9 @@ module UEvent =
               dmMultipathDevpath = dmMultipathDevicePath
               dmName = dmName
               dmLvName = dmLvName
+              lvUuid = Option.map snd dmUuid
               dmVgName = dmVgName
-              dmUUID = dmUuid
+              vgUuid = Option.map fst dmUuid
               mdUUID = mdUuid
               } : UEvent)
         |> stringProp "MAJOR"
@@ -174,13 +199,13 @@ module UEvent =
         |> Decode.optional "IML_IS_BIOS_BOOT" (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_IS_MPATH" (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_DM_SLAVE_MMS" (Decode.map splitSpace Decode.string) [||]
-        |> Decode.optional "IML_DM_VG_SIZE" (Decode.map (Option.map String.trim) optionalString) None
+        |> Decode.optional "IML_DM_VG_SIZE" optionalString None
         |> Decode.custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) Decode.string)
         |> Decode.optional "DM_MULTIPATH_DEVICE_PATH" (Decode.map (Option.map isOne) optionalString) None
         |> optionalStringProp "DM_NAME"
         |> optionalStringProp "DM_LV_NAME"
         |> optionalStringProp "DM_VG_NAME"
-        |> optionalStringProp "DM_UUID"
+        |> Decode.optional "DM_UUID" (Decode.option decodeLvmUuids) None
         |> optionalStringProp "MD_UUID"
 
   /// Decodes output from Udev
@@ -196,7 +221,7 @@ module UEvent =
            vendor model serial fsType fsUsage fsUuid
            partEntryNumber size scsi80 scsi83
            readOnly biosBoot isMpath dmSlaveMMs dmVgSize mdDevs
-           dmMultipathDevicePath dmName dmLvName dmVgName dmUuid mdUuid ->
+           dmMultipathDevicePath dmName dmLvName lvUuid dmVgName vgUuid mdUuid ->
 
           { major = major
             minor = minor
@@ -224,8 +249,9 @@ module UEvent =
             dmMultipathDevpath = dmMultipathDevicePath
             dmName = dmName
             dmLvName = dmLvName
+            lvUuid = lvUuid
             dmVgName = dmVgName
-            dmUUID = dmUuid
+            vgUuid = vgUuid
             mdUUID = mdUuid
             } : UEvent)
         |> stringProp "major"
@@ -254,8 +280,9 @@ module UEvent =
         |> Decode.required "dmMultipathDevicePath" (Decode.option Decode.bool)
         |> stringPropOption "dmName"
         |> stringPropOption "dmLvName"
+        |> stringPropOption "lvUuid"
         |> stringPropOption "dmVgName"
-        |> stringPropOption "dmUuid"
+        |> stringPropOption "vgUuid"
         |> stringPropOption "mdUuid"
 
   let encodedDecoder x =
@@ -290,8 +317,9 @@ module UEvent =
       dmMultipathDevpath = dmMultipathDevicePath
       dmName = dmName
       dmLvName = dmLvName
+      lvUuid = lvUuid
       dmVgName = dmVgName
-      dmUUID = dmUuid
+      vgUuid = vgUuid
       mdUUID = mdUuid
     } =
       let pathValue (Path x) =
@@ -334,8 +362,9 @@ module UEvent =
         ("dmMultipathDevicePath", Encode.option Encode.bool dmMultipathDevicePath);
         ("dmName", Encode.option Encode.string dmName);
         ("dmLvName", Encode.option Encode.string dmLvName);
+        ("lvUuid", Encode.option Encode.string lvUuid);
         ("dmVgName", Encode.option Encode.string dmVgName);
-        ("dmUuid", Encode.option Encode.string dmUuid);
+        ("vgUuid", Encode.option Encode.string vgUuid);
         ("mdUuid", Encode.option Encode.string mdUuid);
       ]
 

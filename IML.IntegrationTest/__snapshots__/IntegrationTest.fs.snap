@@ -33,8 +33,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda1\\": {
@@ -69,8 +70,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\": {
@@ -105,8 +107,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdaa\\": {
@@ -140,8 +143,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdab\\": {
@@ -175,8 +179,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdac\\": {
@@ -210,8 +215,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdad\\": {
@@ -245,8 +251,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdb\\": {
@@ -280,8 +287,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdc\\": {
@@ -315,8 +323,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdd\\": {
@@ -350,8 +359,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sde\\": {
@@ -385,8 +395,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdf\\": {
@@ -420,8 +431,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdg\\": {
@@ -455,8 +467,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdh\\": {
@@ -490,8 +503,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdi\\": {
@@ -525,8 +539,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdj\\": {
@@ -560,8 +575,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdk\\": {
@@ -595,8 +611,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdl\\": {
@@ -630,8 +647,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdm\\": {
@@ -665,8 +683,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdn\\": {
@@ -700,8 +719,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdo\\": {
@@ -735,8 +755,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdp\\": {
@@ -770,8 +791,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdq\\": {
@@ -805,8 +827,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdr\\": {
@@ -840,8 +863,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sds\\": {
@@ -875,8 +899,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdt\\": {
@@ -910,8 +935,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdu\\": {
@@ -945,8 +971,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdv\\": {
@@ -980,8 +1007,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdw\\": {
@@ -1015,8 +1043,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdx\\": {
@@ -1050,8 +1079,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdy\\": {
@@ -1085,8 +1115,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdz\\": {
@@ -1120,8 +1151,9 @@ exports[`add a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
@@ -1155,13 +1187,14 @@ exports[`add a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
     \\"dmLvName\\": \\"root\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
@@ -1195,13 +1228,14 @@ exports[`add a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   }
 }"
@@ -1240,8 +1274,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda1\\": {
@@ -1276,8 +1311,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\": {
@@ -1312,8 +1348,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdaa\\": {
@@ -1347,8 +1384,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdab\\": {
@@ -1382,8 +1420,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdac\\": {
@@ -1417,8 +1456,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdad\\": {
@@ -1452,8 +1492,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdb\\": {
@@ -1487,8 +1528,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdc\\": {
@@ -1522,8 +1564,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdd\\": {
@@ -1557,8 +1600,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sde\\": {
@@ -1592,8 +1636,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdf\\": {
@@ -1627,8 +1672,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdg\\": {
@@ -1662,8 +1708,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdh\\": {
@@ -1697,8 +1744,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdi\\": {
@@ -1732,8 +1780,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdj\\": {
@@ -1767,8 +1816,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdk\\": {
@@ -1802,8 +1852,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdl\\": {
@@ -1837,8 +1888,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdm\\": {
@@ -1872,8 +1924,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdn\\": {
@@ -1907,8 +1960,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdo\\": {
@@ -1942,8 +1996,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdp\\": {
@@ -1977,8 +2032,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdq\\": {
@@ -2012,8 +2068,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdr\\": {
@@ -2047,8 +2104,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sds\\": {
@@ -2082,8 +2140,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdt\\": {
@@ -2117,8 +2176,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdu\\": {
@@ -2152,8 +2212,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdv\\": {
@@ -2187,8 +2248,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdw\\": {
@@ -2222,8 +2284,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdx\\": {
@@ -2257,8 +2320,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdy\\": {
@@ -2292,8 +2356,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdz\\": {
@@ -2327,8 +2392,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdae\\": {
@@ -2363,8 +2429,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdaf\\": {
@@ -2399,8 +2466,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdag\\": {
@@ -2435,8 +2503,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdah\\": {
@@ -2471,8 +2540,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdai\\": {
@@ -2507,8 +2577,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/block/sdaj\\": {
@@ -2543,8 +2614,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
@@ -2578,13 +2650,14 @@ exports[`add multipath device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
     \\"dmLvName\\": \\"root\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
@@ -2618,13 +2691,14 @@ exports[`add multipath device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-2\\": {
@@ -2664,8 +2738,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"lun0\\",
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-3\\": {
@@ -2704,8 +2779,9 @@ exports[`add multipath device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"lun1\\",
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   }
 }"
@@ -2744,8 +2820,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda1\\": {
@@ -2780,8 +2857,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\": {
@@ -2816,8 +2894,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdaa\\": {
@@ -2851,8 +2930,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdab\\": {
@@ -2886,8 +2966,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdac\\": {
@@ -2921,8 +3002,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdad\\": {
@@ -2956,8 +3038,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdb\\": {
@@ -2991,8 +3074,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdc\\": {
@@ -3026,8 +3110,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdc/sdc1\\": {
@@ -3065,8 +3150,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdd\\": {
@@ -3100,8 +3186,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sde\\": {
@@ -3135,8 +3222,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdf\\": {
@@ -3170,8 +3258,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdg\\": {
@@ -3205,8 +3294,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdh\\": {
@@ -3240,8 +3330,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdi\\": {
@@ -3275,8 +3366,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdj\\": {
@@ -3310,8 +3402,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdk\\": {
@@ -3345,8 +3438,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdl\\": {
@@ -3380,8 +3474,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdm\\": {
@@ -3415,8 +3510,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdn\\": {
@@ -3450,8 +3546,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdo\\": {
@@ -3485,8 +3582,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdp\\": {
@@ -3520,8 +3618,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdq\\": {
@@ -3555,8 +3654,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdr\\": {
@@ -3590,8 +3690,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sds\\": {
@@ -3625,8 +3726,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdt\\": {
@@ -3660,8 +3762,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdu\\": {
@@ -3695,8 +3798,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdv\\": {
@@ -3730,8 +3834,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdw\\": {
@@ -3765,8 +3870,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdx\\": {
@@ -3800,8 +3906,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdy\\": {
@@ -3835,8 +3942,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdz\\": {
@@ -3870,8 +3978,9 @@ exports[`create a partition 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
@@ -3905,13 +4014,14 @@ exports[`create a partition 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
     \\"dmLvName\\": \\"root\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
@@ -3945,13 +4055,14 @@ exports[`create a partition 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   }
 }"
@@ -3990,8 +4101,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda1\\": {
@@ -4026,8 +4138,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\": {
@@ -4062,8 +4175,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdaa\\": {
@@ -4097,8 +4211,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdab\\": {
@@ -4132,8 +4247,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdac\\": {
@@ -4167,8 +4283,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdad\\": {
@@ -4202,8 +4319,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdb\\": {
@@ -4237,8 +4355,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdd\\": {
@@ -4272,8 +4391,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sde\\": {
@@ -4307,8 +4427,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdf\\": {
@@ -4342,8 +4463,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdg\\": {
@@ -4377,8 +4499,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdh\\": {
@@ -4412,8 +4535,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdi\\": {
@@ -4447,8 +4571,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdj\\": {
@@ -4482,8 +4607,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdk\\": {
@@ -4517,8 +4643,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdl\\": {
@@ -4552,8 +4679,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdm\\": {
@@ -4587,8 +4715,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdn\\": {
@@ -4622,8 +4751,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdo\\": {
@@ -4657,8 +4787,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdp\\": {
@@ -4692,8 +4823,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdq\\": {
@@ -4727,8 +4859,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdr\\": {
@@ -4762,8 +4895,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sds\\": {
@@ -4797,8 +4931,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdt\\": {
@@ -4832,8 +4967,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdu\\": {
@@ -4867,8 +5003,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdv\\": {
@@ -4902,8 +5039,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdw\\": {
@@ -4937,8 +5075,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdx\\": {
@@ -4972,8 +5111,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdy\\": {
@@ -5007,8 +5147,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdz\\": {
@@ -5042,8 +5183,9 @@ exports[`remove a device 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
@@ -5077,13 +5219,14 @@ exports[`remove a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
     \\"dmLvName\\": \\"root\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
@@ -5117,13 +5260,14 @@ exports[`remove a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   }
 }"
@@ -5162,8 +5306,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda1\\": {
@@ -5198,8 +5343,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sda/sda2\\": {
@@ -5234,8 +5380,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdaa\\": {
@@ -5269,8 +5416,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdab\\": {
@@ -5304,8 +5452,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdac\\": {
@@ -5339,8 +5488,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdad\\": {
@@ -5374,8 +5524,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdb\\": {
@@ -5409,8 +5560,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdc\\": {
@@ -5444,8 +5596,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdd\\": {
@@ -5479,8 +5632,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sde\\": {
@@ -5514,8 +5668,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdf\\": {
@@ -5549,8 +5704,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdg\\": {
@@ -5584,8 +5740,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdh\\": {
@@ -5619,8 +5776,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdi\\": {
@@ -5654,8 +5812,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdj\\": {
@@ -5689,8 +5848,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdk\\": {
@@ -5724,8 +5884,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdl\\": {
@@ -5759,8 +5920,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdm\\": {
@@ -5794,8 +5956,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdn\\": {
@@ -5829,8 +5992,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdo\\": {
@@ -5864,8 +6028,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdp\\": {
@@ -5899,8 +6064,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdq\\": {
@@ -5934,8 +6100,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdr\\": {
@@ -5969,8 +6136,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sds\\": {
@@ -6004,8 +6172,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdt\\": {
@@ -6039,8 +6208,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdu\\": {
@@ -6074,8 +6244,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdv\\": {
@@ -6109,8 +6280,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdw\\": {
@@ -6144,8 +6316,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdx\\": {
@@ -6179,8 +6352,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdy\\": {
@@ -6214,8 +6388,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/pci0000:00/0000:00:0d.0/ataXX/hostXX/targetXX:0:0/XX:0:0:0/block/sdz\\": {
@@ -6249,8 +6424,9 @@ exports[`stream event 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-0\\": {
@@ -6284,13 +6460,14 @@ exports[`stream event 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
     \\"dmLvName\\": \\"root\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   },
   \\"/devices/virtual/block/dm-1\\": {
@@ -6324,13 +6501,14 @@ exports[`stream event 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872B\\",
+    \\"dmVgSize\\": \\"40865103872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"XXXXX\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-lvmXXXXX\\",
+    \\"vgUuid\\": \\"XXXXX\\",
     \\"mdUuid\\": null
   }
 }"

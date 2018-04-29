@@ -10,13 +10,13 @@ Object {
   "dmMultipathDevpath": null,
   "dmName": null,
   "dmSlaveMMs": Array [],
-  "dmUUID": null,
   "dmVgName": null,
   "dmVgSize": null,
   "fsType": null,
   "fsUsage": null,
   "fsUuid": null,
   "isMpath": false,
+  "lvUuid": null,
   "major": "9",
   "mdDevs": Array [
     "/dev/sda",
@@ -38,6 +38,7 @@ Object {
   "serial": null,
   "size": "21458059264",
   "vendor": null,
+  "vgUuid": null,
 }
 `;
 
@@ -77,8 +78,9 @@ exports[`decode / encode UEvents  MdRaid 2`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": \\"685b40ee:f2bc2028:f056f6d2:e292c910\\"
   }
 }"
@@ -94,13 +96,13 @@ Object {
   "dmMultipathDevpath": true,
   "dmName": "centos-swap",
   "dmSlaveMMs": Array [],
-  "dmUUID": "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz",
   "dmVgName": "centos",
   "dmVgSize": null,
   "fsType": "LVM2_member",
   "fsUsage": "filesystem",
   "fsUuid": "wCBeLJ-3ors-t60q-f4sB-2Mhc-eLvN-DZ9s9v",
   "isMpath": false,
+  "lvUuid": "3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz",
   "major": "8",
   "mdDevs": Array [],
   "mdUUID": null,
@@ -119,6 +121,7 @@ Object {
   "serial": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
   "size": "41873833984",
   "vendor": null,
+  "vgUuid": "pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8",
 }
 `;
 
@@ -155,8 +158,9 @@ exports[`decode / encode UEvents  add 2`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
+    \\"vgUuid\\": \\"pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8\\",
     \\"mdUuid\\": null
   }
 }"
@@ -175,13 +179,13 @@ Object {
     "8:16",
     "8:32",
   ],
-  "dmUUID": "LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D",
   "dmVgName": "centos",
-  "dmVgSize": "21466447872B",
+  "dmVgSize": "21466447872",
   "fsType": "LVM2_member",
   "fsUsage": "filesystem",
   "fsUuid": "afa3e429-64c4-4996-a19a-a62ac1e4d265",
   "isMpath": false,
+  "lvUuid": "EDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D",
   "major": "8",
   "mdDevs": Array [],
   "mdUUID": null,
@@ -200,6 +204,7 @@ Object {
   "serial": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
   "size": "41873833984",
   "vendor": null,
+  "vgUuid": "KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrl",
 }
 `;
 
@@ -234,13 +239,14 @@ exports[`decode / encode UEvents  add DM 2`] = `
       \\"8:16\\",
       \\"8:32\\"
     ],
-    \\"dmVgSize\\": \\"21466447872B\\",
+    \\"dmVgSize\\": \\"21466447872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"EDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D\\",
+    \\"vgUuid\\": \\"KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrl\\",
     \\"mdUuid\\": null
   }
 }"
@@ -256,13 +262,13 @@ Object {
   "dmMultipathDevpath": null,
   "dmName": null,
   "dmSlaveMMs": Array [],
-  "dmUUID": null,
   "dmVgName": null,
   "dmVgSize": null,
   "fsType": null,
   "fsUsage": null,
   "fsUuid": null,
   "isMpath": false,
+  "lvUuid": null,
   "major": "8",
   "mdDevs": Array [],
   "mdUUID": null,
@@ -281,6 +287,7 @@ Object {
   "serial": "VBOX_HARDDISK_VB304a0a0f-15e93f07",
   "size": null,
   "vendor": null,
+  "vgUuid": null,
 }
 `;
 
@@ -317,8 +324,9 @@ exports[`decode / encode UEvents  remove 2`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   }
 }"
@@ -360,8 +368,9 @@ exports[`decode encoded decode / encode UEvents  MdRaid 2 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": \\"685b40ee:f2bc2028:f056f6d2:e292c910\\"
   }
 }"
@@ -400,8 +409,9 @@ exports[`decode encoded decode / encode UEvents  add 2 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
+    \\"vgUuid\\": \\"pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8\\",
     \\"mdUuid\\": null
   }
 }"
@@ -438,13 +448,14 @@ exports[`decode encoded decode / encode UEvents  add DM 2 1`] = `
       \\"8:16\\",
       \\"8:32\\"
     ],
-    \\"dmVgSize\\": \\"21466447872B\\",
+    \\"dmVgSize\\": \\"21466447872\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"EDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrlEDy4qFTQ3cgVnmyhy1zB2cJx2l5yE26D\\",
+    \\"vgUuid\\": \\"KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrl\\",
     \\"mdUuid\\": null
   }
 }"
@@ -483,8 +494,9 @@ exports[`decode encoded decode / encode UEvents  remove 2 1`] = `
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": null,
     \\"dmLvName\\": null,
+    \\"lvUuid\\": null,
     \\"dmVgName\\": null,
-    \\"dmUuid\\": null,
+    \\"vgUuid\\": null,
     \\"mdUuid\\": null
   }
 }"

@@ -1,0 +1,3 @@
+#!/bin/sh
+
+/usr/sbin/vgs --readonly --no-headings --units b -o size $DM_VG_NAME | sed "s/^ *//" | sed "s/B$//"

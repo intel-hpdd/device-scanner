@@ -33,8 +33,9 @@ exports[`Adding a new blockdevice 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
+    \\"vgUuid\\": \\"pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8\\",
     \\"mdUuid\\": null
   }
 }"
@@ -73,8 +74,9 @@ exports[`Changing a blockdevice 1`] = `
     \\"dmMultipathDevicePath\\": true,
     \\"dmName\\": \\"centos-swap\\",
     \\"dmLvName\\": \\"swap\\",
+    \\"lvUuid\\": \\"3IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
     \\"dmVgName\\": \\"centos\\",
-    \\"dmUuid\\": \\"LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83IU1hvimWWlvmd5xQddtMIqRtjwOuKTz\\",
+    \\"vgUuid\\": \\"pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8\\",
     \\"mdUuid\\": null
   }
 }"

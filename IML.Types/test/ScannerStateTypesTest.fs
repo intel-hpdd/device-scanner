@@ -12,7 +12,7 @@ open Thoth.Json
 open IML.Types.ScannerStateTypes
 open IML.CommonLibrary
 
-open Fixtures
+open IML.Types.Fixtures
 
 test "decode / encode scannerState" <| fun () ->
     fixtures.scannerState

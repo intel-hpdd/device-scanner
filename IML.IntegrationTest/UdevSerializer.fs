@@ -5,6 +5,7 @@
 module IML.IntegrationTest.UdevSerializer
 
 open IML.Types.UeventTypes
+open IML.CommonLibrary
 open System.Text.RegularExpressions
 
 let private k p _ =

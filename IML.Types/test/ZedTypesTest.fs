@@ -11,7 +11,7 @@ open IML.Types.ZedTypes
 open IML.CommonLibrary
 
 open Matchers
-open Fixtures
+open IML.Types.Fixtures
 open Fable.PowerPack
 
 test "decode / encode pools" <| fun () ->

@@ -10,7 +10,7 @@ open Thoth
 
 open Fable.Import.Jest
 open Matchers
-open Fixtures
+open IML.Types.Fixtures
 open Fable.PowerPack
 open IML.Types.ZedTypes
 open IML.Types.CommandTypes

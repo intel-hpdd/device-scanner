@@ -7,7 +7,7 @@ module IML.DeviceScannerDaemon.UdevTest
 open Udev
 open Fable.Import.Jest
 open Matchers
-open Fixtures
+open IML.Types.Fixtures
 open IML.CommonLibrary
 open IML.Types.CommandTypes
 open Fable.PowerPack

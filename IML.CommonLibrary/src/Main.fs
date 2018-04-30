@@ -6,6 +6,25 @@
 module IML.CommonLibrary
 
 open System
+open Fable.Core
+open Thoth.Json
+
+[<Erase>]
+type DevPath = DevPath of string
+[<Erase>]
+type Path = Path of string
+
+let pathValue (Path x) =
+  Encode.string x
+
+let pathValues xs =
+  Array.map pathValue xs
+
+let devPathValue (DevPath x) =
+  Encode.string x
+
+let encodeStrings xs =
+  Array.map Encode.string xs
 
 [<RequireQualifiedAccess>]
 module Result =

@@ -7,5 +7,5 @@ BindsTo=device-aggregator.socket
 Restart=always
 Environment=NODE_ENV=production
 ExecStart=/usr/bin/node /usr/lib64/iml-device-aggregator-daemon/device-aggregator-daemon
-StandardOutput=journal+console
-StandardError=journal+console
+StandardOutput=journal
+StandardError=journal

@@ -11,6 +11,7 @@
     <Compile Include="MountTypesTest.fs" />
     <Compile Include="MessageTypesTest.fs" />
     <Compile Include="ZedTypesTest.fs" />
+    <Compile Include="LegacyTypesTest.fs" />
     <Compile Include="ScannerStateTypesTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

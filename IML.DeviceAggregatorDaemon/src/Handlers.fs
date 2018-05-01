@@ -96,12 +96,6 @@ let parseSysBlock (host:string) (state:State) =
 
   let mds = parseMdraidDevs xs ndt
 
-  // let ndt' =
-    // ndt
-      // |> MdRaid.addToNdt mds
-
-  // @TODO Update diagram on NormalizedDeviceTable to reflect this
-
   let localFs = parseLocalFs state.blockDevices state.localMounts
 
   let zfspools, zfsdatasets = parseZfs xs state.zed

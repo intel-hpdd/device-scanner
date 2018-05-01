@@ -119,7 +119,7 @@ module NormalizedDeviceTable =
 type Vg = {
   name: string;
   uuid: string;
-  size: int;
+  size: string;
   pvs_major_minor: string [];
 }
 
@@ -134,7 +134,7 @@ module Vg =
       Encode.object [
         ("name", Encode.string name);
         ("uuid", Encode.string uuid);
-        ("size", Encode.int size);
+        ("size", Encode.string size);
         ("pvs_major_minor", Encode.array (encodeStrings pvs_major_minor));
       ]
 
@@ -188,11 +188,6 @@ module MdRaid =
 
   let encoder =
     encodeDict encode
-
-  let addToNdt mds ndt =
-    Map.fold (fun state _ (v:MdRaid) ->
-      NormalizedDeviceTable.addNormalizedDevices [| v.path |]  v.drives state
-    ) ndt mds
 
 
 type MpathNode = {
@@ -329,9 +324,10 @@ type LegacyBlockDev = {
   dm_multipath: bool option;
   dm_lv: string option;
   dm_vg: string option;
-  dm_uuid: string option;
+  lv_uuid: string option;
   dm_slave_mms: string [];
   dm_vg_size: string option;
+  vg_uuid: string option;
   md_uuid: string option;
   md_device_paths: string [];
 }
@@ -355,9 +351,10 @@ module LegacyBlockDev =
       dm_multipath = x.dmMultipathDevpath;
       dm_lv = x.dmLvName;
       dm_vg = x.dmVgName;
-      dm_uuid = x.dmUUID;
+      lv_uuid = x.lvUuid;
       dm_slave_mms = x.dmSlaveMMs;
       dm_vg_size = x.dmVgSize;
+      vg_uuid = x.vgUuid
       md_uuid = x.mdUUID;
       md_device_paths = x.mdDevs;
     }
@@ -380,9 +377,10 @@ module LegacyBlockDev =
       dm_multipath = dm_multipath;
       dm_lv = dm_lv;
       dm_vg = dm_vg;
-      dm_uuid = dm_uuid;
+      lv_uuid = lv_uuid;
       dm_slave_mms = dm_slave_mms;
       dm_vg_size = dm_vg_size;
+      vg_uuid = vg_uuid;
       md_uuid = md_uuid;
       md_device_paths = md_device_paths;
     } =
@@ -402,8 +400,9 @@ module LegacyBlockDev =
         ("parent", Encode.option Encode.string parent);
         ("dm_multipath", Encode.option Encode.bool dm_multipath);
         ("dm_lv", Encode.option Encode.string dm_lv);
+        ("lv_uuid", Encode.option Encode.string lv_uuid);
         ("dm_vg", Encode.option Encode.string dm_vg);
-        ("dm_uuid", Encode.option Encode.string dm_uuid);
+        ("vg_uuid", Encode.option Encode.string vg_uuid);
         ("dm_slave_mms", Encode.array (encodeStrings dm_slave_mms));
         ("dm_vg_size", Encode.option Encode.string dm_vg_size);
         ("md_uuid", Encode.option Encode.string md_uuid);
@@ -418,8 +417,8 @@ module LegacyBlockDev =
       (fun major_minor path paths serial_80 serial_83
            size filesystem_type filesystem_usage
            device_type device_path partition_number
-           is_ro parent dm_multipath dm_lv dm_vg
-           dm_uuid dm_slave_mms dm_vg_size md_uuid
+           is_ro parent dm_multipath dm_lv dm_vg lv_uuid
+           vg_uuid dm_slave_mms dm_vg_size md_uuid
            md_device_paths ->
         ({
           major_minor = major_minor
@@ -438,7 +437,8 @@ module LegacyBlockDev =
           dm_multipath = dm_multipath
           dm_lv = dm_lv
           dm_vg = dm_vg
-          dm_uuid = dm_uuid
+          lv_uuid = lv_uuid
+          vg_uuid = vg_uuid
           dm_slave_mms = dm_slave_mms
           dm_vg_size = dm_vg_size
           md_uuid = md_uuid
@@ -461,7 +461,8 @@ module LegacyBlockDev =
       |> optionalBool "dm_multipath"
       |> optionalString "dm_lv"
       |> optionalString "dm_vg"
-      |> optionalString "dm_uuid"
+      |> optionalString "lv_uuid"
+      |> optionalString "vg_uuid"
       |> Decode.required "dm_slave_mms" (Decode.array Decode.string)
       |> optionalString "dm_vg_size"
       |> optionalString "md_uuid"

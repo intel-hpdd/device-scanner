@@ -13,43 +13,21 @@ let filterDevice (x:UEvent) =
 
   x.size <> Some "0" && x.size <> None && x.readOnly <> Some true && not x.biosBoot
 
-let parseLvmUUids (dmUuid:string option) =
-  let lvmPfix = "LVM-"
-  let uuidLen = 32
-
-  let dmUuid' =
-    dmUuid
-      |> Option.expect "dmUuid was null"
-
-  if dmUuid'.StartsWith(lvmPfix) |> not then
-    failwithf "%s does not appear to be dmUuid" dmUuid'
-
-  let uuids = dmUuid'.[lvmPfix.Length..]
-
-  if uuids.Length <> (uuidLen * 2) then
-    failwithf "%s does not have the expected length" dmUuid'
-
-  (uuids.[0..(uuidLen - 1)], uuids.[uuidLen..])
-
 let createVgAndLv x =
-  let vgUuid, lvUuid = parseLvmUUids(x.dm_uuid)
-
   let vg = {
     name =
       x.dm_vg
         |> Option.expect "";
-    uuid = vgUuid;
+    uuid = x.vg_uuid |> Option.expect "Expected a vgUuid";
     size =
       x.dm_vg_size
-        |> Option.expect ""
-        |> (fun v -> v.Substring(0, v.Length - 1))
-        |> int;
+        |> Option.expect "Expected a vg size";
     pvs_major_minor = x.dm_slave_mms;
   }
 
   let lv = {
     name = x.dm_lv |> Option.expect "dm_lv field not found";
-    uuid = lvUuid;
+    uuid = x.lv_uuid |> Option.expect "Expected a lvUuid";
     size = x.size;
     block_device = x.major_minor
   }
@@ -60,7 +38,8 @@ let parseDmDevs xs =
     let out = (Map.empty, Map.empty)
 
     xs
-      |> List.filter (fun x -> x.dm_uuid <> None)
+      |> List.filter (fun x -> x.lv_uuid <> None)
+      |> List.filter (fun x -> x.vg_uuid <> None)
       |> List.filter (fun x -> x.dm_lv <> None)
       |> List.map createVgAndLv
       |> (List.fold

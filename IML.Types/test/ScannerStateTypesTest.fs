@@ -21,3 +21,12 @@ test "decode / encode scannerState" <| fun () ->
       |> State.encode
       |> Encode.encode 2
       |> toMatchSnapshot
+
+
+test "decode / encode scannerState2" <| fun () ->
+    fixtures.scannerState2
+      |> Decode.decodeString State.decoder
+      |> Result.unwrap
+      |> State.encode
+      |> Encode.encode 2
+      |> toMatchSnapshot

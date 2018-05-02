@@ -838,3 +838,1175 @@ exports[`decode / encode scannerState 1`] = `
   ]
 }"
 `;
+
+exports[`decode / encode scannerState2 1`] = `
+"{
+  \\"zed\\": {
+    \\"15362575405508366478\\": {
+      \\"name\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"guid\\": \\"15362575405508366478\\",
+      \\"health\\": \\"ONLINE\\",
+      \\"hostname\\": \\"lotus-48vm15\\",
+      \\"hostid\\": 168827939,
+      \\"state\\": \\"ACTIVE\\",
+      \\"readonly\\": false,
+      \\"size\\": \\"10670309376\\",
+      \\"vdev\\": {
+        \\"Root\\": {
+          \\"children\\": [
+            {
+              \\"Disk\\": {
+                \\"guid\\": null,
+                \\"state\\": \\"ONLINE\\",
+                \\"path\\": \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk11-part1\\",
+                \\"dev_id\\": null,
+                \\"phys_path\\": null,
+                \\"whole_disk\\": true,
+                \\"is_log\\": false
+              }
+            }
+          ],
+          \\"spares\\": [],
+          \\"cache\\": []
+        }
+      },
+      \\"props\\": [
+        {
+          \\"name\\": \\"feature@userobj_accounting\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@edonr\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@skein\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@sha512\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_dnode\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_blocks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@filesystem_limits\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@bookmarks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@embedded_data\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@extensible_dataset\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@hole_birth\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@enabled_txg\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@spacemap_histogram\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@multi_vdev_crash_dump\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@lz4_compress\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@empty_bpobj\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@async_destroy\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"multihost\\",
+          \\"value\\": \\"1\\"
+        }
+      ],
+      \\"datasets\\": []
+    },
+    \\"4088438158935272299\\": {
+      \\"name\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"guid\\": \\"4088438158935272299\\",
+      \\"health\\": \\"ONLINE\\",
+      \\"hostname\\": \\"lotus-48vm15\\",
+      \\"hostid\\": 168827939,
+      \\"state\\": \\"ACTIVE\\",
+      \\"readonly\\": false,
+      \\"size\\": \\"10670309376\\",
+      \\"vdev\\": {
+        \\"Root\\": {
+          \\"children\\": [
+            {
+              \\"Disk\\": {
+                \\"guid\\": null,
+                \\"state\\": \\"ONLINE\\",
+                \\"path\\": \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk13-part1\\",
+                \\"dev_id\\": \\"scsi-0QEMU_QEMU_HARDDISK_disk13-part1\\",
+                \\"phys_path\\": \\"virtio-pci-0000:00:05.0-scsi-0:0:0:12\\",
+                \\"whole_disk\\": true,
+                \\"is_log\\": false
+              }
+            }
+          ],
+          \\"spares\\": [],
+          \\"cache\\": []
+        }
+      },
+      \\"props\\": [
+        {
+          \\"name\\": \\"feature@userobj_accounting\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@edonr\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@skein\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@sha512\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_dnode\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_blocks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@filesystem_limits\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@bookmarks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@embedded_data\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@extensible_dataset\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@hole_birth\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@enabled_txg\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@spacemap_histogram\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@multi_vdev_crash_dump\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@lz4_compress\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@empty_bpobj\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@async_destroy\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"multihost\\",
+          \\"value\\": \\"1\\"
+        }
+      ],
+      \\"datasets\\": []
+    },
+    \\"5389328186558692242\\": {
+      \\"name\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"guid\\": \\"5389328186558692242\\",
+      \\"health\\": \\"ONLINE\\",
+      \\"hostname\\": \\"lotus-48vm15\\",
+      \\"hostid\\": 168827939,
+      \\"state\\": \\"ACTIVE\\",
+      \\"readonly\\": false,
+      \\"size\\": \\"10670309376\\",
+      \\"vdev\\": {
+        \\"Root\\": {
+          \\"children\\": [
+            {
+              \\"Disk\\": {
+                \\"guid\\": null,
+                \\"state\\": \\"ONLINE\\",
+                \\"path\\": \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk15-part1\\",
+                \\"dev_id\\": \\"scsi-0QEMU_QEMU_HARDDISK_disk15-part1\\",
+                \\"phys_path\\": \\"virtio-pci-0000:00:05.0-scsi-0:0:0:14\\",
+                \\"whole_disk\\": true,
+                \\"is_log\\": false
+              }
+            }
+          ],
+          \\"spares\\": [],
+          \\"cache\\": []
+        }
+      },
+      \\"props\\": [
+        {
+          \\"name\\": \\"feature@userobj_accounting\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@edonr\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@skein\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@sha512\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_dnode\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@large_blocks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@filesystem_limits\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@bookmarks\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@embedded_data\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@extensible_dataset\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@hole_birth\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@enabled_txg\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@spacemap_histogram\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@multi_vdev_crash_dump\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@lz4_compress\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@empty_bpobj\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"feature@async_destroy\\",
+          \\"value\\": \\"enabled\\"
+        },
+        {
+          \\"name\\": \\"multihost\\",
+          \\"value\\": \\"1\\"
+        }
+      ],
+      \\"datasets\\": []
+    }
+  },
+  \\"blockDevices\\": {
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"64\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk11\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:10\\",
+        \\"/dev/sde\\"
+      ],
+      \\"devName\\": \\"/dev/sde\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"10737418240\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk11\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk11\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde/sde1\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"65\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk11-part1\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:10-part1\\",
+        \\"/dev/disk/by-label/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk11\\",
+        \\"/dev/disk/by-partlabel/zfs-4b5f3049644f6ddb\\",
+        \\"/dev/disk/by-partuuid/7bb1dea7-de2e-464d-8bfb-283d857d771c\\",
+        \\"/dev/disk/by-uuid/15362575405508366478\\",
+        \\"/dev/sde1\\"
+      ],
+      \\"devName\\": \\"/dev/sde1\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde/sde1\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"idFsType\\": \\"zfs_member\\",
+      \\"idFsUsage\\": \\"filesystem\\",
+      \\"idFsUuid\\": \\"15362575405508366478\\",
+      \\"idPartEntryNumber\\": 1,
+      \\"size\\": \\"10726932480\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk11\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk11\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde/sde9\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"73\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk11-part9\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:10-part9\\",
+        \\"/dev/disk/by-partuuid/d8e0c640-5a82-5344-a88d-04c2565ba403\\",
+        \\"/dev/sde9\\"
+      ],
+      \\"devName\\": \\"/dev/sde9\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde/sde9\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:10/block/sde\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": 9,
+      \\"size\\": \\"8388608\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk11\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk11\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:11/block/sdd\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"48\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk12\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:11\\",
+        \\"/dev/sdd\\"
+      ],
+      \\"devName\\": \\"/dev/sdd\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:11/block/sdd\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk12\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"10737418240\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk12\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk12\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"32\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk13\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:12\\",
+        \\"/dev/sdc\\"
+      ],
+      \\"devName\\": \\"/dev/sdc\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"10737418240\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk13\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk13\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc/sdc1\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"33\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk13-part1\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:12-part1\\",
+        \\"/dev/disk/by-label/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk13\\",
+        \\"/dev/disk/by-partlabel/zfs-1f8c9105153f33e6\\",
+        \\"/dev/disk/by-partuuid/34879874-3687-514d-b41d-252da615e92b\\",
+        \\"/dev/disk/by-uuid/4088438158935272299\\",
+        \\"/dev/sdc1\\"
+      ],
+      \\"devName\\": \\"/dev/sdc1\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc/sdc1\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"idFsType\\": \\"zfs_member\\",
+      \\"idFsUsage\\": \\"filesystem\\",
+      \\"idFsUuid\\": \\"4088438158935272299\\",
+      \\"idPartEntryNumber\\": 1,
+      \\"size\\": \\"10726932480\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk13\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk13\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc/sdc9\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"41\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk13-part9\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:12-part9\\",
+        \\"/dev/disk/by-partuuid/dddbb77a-df46-e844-ad2d-373e603298b9\\",
+        \\"/dev/sdc9\\"
+      ],
+      \\"devName\\": \\"/dev/sdc9\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc/sdc9\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:12/block/sdc\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": 9,
+      \\"size\\": \\"8388608\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk13\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk13\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:13/block/sdb\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"16\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk14\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:13\\",
+        \\"/dev/sdb\\"
+      ],
+      \\"devName\\": \\"/dev/sdb\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:13/block/sdb\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk14\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"10737418240\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk14\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk14\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"0\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk15\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:14\\",
+        \\"/dev/sda\\"
+      ],
+      \\"devName\\": \\"/dev/sda\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"10737418240\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk15\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk15\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda/sda1\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"1\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk15-part1\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:14-part1\\",
+        \\"/dev/disk/by-label/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk15\\",
+        \\"/dev/disk/by-partlabel/zfs-f868ba3d2ca236f4\\",
+        \\"/dev/disk/by-partuuid/4d5ed427-c437-3441-a182-55a699e4a4a4\\",
+        \\"/dev/disk/by-uuid/5389328186558692242\\",
+        \\"/dev/sda1\\"
+      ],
+      \\"devName\\": \\"/dev/sda1\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda/sda1\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"idFsType\\": \\"zfs_member\\",
+      \\"idFsUsage\\": \\"filesystem\\",
+      \\"idFsUuid\\": \\"5389328186558692242\\",
+      \\"idPartEntryNumber\\": 1,
+      \\"size\\": \\"10726932480\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk15\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk15\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda/sda9\\": {
+      \\"major\\": \\"8\\",
+      \\"minor\\": \\"9\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk15-part9\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:05.0-scsi-0:0:0:14-part9\\",
+        \\"/dev/disk/by-partuuid/4fb29e0f-0f09-0140-a2b1-50eff728771b\\",
+        \\"/dev/sda9\\"
+      ],
+      \\"devName\\": \\"/dev/sda9\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda/sda9\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:05.0/virtio1/host2/target2:0:0/2:0:0:14/block/sda\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": \\"QEMU\\",
+      \\"idModel\\": \\"QEMU_HARDDISK\\",
+      \\"idSerial\\": \\"0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": 9,
+      \\"size\\": \\"8388608\\",
+      \\"scsi80\\": \\"SQEMU    QEMU HARDDISK   disk15\\",
+      \\"scsi83\\": \\"0QEMU    QEMU HARDDISK   disk15\\",
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda\\": {
+      \\"major\\": \\"252\\",
+      \\"minor\\": \\"0\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/virtio-mds1-root\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:06.0\\",
+        \\"/dev/vda\\"
+      ],
+      \\"devName\\": \\"/dev/vda\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": null,
+      \\"idModel\\": null,
+      \\"idSerial\\": \\"mds1-root\\",
+      \\"idFsType\\": null,
+      \\"idFsUsage\\": null,
+      \\"idFsUuid\\": null,
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"21474836480\\",
+      \\"scsi80\\": null,
+      \\"scsi83\\": null,
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda1\\": {
+      \\"major\\": \\"252\\",
+      \\"minor\\": \\"1\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/virtio-mds1-root-part1\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:06.0-part1\\",
+        \\"/dev/disk/by-uuid/18a97893-4be9-4865-9708-be587195dd8c\\",
+        \\"/dev/vda1\\"
+      ],
+      \\"devName\\": \\"/dev/vda1\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda1\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": null,
+      \\"idModel\\": null,
+      \\"idSerial\\": \\"mds1-root\\",
+      \\"idFsType\\": \\"ext3\\",
+      \\"idFsUsage\\": \\"filesystem\\",
+      \\"idFsUuid\\": \\"18a97893-4be9-4865-9708-be587195dd8c\\",
+      \\"idPartEntryNumber\\": 1,
+      \\"size\\": \\"524288000\\",
+      \\"scsi80\\": null,
+      \\"scsi83\\": null,
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda2\\": {
+      \\"major\\": \\"252\\",
+      \\"minor\\": \\"2\\",
+      \\"paths\\": [
+        \\"/dev/disk/by-id/lvm-pv-uuid-j0S88A-Biz4-zdoZ-rtPY-4HhV-OaDB-c0Asow\\",
+        \\"/dev/disk/by-id/virtio-mds1-root-part2\\",
+        \\"/dev/disk/by-path/virtio-pci-0000:00:06.0-part2\\",
+        \\"/dev/vda2\\"
+      ],
+      \\"devName\\": \\"/dev/vda2\\",
+      \\"devPath\\": \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda/vda2\\",
+      \\"parent\\": \\"/devices/pci0000:00/0000:00:06.0/virtio2/block/vda\\",
+      \\"devType\\": \\"partition\\",
+      \\"idVendor\\": null,
+      \\"idModel\\": null,
+      \\"idSerial\\": \\"mds1-root\\",
+      \\"idFsType\\": \\"LVM2_member\\",
+      \\"idFsUsage\\": \\"raid\\",
+      \\"idFsUuid\\": \\"j0S88A-Biz4-zdoZ-rtPY-4HhV-OaDB-c0Asow\\",
+      \\"idPartEntryNumber\\": 2,
+      \\"size\\": \\"20949499904\\",
+      \\"scsi80\\": null,
+      \\"scsi83\\": null,
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [],
+      \\"dmVgSize\\": null,
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": null,
+      \\"dmLvName\\": null,
+      \\"lvUuid\\": null,
+      \\"dmVgName\\": null,
+      \\"vgUuid\\": null,
+      \\"mdUuid\\": null
+    },
+    \\"/devices/virtual/block/dm-0\\": {
+      \\"major\\": \\"253\\",
+      \\"minor\\": \\"0\\",
+      \\"paths\\": [
+        \\"/dev/mapper/vg_00-lv_root\\",
+        \\"/dev/disk/by-id/dm-name-vg_00-lv_root\\",
+        \\"/dev/disk/by-id/dm-uuid-LVM-Wdm3y0APYB2xfxwNtCO6YIkWWupZXIjrZrJDdYy002aft0lKIvS0mSpSM8Ad4Qdy\\",
+        \\"/dev/disk/by-uuid/145729d9-dae3-4038-b8a5-568da80d6cf5\\",
+        \\"/dev/vg_00/lv_root\\",
+        \\"/dev/dm-0\\"
+      ],
+      \\"devName\\": \\"/dev/dm-0\\",
+      \\"devPath\\": \\"/devices/virtual/block/dm-0\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": null,
+      \\"idModel\\": null,
+      \\"idSerial\\": null,
+      \\"idFsType\\": \\"ext4\\",
+      \\"idFsUsage\\": \\"filesystem\\",
+      \\"idFsUuid\\": \\"145729d9-dae3-4038-b8a5-568da80d6cf5\\",
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"18845007872\\",
+      \\"scsi80\\": null,
+      \\"scsi83\\": null,
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [
+        \\"252:2\\"
+      ],
+      \\"dmVgSize\\": \\"20946354176B\\",
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": \\"vg_00-lv_root\\",
+      \\"dmLvName\\": \\"lv_root\\",
+      \\"lvUuid\\": \\"jrZrJDdYy002aft0lKIvS0mSpSM8Ad4Qdy\\",
+      \\"dmVgName\\": \\"vg_00\\",
+      \\"vgUuid\\": \\"Wdm3y0APYB2xfxwNtCO6YIkWWupZXI\\",
+      \\"mdUuid\\": null
+    },
+    \\"/devices/virtual/block/dm-1\\": {
+      \\"major\\": \\"253\\",
+      \\"minor\\": \\"1\\",
+      \\"paths\\": [
+        \\"/dev/mapper/vg_00-lv_swap\\",
+        \\"/dev/disk/by-id/dm-name-vg_00-lv_swap\\",
+        \\"/dev/disk/by-id/dm-uuid-LVM-Wdm3y0APYB2xfxwNtCO6YIkWWupZXIjr6whK6DoE2hTECZroh6orbauUoKZ02lrm\\",
+        \\"/dev/disk/by-uuid/8f90840f-ed6b-4827-b256-c7c83d1a3243\\",
+        \\"/dev/vg_00/lv_swap\\",
+        \\"/dev/dm-1\\"
+      ],
+      \\"devName\\": \\"/dev/dm-1\\",
+      \\"devPath\\": \\"/devices/virtual/block/dm-1\\",
+      \\"parent\\": null,
+      \\"devType\\": \\"disk\\",
+      \\"idVendor\\": null,
+      \\"idModel\\": null,
+      \\"idSerial\\": null,
+      \\"idFsType\\": \\"swap\\",
+      \\"idFsUsage\\": \\"other\\",
+      \\"idFsUuid\\": \\"8f90840f-ed6b-4827-b256-c7c83d1a3243\\",
+      \\"idPartEntryNumber\\": null,
+      \\"size\\": \\"2101346304\\",
+      \\"scsi80\\": null,
+      \\"scsi83\\": null,
+      \\"isReadOnly\\": false,
+      \\"isBiosBoot\\": false,
+      \\"isMpath\\": false,
+      \\"dmSlaveMms\\": [
+        \\"252:2\\"
+      ],
+      \\"dmVgSize\\": \\"20946354176B\\",
+      \\"mdDevices\\": [],
+      \\"dmMultipathDevicePath\\": null,
+      \\"dmName\\": \\"vg_00-lv_swap\\",
+      \\"dmLvName\\": \\"lv_swap\\",
+      \\"lvUuid\\": \\"jr6whK6DoE2hTECZroh6orbauUoKZ02lrm\\",
+      \\"dmVgName\\": \\"vg_00\\",
+      \\"vgUuid\\": \\"Wdm3y0APYB2xfxwNtCO6YIkWWupZXI\\",
+      \\"mdUuid\\": null
+    }
+  },
+  \\"localMounts\\": [
+    {
+      \\"target\\": \\"/sys/fs/cgroup/hugetlb\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,hugetlb\\"
+    },
+    {
+      \\"target\\": \\"/run\\",
+      \\"source\\": \\"tmpfs\\",
+      \\"fstype\\": \\"tmpfs\\",
+      \\"opts\\": \\"rw,nosuid,nodev,mode=755\\"
+    },
+    {
+      \\"target\\": \\"/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"source\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk15\\",
+      \\"fstype\\": \\"zfs\\",
+      \\"opts\\": \\"rw,xattr,noacl\\"
+    },
+    {
+      \\"target\\": \\"/dev/pts\\",
+      \\"source\\": \\"devpts\\",
+      \\"fstype\\": \\"devpts\\",
+      \\"opts\\": \\"rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/cpuset\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,cpuset\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/cpu,cpuacct\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,cpuacct,cpu\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/pstore\\",
+      \\"source\\": \\"pstore\\",
+      \\"fstype\\": \\"pstore\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/pids\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,pids\\"
+    },
+    {
+      \\"target\\": \\"/proc\\",
+      \\"source\\": \\"proc\\",
+      \\"fstype\\": \\"proc\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime\\"
+    },
+    {
+      \\"target\\": \\"/dev\\",
+      \\"source\\": \\"devtmpfs\\",
+      \\"fstype\\": \\"devtmpfs\\",
+      \\"opts\\": \\"rw,nosuid,size=930720k,nr_inodes=232680,mode=755\\"
+    },
+    {
+      \\"target\\": \\"/sys\\",
+      \\"source\\": \\"sysfs\\",
+      \\"fstype\\": \\"sysfs\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime\\"
+    },
+    {
+      \\"target\\": \\"/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"source\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk13\\",
+      \\"fstype\\": \\"zfs\\",
+      \\"opts\\": \\"rw,xattr,noacl\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/blkio\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,blkio\\"
+    },
+    {
+      \\"target\\": \\"/proc/sys/fs/binfmt_misc\\",
+      \\"source\\": \\"binfmt_misc\\",
+      \\"fstype\\": \\"binfmt_misc\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/devices\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,devices\\"
+    },
+    {
+      \\"target\\": \\"/root/lab\\",
+      \\"source\\": \\"auto.direct\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=19,pgrp=1209,timeout=300,minproto=5,maxproto=5,direct,pipe_ino=19223\\"
+    },
+    {
+      \\"target\\": \\"/misc\\",
+      \\"source\\": \\"/etc/auto.misc\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=7,pgrp=1209,timeout=300,minproto=5,maxproto=5,indirect,pipe_ino=19209\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/net_cls,net_prio\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,net_prio,net_cls\\"
+    },
+    {
+      \\"target\\": \\"/run/user/0\\",
+      \\"source\\": \\"tmpfs\\",
+      \\"fstype\\": \\"tmpfs\\",
+      \\"opts\\": \\"rw,nosuid,nodev,relatime,size=188344k,mode=700\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/systemd\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,xattr,release_agent=/usr/lib/systemd/systemd-cgroups-agent,name=systemd\\"
+    },
+    {
+      \\"target\\": \\"/zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"source\\": \\"zfs_pool_scsi0QEMU_QEMU_HARDDISK_disk11\\",
+      \\"fstype\\": \\"zfs\\",
+      \\"opts\\": \\"rw,xattr,noacl\\"
+    },
+    {
+      \\"target\\": \\"/dev/shm\\",
+      \\"source\\": \\"tmpfs\\",
+      \\"fstype\\": \\"tmpfs\\",
+      \\"opts\\": \\"rw,nosuid,nodev\\"
+    },
+    {
+      \\"target\\": \\"swap\\",
+      \\"source\\": \\"/dev/mapper/vg_00-lv_swap\\",
+      \\"fstype\\": \\"swap\\",
+      \\"opts\\": \\"defaults\\"
+    },
+    {
+      \\"target\\": \\"/net\\",
+      \\"source\\": \\"-hosts\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=13,pgrp=1209,timeout=300,minproto=5,maxproto=5,indirect,pipe_ino=19218\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/perf_event\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,perf_event\\"
+    },
+    {
+      \\"target\\": \\"/sys/kernel/security\\",
+      \\"source\\": \\"securityfs\\",
+      \\"fstype\\": \\"securityfs\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime\\"
+    },
+    {
+      \\"target\\": \\"/home\\",
+      \\"source\\": \\"auto.home\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=25,pgrp=1209,timeout=300,minproto=5,maxproto=5,indirect,pipe_ino=19234\\"
+    },
+    {
+      \\"target\\": \\"/sys/kernel/debug\\",
+      \\"source\\": \\"debugfs\\",
+      \\"fstype\\": \\"debugfs\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/freezer\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,freezer\\"
+    },
+    {
+      \\"target\\": \\"/proc/sys/fs/binfmt_misc\\",
+      \\"source\\": \\"systemd-1\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=31,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=10584\\"
+    },
+    {
+      \\"target\\": \\"/\\",
+      \\"source\\": \\"/dev/mapper/vg_00-lv_root\\",
+      \\"fstype\\": \\"ext4\\",
+      \\"opts\\": \\"rw,relatime,data=ordered\\"
+    },
+    {
+      \\"target\\": \\"/var/lib/nfs/rpc_pipefs\\",
+      \\"source\\": \\"sunrpc\\",
+      \\"fstype\\": \\"rpc_pipefs\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/proc/fs/nfsd\\",
+      \\"source\\": \\"nfsd\\",
+      \\"fstype\\": \\"nfsd\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup\\",
+      \\"source\\": \\"tmpfs\\",
+      \\"fstype\\": \\"tmpfs\\",
+      \\"opts\\": \\"ro,nosuid,nodev,noexec,mode=755\\"
+    },
+    {
+      \\"target\\": \\"/sys/fs/cgroup/memory\\",
+      \\"source\\": \\"cgroup\\",
+      \\"fstype\\": \\"cgroup\\",
+      \\"opts\\": \\"rw,nosuid,nodev,noexec,relatime,memory\\"
+    },
+    {
+      \\"target\\": \\"/scratch\\",
+      \\"source\\": \\"auto.direct\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=19,pgrp=1209,timeout=300,minproto=5,maxproto=5,direct,pipe_ino=19223\\"
+    },
+    {
+      \\"target\\": \\"/dev/mqueue\\",
+      \\"source\\": \\"mqueue\\",
+      \\"fstype\\": \\"mqueue\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/boot\\",
+      \\"source\\": \\"/dev/vda1\\",
+      \\"fstype\\": \\"ext3\\",
+      \\"opts\\": \\"rw,relatime,data=ordered\\"
+    },
+    {
+      \\"target\\": \\"/dev/hugepages\\",
+      \\"source\\": \\"hugetlbfs\\",
+      \\"fstype\\": \\"hugetlbfs\\",
+      \\"opts\\": \\"rw,relatime\\"
+    },
+    {
+      \\"target\\": \\"/root/chef\\",
+      \\"source\\": \\"auto.direct\\",
+      \\"fstype\\": \\"autofs\\",
+      \\"opts\\": \\"rw,relatime,fd=19,pgrp=1209,timeout=300,minproto=5,maxproto=5,direct,pipe_ino=19223\\"
+    },
+    {
+      \\"target\\": \\"/sys/kernel/config\\",
+      \\"source\\": \\"configfs\\",
+      \\"fstype\\": \\"configfs\\",
+      \\"opts\\": \\"rw,relatime\\"
+    }
+  ]
+}"
+`;

@@ -13,6 +13,7 @@ type Fixtures = {
   mount: string;
   mounts: string;
   scannerState: string;
+  scannerState2: string;
 }
 
 let fixtures:Fixtures = importAll "./fixtures.js"

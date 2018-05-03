@@ -2,6 +2,7 @@ source https://nuget.org/api/v2
 storage:none
 
 clitool dotnet-fable
+clitool dotnet-fantomas
 nuget Fable.Core
 nuget Fable.Import.Node
 nuget Fable.Import.NodeLibzfs

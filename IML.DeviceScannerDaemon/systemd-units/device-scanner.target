@@ -1,0 +1,5 @@
+[Unit]
+Description=Device Scanner Services
+
+Requires=block-device-populator.service
+Requires=zed-populator.service

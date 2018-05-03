@@ -70,6 +70,7 @@ EOF
 %install
 mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_presetdir}
+cp dist/%{base_name}-daemon/%{base_name}.target %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/%{base_name}.socket %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/%{base_name}.service %{buildroot}%{_unitdir}
 cp dist/%{base_name}-daemon/block-device-populator.service %{buildroot}%{_unitdir}
@@ -131,6 +132,7 @@ rm -rf %{buildroot}
 %attr(0644,root,root)%{_unitdir}/zed-populator.service
 %attr(0644,root,root)%{_unitdir}/swap-emitter.timer
 %attr(0644,root,root)%{_unitdir}/swap-emitter.service
+%attr(0644,root,root)%{_unitdir}/%{base_name}.target
 %attr(0644,root,root)%{_unitdir}/%{base_name}.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.socket
 %attr(0644,root,root)%{_presetdir}/00-%{base_name}.preset
@@ -197,6 +199,7 @@ if [ $1 -eq 1 ]; then
 fi
 
 %preun
+%systemd_preun %{base_name}.target
 %systemd_preun %{base_name}.socket
 %systemd_preun %{base_name}.service
 %systemd_preun %{mount_name}.service

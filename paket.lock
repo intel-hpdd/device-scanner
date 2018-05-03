@@ -103,7 +103,7 @@ NUGET
       System.Runtime.InteropServices (>= 4.3) - restriction: >= netstandard1.1
       System.Text.Encoding (>= 4.3) - restriction: >= netstandard1.1
       System.Threading (>= 4.3) - restriction: >= netstandard1.1
-    Microsoft.Net.Compilers (2.8) - restriction: >= netcoreapp2.0
+    Microsoft.Net.Compilers (2.8) - restriction: || (>= net45) (>= netcoreapp2.0)
     Microsoft.NETCore.App (2.0.7) - restriction: >= netcoreapp2.0
       Microsoft.NETCore.DotNetHostPolicy (>= 2.0.7) - restriction: >= netcoreapp2.0
       Microsoft.NETCore.Platforms (>= 2.0.2) - restriction: >= netcoreapp2.0

@@ -1,8 +1,10 @@
 [Unit]
 Description=IML Scanner Proxy Path
+PartOf=device-scanner.socket
+After=device-scanner.socket
 
 [Path]
 DirectoryNotEmpty=/var/lib/chroma/settings
 
 [Install]
-WantedBy=default.target
+WantedBy=device-scanner.socket

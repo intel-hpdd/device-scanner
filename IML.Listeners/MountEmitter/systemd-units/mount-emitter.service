@@ -1,14 +1,15 @@
 [Unit]
 Description=IML Mount Emitter
+PartOf=device-scanner.socket
 After=device-scanner.socket
 
 [Service]
 Restart=always
 Environment=NODE_ENV=production
 ExecStartPre=/bin/bash -c 'exec /usr/bin/findmnt -P | /usr/lib64/iml-mount-emitter/mount-emitter'
-ExecStart=/bin/bash -c 'exec /usr/bin/stdbuf -o L /usr/bin/findmnt --poll -P -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS | /usr/lib64/iml-mount-emitter/mount-emitter'
+ExecStart=/bin/bash -c 'exec /usr/bin/stdbuf -o L /usr/bin/findmnt --poll -P -o ACTION,TARGET,SOURCE,FSTYPE,OPTIONS,OLD-TARGET,OLD-OPTIONS | /usr/lib64/iml-mo
 StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=default.target
+WantedBy=device-scanner.socket

@@ -320,7 +320,7 @@ type LegacyBlockDev = {
   device_path: DevPath;
   partition_number: int option;
   is_ro: bool option;
-  parent: DevPath option;
+  parent: string option;
   dm_multipath: bool option;
   dm_lv: string option;
   dm_vg: string option;
@@ -333,7 +333,10 @@ type LegacyBlockDev = {
 }
 
 module LegacyBlockDev =
-  let ofUEvent (x:UEvent) =
+  let parentByMajorMinor (b:BlockDevices) =
+    Option.map (fun d -> b |> Map.find d |> UEvent.majorMinor)
+
+  let ofUEvent (b:BlockDevices) (x:UEvent) =
     {
       major_minor = UEvent.majorMinor x;
       path = Array.head x.paths;
@@ -347,7 +350,7 @@ module LegacyBlockDev =
       device_path = x.devpath;
       partition_number = x.partEntryNumber;
       is_ro = x.readOnly;
-      parent = x.parent;
+      parent = parentByMajorMinor b x.parent;
       dm_multipath = x.dmMultipathDevpath;
       dm_lv = x.dmLvName;
       dm_vg = x.dmVgName;
@@ -397,7 +400,7 @@ module LegacyBlockDev =
         ("device_path", UEvent.devPathValue device_path);
         ("partition_number", Encode.option Encode.int partition_number);
         ("is_ro", Encode.option Encode.bool is_ro);
-        ("parent", Encode.option UEvent.devPathValue parent);
+        ("parent", Encode.option Encode.string parent);
         ("dm_multipath", Encode.option Encode.bool dm_multipath);
         ("dm_lv", Encode.option Encode.string dm_lv);
         ("lv_uuid", Encode.option Encode.string lv_uuid);
@@ -457,7 +460,7 @@ module LegacyBlockDev =
       |> Decode.required "device_path" (Decode.map DevPath Decode.string)
       |> optionalInt "partition_number"
       |> optionalBool "is_ro"
-      |> Decode.required "parent" (Decode.map (Option.map DevPath) (Decode.option Decode.string))
+      |> Decode.required "parent" (Decode.option Decode.string)
       |> optionalBool "dm_multipath"
       |> optionalString "dm_lv"
       |> optionalString "dm_vg"

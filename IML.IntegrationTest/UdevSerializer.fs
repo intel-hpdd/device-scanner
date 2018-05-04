@@ -61,10 +61,24 @@ let private normalizeByIp (Path(path)) =
   )
     |> Path
 
+let private normalizeByMdUUID (path:Path) =
+  normalizeByPath "(/dev/disk/by-id/)md-uuid-.+" "md-uuid-aa:bb:cc:dd" path
+
+let private normalizeByMdName (path:Path) =
+  normalizeByPath "(/dev/disk/by-id/)md-name-.+" "md-name-mdname" path
+
 let private normalizePaths ((devPath:DevPath), (uevent:UEvent)) =
   let newPaths =
     uevent.paths
-      |> Array.map (normalizeByUUIDPath >> normalizeByLVMUUID >> normalizeByDmUUUID >> normalizeByPartUUID >> normalizeByIp)
+      |> Array.map (
+        normalizeByUUIDPath
+          >> normalizeByLVMUUID
+          >> normalizeByDmUUUID
+          >> normalizeByPartUUID
+          >> normalizeByIp
+          >> normalizeByMdUUID
+          >> normalizeByMdName
+      )
 
   (devPath, {uevent with paths = newPaths})
 
@@ -94,6 +108,13 @@ let private normalizeDmSlaveMms ((devPath:DevPath), (uevent:UEvent)) =
 
   (devPath, {uevent with dmSlaveMMs = newDmSlaves})
 
+let private normalizeMdRaidUuid ((devPath:DevPath), (uevent:UEvent)) =
+  let newMdRaidUUID =
+    uevent.mdUUID
+      |> Option.map (k "aa:bb:cc:dd")
+
+  (devPath, {uevent with mdUUID = newMdRaidUUID})
+
 let serialize (x:Map<DevPath, UEvent>) =
   x
     |> Map.toList
@@ -105,6 +126,7 @@ let serialize (x:Map<DevPath, UEvent>) =
         >> normalizeVgUUIDs
         >> normalizeFsUUIDs
         >> normalizeDmSlaveMms
+        >> normalizeMdRaidUuid
       )
     |> List.sort
     |> Map.ofList

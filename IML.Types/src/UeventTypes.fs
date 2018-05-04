@@ -56,6 +56,12 @@ let decodeLvmUuids (value:obj) =
     Decode.BadPrimitive ("a string", value)
       |> Error
 
+[<Erase>]
+type DevPath = DevPath of string
+
+[<Erase>]
+type Path = Path of string
+
 /// The data emitted after processing a
 /// udev block device add | change | remove event
 [<Pojo>]
@@ -105,6 +111,15 @@ module UEvent =
       |> Option.map int
       |> Option.map ((*) 512)
       |> Option.map string
+
+  let pathValue (Path x) =
+    Encode.string x
+
+  let pathValues xs =
+    Array.map pathValue xs
+
+  let devPathValue (DevPath x) =
+    Encode.string x
 
   let majorMinor x =
     sprintf "%s:%s" x.major x.minor

@@ -181,9 +181,9 @@ module MdRaid =
       drives = drives;
     }:MdRaid) =
       Encode.object [
-        ("path", pathValue path);
+        ("path", UEvent.pathValue path);
         ("block_device", Encode.string block_device);
-        ("drives", Encode.array (pathValues drives));
+        ("drives", Encode.array (UEvent.pathValues drives));
       ]
 
   let encoder =
@@ -320,7 +320,7 @@ type LegacyBlockDev = {
   device_path: DevPath;
   partition_number: int option;
   is_ro: bool option;
-  parent: string option;
+  parent: DevPath option;
   dm_multipath: bool option;
   dm_lv: string option;
   dm_vg: string option;
@@ -347,7 +347,7 @@ module LegacyBlockDev =
       device_path = x.devpath;
       partition_number = x.partEntryNumber;
       is_ro = x.readOnly;
-      parent = None;
+      parent = x.parent;
       dm_multipath = x.dmMultipathDevpath;
       dm_lv = x.dmLvName;
       dm_vg = x.dmVgName;
@@ -386,18 +386,18 @@ module LegacyBlockDev =
     } =
       Encode.object [
         ("major_minor", Encode.string major_minor);
-        ("path", pathValue path);
-        ("paths", Encode.array (pathValues paths));
+        ("path", UEvent.pathValue path);
+        ("paths", Encode.array (UEvent.pathValues paths));
         ("serial_80", Encode.option Encode.string serial_80);
         ("serial_83", Encode.option Encode.string serial_83);
         ("size", Encode.option Encode.string size);
         ("filesystem_type", Encode.option Encode.string filesystem_type);
         ("filesystem_usage", Encode.option Encode.string filesystem_usage);
         ("device_type", Encode.string device_type);
-        ("device_path", devPathValue device_path);
+        ("device_path", UEvent.devPathValue device_path);
         ("partition_number", Encode.option Encode.int partition_number);
         ("is_ro", Encode.option Encode.bool is_ro);
-        ("parent", Encode.option Encode.string parent);
+        ("parent", Encode.option UEvent.devPathValue parent);
         ("dm_multipath", Encode.option Encode.bool dm_multipath);
         ("dm_lv", Encode.option Encode.string dm_lv);
         ("lv_uuid", Encode.option Encode.string lv_uuid);
@@ -457,7 +457,7 @@ module LegacyBlockDev =
       |> Decode.required "device_path" (Decode.map DevPath Decode.string)
       |> optionalInt "partition_number"
       |> optionalBool "is_ro"
-      |> optionalString "parent"
+      |> Decode.required "parent" (Decode.map (Option.map DevPath) (Decode.option Decode.string))
       |> optionalBool "dm_multipath"
       |> optionalString "dm_lv"
       |> optionalString "dm_vg"

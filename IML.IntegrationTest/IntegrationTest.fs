@@ -15,6 +15,8 @@ open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
 open Matchers
 
+type PartitionFlag = Raid
+
 let env = Globals.``process``.env
 let testInterface1 = !!env?TEST_INTERFACE_1
 let testInterface2 = !!env?TEST_INTERFACE_2

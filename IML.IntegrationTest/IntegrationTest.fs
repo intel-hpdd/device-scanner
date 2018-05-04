@@ -26,11 +26,11 @@ let settle() = cmd "udevadm settle" >> ignoreCmd
 let rbSettle() = rbCmd "udevadm settle"
 let sleep seconds = cmd (sprintf "sleep %d" seconds)
 let scannerInfo =
-    (fun _ ->
-    pipeToShellCmd "echo '\"Stream\"'"
+    (fun _ -> 
+    pipeToShellCmd "echo '\"Stream\"'" 
         "socat - UNIX-CONNECT:/var/run/device-scanner.sock") >>= settle()
 let rbScanForDisk() : RollbackState -> RollbackCommandState =
-    rbCmd
+    rbCmd 
         "for host in `ls /sys/class/scsi_host`; do echo \"- - -\" > /sys/class/scsi_host/$host/scan; done"
 let rbSetDeviceState (name : string) (state : string) : RollbackState -> RollbackCommandState =
     rbCmd (sprintf "echo \"%s\" > /sys/block/%s/device/state" state name)
@@ -42,30 +42,30 @@ let setDeviceState (name : string) (state : string) : State -> JS.Promise<Comman
 let deleteDevice (name : string) : State -> JS.Promise<CommandResult<Out, Err>> =
     cmd (sprintf "echo \"1\" > /sys/block/%s/device/delete" name)
 let scanForDisk() =
-    cmd
+    cmd 
         "for host in `ls /sys/class/scsi_host`; do echo \"- - -\" > /sys/class/scsi_host/$host/scan; done"
 
 let resultOutput : StatefulResult<State, Out, Err> -> string =
-    function
+    function 
     | Ok((Stdout(r), _), _) -> r
     | Error(e) -> failwithf "Command failed: %A" e
 
 let mkLabel (disk : string) (label : string) =
     cmd (sprintf "parted %s -s mklabel %s" disk label)
 let mkPart (disk : string) (diskType : string) (start : int) (finish : int) =
-    cmd
-        (sprintf "parted -a opt %s -s mkpart %s ext4 %d %d" disk diskType start
+    cmd 
+        (sprintf "parted -a opt %s -s mkpart %s ext4 %d %d" disk diskType start 
              finish)
 let mkfs (fstype : string) (disk : string) =
     cmd (sprintf "mkfs -t %s %s" fstype disk)
 let e2Label (disk : string) (label : string) =
     cmd (sprintf "e2label %s %s" disk label)
 
-let setPartitionFlag (disk : string) (partitionId : int)
+let setPartitionFlag (disk : string) (partitionId : int) 
     (partitionFlag : PartitionFlag) =
     let cmdString =
         match partitionFlag with
-        | PartitionFlag.Raid ->
+        | PartitionFlag.Raid -> 
             sprintf "parted %s set %d raid on" disk partitionId
     cmd cmdString
 
@@ -89,12 +89,12 @@ let iscsiDiscoverIF3 = ISCSIAdm.iscsiDiscover testInterface3
 let iscsiLoginIF3 = ISCSIAdm.iscsiLogin testInterface3
 let iscsiLogoutIF3 = ISCSIAdm.iscsiLogout testInterface3
 
-testAsync "stream event" <| fun () ->
+testAsync "stream event" <| fun () -> 
     command { return! scannerInfo }
     |> startCommand "Stream Event"
     |> Promise.map serializeDecodedAndMatch
-testAsync "remove a device" <| fun () ->
-    command {
+testAsync "remove a device" <| fun () -> 
+    command { 
         do! (setDeviceState "sdc" "offline")
             >> rollbackError (rbSetDeviceState "sdc" "running")
             >> ignoreCmd
@@ -105,8 +105,8 @@ testAsync "remove a device" <| fun () ->
     }
     |> startCommand "removing a device"
     |> Promise.map serializeDecodedAndMatch
-testAsync "add a device" <| fun () ->
-    command {
+testAsync "add a device" <| fun () -> 
+    command { 
         do! (setDeviceState "sdc" "offline")
             >> rollbackError (rbSetDeviceState "sdc" "running")
             >> ignoreCmd
@@ -118,8 +118,8 @@ testAsync "add a device" <| fun () ->
     }
     |> startCommand "adding a device"
     |> Promise.map serializeDecodedAndMatch
-testAsync "create a partition" <| fun () ->
-    command {
+testAsync "create a partition" <| fun () -> 
+    command { 
         do! (mkLabel "/dev/sdc" "gpt") >> ignoreCmd
         do! (mkPart "/dev/sdc" "primary" 1 100)
             >> rollback (rbRmPart "/dev/sdc" 1)
@@ -133,8 +133,8 @@ testAsync "create a partition" <| fun () ->
     }
     |> startCommand "creating a partition"
     |> Promise.map serializeDecodedAndMatch
-testAsync "add multipath device" <| fun () ->
-    command {
+testAsync "add multipath device" <| fun () -> 
+    command { 
         do! cmd (iscsiDiscoverIF1()) >> ignoreCmd
         do! cmd (iscsiLoginIF1())
             >> rollback (rbCmd ("sleep 1"))
@@ -153,38 +153,54 @@ testAsync "add multipath device" <| fun () ->
     }
     |> startCommand "add multipath device"
     |> Promise.map serializeDecodedAndMatch
-
-testAsync "add mdraid" <| fun () ->
+testAsync "add mdraid" <| fun () -> 
     let createMd0 = MdRaid.createMdRaid "/dev/md0"
     let stopMd0 = MdRaid.stopMdRaid "/dev/md0"
     let cleanSdd1 = MdRaid.cleanPartition "/dev/sdd1"
     let cleanSde1 = MdRaid.cleanPartition "/dev/sde1"
     let cleanMdParts =
         rollback (rbCmd (cleanSde1())) >> rollback (rbCmd (cleanSdd1()))
-    command {
-        do! (mkLabel "/dev/sdd" "gpt")
-            >> rollback (rbWipefs "/dev/sdd")
-            >> ignoreCmd
-        do! (mkLabel "/dev/sde" "gpt")
-            >> rollback (rbWipefs "/dev/sde")
-            >> ignoreCmd
-        do! (mkPart "/dev/sdd" "primary" 1 100)
-            >> rollback (rbRmPart "/dev/sdd" 1)
-            >> ignoreCmd
-        do! (mkPart "/dev/sde" "primary" 1 100)
-            >> rollback (rbRmPart "/dev/sde" 1)
-            >> ignoreCmd
+    
+    let mkLabelAndRollback (device : string) (partType : string) =
+        (mkLabel device partType)
+        >> rollback (rbWipefs "/dev/sdd")
+        >> ignoreCmd
+    
+    let mkPartAndRollback (device : string) (partType : string) (start : int) 
+        (finish : int) =
+        (mkPart device partType start finish)
+        >> rollback (rbRmPart device 1)
+        >> ignoreCmd
+    
+    let cleanPartitions (deviceParts : string List) =
+        List.fold (fun state curDevice -> 
+            let fn = rollback (rbCmd (MdRaid.cleanPartition curDevice ()))
+            state >> fn) id deviceParts
+    
+    let createRaidAndRollback (devices : string) (raidPath : string) 
+        (raidDeviceParts : string List) =
+        cmd (MdRaid.createMdRaid raidPath devices ())
+        >> cleanPartitions raidDeviceParts
+        >> rollback (rbCmd (MdRaid.stopMdRaid raidPath ()))
+        >> ignoreCmd
+    
+    let createRaidFs (fsType : string) (raidPath : string) =
+        (mkfs fsType raidPath)
+        >> rollbackError (rbWipefs raidPath)
+        >> ignoreCmd
+    
+    command { 
+        do! mkLabelAndRollback "/dev/sdd" "gpt"
+        do! mkLabelAndRollback "/dev/sde" "gpt"
+        do! mkPartAndRollback "/dev/sdd" "primary" 1 100
+        do! mkPartAndRollback "/dev/sde" "primary" 1 100
         do! (setPartitionFlag "/dev/sdd" 1 PartitionFlag.Raid) >> ignoreCmd
         do! (setPartitionFlag "/dev/sde" 1 PartitionFlag.Raid) >> ignoreCmd
         do! settle()
-        do! cmd (createMd0 "/dev/sd[d-e]" ())
-            >> cleanMdParts
-            >> rollback (rbCmd (stopMd0()))
-            >> ignoreCmd
+        do! createRaidAndRollback "/dev/sd[d-e]" "/dev/md0" 
+                [ "/dev/sdd1"; "/dev/sde1" ]
         do! settle()
-        do! (mkfs "ext4" "/dev/md0")
-            >> rollbackError (rbWipefs "/dev/md0")
-            >> ignoreCmd
+        do! createRaidFs "ext4" "/dev/md0"
         return! scannerInfo
     }
     |> startCommand "add mdraid"

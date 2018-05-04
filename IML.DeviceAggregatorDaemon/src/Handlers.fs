@@ -95,9 +95,9 @@ let parseSysBlock (host:string) (state:State) =
 
   let mds = parseMdraidDevs xs ndt
 
-  let localFs = parseLocalFs state.blockDevices state.localMounts
-
   let zfspools, zfsdatasets = parseZfs xs state.zed
+
+  let localFs = parseLocalFs state.blockDevices zfsdatasets state.localMounts
 
   let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
 

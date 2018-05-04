@@ -8,6 +8,7 @@ open IML.Types.UeventTypes
 open IML.CommonLibrary
 open IML.Types.LegacyTypes
 open libzfs.Libzfs
+open Fable
 
 let filterDevice (x:UEvent) =
 
@@ -78,12 +79,28 @@ let parseMdraidDevs xs ndt =
         Map.add (Option.get x.md_uuid) md m
       ) Map.empty
 
-let parseLocalFs blockDevices (mounts:IML.Types.MountTypes.LocalMounts) =
+let lustreZfs (mount:IML.Types.MountTypes.LocalMount) (datasets:Map<string,LegacyZFSDev>) =
+  match mount.fstype with
+  | "lustre" ->
+    datasets
+      |> Map.toList
+      |> List.map snd
+      |> List.filter (fun x -> x.name = mount.source)
+      |> List.tryHead
+      |> Option.map (fun x -> (x.block_device, mount.target, mount.fstype))
+  | _ -> None
+
+let bdevOrLustreZfs (mount:IML.Types.MountTypes.LocalMount) datasets opt =
+  match opt with
+  | Some x -> Some (UEvent.majorMinor x, mount.target, mount.fstype)
+  | None -> lustreZfs mount datasets
+
+let parseLocalFs blockDevices (datasets:Map<string,LegacyZFSDev>) (mounts:IML.Types.MountTypes.LocalMounts) =
   mounts
     |> Set.toList
     |> List.choose (fun x ->
       BlockDevices.tryFindByPath blockDevices (Path x.source)
-        |> Option.map (fun d -> (UEvent.majorMinor d, x.target, x.fstype))
+        |> bdevOrLustreZfs x datasets
     )
     |> List.fold (fun m (mm, t, f) ->
       Map.add mm (t, f) m

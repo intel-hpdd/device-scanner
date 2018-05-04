@@ -162,8 +162,12 @@ testAsync "add mdraid" <| fun () ->
     let cleanMdParts =
         rollback (rbCmd (cleanSde1())) >> rollback (rbCmd (cleanSdd1()))
     command {
-        do! (mkLabel "/dev/sdd" "gpt") >> ignoreCmd
-        do! (mkLabel "/dev/sde" "gpt") >> ignoreCmd
+        do! (mkLabel "/dev/sdd" "gpt")
+            >> rollback (rbWipefs "/dev/sdd")
+            >> ignoreCmd
+        do! (mkLabel "/dev/sde" "gpt")
+            >> rollback (rbWipefs "/dev/sde")
+            >> ignoreCmd
         do! (mkPart "/dev/sdd" "primary" 1 100)
             >> rollback (rbRmPart "/dev/sdd" 1)
             >> ignoreCmd

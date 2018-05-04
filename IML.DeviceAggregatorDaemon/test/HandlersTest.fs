@@ -20,7 +20,8 @@ let testServerHost = "localhost"
 let testServerPort = 8181
 
 /// scanner output forwarded from the proxy
-let updatePayload = fixtures.scannerState |> (Data >> Message.encoder >> Some)
+let updatePayloadWith x = x |> (Data >> Message.encoder >> Some)
+let updatePayload = updatePayloadWith fixtures.scannerState
 let heartbeatPayload = Heartbeat |> Message.encoder |> Some
 
 test "host has pool disks" <| fun () ->
@@ -34,20 +35,6 @@ test "host doesn't have pool disks" <| fun () ->
 test "Discover no pools on host" <| fun () ->
   discoverZpools "ffo.com" Map.empty Map.empty List.empty
     |> toMatchSnapshot
-// ]
-// testList "Get and Update Tree" [
-  // let withSetup f ():unit =
-    // f updateTree
-
-  // yield! testFixture withSetup [
-    // "should return tree with host entry after update", fun handler ->
-      // "{blockDevices:{},zed:{},localMounts:[]}"
-        // |> Decode.decodeString State.decoder
-        // |> Result.unwrap
-        // |> handler "foo.com"
-        // |> toMatchSnapshot
-  // ]
-//f]
 
 testList "Server" [
   let withSetup f (d:Jest.Bindings.DoneStatic):unit =
@@ -157,5 +144,17 @@ testList "Server" [
       post "bar.com" None
         |> Writable.onFinish (fun () -> postThenGet updatePayload)
         |> Writable.``end`` updatePayload
+
+    "should receive tree after updates from multiple hosts with shared pools", fun _ post postThenGet _ ->
+      expect.assertions 1
+      post "bar.com" None
+        |> Writable.onFinish (fun () -> postThenGet (updatePayloadWith fixtures.scannerState3))
+        |> Writable.``end`` (updatePayloadWith fixtures.scannerState2)
+
+    "should receive tree after updates from multiple hosts with shared datasets", fun _ post postThenGet _ ->
+      expect.assertions 1
+      post "bar.com" None
+        |> Writable.onFinish (fun () -> postThenGet (updatePayloadWith fixtures.scannerStateDatasets2))
+        |> Writable.``end`` (updatePayloadWith fixtures.scannerStateDatasets)
   ]
 ]

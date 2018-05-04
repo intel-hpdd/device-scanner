@@ -66,7 +66,6 @@ let discoverZpools
         |> Map.iter (fun k v -> datasets <- Map.add k v datasets)
     )
     |> ignore
-//   |> Map.iter (fun h (ps, ds) -> printf "pools: %A , datasets: %A discovered on host %s" ps ds h)
   (pools, datasets)
 
 let parseSysBlock (host:string) (state:State) =

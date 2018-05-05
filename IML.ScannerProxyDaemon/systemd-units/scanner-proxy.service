@@ -2,7 +2,7 @@
 Description=IML Scanner Proxy Daemon
 RefuseManualStart=true
 Requires=device-scanner.socket
-After=device-scanner.socket
+After=network.target
 PartOf=scanner-proxy.path
 After=scanner-proxy.path
 

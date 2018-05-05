@@ -79,21 +79,20 @@ let parseMdraidDevs xs ndt =
         Map.add (Option.get x.md_uuid) md m
       ) Map.empty
 
-let lustreZfs (mount:IML.Types.MountTypes.LocalMount) (datasets:Map<string,LegacyZFSDev>) =
-  match mount.fstype with
-  | "lustre" ->
-    datasets
-      |> Map.toList
-      |> List.map snd
-      |> List.filter (fun x -> x.name = mount.source)
-      |> List.tryHead
-      |> Option.map (fun x -> (x.block_device, mount.target, mount.fstype))
-  | _ -> None
-
-let bdevOrLustreZfs (mount:IML.Types.MountTypes.LocalMount) datasets opt =
+let bdevOrLustreZfs (mount:IML.Types.MountTypes.LocalMount) (datasets:Map<string,LegacyZFSDev>) opt =
   match opt with
-  | Some x -> Some (UEvent.majorMinor x, mount.target, mount.fstype)
-  | None -> lustreZfs mount datasets
+  | Some x ->
+    Some (UEvent.majorMinor x, mount.target, mount.fstype)
+  | None ->
+    match mount.fstype with
+    | "lustre" ->
+      datasets
+        |> Map.toList
+        |> List.map snd
+        |> List.filter (fun x -> x.name = mount.source)
+        |> List.tryHead
+        |> Option.map (fun x -> (x.block_device, mount.target, mount.fstype))
+    | _ -> None
 
 let parseLocalFs blockDevices (datasets:Map<string,LegacyZFSDev>) (mounts:IML.Types.MountTypes.LocalMounts) =
   mounts

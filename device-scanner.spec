@@ -83,6 +83,7 @@ cp dist/%{aggregator_name}-daemon/%{aggregator_name}.socket %{buildroot}%{_unitd
 cp dist/%{aggregator_name}-daemon/%{aggregator_name}.service %{buildroot}%{_unitdir}
 cp dist/%{aggregator_name}-daemon/00-%{aggregator_name}.preset %{buildroot}%{_presetdir}
 cp dist/listeners/%{mount_name}.service %{buildroot}%{_unitdir}
+cp dist/listeners/mount-populator.service %{buildroot}%{_unitdir}
 cp dist/listeners/swap-emitter.timer %{buildroot}%{_unitdir}
 cp dist/listeners/swap-emitter.service %{buildroot}%{_unitdir}
 
@@ -130,6 +131,7 @@ rm -rf %{buildroot}
 %attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base_name}-daemon
 %attr(0644,root,root)%{_unitdir}/block-device-populator.service
 %attr(0644,root,root)%{_unitdir}/zed-populator.service
+%attr(0644,root,root)%{_unitdir}/mount-populator.service
 %attr(0644,root,root)%{_unitdir}/swap-emitter.timer
 %attr(0644,root,root)%{_unitdir}/swap-emitter.service
 %attr(0644,root,root)%{_unitdir}/%{base_name}.target
@@ -205,6 +207,7 @@ fi
 %systemd_preun %{mount_name}.service
 %systemd_preun block-device-populator.service
 %systemd_preun zed-populator.service
+%systemd_preun mount-populator.service
 %systemd_preun swap-emitter.timer
 %systemd_preun swap-emitter.service
 

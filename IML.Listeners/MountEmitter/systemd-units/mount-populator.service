@@ -1,0 +1,6 @@
+[Unit]
+Description=IML Mount Populator
+
+[Service]
+ExecStart=/bin/bash -c 'exec /usr/bin/findmnt -P | /usr/lib64/iml-mount-emitter/mount-emitter'
+Type=oneshot

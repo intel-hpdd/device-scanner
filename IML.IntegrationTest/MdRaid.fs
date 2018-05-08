@@ -4,19 +4,21 @@
 [<RequireQualifiedAccess>]
 module IML.IntegrationTest.MdRaid
 
-type Mode =
+open IML.IntegrationTestFramework.IntegrationTestFramework
+
+type private Mode =
     | Create
     | Manage
     | Misc
 
-module Mode =
+module private Mode =
     let operation (op : Mode) (mdDevice : string) (x : string) =
         match op with
         | Mode.Create -> sprintf "%s --create %s --force" x mdDevice
         | Mode.Manage -> sprintf "%s --manage %s" x mdDevice
         | Mode.Misc -> sprintf "%s --misc" x
 
-type Level =
+type private Level =
     | Linear
     | Raid0
     | Zero
@@ -37,13 +39,13 @@ type Level =
     | Faulty
     | Container
 
-type Create =
+type private Create =
     | Level
     | RaidDevices
 
-module Create =
+module private Create =
     let private levelOption = sprintf "%s --level=%s"
-    
+
     let level (lvl : Level) (x : string) =
         match lvl with
         | Level.Linear -> levelOption x "linear"
@@ -65,35 +67,54 @@ module Create =
         | Level.Mp -> levelOption x "mp"
         | Level.Faulty -> levelOption x "faulty"
         | Level.Container -> levelOption x "container"
-    
+
     let raidDevices (numDevices : int) (x : string) =
         sprintf "%s --raid-devices=%d" x numDevices
 
-module Manage =
+module private Manage =
     let stop (x : string) = sprintf "%s --stop" x
 
-module Misc =
+module private Misc =
     let zeroSuperblock (partPath : string) (x : string) =
         sprintf "%s --zero-superblock %s" x partPath
 
-let private mdAdm() = "mdadm"
-let private addArg (arg : string) (x : string) = sprintf "%s %s" x arg
-let private yesPipe (x : string) = sprintf "yes | %s" x
+module private MdRaidOperation =
+  let private mdAdm() = "mdadm"
+  let private addArg (arg : string) (x : string) = sprintf "%s %s" x arg
+  let private yesPipe (x : string) = sprintf "yes | %s" x
 
-let createMdRaid (mdDeviceName : string) (devices : string) =
-    mdAdm
-    >> (Mode.operation Mode.Create mdDeviceName)
-    >> (Create.level Level.Mirror)
-    >> (Create.raidDevices 2)
-    >> (addArg devices)
-    >> yesPipe
+  let createMdRaid (mdDeviceName : string) (devices : string) =
+      mdAdm
+      >> (Mode.operation Mode.Create mdDeviceName)
+      >> (Create.level Level.Mirror)
+      >> (Create.raidDevices 2)
+      >> (addArg devices)
+      >> yesPipe
 
-let cleanPartition (partPath : string) =
-    mdAdm
-    >> (Mode.operation Mode.Misc "")
-    >> (Misc.zeroSuperblock partPath)
+  let cleanPartition (partPath : string) =
+      mdAdm
+      >> (Mode.operation Mode.Misc "")
+      >> (Misc.zeroSuperblock partPath)
 
-let stopMdRaid (mdDeviceName : string) =
-    mdAdm
-    >> (Mode.operation Mode.Manage mdDeviceName)
-    >> (Manage.stop)
+  let stopMdRaid (mdDeviceName : string) =
+      mdAdm
+      >> (Mode.operation Mode.Manage mdDeviceName)
+      >> (Manage.stop)
+
+module MdRaidCommand =
+  let private cleanPartitions (deviceParts : string List) =
+    List.fold (fun state curDevice ->
+      let fn = rollback (rbCmd (MdRaidOperation.cleanPartition curDevice ()))
+      state >> fn) id deviceParts
+
+  let createRaidAndRollback (devices : string) (raidPath : string)
+    (raidDeviceParts : string List) =
+    cmd (MdRaidOperation.createMdRaid raidPath devices ())
+    >> cleanPartitions raidDeviceParts
+    >> rollback (rbCmd (MdRaidOperation.stopMdRaid raidPath ()))
+    >> ignoreCmd
+
+  let createRaidFs (fsType : string) (raidPath : string) =
+    (Filesystem.mkfs fsType raidPath)
+    >> rollbackError (Filesystem.rbWipefs raidPath)
+    >> ignoreCmd

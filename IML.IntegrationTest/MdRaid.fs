@@ -79,42 +79,44 @@ module private Misc =
         sprintf "%s --zero-superblock %s" x partPath
 
 module private MdRaidOperation =
-  let private mdAdm() = "mdadm"
-  let private addArg (arg : string) (x : string) = sprintf "%s %s" x arg
-  let private yesPipe (x : string) = sprintf "yes | %s" x
+    let private mdAdm() = "mdadm"
+    let private addArg (arg : string) (x : string) = sprintf "%s %s" x arg
+    let private yesPipe (x : string) = sprintf "yes | %s" x
 
-  let createMdRaid (mdDeviceName : string) (devices : string) =
-      mdAdm
-      >> (Mode.operation Mode.Create mdDeviceName)
-      >> (Create.level Level.Mirror)
-      >> (Create.raidDevices 2)
-      >> (addArg devices)
-      >> yesPipe
+    let createMdRaid (mdDeviceName : string) (devices : string) =
+        mdAdm
+        >> (Mode.operation Mode.Create mdDeviceName)
+        >> (Create.level Level.Mirror)
+        >> (Create.raidDevices 2)
+        >> (addArg devices)
+        >> yesPipe
 
-  let cleanPartition (partPath : string) =
-      mdAdm
-      >> (Mode.operation Mode.Misc "")
-      >> (Misc.zeroSuperblock partPath)
+    let cleanPartition (partPath : string) =
+        mdAdm
+        >> (Mode.operation Mode.Misc "")
+        >> (Misc.zeroSuperblock partPath)
 
-  let stopMdRaid (mdDeviceName : string) =
-      mdAdm
-      >> (Mode.operation Mode.Manage mdDeviceName)
-      >> (Manage.stop)
+    let stopMdRaid (mdDeviceName : string) =
+        mdAdm
+        >> (Mode.operation Mode.Manage mdDeviceName)
+        >> (Manage.stop)
 
 module MdRaidCommand =
-  let private cleanPartitions (deviceParts : string List) =
-    List.fold (fun state curDevice ->
-      let fn = rollback (rbCmd (MdRaidOperation.cleanPartition curDevice ()))
-      state >> fn) id deviceParts
+    let private cleanPartitions (deviceParts : string List) =
+        let folder state curDevice =
+            let fn =
+                rollback (rbCmd (MdRaidOperation.cleanPartition curDevice ()))
+            state >> fn
+        List.fold folder id deviceParts
 
-  let createRaidAndRollback (devices : string) (raidPath : string)
-    (raidDeviceParts : string List) =
-    cmd (MdRaidOperation.createMdRaid raidPath devices ())
-    >> cleanPartitions raidDeviceParts
-    >> rollback (rbCmd (MdRaidOperation.stopMdRaid raidPath ()))
-    >> ignoreCmd
+    let createRaidAndRollback (devices : string) (raidPath : string)
+        (raidDeviceParts : string List) =
+        cmd (MdRaidOperation.createMdRaid raidPath devices ())
+        >> cleanPartitions raidDeviceParts
+        >> rollback (rbCmd (MdRaidOperation.stopMdRaid raidPath ()))
+        >> ignoreCmd
 
-  let createRaidFs (fsType : string) (raidPath : string) =
-    (Filesystem.mkfs fsType raidPath)
-    >> rollbackError (Filesystem.rbWipefs raidPath)
-    >> ignoreCmd
+    let createRaidFs (fsType : string) (raidPath : string) =
+        (Filesystem.mkfs fsType raidPath)
+        >> rollbackError (Filesystem.rbWipefs raidPath)
+        >> ignoreCmd

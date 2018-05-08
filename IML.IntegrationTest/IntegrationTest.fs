@@ -26,6 +26,7 @@ let scannerInfo =
     (fun _ ->
     pipeToShellCmd "echo '\"Stream\"'"
         "socat - UNIX-CONNECT:/var/run/device-scanner.sock") >>= settle()
+
 let resultOutput : StatefulResult<State, Out, Err> -> string =
     function
     | Ok((Stdout(r), _), _) -> r
@@ -115,15 +116,14 @@ testAsync "add multipath device" <| fun () ->
     }
     |> startCommand "add multipath device"
     |> Promise.map serializeDecodedAndMatch
-
 testAsync "add mdraid" <| fun () ->
     command {
         do! Parted.mkLabelAndRollback "/dev/sdd" "gpt"
         do! Parted.mkLabelAndRollback "/dev/sde" "gpt"
         do! Parted.mkPartAndRollback "/dev/sdd" "primary" 1 100
         do! Parted.mkPartAndRollback "/dev/sde" "primary" 1 100
-        do! (Parted.setPartitionFlag "/dev/sdd" 1 Parted.PartitionFlag.Raid) >> ignoreCmd
-        do! (Parted.setPartitionFlag "/dev/sde" 1 Parted.PartitionFlag.Raid) >> ignoreCmd
+        do! (Parted.setPartitionFlag "/dev/sdd" 1 Parted.PartitionFlag.Raid)
+        do! (Parted.setPartitionFlag "/dev/sde" 1 Parted.PartitionFlag.Raid)
         do! settle()
         do! MdRaid.MdRaidCommand.createRaidAndRollback "/dev/sd[d-e]" "/dev/md0"
                 [ "/dev/sdd1"; "/dev/sde1" ]

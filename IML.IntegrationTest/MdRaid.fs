@@ -115,8 +115,3 @@ module MdRaidCommand =
         >> cleanPartitions raidDeviceParts
         >> rollback (rbCmd (MdRaidOperation.stopMdRaid raidPath ()))
         >> ignoreCmd
-
-    let createRaidFs (fsType : string) (raidPath : string) =
-        (Filesystem.mkfs fsType raidPath)
-        >> rollbackError (Filesystem.rbWipefs raidPath)
-        >> ignoreCmd

@@ -89,8 +89,6 @@ testAsync "create a partition" <| fun () ->
             >> ignoreCmd
         do! (sleep 1) >> ignoreCmd
         do! (Filesystem.mkfs "ext4" "/dev/sdc1")
-            >> rollback (Filesystem.rbWipefs "/dev/sdc1")
-            >> ignoreCmd
         do! (Filesystem.e2Label "/dev/sdc1" "black_label") >> ignoreCmd
         return! scannerInfo
     }
@@ -128,7 +126,7 @@ testAsync "add mdraid" <| fun () ->
         do! MdRaid.MdRaidCommand.createRaidAndRollback "/dev/sd[d-e]" "/dev/md0"
                 [ "/dev/sdd1"; "/dev/sde1" ]
         do! settle()
-        do! MdRaid.MdRaidCommand.createRaidFs "ext4" "/dev/md0"
+        do! Filesystem.mkfs "ext4" "/dev/md0"
         return! scannerInfo
     }
     |> startCommand "add mdraid"

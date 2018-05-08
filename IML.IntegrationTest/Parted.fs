@@ -27,7 +27,7 @@ let setPartitionFlag (disk : string) (partitionId : int)
 
 let mkLabelAndRollback (device : string) (partType : string) =
     (mkLabel device partType)
-    >> rollback (Filesystem.rbWipefs "/dev/sdd")
+    >> rollback (Filesystem.rbWipefs device)
     >> ignoreCmd
 
 let mkPartAndRollback (device : string) (partType : string) (start : int)

@@ -6,10 +6,12 @@ module IML.IntegrationTest.Filesystem
 
 open IML.IntegrationTestFramework.IntegrationTestFramework
 
+let rbWipefs (device : string) = rbCmd (sprintf "wipefs -a %s" device)
+
 let mkfs (fstype : string) (disk : string) =
     cmd (sprintf "mkfs -t %s %s" fstype disk)
+    >> rollback (rbWipefs disk)
+    >> ignoreCmd
 
 let e2Label (disk : string) (label : string) =
     cmd (sprintf "e2label %s %s" disk label)
-
-let rbWipefs (device : string) = rbCmd (sprintf "wipefs -a %s" device)

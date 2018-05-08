@@ -35,6 +35,7 @@ testDone "writing a connection" <| fun (d) ->
   let server =
     net.createServer(fun c ->
       Connections.createConn c Stream
+        |> ignore
 
       let d = {
         blockDevices = Map.empty;

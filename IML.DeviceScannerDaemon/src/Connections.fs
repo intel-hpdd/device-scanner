@@ -23,13 +23,26 @@ let addConn c =
 let removeConn c =
   conns <- List.filter ((<>) c) conns
 
-let createConn c = function
-    | Command.Stream ->
-      Readable.onEnd (fun () -> removeConn (Stream c)) c
-        |> ignore
-      addConn (Stream c)
-    | _ ->
-      addConn (ReadOnly c)
+let createConn connection command =
+  let conn =
+    match command with
+      | Command.Stream ->
+        let conn = Stream connection
+
+        Readable.onEnd (fun () -> removeConn conn) connection
+          |> ignore
+
+        conn
+      | _ ->
+        (ReadOnly connection)
+
+  addConn conn
+
+  connection.once("error", fun (e : exn) ->
+    removeConn conn
+    eprintfn "Unexpected socket error: %s " e.Message
+    eprintfn "trace: %s " e.StackTrace
+  )
 
 let private removeDestroyed = function
   | ReadOnly _ -> true

@@ -45,7 +45,7 @@ type private Create =
 
 module private Create =
     let private levelOption = sprintf "%s --level=%s"
-
+    
     let level (lvl : Level) (x : string) =
         match lvl with
         | Level.Linear -> levelOption x "linear"
@@ -67,7 +67,7 @@ module private Create =
         | Level.Mp -> levelOption x "mp"
         | Level.Faulty -> levelOption x "faulty"
         | Level.Container -> levelOption x "container"
-
+    
     let raidDevices (numDevices : int) (x : string) =
         sprintf "%s --raid-devices=%d" x numDevices
 

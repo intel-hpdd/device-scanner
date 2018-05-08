@@ -15,3 +15,9 @@ let mkfs (fstype : string) (disk : string) =
 
 let e2Label (disk : string) (label : string) =
     cmd (sprintf "e2label %s %s" disk label)
+
+let wipeFilesystems (blockDevices : string List) =
+    let folder state curDevice =
+        let fn = rollback (rbWipefs curDevice)
+        state >> fn
+    List.fold folder id blockDevices

@@ -50,3 +50,30 @@ module LogicalVolume =
         >> lvmStripe pvs stripeUnit
         >> lvmName name
         >> addArg groupName
+
+module LVMCommand =
+    let createPhysicalVolumesAndRollback (blockDevices : string List) =
+        cmd (PhysicalVolume.pvCreate blockDevices)
+        >> Filesystem.wipeFilesystems blockDevices
+        >> rollback (rbCmd (PhysicalVolume.pvRemove blockDevices))
+        >> ignoreCmd
+    
+    let createVolumeGroupAndRollback (groupName : string) 
+        (blockDevices : string List) =
+        cmd (VolumeGroup.vgCreate groupName blockDevices)
+        >> rollback (rbCmd (VolumeGroup.vgRemove groupName))
+        >> ignoreCmd
+    
+    let activateVolumeGroup (groupName : string) =
+        cmd (VolumeGroup.vgChange groupName true)
+        >> rollback (rbCmd (VolumeGroup.vgChange groupName false))
+        >> ignoreCmd
+    
+    let createStripedVolume (size : string) (pvs : int) (stripeUnit : int) 
+        (lvmName : string) (groupName : string) (path : string) =
+        cmd 
+            (LogicalVolume.createStriped size pvs stripeUnit lvmName groupName 
+                 ())
+        >> rollback (rbCmd (LogicalVolume.lvmRemove path))
+        >> rollback (rbCmd (LogicalVolume.lvmChange groupName false))
+        >> ignoreCmd

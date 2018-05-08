@@ -23,12 +23,12 @@ let settle() = cmd "udevadm settle" >> ignoreCmd
 let rbSettle() = rbCmd "udevadm settle"
 let sleep seconds = cmd (sprintf "sleep %d" seconds)
 let scannerInfo =
-    (fun _ ->
-    pipeToShellCmd "echo '\"Stream\"'"
+    (fun _ -> 
+    pipeToShellCmd "echo '\"Stream\"'" 
         "socat - UNIX-CONNECT:/var/run/device-scanner.sock") >>= settle()
 
 let resultOutput : StatefulResult<State, Out, Err> -> string =
-    function
+    function 
     | Ok((Stdout(r), _), _) -> r
     | Error(e) -> failwithf "Command failed: %A" e
 
@@ -52,7 +52,7 @@ let iscsiDiscoverIF3 = ISCSIAdm.iscsiDiscover testInterface3
 let iscsiLoginIF3 = ISCSIAdm.iscsiLogin testInterface3
 let iscsiLogoutIF3 = ISCSIAdm.iscsiLogout testInterface3
 
-testAsync "stream event" <| fun () ->
+testAsync "stream event" <| fun () -> 
     command { return! scannerInfo }
     |> startCommand "Stream Event"
     |> Promise.map serializeDecodedAndMatch
@@ -94,8 +94,8 @@ testAsync "create a partition" <| fun () ->
     }
     |> startCommand "creating a partition"
     |> Promise.map serializeDecodedAndMatch
-testAsync "add multipath device" <| fun () ->
-    command {
+testAsync "add multipath device" <| fun () -> 
+    command { 
         do! cmd (iscsiDiscoverIF1()) >> ignoreCmd
         do! cmd (iscsiLoginIF1())
             >> rollback (rbCmd ("sleep 1"))
@@ -132,46 +132,15 @@ testAsync "add mdraid" <| fun () ->
     |> startCommand "add mdraid"
     |> Promise.map serializeDecodedAndMatch
 testAsync "add logical volume" <| fun () -> 
-    let createPhysicalVolumesAndRollback() =
-        cmd (LVM.PhysicalVolume.pvCreate [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ])
-        >> rollback (rbWipefs "/dev/sdd")
-        >> rollback (rbWipefs "/dev/sde")
-        >> rollback (rbWipefs "/dev/sdf")
-        >> rollback 
-               (rbCmd 
-                    (LVM.PhysicalVolume.pvRemove 
-                         [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]))
-        >> ignoreCmd
-    
-    let createVolumeGroupAndRollback() =
-        cmd 
-            (LVM.VolumeGroup.vgCreate "vg01" 
-                 [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ])
-        >> rollback (rbCmd (LVM.VolumeGroup.vgRemove "vg01"))
-        >> ignoreCmd
-    
-    let activateVolumeGroup() =
-        cmd (LVM.VolumeGroup.vgChange "vg01" true)
-        >> rollback (rbCmd (LVM.VolumeGroup.vgChange "vg01" false))
-        >> ignoreCmd
-    
-    let createStripedVolume() =
-        cmd (LVM.LogicalVolume.createStriped "200m" 4096 3 "lvol01" "vg01" ())
-        >> rollback (rbCmd (LVM.LogicalVolume.lvmRemove "/dev/vg01/lvol01"))
-        >> rollback (rbCmd (LVM.LogicalVolume.lvmChange "vg01" false))
-        >> ignoreCmd
-    
-    let createFs() =
-        cmd "mkfs.ext4 /dev/vg01/lvol01"
-        >> rollback (rbWipefs "/dev/vg01/lvol01")
-        >> ignoreCmd
-    
     command { 
-        do! createPhysicalVolumesAndRollback()
-        do! createVolumeGroupAndRollback()
-        do! activateVolumeGroup()
-        do! createStripedVolume()
-        do! createFs()
+        do! LVM.LVMCommand.createPhysicalVolumesAndRollback 
+                [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]
+        do! LVM.LVMCommand.createVolumeGroupAndRollback "vg01" 
+                [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]
+        do! LVM.LVMCommand.activateVolumeGroup "vg01"
+        do! LVM.LVMCommand.createStripedVolume "200m" 4096 3 "lvol01" "vg01" 
+                "/dev/vg01/lvol01"
+        do! Filesystem.mkfs "ext4" "/dev/vg01/lvol01"
         return! scannerInfo
     }
     |> startCommand "add logical volume"

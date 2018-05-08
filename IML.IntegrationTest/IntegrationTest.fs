@@ -131,3 +131,48 @@ testAsync "add mdraid" <| fun () ->
     }
     |> startCommand "add mdraid"
     |> Promise.map serializeDecodedAndMatch
+testAsync "add logical volume" <| fun () -> 
+    let createPhysicalVolumesAndRollback() =
+        cmd (LVM.PhysicalVolume.pvCreate [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ])
+        >> rollback (rbWipefs "/dev/sdd")
+        >> rollback (rbWipefs "/dev/sde")
+        >> rollback (rbWipefs "/dev/sdf")
+        >> rollback 
+               (rbCmd 
+                    (LVM.PhysicalVolume.pvRemove 
+                         [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]))
+        >> ignoreCmd
+    
+    let createVolumeGroupAndRollback() =
+        cmd 
+            (LVM.VolumeGroup.vgCreate "vg01" 
+                 [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ])
+        >> rollback (rbCmd (LVM.VolumeGroup.vgRemove "vg01"))
+        >> ignoreCmd
+    
+    let activateVolumeGroup() =
+        cmd (LVM.VolumeGroup.vgChange "vg01" true)
+        >> rollback (rbCmd (LVM.VolumeGroup.vgChange "vg01" false))
+        >> ignoreCmd
+    
+    let createStripedVolume() =
+        cmd (LVM.LogicalVolume.createStriped "200m" 4096 3 "lvol01" "vg01" ())
+        >> rollback (rbCmd (LVM.LogicalVolume.lvmRemove "/dev/vg01/lvol01"))
+        >> rollback (rbCmd (LVM.LogicalVolume.lvmChange "vg01" false))
+        >> ignoreCmd
+    
+    let createFs() =
+        cmd "mkfs.ext4 /dev/vg01/lvol01"
+        >> rollback (rbWipefs "/dev/vg01/lvol01")
+        >> ignoreCmd
+    
+    command { 
+        do! createPhysicalVolumesAndRollback()
+        do! createVolumeGroupAndRollback()
+        do! activateVolumeGroup()
+        do! createStripedVolume()
+        do! createFs()
+        return! scannerInfo
+    }
+    |> startCommand "add logical volume"
+    |> Promise.map serializeDecodedAndMatch

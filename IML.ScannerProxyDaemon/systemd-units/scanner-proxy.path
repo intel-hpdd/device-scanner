@@ -1,6 +1,8 @@
 [Unit]
 Description=IML Scanner Proxy Path
 PartOf=device-scanner.socket
+BindsTo=device-scanner.service
+After=device-scanner.service
 
 [Path]
 PathExists=/var/lib/chroma/settings/c2VydmVy

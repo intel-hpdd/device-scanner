@@ -5,7 +5,7 @@ BindsTo=device-scanner.service
 After=device-scanner.service
 
 [Path]
-PathExists=/var/lib/chroma/settings/c2VydmVy
+DirectoryNotEmpty=/etc/iml
 
 [Install]
 WantedBy=device-scanner.socket

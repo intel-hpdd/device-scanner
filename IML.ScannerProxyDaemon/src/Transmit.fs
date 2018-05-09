@@ -12,10 +12,7 @@ open IML.Types.MessageTypes
 open ConfigParser
 
 let private opts = createEmpty<Https.RequestOptions>
-opts.hostname <- Some (getManagerUrl (libPath "settings"))
-
-printfn "parsed hostname: %A" opts.hostname
-
+opts.hostname <- Some managerUrl
 opts.port <- Some 443
 opts.path <- Some "/iml-device-aggregator"
 opts.method <- Some Http.Methods.Post

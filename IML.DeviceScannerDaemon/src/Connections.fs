@@ -29,7 +29,10 @@ let createConn connection command =
       | Command.Stream ->
         let conn = Stream connection
 
-        Readable.onEnd (fun () -> removeConn conn) connection
+        Readable.onEnd (fun () ->
+          connection.``end``()
+          removeConn conn
+        ) connection
           |> ignore
 
         conn

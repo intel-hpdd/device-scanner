@@ -45,7 +45,7 @@ type private Create =
 
 module private Create =
     let private levelOption = sprintf "%s --level=%s"
-
+    
     let level (lvl : Level) (x : string) =
         match lvl with
         | Level.Linear -> levelOption x "linear"
@@ -67,7 +67,7 @@ module private Create =
         | Level.Mp -> levelOption x "mp"
         | Level.Faulty -> levelOption x "faulty"
         | Level.Container -> levelOption x "container"
-
+    
     let raidDevices (numDevices : int) (x : string) =
         sprintf "%s --raid-devices=%d" x numDevices
 
@@ -82,7 +82,7 @@ module private MdRaidOperation =
     let private mdAdm() = "mdadm"
     let private addArg (arg : string) (x : string) = sprintf "%s %s" x arg
     let private yesPipe (x : string) = sprintf "yes | %s" x
-
+    
     let createMdRaid (mdDeviceName : string) (devices : string) =
         mdAdm
         >> (Mode.operation Mode.Create mdDeviceName)
@@ -90,12 +90,12 @@ module private MdRaidOperation =
         >> (Create.raidDevices 2)
         >> (addArg devices)
         >> yesPipe
-
+    
     let cleanPartition (partPath : string) =
         mdAdm
         >> (Mode.operation Mode.Misc "")
         >> (Misc.zeroSuperblock partPath)
-
+    
     let stopMdRaid (mdDeviceName : string) =
         mdAdm
         >> (Mode.operation Mode.Manage mdDeviceName)
@@ -108,8 +108,8 @@ module MdRaidCommand =
                 rollback (rbCmd (MdRaidOperation.cleanPartition curDevice ()))
             state >> fn
         List.fold folder id deviceParts
-
-    let createRaidAndRollback (devices : string) (raidPath : string)
+    
+    let createRaidAndRollback (devices : string) (raidPath : string) 
         (raidDeviceParts : string List) =
         cmd (MdRaidOperation.createMdRaid raidPath devices ())
         >> cleanPartitions raidDeviceParts

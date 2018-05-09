@@ -13,15 +13,15 @@ let rbRmPart (device : string) (partId : int) =
 let mkLabel (disk : string) (label : string) =
     cmd (sprintf "parted %s -s mklabel %s" disk label)
 let mkPart (disk : string) (diskType : string) (start : int) (finish : int) =
-    cmd
-        (sprintf "parted -a opt %s -s mkpart %s ext4 %d %d" disk diskType start
+    cmd 
+        (sprintf "parted -a opt %s -s mkpart %s ext4 %d %d" disk diskType start 
              finish)
 
-let setPartitionFlag (disk : string) (partitionId : int)
+let setPartitionFlag (disk : string) (partitionId : int) 
     (partitionFlag : PartitionFlag) =
     let cmdString =
         match partitionFlag with
-        | PartitionFlag.Raid ->
+        | PartitionFlag.Raid -> 
             sprintf "parted %s set %d raid on" disk partitionId
     cmd cmdString >> ignoreCmd
 
@@ -30,7 +30,7 @@ let mkLabelAndRollback (device : string) (partType : string) =
     >> rollback (Filesystem.rbWipefs device)
     >> ignoreCmd
 
-let mkPartAndRollback (device : string) (partType : string) (start : int)
+let mkPartAndRollback (device : string) (partType : string) (start : int) 
     (finish : int) =
     (mkPart device partType start finish)
     >> rollback (rbRmPart device 1)

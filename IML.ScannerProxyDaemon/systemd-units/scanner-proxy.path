@@ -3,7 +3,7 @@ Description=IML Scanner Proxy Path
 PartOf=device-scanner.socket
 
 [Path]
-DirectoryNotEmpty=/var/lib/chroma/settings
+PathExists=/var/lib/chroma/settings/c2VydmVy
 
 [Install]
 WantedBy=device-scanner.socket

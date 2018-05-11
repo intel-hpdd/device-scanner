@@ -131,3 +131,17 @@ testAsync "add mdraid" <| fun () ->
     }
     |> startCommand "add mdraid"
     |> Promise.map serializeDecodedAndMatch
+testAsync "add logical volume" <| fun () -> 
+    command { 
+        do! LVM.LVMCommand.createPhysicalVolumesAndRollback 
+                [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]
+        do! LVM.LVMCommand.createVolumeGroupAndRollback "vg01" 
+                [ "/dev/sdd"; "/dev/sde"; "/dev/sdf" ]
+        do! LVM.LVMCommand.activateVolumeGroup "vg01"
+        do! LVM.LVMCommand.createStripedVolume "200m" 4096 3 "lvol01" "vg01" 
+                "/dev/vg01/lvol01"
+        do! Filesystem.mkfs "ext4" "/dev/vg01/lvol01"
+        return! scannerInfo
+    }
+    |> startCommand "add logical volume"
+    |> Promise.map serializeDecodedAndMatch

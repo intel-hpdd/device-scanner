@@ -18,6 +18,7 @@
     <Compile Include="UdevSerializer.fs" />
     <Compile Include="ISCSIAdm.fs" />
     <Compile Include="MdRaid.fs" />
+    <Compile Include="LVM.fs" />
     <Compile Include="IntegrationTest.fs" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

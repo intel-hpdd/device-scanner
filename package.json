@@ -2,7 +2,7 @@
   "name": "@iml/device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
@@ -61,7 +61,7 @@
     "prettier": "^1.12.1",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.58.2",
+    "rollup": "^0.59.0",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

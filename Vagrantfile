@@ -93,7 +93,7 @@ Vagrant.configure("2") do |config|
     cd /builddir
     npm run mock
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
-    RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-2.el7.centos.x86_64.rpm
+    RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-1.el7.centos.x86_64.rpm
     docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
     docker rm -f mock
     systemctl stop docker

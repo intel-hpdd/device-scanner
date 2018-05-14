@@ -9,7 +9,7 @@ After=scanner-proxy.path
 [Service]
 Restart=always
 EnvironmentFile=/etc/iml/manager-url.conf
-Environment=NODE_ENV=production
+Environment=IML_CERT_PATH=/etc/iml/self.crt IML_PRIVATE_KEY=/etc/iml/private.pem NODE_ENV=production
 ExecStart=/usr/bin/node /usr/lib64/iml-scanner-proxy-daemon/scanner-proxy-daemon
 StandardOutput=journal
 StandardError=journal

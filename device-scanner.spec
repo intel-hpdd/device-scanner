@@ -175,9 +175,9 @@ if modprobe zfs; then
 fi
 
 %post
-%systemd_post %{base_name}.socket
-%systemd_post %{mount_name}.service
-%systemd_post swap-emitter.timer
+systemctl preset %{base_name}.socket
+systemctl preset %{mount_name}.service
+systemctl preset swap-emitter.timer
 
 if [ $1 -eq 1 ]; then
   systemctl start %{base_name}.socket
@@ -187,14 +187,14 @@ if [ $1 -eq 1 ]; then
 fi
 
 %post proxy
-%systemd_post %{proxy_name}.path
+systemctl preset %{proxy_name}.path
 
 if [ $1 -eq 1 ]; then
   systemctl start %{proxy_name}.path
 fi
 
 %post aggregator
-%systemd_post %{aggregator_name}.socket
+systemctl preset %{aggregator_name}.socket
 
 if [ $1 -eq 1 ]; then
   systemctl start %{aggregator_name}.socket

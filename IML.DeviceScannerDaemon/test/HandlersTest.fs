@@ -12,7 +12,9 @@ open IML.Types.CommandTypes
 open IML.Types.ScannerStateTypes
 
 test "stream returns the current state" <| fun () ->
-  Command.Stream
+    Command.Stream
     |> handler
     |> Result.unwrap
-    |> (==) { blockDevices = Map.empty; zed = Map.empty; localMounts = Set.empty; }
+    |> (==) { blockDevices = Map.empty
+              zed = Map.empty
+              localMounts = Set.empty }

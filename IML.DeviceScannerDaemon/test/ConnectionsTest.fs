@@ -11,59 +11,35 @@ open IML.Types.ScannerStateTypes
 open Matchers
 
 test "adding a connection" <| fun () ->
-  let c = Connections.Stream (net.Socket.Create())
-
-  Connections.addConn c
-
-  Connections.conns == [c]
-
-  Connections.removeConn c
-
+    let c = Connections.Stream(net.Socket.Create())
+    Connections.addConn c
+    Connections.conns == [ c ]
+    Connections.removeConn c
 test "removing a connection" <| fun () ->
-  let c = Connections.Stream (net.Socket.Create())
-
-  Connections.addConn c
-
-  Connections.removeConn c
-
-  Connections.conns == []
-
-
-testDone "writing a connection" <| fun (d) ->
-  expect.assertions 2
-
-  let server =
-    net.createServer(fun c ->
-      Connections.createConn c Stream
-        |> ignore
-
-      let d = {
-        blockDevices = Map.empty;
-        zed = Map.empty;
-        localMounts = Set.empty;
-      }
-
-      Connections.writeConns d
-    )
-
-  server.listen(fun () ->
-    let address = (server.address() :?> string)
-
-    let sock = net.createConnection address
-
-    sock.once("data", fun (x) ->
-      toMatchSnapshot x
-
-      sock.``end``()
-
-      server.close(fun _ ->
-        Connections.conns == []
-
-        d.``done``()
-      )
-        |> ignore
-    )
-      |> ignore
-
-  )
+    let c = Connections.Stream(net.Socket.Create())
+    Connections.addConn c
+    Connections.removeConn c
+    Connections.conns == []
+testDone "writing a connection" <| fun d ->
+    expect.assertions 2
+    let server =
+        net.createServer (fun c ->
+            Connections.createConn c Stream |> ignore
+            let d =
+                { blockDevices = Map.empty
+                  zed = Map.empty
+                  localMounts = Set.empty }
+            Connections.writeConns d)
+    server.listen (fun () ->
+        let address = (server.address() :?> string)
+        let sock = net.createConnection address
+        sock.once ("data",
+                   fun x ->
+                       toMatchSnapshot x
+                       sock.``end``()
+                       server.close (fun _ ->
+                           Connections.conns == []
+                           d.``done``())
+                       |> ignore)
+        |> ignore)
     |> ignore

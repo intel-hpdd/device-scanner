@@ -14,47 +14,37 @@ open IML.Types.MountTypes
 open IML.DeviceScannerDaemon.Mount
 
 let private mountParamsShort =
-  Mount.MountPoint "/",
-  Mount.BdevPath "/foo/bar",
-  Mount.FsType "ext4",
-  Mount.MountOpts "rw,rela"
+    Mount.MountPoint "/", Mount.BdevPath "/foo/bar", Mount.FsType "ext4",
+    Mount.MountOpts "rw,rela"
 
 let private mountParamsReplace =
-  let (target, source, fstype, opts) = mountParamsShort
-  target, source, fstype, Mount.MountOpts "ro", opts
+    let (target, source, fstype, opts) = mountParamsShort
+    target, source, fstype, Mount.MountOpts "ro", opts
 
 let private mountParamsMove =
-  let (target, source, fstype, opts) = mountParamsShort
-  Mount.MountPoint "/new", source, fstype, opts, target
+    let (target, source, fstype, opts) = mountParamsShort
+    Mount.MountPoint "/new", source, fstype, opts, target
 
-let private snap (x:Result<LocalMounts, exn>) =
-  x
+let private snap (x : Result<LocalMounts, exn>) =
+    x
     |> Result.unwrap
     |> LocalMounts.encoder
     |> Encode.encode 2
     |> toMatchSnapshot
 
-let singleMount =
-  (MountCommand.AddMount mountParamsShort)
-    |> update Set.empty
+let singleMount = (MountCommand.AddMount mountParamsShort) |> update Set.empty
 
 test "Adding then removing a mount" <| fun () ->
-  expect.assertions 2
-
-  singleMount
-    |> snap
-
-  (MountCommand.RemoveMount mountParamsShort)
+    expect.assertions 2
+    singleMount |> snap
+    (MountCommand.RemoveMount mountParamsShort)
     |> update (singleMount |> Result.unwrap)
     |> snap
-
-
 test "Remounting a mount with different options" <| fun () ->
-  (MountCommand.ReplaceMount mountParamsReplace)
+    (MountCommand.ReplaceMount mountParamsReplace)
     |> update (singleMount |> Result.unwrap)
     |> snap
-
 test "Moving a mount to a different mount-point" <| fun () ->
-  (MountCommand.MoveMount mountParamsMove)
+    (MountCommand.MoveMount mountParamsMove)
     |> update (singleMount |> Result.unwrap)
     |> snap

@@ -6,13 +6,10 @@ module IML.DeviceAggregatorDaemon.Server
 
 open Fable.Core.JsInterop
 open Fable.Import.Node
-
 open Handlers
 
-let private server = http.createServer(serverHandler)
-
+let private server = http.createServer (serverHandler)
 let private fd = createEmpty<Net.Fd>
-fd.fd <- 3
 
-server.listen(fd)
-  |> ignore
+fd.fd <- 3
+server.listen (fd) |> ignore

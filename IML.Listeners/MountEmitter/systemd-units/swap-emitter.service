@@ -2,5 +2,5 @@
 Description=IML Swap Emitter
 
 [Service]
-ExecStart=/bin/bash -c 'exec /usr/bin/findmnt -P -s -t swap | /usr/lib64/iml-mount-emitter/mount-emitter'
+ExecStart=/bin/bash -c 'exec /usr/bin/findmnt -P -s -e -t swap | /usr/lib64/iml-mount-emitter/mount-emitter'
 Type=oneshot

@@ -25,7 +25,7 @@ $set_key_permissions = <<-SHELL
 SHELL
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "manager-for-lustre/centos74-1708-base"
+  config.vm.box = "manager-for-lustre/centos75-1804-device-scanner"
   config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
   config.vm.boot_timeout = 600
   config.ssh.username = 'root'
@@ -83,22 +83,18 @@ Vagrant.configure("2") do |config|
     SHELL
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
-    yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_4.noarch.rpm yum-plugin-copr
-    yum install -y nodejs socat jq docker git device-mapper-multipath iscsi-initiator-utils
-    yum -y copr enable managerforlustre/manager-for-lustre
-    systemctl start docker
-    docker rm mock -f
+    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+    yum -y copr enable managerforlustre/manager-for-lustre-devel
     rm -rf /builddir
     cp -r /vagrant /builddir
     cd /builddir
-    npm run mock
+    cp /dev/null ~/provision-time.txt
+    date >> ~/provision-time.txt
+    ./mock-build.sh
     PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
     RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-1.el7.centos.x86_64.rpm
-    docker cp mock:/var/lib/mock/epel-7-x86_64/result/$RPM_NAME ./
-    docker rm -f mock
-    systemctl stop docker
     yum install -y ./$RPM_NAME
-    systemctl stop docker
+    date >> ~/provision-time.txt
     cp /vagrant/multipath/multipath.conf /etc
     systemctl enable multipathd
     systemctl start multipathd

@@ -37,5 +37,5 @@ set -xe
 cd /builddir/
 rpmlint \$PWD *.spec
 rpmbuild -bs --define epel\ 1 --define package_release\ $RELEASE --define _srcrpmdir\ \$PWD --define _sourcedir\ \$PWD *.spec
-mock iml-device-scanner-*.src.rpm -v --rpmbuild-opts="--define package_release\ $RELEASE" --enable-network
+mock iml-device-scanner-*.src.rpm -v --resultdir="/builddir" --rpmbuild-opts="--define package_release\ $RELEASE" --enable-network
 EOF

@@ -26,6 +26,7 @@ SHELL
 
 Vagrant.configure("2") do |config|
   config.vm.box = "manager-for-lustre/centos75-1804-device-scanner"
+  config.vm.box_version = "0.0.2"
   config.vm.synced_folder ".", "/vagrant", type: "virtualbox"
   config.vm.boot_timeout = 600
   config.ssh.username = 'root'

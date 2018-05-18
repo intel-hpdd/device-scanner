@@ -88,13 +88,8 @@ Vagrant.configure("2") do |config|
     rm -rf /builddir
     cp -r /vagrant /builddir
     cd /builddir
-    cp /dev/null ~/provision-time.txt
-    date >> ~/provision-time.txt
     ./mock-build.sh
-    PACKAGE_VERSION=$(node -p -e "require('./package.json').version")
-    RPM_NAME=iml-device-scanner-$PACKAGE_VERSION-1.el7.centos.x86_64.rpm
-    yum install -y ./$RPM_NAME
-    date >> ~/provision-time.txt
+    yum install -y ./iml-device-scanner-*.x86_64.rpm
     cp /vagrant/multipath/multipath.conf /etc
     systemctl enable multipathd
     systemctl start multipathd

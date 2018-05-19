@@ -5,7 +5,7 @@ BindsTo=device-scanner.service
 After=device-scanner.service
 
 [Path]
-DirectoryNotEmpty=/etc/iml
+PathExists=/etc/iml/manager-url.conf
 
 [Install]
 WantedBy=device-scanner.socket

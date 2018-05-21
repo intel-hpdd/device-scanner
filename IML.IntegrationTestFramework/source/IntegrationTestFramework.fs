@@ -21,6 +21,45 @@ type CommandResult<'a, 'b> = Result<'a * State, 'b * State>
 type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState>
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
+let private deviceAggregatorOpts = createEmpty<Https.RequestOptions>
+
+deviceAggregatorOpts.hostname <- Some Config.managerUrl
+deviceAggregatorOpts.port <- Some 443
+deviceAggregatorOpts.path <- Some "/iml-device-aggregator"
+deviceAggregatorOpts.method <- Some Http.Methods.Get
+deviceAggregatorOpts.rejectUnauthorized <- Some false
+deviceAggregatorOpts.cert <- Some Config.cert
+deviceAggregatorOpts.key <- Some Config.key
+deviceAggregatorOpts.headers <- Some(createObj [ "Content-Type" ==> "application/json" ])
+
+let scanDeviceAggregator ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
+    let getRequest = sprintf "http.get(%s/iml-device-aggregator)" Config.managerUrl
+    Promise.create(fun res rej ->
+      https.request (deviceAggregatorOpts, (fun (resp:Http.IncomingMessage) ->
+        resp
+          |> Stream.reduce ""
+            (fun acc x ->
+              Ok(acc + x.toString ("utf-8"))
+            )
+          |> Stream.iter (fun x ->
+            let stdout = x |> Stdout
+            let stderr = "" |> Stderr
+            let out:Out = (stdout, stderr)
+
+            out |> Ok |> res
+          )
+          |> ignore
+      )) |> Stream.Readable.onError (fun e ->
+        let execError = createEmpty<ChildProcess.ExecError>
+        let err:Err = (execError, Stdout(""), Stderr(e))
+        err |> Error |> res
+      )
+      |> Stream.Writable.``end`` None
+    ) |> Promise.map (function
+       | Ok r -> Ok(r, (logs @ [Ok (getRequest , r)], rollbacks))
+       | Error e -> Error(e, (logs @ [Error (getRequest, e)], rollbacks))
+    )
+
 let shellCommand: string -> string =
   sprintf "ssh -o LogLevel=error 10.0.0.10 '%s'"
 

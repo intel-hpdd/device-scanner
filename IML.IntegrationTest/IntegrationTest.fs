@@ -13,6 +13,7 @@ open IML.StatefulPromise.StatefulPromise
 open IML.IntegrationTestFramework.IntegrationTestFramework
 open Fable.Import.Jest
 open Matchers
+open IML.Types.LegacyTypes
 
 let env = Globals.``process``.env
 let testInterface1 = "10.0.0.20"
@@ -145,3 +146,17 @@ testAsync "add logical volume" <| fun () ->
     }
     |> startCommand "add logical volume"
     |> Promise.map serializeDecodedAndMatch
+testAsync "verify device data from aggregator daemon" <| fun () ->
+    command {
+        return! scanDeviceAggregator
+    }
+    |> startCommand "verify device data from aggregator daemon"
+    |> Promise.map (fun (r, _) ->
+          r
+            |> resultOutput
+            |> Decode.decodeString (Decode.field managerHostname LegacyDevTree.decode)
+            |> Result.unwrap
+            |> LegacyDevTree.encode
+            |> Encode.encode 2
+            |> toMatchSnapshot
+    )

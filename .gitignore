@@ -25,3 +25,4 @@ id_rsa
 id_rsa.pub
 _topdir
 copr-local.mk
+certs/*

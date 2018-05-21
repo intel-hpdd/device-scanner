@@ -133,6 +133,8 @@ __EOF
       disk1 = './tmp/test0.vdi'
       unless File.exist?(disk1)
         v.customize ['createhd', '--filename', disk1, '--size', 2 * 1024]
+        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
+        v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1223NCC281F0']
       end
 
       v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]

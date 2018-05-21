@@ -8,6 +8,7 @@ open Thoth.Json
 open IML.Types.UeventTypes
 open IML.CommonLibrary
 open System.Text.RegularExpressions
+open IML.Types.CommandTypes
 
 let private encodeDict encoder m =
   m
@@ -18,6 +19,7 @@ let private optional' t x = Decode.optional x (Decode.option t) None
 let private optionalString x = optional' Decode.string x
 let private optionalInt x = optional' Decode.int x
 let private optionalBool x = optional' Decode.bool x
+let private stringProp x = Decode.required x Decode.string
 
 
 /// This type serves as a virtual tree (though right now it's assumed to be a graph).
@@ -141,6 +143,20 @@ module Vg =
   let encoder =
     encodeDict encode
 
+  let decode =
+    Decode.decode
+      (fun name uuid size pvs_major_minor ->
+        {
+          name = name
+          uuid = uuid
+          size = size
+          pvs_major_minor = pvs_major_minor
+        } : Vg)
+      |> stringProp "name"
+      |> stringProp "uuid"
+      |> stringProp "size"
+      |> Decode.required "pvs_major_minor" (Decode.array Decode.string)
+
 
 type Lv = {
   name: string;
@@ -167,6 +183,20 @@ module Lv =
   let encoder (x:Map<string, Map<string, Lv>>) =
     encodeDict (encodeDict encode) x
 
+  let decode =
+    Decode.decode
+      (fun name uuid size block_device ->
+      {
+        name = name
+        uuid = uuid
+        size = size
+        block_device = block_device
+      } : Lv)
+    |> stringProp "name"
+    |> stringProp "uuid"
+    |> optionalString "size"
+    |> stringProp "block_device"
+
 type MdRaid = {
   path: Path;
   block_device: string;
@@ -188,6 +218,18 @@ module MdRaid =
 
   let encoder =
     encodeDict encode
+
+  let decode =
+    Decode.decode
+      (fun path block_device drives ->
+      {
+        path = path
+        block_device = block_device
+        drives = drives
+      } : MdRaid)
+    |> Decode.required "path" (Decode.map Path Decode.string)
+    |> Decode.required "block_device" Decode.string
+    |> Decode.required "drives" (Decode.array (Decode.map Path Decode.string))
 
 
 type MpathNode = {
@@ -227,6 +269,26 @@ module MpathNode =
         ("path", Encode.string path);
         ("size", Encode.option Encode.string size);
       ]
+
+  let decode =
+    Decode.decode
+      (fun major_minor parent serial_83 serial_80 path size ->
+        ({
+          major_minor = major_minor
+          parent = parent
+          serial_83 = serial_83
+          serial_80 = serial_80
+          path = path
+          size = size
+        })
+      )
+    |> stringProp "major_minor"
+    |> optional' (Decode.map DevPath Decode.string) "parent"
+    |> optionalString "serial_83"
+    |> optionalString "serial_80"
+    |> Decode.required "path" (Decode.map Path Decode.string)
+    |> optionalString "size"
+
 
 type Mpath = {
   name: string;
@@ -283,6 +345,20 @@ module Mpath =
 
   let encoder =
     encodeDict encode
+
+  let decode: obj -> Result<Mpath, Decode.DecoderError> =
+    Decode.decode
+      (fun name block_device nodes ->
+        ({
+          name = name
+          block_device = block_device
+          nodes = nodes
+        })
+      )
+    |> stringProp "name"
+    |> stringProp "blockDevice"
+    |> Decode.required "nodes" (Decode.array (MpathNode.decode))
+
 
 type LegacyZFSDev = {
   name: string;
@@ -520,6 +596,12 @@ type LegacyDev =
 
 module LegacyDev =
 
+  let decode =
+    Decode.oneOf [
+      (Decode.map LegacyDev.LegacyBlockDev LegacyBlockDev.decode);
+      (Decode.map LegacyDev.LegacyZFSDev LegacyZFSDev.decode)
+    ]
+
   let encode = function
     | LegacyBlockDev x -> LegacyBlockDev.encode x
     | LegacyZFSDev x -> LegacyZFSDev.encode x
@@ -540,6 +622,15 @@ let private localFsEncoder (x:Map<string,(string * string)>) =
 
   encodeDict encode x
 
+let private localFSDecoder =
+  (Decode.map2
+    (fun x y ->
+      (x, y)
+    )
+    (Decode.field "0" Decode.string)
+    (Decode.field "1" Decode.string))
+
+
 type LegacyDevTree = {
   devs: Map<string, LegacyDev>
   lvs: Map<string, Map<string, Lv>>
@@ -552,7 +643,6 @@ type LegacyDevTree = {
 }
 
 module LegacyDevTree =
-
   let encode
     {
       devs = devs;
@@ -578,3 +668,26 @@ module LegacyDevTree =
   let encoder =
     encode
       >> Encode.encode 0
+
+  let decode: obj -> Result<LegacyDevTree, Decode.DecoderError> =
+    Decode.decode
+      (fun devs lvs vgs mds zfspools zfsdatasets local_fs mpath ->
+          ({
+            devs = devs
+            lvs = lvs
+            vgs = vgs
+            mds = mds
+            zfspools = zfspools
+            zfsdatasets = zfsdatasets
+            local_fs = local_fs
+            mpath = mpath
+          })
+        )
+          |> Decode.required "devs" (Decode.dict LegacyDev.decode)
+          |> Decode.required "lvs" (Decode.dict (Decode.dict Lv.decode))
+          |> Decode.required "vgs" (Decode.dict Vg.decode)
+          |> Decode.required "mds" (Decode.dict MdRaid.decode)
+          |> Decode.required "zfspools" (Decode.dict LegacyZFSDev.decode)
+          |> Decode.required "zfsdatasets" (Decode.dict LegacyZFSDev.decode)
+          |> Decode.required "local_fs" (Decode.dict localFSDecoder)
+          |> Decode.required "mpath" (Decode.dict Mpath.decode)

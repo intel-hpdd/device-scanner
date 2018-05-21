@@ -90,7 +90,7 @@ Vagrant.configure("2") do |config|
     cp -r /vagrant /builddir
     cd /builddir
     ./mock-build.sh
-    yum install -y ./iml-device-scanner-*.x86_64.rpm
+    find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
     cp /vagrant/multipath/multipath.conf /etc
     systemctl enable multipathd
     systemctl start multipathd

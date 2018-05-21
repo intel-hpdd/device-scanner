@@ -85,7 +85,9 @@ Vagrant.configure("2") do |config|
 
     device_scanner.vm.provision "shell", inline: <<-SHELL
     yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-    yum -y copr enable managerforlustre/manager-for-lustre-devel
+    #yum -y copr enable managerforlustre/manager-for-lustre-devel
+    cd /etc/yum.repos.d
+    wget https://copr.fedorainfracloud.org/coprs/managerforlustre/manager-for-lustre-devel/repo/epel-7/managerforlustre-manager-for-lustre-devel-epel-7.repo
     rm -rf /builddir
     cp -r /vagrant /builddir
     cd /builddir

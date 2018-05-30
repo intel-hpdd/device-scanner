@@ -352,6 +352,7 @@ type LegacyBlockDev = {
   device_path: DevPath;
   partition_number: int option;
   is_ro: bool option;
+  is_zfs_reserved: bool;
   parent: string option;
   dm_multipath: bool option;
   dm_lv: string option;
@@ -382,6 +383,7 @@ module LegacyBlockDev =
       device_path = x.devpath;
       partition_number = x.partEntryNumber;
       is_ro = x.readOnly;
+      is_zfs_reserved = x.zfsReserved;
       parent = parentByMajorMinor b x.parent;
       dm_multipath = x.dmMultipathDevpath;
       dm_lv = x.dmLvName;
@@ -408,6 +410,7 @@ module LegacyBlockDev =
       device_path = device_path;
       partition_number = partition_number;
       is_ro = is_ro;
+      is_zfs_reserved = is_zfs_reserved;
       parent = parent;
       dm_multipath = dm_multipath;
       dm_lv = dm_lv;
@@ -432,6 +435,7 @@ module LegacyBlockDev =
         ("device_path", UEvent.devPathValue device_path);
         ("partition_number", Encode.option Encode.int partition_number);
         ("is_ro", Encode.option Encode.bool is_ro);
+        ("is_zfs_reserved", Encode.bool is_zfs_reserved);
         ("parent", Encode.option Encode.string parent);
         ("dm_multipath", Encode.option Encode.bool dm_multipath);
         ("dm_lv", Encode.option Encode.string dm_lv);
@@ -452,9 +456,9 @@ module LegacyBlockDev =
       (fun major_minor path paths serial_80 serial_83
            size filesystem_type filesystem_usage
            device_type device_path partition_number
-           is_ro parent dm_multipath dm_lv dm_vg lv_uuid
-           vg_uuid dm_slave_mms dm_vg_size md_uuid
-           md_device_paths ->
+           is_ro is_zfs_reserved parent dm_multipath
+           dm_lv dm_vg lv_uuid vg_uuid dm_slave_mms
+           dm_vg_size md_uuid md_device_paths ->
         ({
           major_minor = major_minor
           path = path
@@ -468,6 +472,7 @@ module LegacyBlockDev =
           device_path = device_path
           partition_number = partition_number
           is_ro = is_ro
+          is_zfs_reserved = is_zfs_reserved
           parent = parent
           dm_multipath = dm_multipath
           dm_lv = dm_lv
@@ -492,6 +497,7 @@ module LegacyBlockDev =
       |> Decode.required "device_path" (Decode.map DevPath Decode.string)
       |> optionalInt "partition_number"
       |> optionalBool "is_ro"
+      |> Decode.required "is_zfs_reserved" Decode.bool
       |> Decode.required "parent" (Decode.option Decode.string)
       |> optionalBool "dm_multipath"
       |> optionalString "dm_lv"

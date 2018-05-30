@@ -40,6 +40,7 @@ Object {
   "filesystem_type": "linux_raid_member",
   "filesystem_usage": "raid",
   "is_ro": false,
+  "is_zfs_reserved": false,
   "lv_uuid": null,
   "major_minor": "8:0",
   "md_device_paths": Array [],

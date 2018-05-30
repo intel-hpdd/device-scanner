@@ -39,6 +39,7 @@ Object {
   "size": "21458059264",
   "vendor": null,
   "vgUuid": null,
+  "zfsReserved": false,
 }
 `;
 
@@ -68,6 +69,7 @@ exports[`decode / encode UEvents  MdRaid 2`] = `
     \\"scsi83\\": null,
     \\"isReadOnly\\": false,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,
@@ -122,6 +124,7 @@ Object {
   "size": "41873833984",
   "vendor": null,
   "vgUuid": "pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8",
+  "zfsReserved": false,
 }
 `;
 
@@ -151,6 +154,7 @@ exports[`decode / encode UEvents  add 2`] = `
     \\"scsi83\\": \\"83\\",
     \\"isReadOnly\\": true,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,
@@ -205,6 +209,7 @@ Object {
   "size": "41873833984",
   "vendor": null,
   "vgUuid": "KHoa9g8GBwQJMHjQtL77pGj6b9R1YWrl",
+  "zfsReserved": false,
 }
 `;
 
@@ -234,6 +239,7 @@ exports[`decode / encode UEvents  add DM 2`] = `
     \\"scsi83\\": \\"83\\",
     \\"isReadOnly\\": true,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [
       \\"8:16\\",
@@ -288,6 +294,7 @@ Object {
   "size": null,
   "vendor": null,
   "vgUuid": null,
+  "zfsReserved": false,
 }
 `;
 
@@ -317,6 +324,7 @@ exports[`decode / encode UEvents  remove 2`] = `
     \\"scsi83\\": null,
     \\"isReadOnly\\": null,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,
@@ -358,6 +366,7 @@ exports[`decode encoded decode / encode UEvents  MdRaid 2 1`] = `
     \\"scsi83\\": null,
     \\"isReadOnly\\": false,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,
@@ -402,6 +411,7 @@ exports[`decode encoded decode / encode UEvents  add 2 1`] = `
     \\"scsi83\\": \\"83\\",
     \\"isReadOnly\\": true,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,
@@ -443,6 +453,7 @@ exports[`decode encoded decode / encode UEvents  add DM 2 1`] = `
     \\"scsi83\\": \\"83\\",
     \\"isReadOnly\\": true,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [
       \\"8:16\\",
@@ -487,6 +498,7 @@ exports[`decode encoded decode / encode UEvents  remove 2 1`] = `
     \\"scsi83\\": null,
     \\"isReadOnly\\": null,
     \\"isBiosBoot\\": false,
+    \\"isZfsReserved\\": false,
     \\"isMpath\\": false,
     \\"dmSlaveMms\\": [],
     \\"dmVgSize\\": null,

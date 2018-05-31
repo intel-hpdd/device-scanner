@@ -210,6 +210,24 @@ module MpathNode =
       size = x.size
     }
 
+  let encode
+    ({
+      major_minor = majorMinor;
+      parent = parent;
+      serial_83 = serial83;
+      serial_80 = serial80;
+      path = Path(path);
+      size = size;
+    }: MpathNode) =
+      Encode.object [
+        ("major_minor", Encode.string majorMinor);
+        ("parent", Encode.option UEvent.devPathValue parent);
+        ("serial_83", Encode.option Encode.string serial83);
+        ("serial_80", Encode.option Encode.string serial80);
+        ("path", Encode.string path);
+        ("size", Encode.option Encode.string size);
+      ]
+
 type Mpath = {
   name: string;
   block_device: string;
@@ -251,6 +269,20 @@ module Mpath =
 
       ) ndt mpaths
 
+  let encode
+    {
+      name = name;
+      block_device = blockDevice;
+      nodes = nodes
+    } =
+      Encode.object [
+        ("name", Encode.string name);
+        ("block_device", Encode.string blockDevice);
+        ("nodes", Encode.array (Array.map MpathNode.encode nodes));
+      ]
+
+  let encoder =
+    encodeDict encode
 
 type LegacyZFSDev = {
   name: string;
@@ -524,6 +556,7 @@ module LegacyDevTree =
       zfspools = zfspools;
       zfsdatasets = zfsdatasets;
       local_fs = localFs;
+      mpath = mpath;
     } =
       Encode.object [
         ("devs", LegacyDev.encoder devs)
@@ -533,6 +566,7 @@ module LegacyDevTree =
         ("zfspools", LegacyZFSDev.encoder zfspools)
         ("zfsdatasets", LegacyZFSDev.encoder zfsdatasets)
         ("local_fs", localFsEncoder localFs)
+        ("mpath", Mpath.encoder mpath)
       ]
 
   let encoder =

@@ -32,4 +32,3 @@ exports[`Server should receive empty tree in get response after post with update
 exports[`Server should receive empty tree in get response after post with update but no header entry 1`] = `"{}"`;
 
 exports[`Server should receive empty tree in get response without prior update 1`] = `"{}"`;
-

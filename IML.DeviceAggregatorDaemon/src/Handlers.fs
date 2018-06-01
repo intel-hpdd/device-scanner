@@ -108,9 +108,9 @@ let serverHandler (request : Http.IncomingMessage)
     match request.method with
     | Some "GET" ->
         devTree
-        |> Map.map (fun k v -> parseSysBlock k v |> LegacyDevTree.encoder)
-        |> toJson
-        |> buffer.Buffer.from
+        |> Map.map (fun k v -> parseSysBlock k v |> LegacyDevTree.encode)
+        |> Encode.dict
+        |> Encode.encode 0
         |> response.``end``
     | Some "POST" ->
         request

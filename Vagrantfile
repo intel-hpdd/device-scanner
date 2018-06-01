@@ -206,6 +206,7 @@ rm -rf /builddir
 cp -r /vagrant /builddir
 cd /builddir
 npm i --ignore-scripts
+cert-sync /etc/pki/tls/certs/ca-bundle.crt
 scl enable rh-dotnet20 "npm run restore"
 SHELL
 

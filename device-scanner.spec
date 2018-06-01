@@ -58,7 +58,7 @@ scanner instances over HTTPS.
 %setup
 
 %build
-mozroots --import --sync
+cert-sync /etc/pki/tls/certs/ca-bundle.crt
 scl enable rh-dotnet20 - << EOF
 set -e
 export DOTNET_CLI_TELEMETRY_OPTOUT=1

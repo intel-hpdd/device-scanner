@@ -12,7 +12,6 @@ bin
 tmp
 packages
 out
-.paket/paket.exe
 paket-files
 NuGetScratch
 hosts

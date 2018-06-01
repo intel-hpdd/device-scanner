@@ -186,25 +186,42 @@ __EOF
 "
 SHELL
 
-    test.vm.provision "shell", inline: <<-SHELL
-rpm --import "http://keyserver.ubuntu.com/pks/lookup?op=get&search=0x3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF"
-yum-config-manager --add-repo http://download.mono-project.com/repo/centos7/
-yum install -y epel-release
-yum install -y centos-release-dotnet
-yum install -y nodejs mono-devel rh-dotnet20
+    test.vm.provision "deps", type: "shell",
+      inline: <<-SHELL
 yum install -y targetcli
+SHELL
+
+    test.vm.provision "devices", type: "shell",
+      inline: <<-SHELL
 cp /vagrant/multipath/saveconfig.json /etc/target/
 pvcreate /dev/sdb /dev/sdc
 vgcreate iscsivg /dev/sdc; lvcreate -l100%FREE -n iscsilv iscsivg
 systemctl start target.service
 systemctl enable target.service
+SHELL
+
+    test.vm.provision "install", type: "shell",
+      inline: <<-SHELL
 rm -rf /builddir
 cp -r /vagrant /builddir
 cd /builddir
 npm i --ignore-scripts
+cert-sync /etc/pki/tls/certs/ca-bundle.crt
 scl enable rh-dotnet20 "npm run restore"
+SHELL
+
+    test.vm.provision "testing", type: "shell",
+      inline: <<-SHELL
+cd /builddir
 scl enable rh-dotnet20 "dotnet fable npm-run integration-test"
 cp /builddir/results.xml /vagrant
+SHELL
+
+    test.vm.provision "update-snapshot", type: "shell", run: "never",
+      inline: <<-SHELL
+cd /builddir
+scl enable rh-dotnet20 "dotnet fable npm-run integration-test -- -u"
+cp -rf IML.IntegrationTest/__snapshots__ /vagrant/IML.IntegrationTest/__snapshots__
 SHELL
   end
 end

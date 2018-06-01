@@ -1,5 +1,6 @@
 [Unit]
 Description=IML Device Aggregator Socket
+PartOf=iml-manager.target
 
 [Socket]
 ListenStream=/var/run/device-aggregator.sock

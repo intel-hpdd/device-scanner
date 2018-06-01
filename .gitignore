@@ -20,3 +20,4 @@ results.xml
 travis_env
 include/copr-mfl
 jest_0
+.paket/Paket.Restore.targets

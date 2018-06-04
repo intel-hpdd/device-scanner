@@ -11,7 +11,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConfigParser.fs" />
+    <Compile Include="Config.fs" />
     <Compile Include="Transmit.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>

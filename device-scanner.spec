@@ -7,7 +7,7 @@
 %define     mount_prefixed iml-%{mount_name}
 %define     aggregator_prefixed iml-%{aggregator_name}
 Name:       %{base_prefixed}
-Version:    2.1.1
+Version:    2.0.0
 Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT

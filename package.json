@@ -18,7 +18,7 @@
     "pre-commit-test": "dotnet fable npm-test -- --no-cache",
     "integration-test":
       "jest -i --projects IML.IntegrationTestFramework/test --projects IML.IntegrationTest --testResultsProcessor='jest-junit'",
-    "restore": "dotnet restore device-scanner.sln && dotnet restore Root.fsproj",
+    "restore": "dotnet restore Root.fsproj && dotnet restore device-scanner.sln",
     "prebuild": "del-cli ./dist/**",
     "build": "rollup -c rollup-config.js",
     "docs":

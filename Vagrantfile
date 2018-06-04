@@ -25,9 +25,6 @@ $set_key_permissions = <<-SHELL
 SHELL
 
 Vagrant.configure("2") do |config|
-  config.proxy.http     = "http://proxy-chain.intel.com:911"
-  config.proxy.https    = "http://proxy-chain.intel.com:911"
-  config.proxy.no_proxy = "localhost,127.0.0.1"
   config.vm.box = "manager-for-lustre/centos75-1804-device-scanner"
   config.vm.box_version = "0.0.2"
   config.vm.synced_folder ".", "/vagrant", type: "virtualbox"

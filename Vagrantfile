@@ -116,8 +116,9 @@ __EOF
 
     (20..40).step(10).each do |i|
       test.vm.network 'private_network',
-                    ip: "10.0.0.#{i}",
-                    virtualbox__intnet: INT_NET_NAME
+                      ip: "10.0.0.#{i}",
+                      virtualbox__intnet: INT_NET_NAME
+    end
 
     test.vm.provider 'virtualbox' do |v|
       v.memory = 1024

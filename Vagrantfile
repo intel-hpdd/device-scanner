@@ -37,7 +37,7 @@ __EOF
 
   # Create device-scanner node
   SCANNER_NAME = 'device-scanner'.freeze
-  config.vm.define "#{SCANNER_NAME}#{NAME_SUFFIX}", primary: true do |device_scanner|
+  config.vm.define "#{SCANNER_NAME}", primary: true do |device_scanner|
     device_scanner.vm.hostname = SCANNER_NAME
     device_scanner.ssh.username = 'root'
     device_scanner.ssh.password = 'vagrant'
@@ -52,7 +52,6 @@ __EOF
     device_scanner.vm.provider 'virtualbox' do |v|
       v.memory = 2048
       v.cpus = 4
-      v.name = "device-scanner#{NAME_SUFFIX}"
 
       disk1 = './tmp/disk1.vdi'
       unless File.exist?(disk1)
@@ -109,7 +108,7 @@ __EOF
 
   # Create test node
   TEST_NAME = 'test'.freeze
-  config.vm.define "#{TEST_NAME}#{NAME_SUFFIX}" do |test|
+  config.vm.define "#{TEST_NAME}" do |test|
     test.vm.hostname = TEST_NAME
     test.ssh.username = 'root'
     test.ssh.password = 'vagrant'
@@ -123,7 +122,6 @@ __EOF
     test.vm.provider 'virtualbox' do |v|
       v.memory = 1024
       v.cpus = 2
-      v.name = "test#{NAME_SUFFIX}"
 
       disk1 = './tmp/test0.vdi'
       unless File.exist?(disk1)

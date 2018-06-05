@@ -10,6 +10,8 @@ def provision_mdns(config)
     systemctl restart network
     systemctl enable avahi-daemon.socket
     systemctl start avahi-daemon.socket
+    systemctl start avahi-daemon.service
+    systemctl status avahi-daemon.service
   SHELL
 end
 
@@ -160,6 +162,8 @@ __EOF
       systemctl enable target.service
     SHELL
 
+    provision_mdns test
+
     test.vm.provision 'install', type: 'shell', inline: <<-SHELL
       rm -rf /builddir
       cp -r /vagrant /builddir
@@ -168,8 +172,6 @@ __EOF
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
       scl enable rh-dotnet20 "npm run restore"
     SHELL
-
-    provision_mdns test
 
     test.vm.provision 'testing', type: 'shell', inline: <<-SHELL
       cd /builddir

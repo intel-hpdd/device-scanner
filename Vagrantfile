@@ -14,7 +14,7 @@ def provision_mdns(config)
 end
 
 Vagrant.configure('2') do |config|
-  config.vm.box = "manager-for-lustre/centos75-1804-device-scanner"
+  config.vm.box = 'manager-for-lustre/centos75-1804-device-scanner'
   config.vm.box_version = '0.0.3'
 
   INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze

@@ -123,7 +123,7 @@ testAsync "Stateful Promise should stop executing commands and rollback when an 
               failwithf "Command result should have matched the error case."
             | Error (e, _) ->
               let myError = e |> errToString
-              myError == "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"goodbye\\\"'\"} - \"bash: ech: command not found\\n\""
+              myError == "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh device-scanner.local 'ech \\\"goodbye\\\"'\"} - \"bash: ech: command not found\\n\""
 
           promise {
             let! x = execShell "cat /tmp/integration_test.txt"
@@ -370,7 +370,7 @@ testAsync "Stateful promise rollback error should execute if command errors" <| 
           failwithf "Command result should have matched the error case."
         | Error (e, _) ->
           let myError = e |> errToString
-          myError == "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh devicescannernode 'ech \\\"command1\\\"'\"} - \"bash: ech: command not found\\n\""
+          myError == "{\"killed\":false,\"code\":127,\"signal\":null,\"cmd\":\"ssh device-scanner.local 'ech \\\"command1\\\"'\"} - \"bash: ech: command not found\\n\""
 
       promise {
         let! x = execShell "cat /tmp/integration_test.txt"

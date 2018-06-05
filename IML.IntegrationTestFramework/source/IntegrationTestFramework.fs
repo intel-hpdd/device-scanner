@@ -22,7 +22,7 @@ type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
 let shellCommand: string -> string =
-  sprintf "ssh devicescannernode '%s'"
+  sprintf "ssh device-scanner.local '%s'"
 
 let execShell (x:string): ChildProcessPromiseResult =
   ChildProcess.exec (shellCommand x) None

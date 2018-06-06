@@ -1,7 +1,7 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-NAME_SUFFIX = ENV['NAME_SUFFIX'] || ''
+NAME_SUFFIX = (ENV['NAME_SUFFIX'] || '').freeze
 
 def provision_mdns(config)
   config.vm.provision 'mdns', type: 'shell', inline: <<-SHELL
@@ -175,7 +175,7 @@ __EOF
       scl enable rh-dotnet20 "npm run restore"
     SHELL
 
-    test.vm.provision 'testing', type: 'shell', inline: <<-SHELL
+    test.vm.provision 'integration-test', type: 'shell', inline: <<-SHELL
       cd /builddir
       scl enable rh-dotnet20 "dotnet fable npm-run integration-test"
       cp /builddir/results.xml /vagrant

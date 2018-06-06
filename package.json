@@ -61,7 +61,7 @@
     "prettier": "^1.13.3",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.59.4",
+    "rollup": "^0.60.0",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",
     "rollup-plugin-fable": "^1.1.1",
     "rollup-plugin-filesize": "^1.5.0"

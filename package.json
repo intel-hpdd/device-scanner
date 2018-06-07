@@ -64,6 +64,6 @@
     "rollup": "^0.59.4",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",
     "rollup-plugin-fable": "^1.1.1",
-    "rollup-plugin-filesize": "^1.5.0"
+    "rollup-plugin-filesize": "^2.0.0"
   }
 }

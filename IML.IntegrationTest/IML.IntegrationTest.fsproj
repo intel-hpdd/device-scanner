@@ -15,7 +15,9 @@
     <Compile Include="Device.fs" />
     <Compile Include="Filesystem.fs" />
     <Compile Include="Parted.fs" />
+    <Compile Include="SerializerCommon.fs" />
     <Compile Include="UdevSerializer.fs" />
+    <Compile Include="DevTreeSerializer.fs" />
     <Compile Include="ISCSIAdm.fs" />
     <Compile Include="MdRaid.fs" />
     <Compile Include="LVM.fs" />

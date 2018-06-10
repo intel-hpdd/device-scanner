@@ -6,13 +6,7 @@ module IML.IntegrationTest.UdevSerializer
 
 open IML.Types.UeventTypes
 open IML.CommonLibrary
-open System.Text.RegularExpressions
-
-let private k p _ =
-  p
-
-let private replace (regexp:string) (replacement:string) (path:string) =
-  Regex.Replace (path, regexp, replacement)
+open SerializerCommon
 
 let private normalizeDevPath (DevPath(path)) =
   path
@@ -24,23 +18,6 @@ let private normalizeDevPath (DevPath(path)) =
       "/devices/platform/hostXX/sessionXX/targetXX:0:0/XX:0:0:0/$1"
     |> DevPath
 
-let private normalizeByPath (regex:string) (replacement:string) (Path(path)) =
-  Regex.Replace (
-    path,
-    regex,
-    sprintf "$1%s" replacement
-  )
-    |> Path
-
-let private normalizeByUUIDPath (path:Path) =
-  normalizeByPath "(/dev/disk/by-uuid/).+" "uuid-XXXXX" path
-
-let private normalizeByLVMUUID (path:Path) =
-  normalizeByPath "(/dev/disk/by-id/)lvm-pv-uuid-.+" "lvm-pv-uuid-XXXXX" path
-
-let private normalizeByDmUUUID (path:Path) =
-  normalizeByPath "(/dev/disk/by-id/)dm-uuid-LVM-.+" "dm-uuid-LVM-XXXXX" path
-
 let private normalizeDevPaths ((devPath:DevPath), (uevent:UEvent)) =
   let newDevPath = normalizeDevPath devPath
   (newDevPath, {uevent with devpath = newDevPath})
@@ -50,23 +27,6 @@ let private normalizeParents (devPath, (uevent:UEvent)) =
     uevent with
       parent = (Option.map normalizeDevPath uevent.parent)
   })
-
-let private normalizeByPartUUID (path:Path) =
-  normalizeByPath "(/dev/disk/by-partuuid/).+" "part-uuid-XXXXX" path
-
-let private normalizeByIp (Path(path)) =
-  Regex.Replace (
-    path,
-    "/dev/disk/by-path/ip-.+-iscsi-iqn.2018-03.com.test:server-lun-([0-9]+)",
-    "/dev/disk/by-path/ip-172.28.128.X:3260-iscsi-iqn.2018-03.com.test:server-lun-$1"
-  )
-    |> Path
-
-let private normalizeByMdUUID (path:Path) =
-  normalizeByPath "(/dev/disk/by-id/)md-uuid-.+" "md-uuid-aa:bb:cc:dd" path
-
-let private normalizeByMdName (path:Path) =
-  normalizeByPath "(/dev/disk/by-id/)md-name-.+" "md-name-mdname" path
 
 let private normalizePaths ((devPath:DevPath), (uevent:UEvent)) =
   let newPaths =

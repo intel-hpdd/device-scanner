@@ -84,9 +84,6 @@ __EOF
 
     device_scanner.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      # yum -y copr enable managerforlustre/manager-for-lustre-devel
-      cd /etc/yum.repos.d
-      wget https://copr.fedorainfracloud.org/coprs/managerforlustre/manager-for-lustre-devel/repo/epel-7/managerforlustre-manager-for-lustre-devel-epel-7.repo
     SHELL
 
     device_scanner.vm.provision 'build', type: 'shell', inline: <<-SHELL
@@ -98,6 +95,9 @@ __EOF
       cd /builddir
       ./mock-build.sh
       find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
+      find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
+      yum install -y iml-device-scanner-proxy*.x86_64.rpm
+      cp /builddir/iml-device-scanner-aggregator*.x86_64.rpm /vagrant
     SHELL
 
     device_scanner.vm.provision 'mpath', type: 'shell', inline: <<-SHELL
@@ -109,7 +109,69 @@ __EOF
       systemctl enable iscsi
     SHELL
 
+    device_scanner.vm.provision 'certs', type: 'shell', inline: <<-SHELL
+      mkdir -p /var/lib/chroma
+      cd /var/lib/chroma
+      openssl req \
+        -subj '/CN=managernode.com/O=Intel/C=US' \
+        -newkey rsa:2048 -nodes -keyout manager.key \
+        -x509 -days 365 -out manager.crt
+      openssl dhparam -out manager.pem 2048
+      mkdir -p /vagrant/certs
+      cp /var/lib/chroma/manager.crt /vagrant/certs
+      cp /var/lib/chroma/manager.key /vagrant/certs
+      cp /var/lib/chroma/manager.pem /vagrant/certs
+    SHELL
+
+    device_scanner.vm.provision 'manager-conf', type: 'shell', inline: <<-SHELL
+      mkdir -p /etc/iml
+      touch /etc/iml/manager-url.conf
+      echo "IML_MANAGER_URL=https://10.0.0.20:443/iml-device-aggregator" > /etc/iml/manager-url.conf
+      echo "IML_CERT_PATH=/var/lib/chroma/manager.crt" >> /etc/iml/manager-url.conf
+      echo "IML_PRIVATE_KEY=/var/lib/chroma/manager.key" >> /etc/iml/manager-url.conf
+    SHELL
+
     provision_mdns device_scanner
+  end
+
+  # Create the manager node
+  MANAGER_NAME = 'manager'.freeze
+  config.vm.define "#{MANAGER_NAME}#{NAME_SUFFIX}" do |manager|
+    manager.vm.hostname = MANAGER_NAME
+    manager.ssh.username = 'root'
+    manager.ssh.password = 'vagrant'
+    manager.vm.network :forwarded_port,
+                              host: 8080,
+                              guest: 8080,
+                              auto_correct: true
+    manager.vm.network 'private_network',
+                              ip: '10.0.0.20',
+                              virtualbox__intnet: INT_NET_NAME
+
+    manager.vm.provider 'virtualbox' do |v|
+      v.memory = 1024
+      v.cpus = 1
+      v.name = "#{MANAGER_NAME}#{NAME_SUFFIX}"
+    end
+
+    manager.vm.provision 'deps', type: 'shell', inline: <<-SHELL
+      yum install -y /vagrant/iml-device-scanner-aggregator*.x86_64.rpm
+      yum install -y nginx
+    SHELL
+
+    manager.vm.provision 'certs', type: 'shell', inline: <<-SHELL
+      mkdir -p /var/lib/chroma
+      cp /vagrant/certs/manager.crt /var/lib/chroma
+      cp /vagrant/certs/manager.key /var/lib/chroma
+      cp /vagrant/certs/manager.pem /var/lib/chroma
+    SHELL
+
+    manager.vm.provision 'nginx', type: 'shell', inline: <<-SHELL
+      cp /vagrant/nginx/manager-proxy.conf /etc/nginx/conf.d
+      systemctl restart nginx
+    SHELL
+
+    provision_mdns manager
   end
 
   # Create test node
@@ -119,7 +181,7 @@ __EOF
     test.ssh.username = 'root'
     test.ssh.password = 'vagrant'
 
-    (20..40).step(10).each do |i|
+    (30..50).step(10).each do |i|
       test.vm.network 'private_network',
                       ip: "10.0.0.#{i}",
                       virtualbox__intnet: INT_NET_NAME
@@ -157,8 +219,21 @@ __EOF
       end
     end
 
+    test.vm.provision 'configure', type: 'shell', inline: <<-SHELL
+      echo "export IML_MANAGER_URL=https://#{$manager_hostname}:443/iml-device-aggregator" >> ~/.bashrc
+      echo "export IML_CERT_PATH=/var/lib/chroma/manager.crt" >> ~/.bashrc
+      echo "export IML_PRIVATE_KEY=/var/lib/chroma/manager.key" >> ~/.bashrc
+    SHELL
+
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y targetcli
+    SHELL
+
+    test.vm.provision 'certs', type: 'shell', inline: <<-SHELL
+      mkdir -p /var/lib/chroma
+      cp /vagrant/certs/manager.crt /var/lib/chroma
+      cp /vagrant/certs/manager.key /var/lib/chroma
+      cp /vagrant/certs/manager.pem /var/lib/chroma
     SHELL
 
     test.vm.provision 'devices', type: 'shell', inline: <<-SHELL
@@ -186,10 +261,14 @@ __EOF
       cp /builddir/results.xml /vagrant
     SHELL
 
+    test.vm.provision 'sync-tests', type: 'shell', run: 'never', inline: <<-SHELL
+      rsync -avzh /vagrant/IML.IntegrationTest/*.fs /builddir/IML.IntegrationTest
+    SHELL
+
     test.vm.provision 'update-snapshot', type: 'shell', run: 'never', inline: <<-SHELL
       cd /builddir
       dotnet fable npm-run integration-test -- -u
-      cp -rf IML.IntegrationTest/__snapshots__ /vagrant/IML.IntegrationTest/__snapshots__
+      cp -rf IML.IntegrationTest/__snapshots__/* /vagrant/IML.IntegrationTest/__snapshots__
     SHELL
   end
 end

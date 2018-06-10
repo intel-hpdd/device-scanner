@@ -23,7 +23,7 @@ type CommandResponseResult = Result<string * string * string, string * string * 
 
 let private deviceAggregatorOpts = createEmpty<Https.RequestOptions>
 
-deviceAggregatorOpts.hostname <- Some Config.managerUrl
+deviceAggregatorOpts.hostname <- Some "10.0.0.20"
 deviceAggregatorOpts.port <- Some 443
 deviceAggregatorOpts.path <- Some "/iml-device-aggregator"
 deviceAggregatorOpts.method <- Some Http.Methods.Get

@@ -16,9 +16,9 @@ open Matchers
 open IML.Types.LegacyTypes
 
 let env = Globals.``process``.env
-let testInterface1 = "10.0.0.20"
-let testInterface2 = "10.0.0.30"
-let testInterface3 = "10.0.0.40"
+let testInterface1 = "10.0.0.30"
+let testInterface2 = "10.0.0.40"
+let testInterface3 = "10.0.0.50"
 let settle() = cmd "udevadm settle" >> ignoreCmd
 let rbSettle() = rbCmd "udevadm settle"
 let sleep seconds = cmd (sprintf "sleep %d" seconds)
@@ -154,8 +154,9 @@ testAsync "verify device data from aggregator daemon" <| fun () ->
     |> Promise.map (fun (r, _) ->
           r
             |> resultOutput
-            |> Decode.decodeString (Decode.field managerHostname LegacyDevTree.decode)
+            |> Decode.decodeString (Decode.field "10.0.0.20" LegacyDevTree.decode)
             |> Result.unwrap
+            |> DevTreeSerializer.serialize
             |> LegacyDevTree.encode
             |> Encode.encode 2
             |> toMatchSnapshot

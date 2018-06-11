@@ -9,6 +9,7 @@ export DOTNET_CLI_TELEMETRY_OPTOUT=1
 npm i --ignore-scripts
 npm run restore
 dotnet fable npm-build
+npm pack
 rpmlint /builddir/*.spec
 make DRYRUN=false srpm
 

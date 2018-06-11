@@ -17,7 +17,7 @@ end
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'manager-for-lustre/centos75-1804-device-scanner'
-  config.vm.box_version = '0.0.3'
+  config.vm.box_version = '0.0.4'
 
   INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze
 
@@ -92,6 +92,9 @@ __EOF
     device_scanner.vm.provision 'build', type: 'shell', inline: <<-SHELL
       rm -rf /builddir
       cp -r /vagrant /builddir
+      SHELL
+
+    device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
       ./mock-build.sh
       find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
@@ -172,18 +175,18 @@ __EOF
       cd /builddir
       npm i --ignore-scripts
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
-      scl enable rh-dotnet20 "npm run restore"
+      npm run restore
     SHELL
 
     test.vm.provision 'integration-test', type: 'shell', inline: <<-SHELL
       cd /builddir
-      scl enable rh-dotnet20 "dotnet fable npm-run integration-test"
+      dotnet fable npm-run integration-test
       cp /builddir/results.xml /vagrant
     SHELL
 
     test.vm.provision 'update-snapshot', type: 'shell', run: 'never', inline: <<-SHELL
       cd /builddir
-      scl enable rh-dotnet20 "dotnet fable npm-run integration-test -- -u"
+      dotnet fable npm-run integration-test -- -u
       cp -rf IML.IntegrationTest/__snapshots__ /vagrant/IML.IntegrationTest/__snapshots__
     SHELL
   end

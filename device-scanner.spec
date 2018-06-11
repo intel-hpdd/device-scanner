@@ -1,3 +1,5 @@
+%{?!package_release: %global package_release 1}
+
 %define     base_name device-scanner
 %define     proxy_name scanner-proxy
 %define     mount_name mount-emitter
@@ -7,8 +9,8 @@
 %define     mount_prefixed iml-%{mount_name}
 %define     aggregator_prefixed iml-%{aggregator_name}
 Name:       %{base_prefixed}
-Version:    2.0.0
-Release:    1%{?dist}
+Version:    2.2.0
+Release:    %{package_release}%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
@@ -18,12 +20,6 @@ URL:        https://github.com/intel-hpdd/%{base_name}
 Source0:    %{base_prefixed}-%{version}.tgz
 
 ExclusiveArch: %{nodejs_arches}
-
-BuildRequires: nodejs-packaging
-BuildRequires: nodejs
-BuildRequires: npm
-BuildRequires: mono-devel
-BuildRequires: %{?scl_prefix}rh-dotnet20
 
 %{?systemd_requires}
 BuildRequires: systemd
@@ -55,17 +51,10 @@ device-aggregator-daemon aggregates data received from device
 scanner instances over HTTPS.
 
 %prep
-%setup
+%setup -q -n package
 
 %build
-cert-sync /etc/pki/tls/certs/ca-bundle.crt
-scl enable rh-dotnet20 - << EOF
-set -e
-export DOTNET_CLI_TELEMETRY_OPTOUT=1
-npm i --ignore-scripts
-npm run restore
-dotnet fable npm-build
-EOF
+#nothing to do
 
 %install
 mkdir -p %{buildroot}%{_unitdir}
@@ -234,16 +223,16 @@ fi
 %systemd_postun_with_restart %{aggregator_name}.socket
 
 %changelog
-* Mon May 14 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.1-1
+* Mon May 14 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.0.0-1
 - Add mount detection to device-scanner
 - Integrate device-aggregator
 - Move device munging inside aggregator
 
-* Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-2
+* Mon Feb 26 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.0.0-1
 - Make scanner-proxy a sub-package (separate rpm)
 - Handle upgrade scenarios
 
-* Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.1.0-1
+* Thu Feb 15 2018 Tom Nabarro <tom.nabarro@intel.com> - 2.0.0-1
 - Minor change, integrate scanner-proxy project
 
 * Mon Jan 22 2018 Joe Grund <joe.grund@intel.com> - 2.0.0-1

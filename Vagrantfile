@@ -83,6 +83,11 @@ __EOF
     end
 
     device_scanner.vm.provision 'deps', type: 'shell', inline: <<-SHELL
+      yum autoremove -y centos-release-dotnet rh-dotnet20
+      rm -rf /etc/yum.repos.d/CentOS-DotNet.repo
+      yum clean all
+      rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
+      yum install -y dotnet-sdk-2.1
       yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
       # yum -y copr enable managerforlustre/manager-for-lustre-devel
       cd /etc/yum.repos.d
@@ -92,6 +97,9 @@ __EOF
     device_scanner.vm.provision 'build', type: 'shell', inline: <<-SHELL
       rm -rf /builddir
       cp -r /vagrant /builddir
+    SHELL
+
+    device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
       ./mock-build.sh
       find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
@@ -154,6 +162,13 @@ __EOF
 
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y targetcli
+      cd /etc/yum.repos.d
+      wget https://copr.fedorainfracloud.org/coprs/managerforlustre/manager-for-lustre-devel/repo/epel-7/managerforlustre-manager-for-lustre-devel-epel-7.repo
+      yum autoremove -y centos-release-dotnet rh-dotnet20
+      rm -rf /etc/yum.repos.d/CentOS-DotNet.repo
+      yum clean all
+      rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
+      yum install -y dotnet-sdk-2.1
     SHELL
 
     test.vm.provision 'devices', type: 'shell', inline: <<-SHELL
@@ -172,18 +187,18 @@ __EOF
       cd /builddir
       npm i --ignore-scripts
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
-      scl enable rh-dotnet20 "npm run restore"
+      npm run restore
     SHELL
 
     test.vm.provision 'integration-test', type: 'shell', inline: <<-SHELL
       cd /builddir
-      scl enable rh-dotnet20 "dotnet fable npm-run integration-test"
+      dotnet fable npm-run integration-test
       cp /builddir/results.xml /vagrant
     SHELL
 
     test.vm.provision 'update-snapshot', type: 'shell', run: 'never', inline: <<-SHELL
       cd /builddir
-      scl enable rh-dotnet20 "dotnet fable npm-run integration-test -- -u"
+      dotnet fable npm-run integration-test -- -u
       cp -rf IML.IntegrationTest/__snapshots__ /vagrant/IML.IntegrationTest/__snapshots__
     SHELL
   end

@@ -57,14 +57,14 @@
     "fable-utils": "^1.0.6",
     "jest": "^23.1.0",
     "jest-fable-preprocessor": "^1.4.0",
-    "jest-junit": "^4.0.0",
+    "jest-junit": "^5.0.0",
     "pre-commit": "1.2.2",
-    "prettier": "^1.13.3",
+    "prettier": "^1.13.5",
     "remark-cli": "^5.0.0",
     "remark-man": "^5.1.0",
-    "rollup": "^0.59.4",
+    "rollup": "^0.60.2",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",
     "rollup-plugin-fable": "^1.1.1",
-    "rollup-plugin-filesize": "^1.5.0"
+    "rollup-plugin-filesize": "^2.0.0"
   }
 }

@@ -4,12 +4,14 @@
 cd /builddir/
 
 rpm -Uvh https://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm
-yum install -y make dotnet-sdk-2.1 mono-devel nodejs npm
+yum install -y make dotnet-sdk-2.1 mono-devel nodejs npm spectool
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 npm i --ignore-scripts
 npm run restore
 dotnet fable npm-build
 npm pack
+mkdir -p _topdir/SOURCES/
+cp -rf iml-device-scanner-*.tgz ./_topdir/SOURCES
 rpmlint /builddir/*.spec
 make DRYRUN=false srpm
 

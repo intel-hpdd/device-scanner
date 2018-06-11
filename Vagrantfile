@@ -17,7 +17,7 @@ end
 
 Vagrant.configure('2') do |config|
   config.vm.box = 'manager-for-lustre/centos75-1804-device-scanner'
-  config.vm.box_version = '0.0.4'
+  config.vm.box_version = '0.0.5'
 
   INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze
 
@@ -92,7 +92,7 @@ __EOF
     device_scanner.vm.provision 'build', type: 'shell', inline: <<-SHELL
       rm -rf /builddir
       cp -r /vagrant /builddir
-      SHELL
+    SHELL
 
     device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir

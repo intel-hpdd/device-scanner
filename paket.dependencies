@@ -9,4 +9,4 @@ nuget Fable.Import.NodeLibzfs
 nuget Fable.Import.Jest
 nuget Fable.Import.Node.PowerPack
 nuget Fable.PowerPack
-nuget Thoth.Json = 1.0.0
+nuget Thoth.Json

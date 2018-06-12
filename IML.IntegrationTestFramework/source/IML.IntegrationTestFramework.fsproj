@@ -9,7 +9,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../IML.StatefulPromise/source/IML.StatefulPromise.fsproj" />
-    <Compile Include="Config.fs" />
     <Compile Include="IntegrationTestFramework.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

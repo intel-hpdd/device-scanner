@@ -22,18 +22,19 @@ type RollbackStateResult<'a, 'b> = Result<'a * RollbackState, 'b * RollbackState
 type CommandResponseResult = Result<string * string * string, string * string * string>
 
 let private deviceAggregatorOpts = createEmpty<Https.RequestOptions>
+let private managerNode = "10.0.0.20"
 
-deviceAggregatorOpts.hostname <- Some "10.0.0.20"
+deviceAggregatorOpts.hostname <- Some managerNode
 deviceAggregatorOpts.port <- Some 443
 deviceAggregatorOpts.path <- Some "/iml-device-aggregator"
 deviceAggregatorOpts.method <- Some Http.Methods.Get
 deviceAggregatorOpts.rejectUnauthorized <- Some false
-deviceAggregatorOpts.cert <- Some Config.cert
-deviceAggregatorOpts.key <- Some Config.key
+deviceAggregatorOpts.cert <- Some (fs.readFileSync "/etc/iml/manager.crt" :> obj)
+deviceAggregatorOpts.key <- Some (fs.readFileSync "/etc/iml/manager.key" :> obj)
 deviceAggregatorOpts.headers <- Some(createObj [ "Content-Type" ==> "application/json" ])
 
 let scanDeviceAggregator ((logs, rollbacks):State):JS.Promise<CommandResult<Out, Err>> =
-    let getRequest = sprintf "http.get(%s/iml-device-aggregator)" Config.managerUrl
+    let getRequest = sprintf "http.get(%s/iml-device-aggregator)" managerNode
     Promise.create(fun res rej ->
       https.request (deviceAggregatorOpts, (fun (resp:Http.IncomingMessage) ->
         resp

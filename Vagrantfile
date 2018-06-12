@@ -94,8 +94,6 @@ __EOF
     device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
       ./mock-build.sh
-      find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
-      find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
       yum install -y iml-device-scanner-proxy*.x86_64.rpm
       cp /builddir/iml-device-scanner-aggregator*.x86_64.rpm /vagrant
     SHELL
@@ -110,25 +108,25 @@ __EOF
     SHELL
 
     device_scanner.vm.provision 'certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /var/lib/chroma
-      cd /var/lib/chroma
+      mkdir -p /etc/iml
+      cd /etc/iml
       openssl req \
         -subj '/CN=managernode.com/O=Intel/C=US' \
         -newkey rsa:2048 -nodes -keyout manager.key \
         -x509 -days 365 -out manager.crt
       openssl dhparam -out manager.pem 2048
       mkdir -p /vagrant/certs
-      cp /var/lib/chroma/manager.crt /vagrant/certs
-      cp /var/lib/chroma/manager.key /vagrant/certs
-      cp /var/lib/chroma/manager.pem /vagrant/certs
+      cp /etc/iml/manager.crt /vagrant/certs
+      cp /etc/iml/manager.key /vagrant/certs
+      cp /etc/iml/manager.pem /vagrant/certs
     SHELL
 
     device_scanner.vm.provision 'manager-conf', type: 'shell', inline: <<-SHELL
       mkdir -p /etc/iml
       touch /etc/iml/manager-url.conf
       echo "IML_MANAGER_URL=https://10.0.0.20:443/iml-device-aggregator" > /etc/iml/manager-url.conf
-      echo "IML_CERT_PATH=/var/lib/chroma/manager.crt" >> /etc/iml/manager-url.conf
-      echo "IML_PRIVATE_KEY=/var/lib/chroma/manager.key" >> /etc/iml/manager-url.conf
+      echo "IML_CERT_PATH=/etc/iml/manager.crt" >> ~/.bashrc
+      echo "IML_PRIVATE_KEY=/etc/iml/chroma/manager.key" >> ~/.bashrc
     SHELL
 
     provision_mdns device_scanner
@@ -140,16 +138,12 @@ __EOF
     manager.vm.hostname = MANAGER_NAME
     manager.ssh.username = 'root'
     manager.ssh.password = 'vagrant'
-    manager.vm.network :forwarded_port,
-                              host: 8080,
-                              guest: 8080,
-                              auto_correct: true
     manager.vm.network 'private_network',
                               ip: '10.0.0.20',
                               virtualbox__intnet: INT_NET_NAME
 
     manager.vm.provider 'virtualbox' do |v|
-      v.memory = 1024
+      v.memory = 512
       v.cpus = 1
       v.name = "#{MANAGER_NAME}#{NAME_SUFFIX}"
     end
@@ -160,15 +154,15 @@ __EOF
     SHELL
 
     manager.vm.provision 'certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /var/lib/chroma
-      cp /vagrant/certs/manager.crt /var/lib/chroma
-      cp /vagrant/certs/manager.key /var/lib/chroma
-      cp /vagrant/certs/manager.pem /var/lib/chroma
+      mkdir -p /etc/iml
+      cp /vagrant/certs/manager.crt /etc/iml
+      cp /vagrant/certs/manager.key /etc/iml
+      cp /vagrant/certs/manager.pem /etc/iml
     SHELL
 
     manager.vm.provision 'nginx', type: 'shell', inline: <<-SHELL
       cp /vagrant/nginx/manager-proxy.conf /etc/nginx/conf.d
-      systemctl restart nginx
+      systemctl reload nginx
     SHELL
 
     provision_mdns manager
@@ -195,8 +189,6 @@ __EOF
       disk1 = './tmp/test0.vdi'
       unless File.exist?(disk1)
         v.customize ['createhd', '--filename', disk1, '--size', 2 * 1024]
-        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
-        v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1223NCC281F0']
       end
 
       v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
@@ -221,8 +213,8 @@ __EOF
 
     test.vm.provision 'configure', type: 'shell', inline: <<-SHELL
       echo "export IML_MANAGER_URL=https://#{$manager_hostname}:443/iml-device-aggregator" >> ~/.bashrc
-      echo "export IML_CERT_PATH=/var/lib/chroma/manager.crt" >> ~/.bashrc
-      echo "export IML_PRIVATE_KEY=/var/lib/chroma/manager.key" >> ~/.bashrc
+      echo "export IML_CERT_PATH=/etc/iml/manager.crt" >> ~/.bashrc
+      echo "export IML_PRIVATE_KEY=/etc/iml/manager.key" >> ~/.bashrc
     SHELL
 
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
@@ -230,10 +222,10 @@ __EOF
     SHELL
 
     test.vm.provision 'certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /var/lib/chroma
-      cp /vagrant/certs/manager.crt /var/lib/chroma
-      cp /vagrant/certs/manager.key /var/lib/chroma
-      cp /vagrant/certs/manager.pem /var/lib/chroma
+      mkdir -p /etc/iml
+      cp /vagrant/certs/manager.crt /etc/iml
+      cp /vagrant/certs/manager.key /etc/iml
+      cp /vagrant/certs/manager.pem /etc/iml
     SHELL
 
     test.vm.provision 'devices', type: 'shell', inline: <<-SHELL

@@ -15,7 +15,7 @@ open Fable.Import.Jest
 open Matchers
 open IML.Types.LegacyTypes
 
-let env = Globals.``process``.env
+let managerNode = "10.0.0.20"
 let testInterface1 = "10.0.0.30"
 let testInterface2 = "10.0.0.40"
 let testInterface3 = "10.0.0.50"
@@ -154,7 +154,7 @@ testAsync "verify device data from aggregator daemon" <| fun () ->
     |> Promise.map (fun (r, _) ->
           r
             |> resultOutput
-            |> Decode.decodeString (Decode.field "10.0.0.20" LegacyDevTree.decode)
+            |> Decode.decodeString (Decode.field managerNode LegacyDevTree.decode)
             |> Result.unwrap
             |> DevTreeSerializer.serialize
             |> LegacyDevTree.encode

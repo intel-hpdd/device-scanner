@@ -4,13 +4,13 @@
 
 module IML.DeviceAggregatorDaemon.HandlersTest
 
-open Fable.Core.JsInterop
-open Fable.Import
+// open Fable.Core.JsInterop
+// open Fable.Import
 open Fable.Import.Jest
-open Fable.Import.Node
-open Fable.Import.Node.PowerPack.Stream
+// open Fable.Import.Node
+// open Fable.Import.Node.PowerPack.Stream
 open IML.Types.MessageTypes
-open Matchers
+// open Matchers
 open Handlers
 open IML.Types.Fixtures
 open Elmish
@@ -31,13 +31,14 @@ let heartbeatPayload =
     |> Message.encoder
     |> Some
 
-let private hostname = "foo.com"
+// let private hostname = "foo.com"
 
 test "elm"
 <| fun () ->
     Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+    |> Program.withConsoleTrace
     |> Program.run
-    |> Program.runWith
+
 //testList "Heartbeat"
 //    [ let withSetup f () : unit =
 //          jest.useFakeTimers() |> ignore

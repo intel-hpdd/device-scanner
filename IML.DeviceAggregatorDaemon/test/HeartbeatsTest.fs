@@ -4,8 +4,3 @@
 
 module IML.DeviceAggregatorDaemon.HeartbeatsTest
 
-open Fable.Import.Jest
-open Fable.Import.Jest.Matchers
-open Heartbeats
-open Handlers
-

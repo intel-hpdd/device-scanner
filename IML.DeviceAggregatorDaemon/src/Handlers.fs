@@ -4,22 +4,18 @@
 
 module IML.DeviceAggregatorDaemon.Handlers
 
-open Fable.Core.JsInterop
-open Fable.Import.Node
-open Fable.Import.Node.PowerPack
-open IML.CommonLibrary
-open IML.Types.MessageTypes
-open IML.Types.ScannerStateTypes
-open Thoth.Json
-open Query
+// open Fable.Core.JsInterop
+// open Fable.Import.Node
+// open Fable.Import.Node.PowerPack
+// open IML.CommonLibrary
+// open IML.Types.MessageTypes
+// open IML.Types.ScannerStateTypes
+// open Thoth.Json
+// open Query
 open Fable
 open Fable.Import
 
 open Elmish
-open Fable.AST.Babel
-open Elmish
-//open Elmish.React
-//open Fable.Helpers.React
 
 module Heartbeat =
     type Model =
@@ -58,14 +54,31 @@ module Devtree =
         | UpdateTree ((host), (state)) ->
             { model with tree = Map.add host state model.tree }, Cmd.none
 
+let expireHeartbeats model =
+    printf "expiring heartbeats"
+    model, Cmd.none
+
+let heartbeatTimeout = 3000 // 30000
+
 type Model =
     { heartbeats : Heartbeat.Model
       tree : Devtree.Model }
 
 type Msg =
+    | Tick
     | Reset
     | Heartbeats of Heartbeat.Msg
     | Devtree of Devtree.Msg
+
+let timer initial =
+    let sub dispatch =
+        //window.setInterval (dispatch Tick) heartbeatTimeout
+        JS.setInterval1 (dispatch Tick) heartbeatTimeout
+            |> ignore
+    // let sub dispatch =
+        // JS.setTimeout (dispatch Tick) heartbeatTimeout
+            // |> ignore
+    Cmd.ofSub sub
 
 let init() =
     let heartbeats, heartbeatCmd = Heartbeat.init()
@@ -77,6 +90,8 @@ let init() =
 
 let update msg model : Model * Cmd<Msg> =
     match msg with
+    | Tick ->
+        expireHeartbeats model
     | Reset ->
         init()
     | Heartbeats msg' ->
@@ -87,6 +102,7 @@ let update msg model : Model * Cmd<Msg> =
         { model with tree = res }, Cmd.map Devtree cmd
 
 Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+|> Program.withSubscription timer
 |> Program.run
 
 //type Heartbeats = Map<string, JS.SetTimeoutToken>
@@ -115,6 +131,7 @@ Program.mkProgram init update (fun model _ -> printf "%A\n" model)
 //                  |> ignore
 //              //heartbeats <- Map.remove host heartbeats
 //              //(handler, host)
+//let heartbeatTimeout = 30000
 //          let token = JS.setTimeout onTimeout heartbeatTimeout
 //          Map.add host token state
 //    | RemoveHeartbeat host ->

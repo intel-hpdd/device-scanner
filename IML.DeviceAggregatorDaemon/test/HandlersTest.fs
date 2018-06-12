@@ -37,6 +37,7 @@ test "elm"
 <| fun () ->
     Program.mkProgram init update (fun model _ -> printf "%A\n" model)
     |> Program.run
+    |> Program.runWith
 //testList "Heartbeat"
 //    [ let withSetup f () : unit =
 //          jest.useFakeTimers() |> ignore

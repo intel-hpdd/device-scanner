@@ -16,50 +16,75 @@ open Fable
 open Fable.Import
 
 open Elmish
+open Fable.AST.Babel
 open Elmish
 //open Elmish.React
 //open Fable.Helpers.React
 
-//module Heartbeat =
+module Heartbeat =
+    type Model =
+        { heartbeats : Map<string, int> } // JS.SetTimeoutToken> }
+
+    let init() =
+        { heartbeats = Map.empty }, Cmd.none // ofMsg (AddHeartbeat "test")
+
+    type Msg =
+        | AddHeartbeat of string
+     ///   * (AggregatorCommand -> Heartbeats)
+        | RemoveHeartbeat of string
+
+    let update msg model =
+        match msg with
+        | AddHeartbeat x ->
+            { model with heartbeats = Map.add x 1 model.heartbeats }, Cmd.none //ofMsg (RemoveHeartbeat "test")
+        | RemoveHeartbeat x ->
+            { model with heartbeats = Map.remove x model.heartbeats }, Cmd.none //ofMsg (AddHeartbeat "test")
+
+module Devtree =
+    type Model =
+        { tree : Map<string, string> }
+
+    let init() =
+        { tree = Map.empty }, Cmd.none
+
+    type Msg =
+        | GetTree
+        | UpdateTree of string * string
+
+    let update msg model =
+        match msg with
+        | GetTree ->
+            model, Cmd.none
+        | UpdateTree ((host), (state)) ->
+            { model with tree = Map.add host state model.tree }, Cmd.none
+
 type Model =
-    { heartbeats : Map<string, int> } // JS.SetTimeoutToken> }
+    { heartbeats : Heartbeat.Model
+      tree : Devtree.Model }
 
 type Msg =
-    | AddHeartbeat of string
- ///   * (AggregatorCommand -> Heartbeats)
-    | RemoveHeartbeat of string
-    | GetTree of Http.ServerResponse
-    | UpdateTree of string * string
+    | Reset
+    | Heartbeats of Heartbeat.Msg
+    | Devtree of Devtree.Msg
 
 let init() =
-    { heartbeats = Map.empty }, Cmd.ofMsg (AddHeartbeat "test")
+    let heartbeats, heartbeatCmd = Heartbeat.init()
+    let tree, treeCmd = Devtree.init()
+    { heartbeats = heartbeats
+      tree = tree },
+    Cmd.batch [ Cmd.map Heartbeats heartbeatCmd
+                Cmd.map Devtree treeCmd ]
 
-//type Model =
-//    { x : int }
-
-// type Msg =
-    // | Increment
-    // | Decrement
-
-// let init () =
-    // { x = 0 }, Cmd.ofMsg Increment
-
-let update msg model =
+let update msg model : Model * Cmd<Msg> =
     match msg with
-    | AddHeartbeat x -> //when model.x < 3 ->
-        { model with heartbeats = Map.add x 1 model.heartbeats }, Cmd.ofMsg (RemoveHeartbeat "test")
-    | RemoveHeartbeat x -> //when model.x < 3 ->
-        { model with heartbeats = Map.remove x model.heartbeats }, Cmd.ofMsg (AddHeartbeat "test")
-    | _ ->
-        model, Cmd.none
-    // | Increment ->
-        // { model with x = model.x + 1 }, Cmd.ofMsg Decrement
-//
-    // | Decrement when model.x > 0 ->
-        // { model with x = model.x - 1 }, Cmd.ofMsg Decrement
-//
-    // | Decrement ->
-        // { model with x = model.x - 1 }, Cmd.ofMsg Increment
+    | Reset ->
+        init()
+    | Heartbeats msg' ->
+        let res, cmd = Heartbeat.update msg' model.heartbeats
+        { model with heartbeats = res }, Cmd.map Heartbeats cmd
+    | Devtree msg' ->
+        let res, cmd = Devtree.update msg' model.tree
+        { model with tree = res }, Cmd.map Devtree cmd
 
 Program.mkProgram init update (fun model _ -> printf "%A\n" model)
 |> Program.run

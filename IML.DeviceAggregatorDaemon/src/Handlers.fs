@@ -21,8 +21,12 @@ module Heartbeat =
     type Model =
         { heartbeats : Map<string, int> } // JS.SetTimeoutToken> }
 
-    let init() =
-        { heartbeats = Map.empty }, Cmd.none // ofMsg (AddHeartbeat "test")
+    let init hosts =
+        let heartbeats =
+            hosts
+            |> Array.map (fun x -> x, 0)
+        { heartbeats = Map.ofArray heartbeats }, Cmd.none
+        // { heartbeats = Map.empty }, Cmd.none // ofMsg (AddHeartbeat "test")
 
     type Msg =
         | AddHeartbeat of string
@@ -36,12 +40,18 @@ module Heartbeat =
         | RemoveHeartbeat x ->
             { model with heartbeats = Map.remove x model.heartbeats }, Cmd.none //ofMsg (AddHeartbeat "test")
 
+    let expire model =
+        { model with heartbeats = Map.filter (fun k v -> v > 0) model.heartbeats }
+
 module Devtree =
     type Model =
         { tree : Map<string, string> }
 
-    let init() =
-        { tree = Map.empty }, Cmd.none
+    let init hosts =
+        let pairs =
+            hosts
+            |> Array.map (fun x -> x, "")
+        { tree = Map.ofArray pairs }, Cmd.none
 
     type Msg =
         | GetTree
@@ -54,11 +64,8 @@ module Devtree =
         | UpdateTree ((host), (state)) ->
             { model with tree = Map.add host state model.tree }, Cmd.none
 
-let expireHeartbeats model =
-    printf "expiring heartbeats"
-    model, Cmd.none
-
-let heartbeatTimeout = 3000 // 30000
+    let expire model notExpired =
+        { model with tree = Map.filter (fun k v -> Map.containsKey k notExpired) model.tree }
 
 type Model =
     { heartbeats : Heartbeat.Model
@@ -70,16 +77,26 @@ type Msg =
     | Heartbeats of Heartbeat.Msg
     | Devtree of Devtree.Msg
 
+let expireHeartbeats model =
+    printfn "expiring heartbeats"
+    let notExpired =
+        Heartbeat.expire model.heartbeats
+
+    { heartbeats = notExpired
+      tree = Devtree.expire model.tree notExpired.heartbeats },
+      Cmd.none
+
 let timer initial =
     let sub (dispatch:Msg -> unit) =
         // Fable.Import.Browser.window.setInterval ((dispatch Tick), heartbeatTimeout)
-        JS.setInterval1 (fun _ -> dispatch Tick) heartbeatTimeout
+        JS.setInterval (fun _ -> dispatch Tick) 500
+        //JS.setInterval1 (fun _ -> dispatch Tick) 500
             |> ignore
     Cmd.ofSub sub
 
-let init() =
-    let heartbeats, heartbeatCmd = Heartbeat.init()
-    let tree, treeCmd = Devtree.init()
+let init hosts =
+    let heartbeats, heartbeatCmd = Heartbeat.init hosts
+    let tree, treeCmd = Devtree.init hosts
     { heartbeats = heartbeats
       tree = tree },
     Cmd.batch [ Cmd.map Heartbeats heartbeatCmd
@@ -90,7 +107,7 @@ let update msg model : Model * Cmd<Msg> =
     | Tick ->
         expireHeartbeats model
     | Reset ->
-        init()
+        init Array.empty
     | Heartbeats msg' ->
         let res, cmd = Heartbeat.update msg' model.heartbeats
         { model with heartbeats = res }, Cmd.map Heartbeats cmd
@@ -98,9 +115,9 @@ let update msg model : Model * Cmd<Msg> =
         let res, cmd = Devtree.update msg' model.tree
         { model with tree = res }, Cmd.map Devtree cmd
 
-Program.mkProgram init update (fun model _ -> printf "%A\n" model)
-|> Program.withSubscription timer
-|> Program.run
+// Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+// |> Program.withSubscription timer
+// |> Program.run
 
 //type Heartbeats = Map<string, JS.SetTimeoutToken>
 //

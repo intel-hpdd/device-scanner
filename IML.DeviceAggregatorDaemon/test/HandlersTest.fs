@@ -5,12 +5,12 @@
 module IML.DeviceAggregatorDaemon.HandlersTest
 
 // open Fable.Core.JsInterop
-// open Fable.Import
+open Fable.Import
 open Fable.Import.Jest
 // open Fable.Import.Node
 // open Fable.Import.Node.PowerPack.Stream
 open IML.Types.MessageTypes
-// open Matchers
+open Matchers
 open Handlers
 open IML.Types.Fixtures
 open Elmish
@@ -33,11 +33,20 @@ let heartbeatPayload =
 
 // let private hostname = "foo.com"
 
-test "elm"
-<| fun () ->
-    Program.mkProgram init update (fun model _ -> printf "%A\n" model)
-    |> Program.withConsoleTrace
-    |> Program.run
+testList "Elm"
+    [ let withSetup f (d : Jest.Bindings.DoneStatic) : unit =
+          f d
+      yield! testFixtureDone withSetup
+          [ "should purge entries on timeout",
+            fun d ->
+                Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+                |> Program.withSubscription timer
+                |> Program.withConsoleTrace
+                |> Program.runWith [| "foo.bar"; "bar.baz" |]
+                // |> Program.run
+          ]
+    ]
+
 
 //testList "Heartbeat"
 //    [ let withSetup f () : unit =

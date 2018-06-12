@@ -71,13 +71,10 @@ type Msg =
     | Devtree of Devtree.Msg
 
 let timer initial =
-    let sub dispatch =
-        //window.setInterval (dispatch Tick) heartbeatTimeout
-        JS.setInterval1 (dispatch Tick) heartbeatTimeout
+    let sub (dispatch:Msg -> unit) =
+        // Fable.Import.Browser.window.setInterval ((dispatch Tick), heartbeatTimeout)
+        JS.setInterval1 (fun _ -> dispatch Tick) heartbeatTimeout
             |> ignore
-    // let sub dispatch =
-        // JS.setTimeout (dispatch Tick) heartbeatTimeout
-            // |> ignore
     Cmd.ofSub sub
 
 let init() =

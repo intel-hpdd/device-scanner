@@ -94,6 +94,7 @@ __EOF
     device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
       ./mock-build.sh
+      find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
       yum install -y iml-device-scanner-proxy*.x86_64.rpm
       cp /builddir/iml-device-scanner-aggregator*.x86_64.rpm /vagrant
     SHELL
@@ -162,7 +163,7 @@ __EOF
 
     manager.vm.provision 'nginx', type: 'shell', inline: <<-SHELL
       cp /vagrant/nginx/manager-proxy.conf /etc/nginx/conf.d
-      systemctl reload nginx
+      systemctl restart nginx
     SHELL
 
     provision_mdns manager

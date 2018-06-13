@@ -22,11 +22,8 @@ module Heartbeat =
     type Model =
         { heartbeats : Map<string, bool> }
 
-    let init hosts =
-        let heartbeats =
-            hosts
-            |> Array.map (fun x -> x, false)
-        { heartbeats = Map.ofArray heartbeats }, Cmd.none
+    let init () =
+        { heartbeats = Map.empty }, Cmd.none
 
     type Msg =
         | AddHeartbeat of string
@@ -50,11 +47,8 @@ module Devtree =
     type Model =
         { tree : Map<string, State> }
 
-    let init hosts =
-        let pairs =
-            hosts
-            |> Array.map (fun x -> x, Result.unwrap (State.decoder "{blockDevices:{}}"))
-        { tree = Map.ofArray pairs }, Cmd.none
+    let init () =
+        { tree = Map.empty }, Cmd.none
 
     type Msg =
         | GetTree of Http.ServerResponse
@@ -100,9 +94,9 @@ module App =
                 |> ignore
         Cmd.ofSub sub
 
-    let init hosts =
-        let heartbeats, heartbeatCmd = Heartbeat.init hosts
-        let tree, treeCmd = Devtree.init hosts
+    let init () =
+        let heartbeats, heartbeatCmd = Heartbeat.init ()
+        let tree, treeCmd = Devtree.init ()
 
         { heartbeats = heartbeats
           tree = tree },
@@ -175,7 +169,7 @@ module App =
 
         Cmd.ofSub sub
 
-    // Program.mkProgram init update (fun model _ -> printf "%A\n" model)
-    // |> Program.withSubscription timer
-    // |> Program.withSubscription handler
-    // |> Program.runWith [| "foo.bar"; "bar.baz" |]
+    Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+    |> Program.withSubscription timer
+    |> Program.withSubscription handler
+    |> Program.run

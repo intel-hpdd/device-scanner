@@ -43,8 +43,7 @@ testList "Elm"
                 |> Program.withSubscription timer
                 |> Program.withSubscription handler
                 |> Program.withConsoleTrace
-                |> Program.runWith [| "foo.bar"; "bar.baz" |]
-                // |> Program.run
+                |> Program.run
           ]
     ]
 

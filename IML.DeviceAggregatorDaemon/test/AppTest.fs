@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.DeviceAggregatorDaemon.HandlersTest
+module IML.DeviceAggregatorDaemon.AppTest
 
 // open Fable.Core.JsInterop
 open Fable.Import
@@ -13,7 +13,7 @@ open Matchers
 open Elmish
 open IML.Types.MessageTypes
 open IML.Types.Fixtures
-open Handlers.App
+open IML.DeviceAggregatorDaemon.App
 
 let testServerHost = "localhost"
 let testServerPort = 8181
@@ -38,7 +38,7 @@ testList "Elm"
           f d
       yield! testFixtureDone withSetup
           [ "should purge entries on timeout",
-            fun d ->
+            fun _ ->
                 Program.mkProgram init update (fun model _ -> printf "%A\n" model)
                 |> Program.withSubscription timer
                 |> Program.withSubscription handler

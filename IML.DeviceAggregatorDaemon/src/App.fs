@@ -4,7 +4,6 @@
 
 module IML.DeviceAggregatorDaemon.App
 
-open Fable
 open Fable.Core.JsInterop
 open Fable.Import
 open Fable.Import.Node
@@ -26,7 +25,7 @@ type Msg =
     | Devtree of Devtree.Msg
 
 let expire model =
-    printfn "expiring and resetting heartbeats"
+    printf "expiring and resetting heartbeats"
     let notExpired =
         Heartbeats.expireAndReset model.heartbeats
 
@@ -61,14 +60,15 @@ let update msg model : Model * Cmd<Msg> =
         let res, cmd = Devtree.update msg' model.tree
         { model with tree = res }, Cmd.map Devtree cmd
 
-let serverHandler (request : Http.IncomingMessage) (response : Http.ServerResponse) : Msg option =
+let serverHandler
+    (request : Http.IncomingMessage) (response : Http.ServerResponse) dispatch =
     match request.method with
     | Some "GET" ->
-        Msg.Devtree (Devtree.GetTree response)
-        |> Some
+        response
+        |> Devtree.GetTree
+        |> Msg.Devtree
+        |> dispatch
     | Some "POST" ->
-        let mutable command = None
-
         request
         |> Stream.reduce "" (fun acc x -> Ok(acc + x.toString ("utf-8")))
         |> Stream.iter (fun x ->
@@ -78,13 +78,19 @@ let serverHandler (request : Http.IncomingMessage) (response : Http.ServerRespon
              | Some host ->
                  match Message.decoder x with
                  | Ok Message.Heartbeat ->
-                     command <- Msg.Heartbeats (Heartbeats.AddHeartbeat host) |> Some
-                 | Ok(Message.Data y) ->
+                     host
+                     |> Heartbeats.AddHeartbeat
+                     |> Msg.Heartbeats
+                     |> dispatch
+                 | Ok (Message.Data y) ->
                      let state =
                          y
                          |> Decode.decodeString State.decoder
                          |> Result.unwrap
-                     command <- Msg.Devtree (Devtree.UpdateTree (host, state)) |> Some
+                     (host, state)
+                     |> Devtree.UpdateTree
+                     |> Msg.Devtree
+                     |> dispatch
                  | Error x ->
                      eprintfn
                          "Aggregator received message but message decoding failed (%A)"
@@ -95,17 +101,13 @@ let serverHandler (request : Http.IncomingMessage) (response : Http.ServerRespon
         )
         |> ignore
         response.``end``()
-
-        command
     | x ->
         eprintfn "Aggregator handler got a bad match %A" x
-        None
 
 let handler _ =
     let sub (dispatch:Msg -> unit) =
         let handler' (request : Http.IncomingMessage) (response : Http.ServerResponse) =
-            serverHandler request response
-            |> Option.map dispatch
+            serverHandler request response dispatch
             |> ignore
 
         let server = http.createServer handler'
@@ -116,7 +118,8 @@ let handler _ =
 
     Cmd.ofSub sub
 
-Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+Program.mkProgram init update (fun model _ -> printf "%A\n" model.heartbeats)
 |> Program.withSubscription timer
 |> Program.withSubscription handler
+|> Program.withConsoleTrace
 |> Program.run

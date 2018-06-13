@@ -109,3 +109,4 @@ let runQuery (response : ServerResponse) devTree queryType =
         |> response.``end``
     | _ ->
         eprintf "unsupported query type"
+        response.``end`` ()

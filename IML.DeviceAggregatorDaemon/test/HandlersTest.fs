@@ -106,6 +106,10 @@ testList "Server"
                    fun _ _ postThenGet _ ->
                        expect.assertions 1
                        postThenGet updatePayload
+                   "should parse MdRaid correctly",
+                   fun _ _ postThenGet _ ->
+                       expect.assertions 1
+                       postThenGet (updatePayloadWith fixtures.scannerStateMdRaid);
                    "should receive empty tree in get response after post with update but no header entry",
                    fun get post _ _ ->
                        expect.assertions 1

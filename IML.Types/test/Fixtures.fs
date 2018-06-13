@@ -17,6 +17,7 @@ type Fixtures = {
   scannerState3: string;
   scannerStateDatasets: string;
   scannerStateDatasets2: string;
+  scannerStateMdRaid: string;
   legacyZFSPool: string;
   legacyZFSDataset: string;
   legacyBlockDev: string;

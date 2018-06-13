@@ -9,11 +9,11 @@ open Fable.Import
 open Fable.Import.Jest
 // open Fable.Import.Node
 // open Fable.Import.Node.PowerPack.Stream
-open IML.Types.MessageTypes
 open Matchers
-open Handlers
-open IML.Types.Fixtures
 open Elmish
+open IML.Types.MessageTypes
+open IML.Types.Fixtures
+open Handlers.App
 
 let testServerHost = "localhost"
 let testServerPort = 8181
@@ -41,6 +41,7 @@ testList "Elm"
             fun d ->
                 Program.mkProgram init update (fun model _ -> printf "%A\n" model)
                 |> Program.withSubscription timer
+                |> Program.withSubscription handler
                 |> Program.withConsoleTrace
                 |> Program.runWith [| "foo.bar"; "bar.baz" |]
                 // |> Program.run

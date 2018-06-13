@@ -4,29 +4,28 @@
 
 module IML.DeviceAggregatorDaemon.Handlers
 
-//open Fable.Core.JsInterop
-open Fable.Import.Node
-//open Fable.Import.Node.PowerPack
-//open IML.CommonLibrary
-//open IML.Types.MessageTypes
-//open IML.Types.ScannerStateTypes
-//open Thoth.Json
-//open Query
 open Fable
+open Fable.Core.JsInterop
 open Fable.Import
-
+open Fable.Import.Node
+open Fable.Import.Node.PowerPack
+open Thoth.Json
 open Elmish
+open IML.DeviceAggregatorDaemon.Query
+open IML.Types.MessageTypes
+open IML.Types.ScannerStateTypes
+open IML.CommonLibrary
 
 module Heartbeat =
     let heartbeatTimeout = 30000
 
     type Model =
-        { heartbeats : Map<string, int> }
+        { heartbeats : Map<string, bool> }
 
     let init hosts =
         let heartbeats =
             hosts
-            |> Array.map (fun x -> x, 0)
+            |> Array.map (fun x -> x, false)
         { heartbeats = Map.ofArray heartbeats }, Cmd.none
 
     type Msg =
@@ -36,34 +35,35 @@ module Heartbeat =
     let update msg model =
         match msg with
         | AddHeartbeat x ->
-            { model with heartbeats = Map.add x 1 model.heartbeats }, Cmd.none
+            { model with heartbeats = Map.add x true model.heartbeats }, Cmd.none
         | RemoveHeartbeat x ->
             { model with heartbeats = Map.remove x model.heartbeats }, Cmd.none
 
     let expireAndReset model =
         let heartbeats =
             model.heartbeats
-            |> Map.filter (fun _ v -> v > 0)
-            |> Map.map (fun _ _ -> 0)
+            |> Map.filter (fun _ v -> v)
+            |> Map.map (fun _ _ -> false)
         { model with heartbeats = heartbeats }
 
 module Devtree =
     type Model =
-        { tree : Map<string, string> }
+        { tree : Map<string, State> }
 
     let init hosts =
         let pairs =
             hosts
-            |> Array.map (fun x -> x, "")
+            |> Array.map (fun x -> x, Result.unwrap (State.decoder "{blockDevices:{}}"))
         { tree = Map.ofArray pairs }, Cmd.none
 
     type Msg =
-        | GetTree
-        | UpdateTree of string * string
+        | GetTree of Http.ServerResponse
+        | UpdateTree of string * State
 
-    let update msg model =
+    let update msg (model:Model) =
         match msg with
-        | GetTree ->
+        | GetTree response ->
+            runQuery response model.tree Legacy
             model, Cmd.none
         | UpdateTree ((host), (state)) ->
             { model with tree = Map.add host state model.tree }, Cmd.none
@@ -81,7 +81,6 @@ module App =
 
     type Msg =
         | Tick
-        // | Reset
         | Heartbeats of Heartbeat.Msg
         | Devtree of Devtree.Msg
 
@@ -114,8 +113,6 @@ module App =
         match msg with
         | Tick ->
             expire model
-        // | Reset ->
-            // init Array.empty
         | Heartbeats msg' ->
             let res, cmd = Heartbeat.update msg' model.heartbeats
             { model with heartbeats = res }, Cmd.map Heartbeats cmd
@@ -123,57 +120,62 @@ module App =
             let res, cmd = Devtree.update msg' model.tree
             { model with tree = res }, Cmd.map Devtree cmd
 
-    //let rec handleTree
-    //  (state : DevTree) (command : AggregatorCommand) : DevTree =
-    //    match command with
-    //    | GetTree response ->
-    //          runQuery response state Legacy
-    //          state
-    //    | UpdateTree ((host), (data)) ->
-    //          data
-    //          |> Decode.decodeString State.decoder
-    //          |> Result.unwrap
-    //          |> (fun x -> Map.add host x state)
-    //    | _ ->
-    //          state
-    //
-    let serverHandler (request : Http.IncomingMessage) (response : Http.ServerResponse) =
+    let serverHandler (request : Http.IncomingMessage) (response : Http.ServerResponse) : Msg option =
         match request.method with
         | Some "GET" ->
-            Cmd.ofMsg Devtree.GetTree
-            // treeReducer (GetTree response) |> ignore
-        // | Some "POST" ->
-            // request
-            // |> Stream.reduce "" (fun acc x -> Ok(acc + x.toString ("utf-8")))
-            // |> Stream.iter (fun x ->
-                  //  match !!request.headers?("x-ssl-client-name") with
-                  //  | Some "" ->
-                        //  eprintfn "Aggregator received message but hostname was empty"
-                  //  | Some host ->
-                        //  match Message.decoder x with
-                        //  | Ok Message.Heartbeat ->
-                              //  heartbeatReducer (AddHeartbeat (host, heartbeatReducer)) |> ignore
-                        //  | Ok(Message.Data y) ->
-                              //  treeReducer (UpdateTree (host, y)) |> ignore
-                        //  | Error x ->
-                              //  eprintfn
-                                  //  "Aggregator received message but message decoding failed (%A)"
-                                  //  x
-                  //  | None ->
-                        //  eprintfn
-                            // "Aggregator received message but x-ssl-client-name header was missing from request"
-            // )
+            Msg.Devtree (Devtree.GetTree response)
+            |> Some
+        | Some "POST" ->
+            let mutable command = None
+
+            request
+            |> Stream.reduce "" (fun acc x -> Ok(acc + x.toString ("utf-8")))
+            |> Stream.iter (fun x ->
+                 match !!request.headers?("x-ssl-client-name") with
+                 | Some "" ->
+                     eprintfn "Aggregator received message but hostname was empty"
+                 | Some host ->
+                     match Message.decoder x with
+                     | Ok Message.Heartbeat ->
+                         command <- Msg.Heartbeats (Heartbeat.AddHeartbeat host) |> Some
+                     | Ok(Message.Data y) ->
+                         let state =
+                             y
+                             |> Decode.decodeString State.decoder
+                             |> Result.unwrap
+                         command <- Msg.Devtree (Devtree.UpdateTree (host, state)) |> Some
+                     | Error x ->
+                         eprintfn
+                             "Aggregator received message but message decoding failed (%A)"
+                             x
+                 | None ->
+                     eprintfn
+                        "Aggregator received message but x-ssl-client-name header was missing from request"
+            )
             |> ignore
+            response.``end``()
+
+            command
         | x ->
             eprintfn "Aggregator handler got a bad match %A" x
-        response.``end``()
+            None
 
-    // let handler initial =
-        // let sub (dispatch:Msg -> unit) =
-            // serverHandler request response
-        // Cmd.ofSub sub
+    let handler initial =
+        let sub (dispatch:Msg -> unit) =
+            let handler' (request : Http.IncomingMessage) (response : Http.ServerResponse) =
+                serverHandler request response
+                |> Option.map dispatch
+                |> ignore
 
-    Program.mkProgram init update (fun model _ -> printf "%A\n" model)
-    |> Program.withSubscription timer
+            let server = http.createServer handler'
+            let fd = createEmpty<Net.Fd>
+
+            fd.fd <- 3
+            server.listen (fd) |> ignore
+
+        Cmd.ofSub sub
+
+    // Program.mkProgram init update (fun model _ -> printf "%A\n" model)
+    // |> Program.withSubscription timer
     // |> Program.withSubscription handler
-    |> Program.run
+    // |> Program.runWith [| "foo.bar"; "bar.baz" |]

@@ -94,10 +94,9 @@ let rec getDisks (vdev : VDev) =
         |> List.collect getDisks
     match vdev with
     | Disk { Disk = disk } ->
-        if disk.whole_disk = Some true then [ disk.path ]
-        else []
+        [ disk.path ]
     | File _ -> []
-    | RaidZ { RaidZ = { children = xs } } | Mirror { Mirror = { children = xs } } | RaidZ { RaidZ = { children = xs } } | Replacing { Replacing = { children = xs } } ->
+    | RaidZ { RaidZ = { children = xs } } | Mirror { Mirror = { children = xs } } | Replacing { Replacing = { children = xs } } ->
         collectChildDisks xs
     | Root { Root = { children = children; spares = spares; cache = cache } } ->
         [ children; spares; cache ] |> List.collect collectChildDisks

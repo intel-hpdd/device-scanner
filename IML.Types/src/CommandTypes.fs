@@ -89,9 +89,9 @@ module ZedCommand =
         (fun name guid state ->
           ZedCommand.CreateZpool (Zpool.Name name, Zpool.Guid guid, Zpool.State state)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string))
 
   let decodeImportZPool =
     Decode.field "ImportZpool"
@@ -99,9 +99,9 @@ module ZedCommand =
         (fun name guid state ->
           ZedCommand.ImportZpool (Zpool.Name name, Zpool.Guid guid, Zpool.State state)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string))
 
   let decodeExportZPool =
     Decode.field "ExportZpool"
@@ -109,13 +109,13 @@ module ZedCommand =
         (fun guid state ->
           ZedCommand.ExportZpool (Zpool.Guid guid, Zpool.State state)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string))
 
   let decodeDestroyZpool =
     Decode.field "DestroyZpool"
       (Decode.map (Zpool.Guid >> ZedCommand.DestroyZpool)
-          (Decode.field "0" Decode.string))
+          (Decode.index 0 Decode.string))
 
   let decodeCreateZfs =
     Decode.field "CreateZfs"
@@ -123,8 +123,8 @@ module ZedCommand =
         (fun guid name ->
           ZedCommand.CreateZfs (Zpool.Guid guid, Zfs.Name name)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string))
 
   let decodeDestroyZfs =
     Decode.field "DestroyZfs"
@@ -132,8 +132,8 @@ module ZedCommand =
         (fun guid name ->
           ZedCommand.DestroyZfs (Zpool.Guid guid, Zfs.Name name)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string))
 
   let decodeSetZpoolProp =
     Decode.field "SetZpoolProp"
@@ -141,9 +141,9 @@ module ZedCommand =
         (fun guid key value ->
           ZedCommand.SetZpoolProp (Zpool.Guid guid, key, value)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string))
 
   let decodeSetZfsProp =
     Decode.field "SetZfsProp"
@@ -151,15 +151,15 @@ module ZedCommand =
         (fun guid name key value ->
           ZedCommand.SetZfsProp (Zpool.Guid guid, Zfs.Name name, key, value)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string)
-        (Decode.field "3" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string)
+        (Decode.index 3 Decode.string))
 
   let decodeAddVdev =
     Decode.field "AddVdev"
       (Decode.map (Zpool.Guid >> ZedCommand.AddVdev)
-        (Decode.field "0" Decode.string))
+        (Decode.index 0 Decode.string))
 
   let decode =
     Decode.field "ZedCommand"
@@ -322,10 +322,10 @@ module MountCommand =
         (fun target source fstype opts ->
           MountCommand.AddMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string)
-        (Decode.field "3" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string)
+        (Decode.index 3 Decode.string))
 
   let decodeRemoveMount =
     Decode.field "RemoveMount"
@@ -333,10 +333,10 @@ module MountCommand =
         (fun target source fstype opts ->
           MountCommand.RemoveMount (Mount.MountPoint target, Mount.BdevPath source, Mount.FsType fstype, Mount.MountOpts opts)
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string)
-        (Decode.field "3" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string)
+        (Decode.index 3 Decode.string))
 
   let decodeReplaceMount =
     Decode.field "ReplaceMount"
@@ -350,11 +350,11 @@ module MountCommand =
             Mount.MountOpts oldOpts
           )
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string)
-        (Decode.field "3" Decode.string)
-        (Decode.field "4" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string)
+        (Decode.index 3 Decode.string)
+        (Decode.index 4 Decode.string))
 
   let decodeMoveMount =
     Decode.field "MoveMount"
@@ -368,11 +368,11 @@ module MountCommand =
             Mount.MountPoint oldTarget
           )
         )
-        (Decode.field "0" Decode.string)
-        (Decode.field "1" Decode.string)
-        (Decode.field "2" Decode.string)
-        (Decode.field "3" Decode.string)
-        (Decode.field "4" Decode.string))
+        (Decode.index 0 Decode.string)
+        (Decode.index 1 Decode.string)
+        (Decode.index 2 Decode.string)
+        (Decode.index 3 Decode.string)
+        (Decode.index 4 Decode.string))
 
   let decode =
     Decode.field

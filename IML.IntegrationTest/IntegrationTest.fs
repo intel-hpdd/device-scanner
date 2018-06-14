@@ -5,7 +5,6 @@ module IML.IntegrationTest.IntegrationTest
 
 open Fable.PowerPack
 open Thoth.Json
-open Fable.Core.JsInterop
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack
 open IML.CommonLibrary
@@ -16,9 +15,9 @@ open Fable.Import.Jest
 open Matchers
 
 let env = Globals.``process``.env
-let testInterface1 = !!env?TEST_INTERFACE_1
-let testInterface2 = !!env?TEST_INTERFACE_2
-let testInterface3 = !!env?TEST_INTERFACE_3
+let testInterface1 = "10.0.0.20"
+let testInterface2 = "10.0.0.30"
+let testInterface3 = "10.0.0.40"
 let settle() = cmd "udevadm settle" >> ignoreCmd
 let rbSettle() = rbCmd "udevadm settle"
 let sleep seconds = cmd (sprintf "sleep %d" seconds)

@@ -53,12 +53,12 @@ let parseMdraidDevs xs ndt =
                  drives =
                      x.md_device_paths
                      |> Array.map Path
-                     |> Array.map
-                            (NormalizedDeviceTable.normalizedDevicePath ndt)
-                     |> Array.map
-                            (fun x ->
-                            (List.find (fun (y : LegacyBlockDev) -> x = y.path)
-                                 xs).path) }
+                     |> Array.map (NormalizedDeviceTable.normalizedDevicePath ndt)
+                     |> Array.map (fun x ->
+                            (List.find (fun y -> Array.contains x y.paths)
+                                 xs).major_minor
+                      )
+                }
            Map.add (Option.get x.md_uuid) md m) Map.empty
 
 let bdevOrLustreZfs (mount : IML.Types.MountTypes.LocalMount)

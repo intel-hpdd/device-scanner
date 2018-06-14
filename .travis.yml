@@ -26,7 +26,7 @@ jobs:
       install: true
       script:
         - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i --ignore-scripts && npm run restore && dotnet fable npm-coverage'
+        - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i --ignore-scripts && npm run restore && dotnet fable npm-coverage -- --ci'
         - codecov
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+$

@@ -21,3 +21,7 @@ travis_env
 include/copr-mfl
 jest_0
 .paket/Paket.Restore.targets
+id_rsa
+id_rsa.pub
+_topdir
+copr-local.mk

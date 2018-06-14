@@ -8,12 +8,6 @@ open IML.Types.CommandTypes
 open IML.Types.ScannerStateTypes
 open Zed
 
-let private scan init update =
-    let mutable state = init()
-    fun x ->
-        state <- update state x
-        state
-
 let init() =
     Ok { blockDevices = Map.empty
          zed = Map.empty
@@ -38,4 +32,4 @@ let update (state : Result<State, exn>) (command : Command) : Result<State, exn>
         | Command.Stream -> Ok state
     | x -> x
 
-let handler = scan init update
+let handler = IML.CommonLibrary.scan init update

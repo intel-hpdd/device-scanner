@@ -71,3 +71,9 @@ let maybe = MaybeBuilder()
 module Hex =
     let toUint64String (x : string) : string =
         Convert.ToUInt64(x, 16) |> sprintf "%O"
+
+let scan init update =
+    let mutable state = init()
+    fun x ->
+        state <- update state x
+        state

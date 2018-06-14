@@ -2,34 +2,28 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-module IML.DeviceAggregatorDaemon.Handlers
+module IML.DeviceAggregatorDaemon.Query
 
-open Fable.Core.JsInterop
-open Fable.Import.Node
-open Fable.Import.Node.PowerPack
-open IML.CommonLibrary
-open IML.Types.MessageTypes
-open IML.Types.ScannerStateTypes
-open IML.Types.LegacyTypes
 open LegacyParser
-open Heartbeats
+open IML.Types.LegacyTypes
+open IML.Types.ScannerStateTypes
 open Thoth.Json
+open Fable.Import.Node.Http
 
-let mutable devTree : Map<string, State> = Map.empty
-
-let timeoutHandler host =
-    printfn "Aggregator received no heartbeat from host %A" host
-    devTree <- Map.remove host devTree
+type QueryType =
+   | Legacy
+   | Host of string
 
 let matchPaths (hPaths : string list) (pPaths : string list) =
     pPaths
     |> List.filter (fun x -> List.contains x hPaths)
     |> (=) pPaths
 
-let discoverZpools (host : string) (ps : Map<string, LegacyZFSDev>)
-    (ds : Map<string, LegacyZFSDev>) (blockDevices : LegacyBlockDev list) =
+let discoverZpools devTree (host : string) (ps : Map<string, LegacyZFSDev>)
+  (ds : Map<string, LegacyZFSDev>) (blockDevices : LegacyBlockDev list) =
     let mutable pools = ps
     let mutable datasets = ds
+
     devTree
     // remove current host, we are looking for pools on other hosts
     |> Map.filter (fun k _ -> k <> host)
@@ -53,9 +47,10 @@ let discoverZpools (host : string) (ps : Map<string, LegacyZFSDev>)
            pps |> Map.iter (fun k v -> pools <- Map.add k v pools)
            dds |> Map.iter (fun k v -> datasets <- Map.add k v datasets))
     |> ignore
+
     (pools, datasets)
 
-let parseSysBlock (host : string) (state : State) =
+let parseSysBlock devTree (host : string) (state : State) =
     let xs =
         state.blockDevices
         |> Map.toList
@@ -70,6 +65,7 @@ let parseSysBlock (host : string) (state : State) =
 
     let mutable blockDeviceNodes' =
         Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
+
     let mpaths = Mpath.ofBlockDevices state.blockDevices
 
     let ndt =
@@ -81,7 +77,8 @@ let parseSysBlock (host : string) (state : State) =
     let mds = parseMdraidDevs xs ndt
     let zfspools, zfsdatasets = parseZfs xs state.zed
     let localFs = parseLocalFs state.blockDevices zfsdatasets state.localMounts
-    let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
+    let zfspools, zfsdatasets = discoverZpools devTree host zfspools zfsdatasets xs
+
     // update blockDeviceNodes map with zfs pools and datasets
     Map(Seq.concat [ (Map.toSeq zfspools)
                      (Map.toSeq zfsdatasets) ])
@@ -89,6 +86,7 @@ let parseSysBlock (host : string) (state : State) =
            (fun _ v ->
            blockDeviceNodes' <- Map.add v.block_device
                                     (LegacyDev.LegacyZFSDev v) blockDeviceNodes')
+
     { // @TODO: need encoder for all below types
       devs = blockDeviceNodes'
       lvs = lvs
@@ -99,43 +97,16 @@ let parseSysBlock (host : string) (state : State) =
       zfsdatasets = zfsdatasets
       mpath = mpaths }
 
-let updateTree host x =
-    let state = Decode.decodeString State.decoder x |> Result.unwrap
-    Map.add host state devTree
-
-let serverHandler (request : Http.IncomingMessage)
-    (response : Http.ServerResponse) =
-    match request.method with
-    | Some "GET" ->
+let runQuery (response : ServerResponse) devTree queryType =
+    match queryType with
+    | Legacy ->
         devTree
-        |> Map.map (fun k v -> parseSysBlock k v |> LegacyDevTree.encode)
+        |> Map.map (fun k v ->
+               parseSysBlock devTree k v
+               |> LegacyDevTree.encode)
         |> Encode.dict
         |> Encode.encode 0
         |> response.``end``
-    | Some "POST" ->
-        request
-        |> Stream.reduce "" (fun acc x -> Ok(acc + x.toString ("utf-8")))
-        |> Stream.iter (fun x ->
-               match !!request.headers?("x-ssl-client-name") with
-               | Some "" ->
-                   eprintfn "Aggregator received message but hostname was empty"
-               | Some host ->
-                   match Message.decoder x with
-                   | Ok Message.Heartbeat -> addHeartbeat timeoutHandler host
-                   | Ok(Message.Data y) ->
-                       printfn
-                           "Aggregator received update with devices from host %s"
-                           host
-                       devTree <- updateTree host y
-                   | Error x ->
-                       eprintfn
-                           "Aggregator received message but message decoding failed (%A)"
-                           x
-               | None ->
-                   eprintfn
-                       "Aggregator received message but x-ssl-client-name header was missing from request"
-               response.``end``())
-        |> ignore
-    | x ->
-        response.``end``()
-        eprintfn "Aggregator handler got a bad match %A" x
+    | _ ->
+        eprintf "unsupported query type"
+        response.``end`` ()

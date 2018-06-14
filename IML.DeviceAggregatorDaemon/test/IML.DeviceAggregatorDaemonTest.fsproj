@@ -6,8 +6,8 @@
   <ItemGroup>
     <ProjectReference Include="../src/IML.DeviceAggregatorDaemon.fsproj" />
     <ProjectReference Include="../../IML.Types/test/IML.TypesTest.fsproj" />
-    <Compile Include="HeartbeatsTest.fs" />
-    <Compile Include="HandlersTest.fs" />
+    <Compile Include="QueryTest.fs" />
+    <Compile Include="AppTest.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

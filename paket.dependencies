@@ -9,4 +9,5 @@ nuget Fable.Import.NodeLibzfs
 nuget Fable.Import.Jest
 nuget Fable.Import.Node.PowerPack
 nuget Fable.PowerPack
+nuget Fable.Elmish
 nuget Thoth.Json

@@ -11,10 +11,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Heartbeats.fs" />
     <Compile Include="LegacyParser.fs" />
-    <Compile Include="Handlers.fs" />
-    <Compile Include="Server.fs" />
+    <Compile Include="Query.fs" />
+    <Compile Include="Heartbeats.fs" />
+    <Compile Include="Devtree.fs" />
+    <Compile Include="App.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>

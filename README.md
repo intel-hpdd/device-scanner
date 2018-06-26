@@ -1,7 +1,7 @@
 # device-scanner
 
-[![Build Status](https://travis-ci.org/intel-hpdd/device-scanner.svg?branch=master)](https://travis-ci.org/intel-hpdd/device-scanner)
-[![Greenkeeper badge](https://badges.greenkeeper.io/intel-hpdd/device-scanner.svg)](https://greenkeeper.io/)
+[![Build Status](https://travis-ci.org/whamcloud/device-scanner.svg?branch=master)](https://travis-ci.org/whamcloud/device-scanner)
+[![Greenkeeper badge](https://badges.greenkeeper.io/whamcloud/device-scanner.svg)](https://greenkeeper.io/)
 
 This repo provides a [persistent daemon](IML.DeviceScannerDaemon) That holds block devices + ZFS devices in memory.
 

@@ -1,23 +1,19 @@
-%{?!package_release: %global package_release 1}
-
 %define     base_name device-scanner
 %define     proxy_name scanner-proxy
 %define     mount_name mount-emitter
 %define     aggregator_name device-aggregator
-%define     base_prefixed iml-%{base_name}
 %define     proxy_prefixed iml-%{proxy_name}
 %define     mount_prefixed iml-%{mount_name}
 %define     aggregator_prefixed iml-%{aggregator_name}
-Name:       %{base_prefixed}
-Version:    2.2.0
-Release:    %{package_release}%{?dist}
+
+Name:       iml-%{base_name}
+Version:    @version@
+Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
-URL:        https://github.com/intel-hpdd/%{base_name}
-# Forcing local source because rpkg in copr does not seem to have a way
-# to build source in the same way a package manager would.
-Source0:    %{base_prefixed}-%{version}.tgz
+URL:        https://github.com/whamcloud/%{base_name}
+Source0:    %{name}-%{version}.tgz
 
 ExclusiveArch: %{nodejs_arches}
 
@@ -30,13 +26,13 @@ Requires: socat
 
 %description
 device-scanner-daemon builds an in-memory representation of
-devices using udev and zed.
+devices using udev, zed and findmnt.
 
 %package proxy
 Summary:    Forwards device-scanner updates to device-aggregator
 License:    MIT
 Group:      System Environment/Libraries
-Requires:   %{base_prefixed} = %{version}-%{release}
+Requires:   %{name} = %{version}-%{release}
 Requires: nodejs
 %description proxy
 scanner-proxy-daemon forwards device-scanner updates received
@@ -76,8 +72,8 @@ cp dist/listeners/mount-populator.service %{buildroot}%{_unitdir}
 cp dist/listeners/swap-emitter.timer %{buildroot}%{_unitdir}
 cp dist/listeners/swap-emitter.service %{buildroot}%{_unitdir}
 
-mkdir -p %{buildroot}%{_libdir}/%{base_prefixed}-daemon
-cp dist/%{base_name}-daemon/%{base_name}-daemon %{buildroot}%{_libdir}/%{base_prefixed}-daemon
+mkdir -p %{buildroot}%{_libdir}/%{name}-daemon
+cp dist/%{base_name}-daemon/%{base_name}-daemon %{buildroot}%{_libdir}/%{name}-daemon
 
 mkdir -p %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
 cp dist/%{proxy_name}-daemon/%{proxy_name}-daemon %{buildroot}%{_libdir}/%{proxy_prefixed}-daemon
@@ -116,8 +112,8 @@ ln -sf %{_libexecdir}/zfs/zed.d/vdev_add-scanner.sh %{buildroot}%{_sysconfdir}/z
 rm -rf %{buildroot}
 
 %files
-%dir %{_libdir}/%{base_prefixed}-daemon
-%attr(0755,root,root)%{_libdir}/%{base_prefixed}-daemon/%{base_name}-daemon
+%dir %{_libdir}/%{name}-daemon
+%attr(0755,root,root)%{_libdir}/%{name}-daemon/%{base_name}-daemon
 %attr(0644,root,root)%{_unitdir}/block-device-populator.service
 %attr(0644,root,root)%{_unitdir}/zed-populator.service
 %attr(0644,root,root)%{_unitdir}/mount-populator.service

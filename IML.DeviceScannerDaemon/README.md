@@ -2,9 +2,9 @@
 
 ## SYNOPSIS
 
-This module utilizes [`Udev`](http://www.reactivated.net/writing_udev_rules.html), `ZED`, and `libzfs` to construct an in-memory representation of block devices, zpools, zfs objects and properties. It utilizes unix domain sockets to allow connections / near real-time updates of the device tree as it changes over time. This module is used by [Intel Manager for Lustre](https://github.com/intel-hpdd/intel-manager-for-lustre) to receive changes to block-devices / zfs data as it occurs. It can also be used stand-alone in modular applications.
+This module utilizes [`Udev`](http://www.reactivated.net/writing_udev_rules.html), `ZED`, and `libzfs` to construct an in-memory representation of block devices, zpools, zfs objects and properties. It utilizes unix domain sockets to allow connections / near real-time updates of the device tree as it changes over time. This module is used by [Integrated Manager for Lustre](https://github.com/whamcloud/intel-manager-for-lustre) to receive changes to block-devices / zfs data as it occurs. It can also be used stand-alone in modular applications.
 
-Internally, [@iml/node-libzfs](https://github.com/intel-hpdd/rust-libzfs/tree/master/node-libzfs) is used to complete extra data from ZED.
+Internally, [@iml/node-libzfs](https://github.com/whamcloud/rust-libzfs/tree/master/node-libzfs) is used to complete extra data from ZED.
 
 There are two main modes to this daemon:
 

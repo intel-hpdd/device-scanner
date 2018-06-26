@@ -5,7 +5,7 @@ node_modules
 *.tgz
 *.rpm
 .vagrant
-.idea
+.fake
 dist
 obj
 bin
@@ -24,4 +24,4 @@ jest_0
 id_rsa
 id_rsa.pub
 _topdir
-copr-local.mk
+copr-key

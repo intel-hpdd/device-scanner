@@ -8,10 +8,6 @@ addons:
 jobs:
   include:
     - stage: test
-      env: Type='virus scan'
-      script:
-        - ./include/travis/virus-scan.sh
-    - stage: test
       env: Type='build'
       script:
         - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
@@ -19,7 +15,7 @@ jobs:
     - stage: test
       language: node_js
       node_js:
-        - 8
+        - 10
       env: Type='unit test'
       before_install:
         - npm i -g npm@latest codecov
@@ -45,6 +41,6 @@ jobs:
       deploy:
         skip_cleanup: true
         provider: script
-        script: ./travis_wait "./include/travis/run_in_centos7_docker.sh include/travis/copr-deploy.sh"
+        script: ./travis_wait "docker run -it --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli && cd /builddir && fake run build.fsx'"
         on:
           all_branches: true

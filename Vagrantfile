@@ -19,6 +19,10 @@ Vagrant.configure('2') do |config|
   config.vm.box = 'manager-for-lustre/centos75-1804-device-scanner'
   config.vm.box_version = '0.0.5'
 
+  config.vm.provider 'virtualbox' do |v|
+    v.linked_clone = true
+  end
+
   INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze
 
   system("ssh-keygen -t rsa -N '' -f id_rsa") unless File.exist?('id_rsa')
@@ -84,7 +88,9 @@ __EOF
 
     device_scanner.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      # yum -y copr enable managerforlustre/manager-for-lustre-devel
+      dotnet tool install fake-cli -g
+      yum -y copr enable managerforlustre/manager-for-lustre-devel
+      yum install -y rpmdevtools
       cd /etc/yum.repos.d
       wget https://copr.fedorainfracloud.org/coprs/managerforlustre/manager-for-lustre-devel/repo/epel-7/managerforlustre-manager-for-lustre-devel-epel-7.repo
     SHELL
@@ -96,8 +102,8 @@ __EOF
 
     device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
-      ./mock-build.sh
-      find . -name "iml-device-scanner-[0-9]*.x86_64.rpm" -printf "%f" | xargs yum install -y
+      fake run build.fsx -t RPM
+      yum install -y ./_topdir/RPMS/x86_64/iml-device-scanner-*.x86_64.rpm
     SHELL
 
     device_scanner.vm.provision 'mpath', type: 'shell', inline: <<-SHELL

@@ -145,7 +145,6 @@ exports.addDm = {
   IML_SCSI_83: '83',
   IML_IS_RO: '1',
   IML_DM_SLAVE_MMS: '8:16 8:32',
-  IML_DM_VG_SIZE: '21466447872',
   DM_MULTIPATH_DEVICE_PATH: '1',
   DM_NAME: 'centos-swap',
   DM_LV_NAME: 'swap',

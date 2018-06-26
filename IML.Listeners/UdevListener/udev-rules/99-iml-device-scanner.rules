@@ -16,9 +16,6 @@ ACTION=="add|change", ENV{DM_UUID}=="?*", PROGRAM="/bin/bash -c 'for l in `ls /s
 # Check if this device is a multipath device
 ACTION=="add|change", ENV{DM_UUID}=="mpath-?*", ENV{IML_IS_MPATH}="1"
 
-# Get vgs size (not readily available from other udev output)
-ACTION=="add|change", ENV{DM_VG_NAME}=="?*", PROGRAM="/lib/udev/vg_size", RESULT=="?*", ENV{IML_DM_VG_SIZE}="$result"
-
 # Get ro state whenever there is an add or change on the device
 ACTION=="add|change", PROGRAM="/sbin/blockdev --getro $devnode", RESULT=="?*", ENV{IML_IS_RO}="$result"
 

@@ -154,7 +154,7 @@ module UEvent =
              idVendor idModel idSerial idFsType idFsUsage idFsUuid
              idPartEntryNumber imlSize imlScsi80 imlScsi83
              imlIsRo imlIsBiosBoot imlIsZfsReserved imlIsMpath imlDmSlaveMms
-             imlDmVgSize imlMdDevices dmMultipathDevicePath dmName dmLvName
+             imlMdDevices dmMultipathDevicePath dmName dmLvName
              dmVgName dmUuid mdUuid ->
 
             { major = major
@@ -182,7 +182,7 @@ module UEvent =
               zfsReserved = imlIsZfsReserved
               isMpath = imlIsMpath
               dmSlaveMMs = imlDmSlaveMms
-              dmVgSize = imlDmVgSize
+              dmVgSize = dmVgName |> Option.map (fun _ -> "0") // @Fixme Once we represent discrete device types, do an async call to get the size outside udev.
               mdDevs = imlMdDevices |> List.map snd |> List.toArray
               dmMultipathDevpath = dmMultipathDevicePath
               dmName = dmName
@@ -213,7 +213,6 @@ module UEvent =
         |> Decode.optional "IML_IS_ZFS_RESERVED" (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_IS_MPATH" (Decode.map isOne Decode.string) false
         |> Decode.optional "IML_DM_SLAVE_MMS" (Decode.map splitSpace Decode.string) [||]
-        |> Decode.optional "IML_DM_VG_SIZE" optionalString None
         |> Decode.custom (matchedKeyValuePairs (fun k -> String.startsWith "MD_DEVICE_" k && String.endsWith "_DEV" k) Decode.string)
         |> Decode.optional "DM_MULTIPATH_DEVICE_PATH" (Decode.map (Option.map isOne) optionalString) None
         |> optionalStringProp "DM_NAME"

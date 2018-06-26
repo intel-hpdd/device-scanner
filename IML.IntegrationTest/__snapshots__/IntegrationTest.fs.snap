@@ -1220,7 +1220,7 @@ exports[`add a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -1262,7 +1262,7 @@ exports[`add a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -2498,7 +2498,7 @@ exports[`add logical volume 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -2540,7 +2540,7 @@ exports[`add logical volume 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -2584,7 +2584,7 @@ exports[`add logical volume 1`] = `
       \\"xx:yy\\",
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"301989888\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"vg01-lvol01\\",
@@ -3895,7 +3895,7 @@ exports[`add mdraid 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -3937,7 +3937,7 @@ exports[`add mdraid 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -5439,7 +5439,7 @@ exports[`add multipath device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -5481,7 +5481,7 @@ exports[`add multipath device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -6840,7 +6840,7 @@ exports[`create a partition 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -6882,7 +6882,7 @@ exports[`create a partition 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -8078,7 +8078,7 @@ exports[`remove a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -8120,7 +8120,7 @@ exports[`remove a device 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",
@@ -9353,7 +9353,7 @@ exports[`stream event 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-root\\",
@@ -9395,7 +9395,7 @@ exports[`stream event 1`] = `
     \\"dmSlaveMms\\": [
       \\"xx:yy\\"
     ],
-    \\"dmVgSize\\": \\"40865103872\\",
+    \\"dmVgSize\\": \\"0\\",
     \\"mdDevices\\": [],
     \\"dmMultipathDevicePath\\": null,
     \\"dmName\\": \\"centos-swap\\",

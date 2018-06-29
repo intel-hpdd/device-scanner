@@ -356,7 +356,7 @@ module Mpath =
         })
       )
     |> stringProp "name"
-    |> stringProp "blockDevice"
+    |> stringProp "block_device"
     |> Decode.required "nodes" (Decode.array (MpathNode.decode))
 
 
@@ -627,8 +627,8 @@ let private localFSDecoder =
     (fun x y ->
       (x, y)
     )
-    (Decode.field "0" Decode.string)
-    (Decode.field "1" Decode.string))
+    (Decode.index 0 Decode.string)
+    (Decode.index 1 Decode.string))
 
 
 type LegacyDevTree = {

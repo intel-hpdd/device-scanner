@@ -10,6 +10,20 @@ open Thoth.Json
 let encodeStrings xs = Array.map Encode.string xs
 
 [<RequireQualifiedAccess>]
+module Map =
+  let values x =
+    x
+    |> Map.toList
+    |> List.map snd
+  let merge x y =
+    Map.fold (fun acc k v -> Map.add k v acc) x y
+  let filterKeys fn m =
+    Map.filter (fun k _ -> fn k) m
+
+  let mapValues fn m =
+    Map.map (fun _ v -> fn v) m
+
+[<RequireQualifiedAccess>]
 module Result =
     let unwrap =
         function

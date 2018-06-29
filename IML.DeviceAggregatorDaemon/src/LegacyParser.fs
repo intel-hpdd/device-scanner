@@ -101,46 +101,43 @@ let rec getDisks (vdev : VDev) =
     | Root { Root = { children = children; spares = spares; cache = cache } } ->
         [ children; spares; cache ] |> List.collect collectChildDisks
 
-let parsePools (blockDevices : LegacyBlockDev list) (ps : Pool list) =
-    ps |> List.fold (fun (ps, ds) p ->
-              let mms =
-                  p.vdev
-                  |> getDisks
-                  |> List.map (fun x ->
-                         let blockDev =
-                             List.find
-                                 (fun y -> Array.contains (Path x) y.paths)
-                                 blockDevices
-                         blockDev.major_minor)
-                  |> List.toArray
+let parsePools (blockDevices : BlockDevices) (ps : Pool list) =
+  ps
+    |> List.fold (fun (ps, ds) p ->
+      let mms =
+          p.vdev
+          |> getDisks
+          |> List.map Path
+          |> List.choose (BlockDevices.tryFindByPath blockDevices)
+          |> List.map (UEvent.majorMinor)
+          |> List.toArray
 
-              let ds' : Map<string, LegacyZFSDev> =
-                  Array.fold (fun acc (d : Dataset) ->
-                      Map.add d.guid { name = d.name
-                                       path = d.name
-                                       block_device = sprintf "zfsset:%s" d.guid
-                                       uuid = d.guid
-                                       size =
-                                           (Array.find
-                                                (fun (p : ZProp) ->
-                                                p.name = "available") d.props).value
-                                       drives = mms } acc) ds p.datasets
+      let ds' : Map<string, LegacyZFSDev> =
+        Array.fold (fun acc (d : Dataset) ->
+          Map.add d.guid { name = d.name
+                           path = d.name
+                           block_device = sprintf "zfsset:%s" d.guid
+                           uuid = d.guid
+                           size =
+                            (Array.find (fun (p : ZProp) ->
+                                        p.name = "available") d.props).value
+                           drives = mms } acc) ds p.datasets
 
-              let pools =
-                  if Array.isEmpty p.datasets then
-                      let pool : LegacyZFSDev =
-                          { name = p.name
-                            path = p.name
-                            block_device = sprintf "zfspool:%s" p.guid
-                            uuid = p.guid
-                            size = p.size
-                            drives = mms }
-                      Map.add p.guid pool ps
-                  else ps
+      let pools =
+          if Array.isEmpty p.datasets then
+              let pool : LegacyZFSDev =
+                  { name = p.name
+                    path = p.name
+                    block_device = sprintf "zfspool:%s" p.guid
+                    uuid = p.guid
+                    size = p.size
+                    drives = mms }
+              Map.add p.guid pool ps
+          else ps
 
-              (pools, ds')) (Map.empty, Map.empty)
+      (pools, ds')) (Map.empty, Map.empty)
 
-let parseZfs (blockDevices : LegacyBlockDev list) (zed : IML.Types.ZedTypes.Zed) =
+let parseZfs (blockDevices : BlockDevices) (zed : IML.Types.ZedTypes.Zed) =
     zed
     |> Map.toList
     |> List.map snd

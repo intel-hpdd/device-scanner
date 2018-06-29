@@ -25,6 +25,14 @@ jobs:
         - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
         - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i --ignore-scripts && npm run restore && dotnet fable npm-coverage -- --ci'
         - codecov
+    - stage: cd
+      if: branch !~ ^v\d+\.\d+\.\d+-.+$ AND type NOT IN (push, pull_request)
+      env: 'Continuous Deployment'
+      script:
+        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
+        - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
+        - chmod 755 travis_wait
+        - ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli git && cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l)'"
     - stage: deploy
       if: branch =~ ^v\d+\.\d+\.\d+$
       script:
@@ -45,11 +53,3 @@ jobs:
         script: ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli && cd /builddir && fake run build.fsx'"
         on:
           all_branches: true
-    - stage: cd
-      if: branch !~ ^v\d+\.\d+\.\d+-.+$ AND type NOT IN (push, pull_request)
-      env: 'Continuous Deployment'
-      script:
-        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
-        - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
-        - chmod 755 travis_wait
-        - ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli git && cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l)'"

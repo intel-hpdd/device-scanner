@@ -35,7 +35,7 @@ jobs:
       if: branch =~ ^v\d+\.\d+\.\d+-.+$
       env: Type='Copr deploy'
       before_deploy:
-        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in include/copr-mfl.enc -out include/copr-mfl -d
+        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
         - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
         - chmod 755 travis_wait
       deploy:
@@ -49,7 +49,7 @@ jobs:
       env: 'Continuous Deployment'
       script: skip
       before_deploy:
-        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in include/copr-mfl.enc -out include/copr-mfl -d
+        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
         - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
         - chmod 755 travis_wait
       deploy:

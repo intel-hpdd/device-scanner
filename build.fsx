@@ -29,7 +29,7 @@ Usage:
 
 Options:
   --copr-project=NAME           Copr Project
-  --release                     The release field for this build (defaults to 1)
+  --release=NUM                 The release field for this build (defaults to 1)
   -t, --target <target>         Run the given target (ignored if positional argument 'target' is given)
   --help                        Help
 """

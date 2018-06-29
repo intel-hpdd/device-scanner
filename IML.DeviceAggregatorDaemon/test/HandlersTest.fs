@@ -10,10 +10,13 @@ open Fable.Import.Jest
 open Fable.Import.Node
 open Fable.Import.Node.PowerPack.Stream
 open IML.Types.MessageTypes
+open IML.CommonLibrary
 open Matchers
 open Heartbeats
 open Handlers
 open IML.Types.Fixtures
+open IML.Types
+open Thoth.Json
 
 let testServerHost = "localhost"
 let testServerPort = 8181
@@ -69,7 +72,15 @@ testList "Server"
                                 |> reduce ""
                                        (fun acc x ->
                                        Ok(acc + x.toString ("utf-8")))
-                                |> iter onData
+                                |> iter (fun x ->
+                                    x
+                                    |> Decode.decodeString (Decode.dict LegacyTypes.LegacyDevTree.decode)
+                                    |> Result.unwrap
+                                    |> Map.mapValues LegacyTypes.LegacyDevTree.encode
+                                    |> Encode.dict
+                                    |> Encode.encode 2
+                                    |> onData
+                                )
                                 |> Writable.onFinish (fun () ->
                                        if lastRequest then
                                            server.close() |> ignore

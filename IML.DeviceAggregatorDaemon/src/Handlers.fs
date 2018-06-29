@@ -89,7 +89,7 @@ let parseSysBlock (host : string) (state : State) =
            (fun _ v ->
            blockDeviceNodes' <- Map.add v.block_device
                                     (LegacyDev.LegacyZFSDev v) blockDeviceNodes')
-    { // @TODO: need encoder for all below types
+    {
       devs = blockDeviceNodes'
       lvs = lvs
       vgs = vgs

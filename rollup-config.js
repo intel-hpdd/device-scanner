@@ -18,14 +18,7 @@ const getPlugins = () => [
 export default [
   {
     input: 'IML.DeviceScannerDaemon/src/IML.DeviceScannerDaemon.fsproj',
-    external: [
-      'stream',
-      'child_process',
-      'buffer',
-      'net',
-      'path',
-      '@iml/node-libzfs'
-    ],
+    external: ['stream', 'child_process', 'buffer', 'net', 'path', '@iml/node-libzfs'],
     output: {
       file: './dist/device-scanner-daemon/device-scanner-daemon',
       format: 'cjs'
@@ -34,16 +27,7 @@ export default [
   },
   {
     input: 'IML.ScannerProxyDaemon/src/IML.ScannerProxyDaemon.fsproj',
-    external: [
-      'stream',
-      'net',
-      'child_process',
-      'buffer',
-      'https',
-      'fs',
-      'path',
-      'url'
-    ],
+    external: ['stream', 'net', 'child_process', 'buffer', 'https', 'fs', 'path', 'url'],
     output: {
       file: './dist/scanner-proxy-daemon/scanner-proxy-daemon',
       format: 'cjs'
@@ -52,14 +36,7 @@ export default [
   },
   {
     input: 'IML.DeviceAggregatorDaemon/src/IML.DeviceAggregatorDaemon.fsproj',
-    external: [
-      'stream',
-      'child_process',
-      'buffer',
-      'http',
-      'path',
-      '@iml/node-libzfs'
-    ],
+    external: ['stream', 'child_process', 'buffer', 'http', 'path', '@iml/node-libzfs'],
     treeshake: {
       pureExternalModules: true,
       propertyReadSideEffects: false

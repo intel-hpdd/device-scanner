@@ -29,6 +29,7 @@ Usage:
 
 Options:
   --copr-project=NAME           Copr Project
+  --release=NUM                 The release field for this build (defaults to 1)
   -t, --target <target>         Run the given target (ignored if positional argument 'target' is given)
   --help                        Help
 """
@@ -37,6 +38,10 @@ let ctx = Context.forceFakeContext()
 let args = ctx.Arguments
 let parser = Docopt(cli)
 let parsedArguments = parser.Parse(args |> List.toArray)
+
+let release =
+  DocoptResult.tryGetArgument "--release" parsedArguments
+  |> Option.defaultValue "1"
 
 let coprRepo =
   DocoptResult.tryGetArgument "--copr-project" parsedArguments
@@ -91,6 +96,7 @@ Target.create "BuildSpec" (fun _ ->
 
   Fake.IO.Templates.load [specName + ".template"]
     |> Fake.IO.Templates.replaceKeywords [("@version@", v)]
+    |> Fake.IO.Templates.replaceKeywords [("@release@", release)]
     |> Seq.iter(fun (_, file) ->
       let x = UTF8Encoding()
 

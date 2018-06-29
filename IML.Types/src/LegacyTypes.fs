@@ -200,7 +200,7 @@ module Lv =
 type MdRaid = {
   path: Path;
   block_device: string;
-  drives: Path [];
+  drives: string [];
 }
 
 module MdRaid =
@@ -213,7 +213,7 @@ module MdRaid =
       Encode.object [
         ("path", UEvent.pathValue path);
         ("block_device", Encode.string block_device);
-        ("drives", Encode.array (UEvent.pathValues drives));
+        ("drives", Encode.array (Array.map Encode.string drives));
       ]
 
   let encoder =
@@ -229,7 +229,7 @@ module MdRaid =
       } : MdRaid)
     |> Decode.required "path" (Decode.map Path Decode.string)
     |> Decode.required "block_device" Decode.string
-    |> Decode.required "drives" (Decode.array (Decode.map Path Decode.string))
+    |> Decode.required "drives" (Decode.array Decode.string)
 
 
 type MpathNode = {

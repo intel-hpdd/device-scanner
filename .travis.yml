@@ -1,3 +1,4 @@
+conditions: v1
 sudo: required
 language: generic
 services:
@@ -41,7 +42,7 @@ jobs:
       deploy:
         skip_cleanup: true
         provider: script
-        script: ./travis_wait "docker run -it --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli && cd /builddir && fake run build.fsx'"
+        script: ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli && cd /builddir && fake run build.fsx'"
         on:
           all_branches: true
     - stage: cd
@@ -55,6 +56,6 @@ jobs:
       deploy:
         skip_cleanup: true
         provider: script
-        script: ./travis_wait "docker run -it --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli git && cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l)'"
+        script: ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli git && cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l)'"
         on:
           all_branches: true

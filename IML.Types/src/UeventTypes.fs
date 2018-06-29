@@ -130,6 +130,11 @@ module UEvent =
   let diskByPathRegex = "^/dev/disk/by-path/"
   let mapperPathRegex = "^/dev/mapper/"
 
+  let tryFindById (uevent : UEvent) =
+    Array.tryFind (fun (Path(x)) ->
+      Regex.Match(x, diskByIdRegex).Success
+    ) uevent.paths
+
   let private precedence = [|
     mapperPathRegex;
     diskByIdRegex;

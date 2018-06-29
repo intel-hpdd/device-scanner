@@ -19,9 +19,14 @@ module Map =
     Map.fold (fun acc k v -> Map.add k v acc) x y
   let filterKeys fn m =
     Map.filter (fun k _ -> fn k) m
-
   let mapValues fn m =
     Map.map (fun _ v -> fn v) m
+  let mapAll fn m =
+    Map.fold (fun m k t ->
+      let (k', t') = fn k t
+      Map.add k' t' m
+    ) Map.empty m
+
 
 [<RequireQualifiedAccess>]
 module Result =

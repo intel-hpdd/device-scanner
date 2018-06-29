@@ -11,6 +11,7 @@ open IML.CommonLibrary
 open IML.Types.MessageTypes
 open IML.Types.ScannerStateTypes
 open IML.Types.LegacyTypes
+open IML.Types.UeventTypes
 open LegacyParser
 open Heartbeats
 open Thoth.Json
@@ -21,45 +22,47 @@ let timeoutHandler host =
     printfn "Aggregator received no heartbeat from host %A" host
     devTree <- Map.remove host devTree
 
-let matchPaths (hPaths : string list) (pPaths : string list) =
-    pPaths
-    |> List.filter (fun x -> List.contains x hPaths)
-    |> (=) pPaths
 
-let discoverZpools (host : string) (ps : Map<string, LegacyZFSDev>)
-    (ds : Map<string, LegacyZFSDev>) (blockDevices : LegacyBlockDev list) =
-    let mutable pools = ps
-    let mutable datasets = ds
+/// The goal of this function is to find pools on other
+/// hosts that are using some backing storage on
+/// this host.
+/// To do this, we need to find the device associated with the pool
+/// and match it to any device on this host.
+let discoverZpools (host : string) (blockDevices : BlockDevices) =
+  let hostPaths =
+    blockDevices
+    |> Map.values
+    |> List.choose UEvent.tryFindById
+    |> Set.ofList
+
+  let otherPools =
     devTree
-    // remove current host, we are looking for pools on other hosts
-    |> Map.filter (fun k _ -> k <> host)
-    |> Map.map (fun _ v ->
-           // we want pools/datasets but don't need key
-           let (pps, dds) =
-               v.zed
-               |> Map.toList
-               |> List.map snd
-               // keep pools if we have all their drives
-               |> List.filter (fun p ->
-                      let hostPaths =
-                          blockDevices |> List.map (fun x -> (string x.path))
-                      p.vdev
-                      |> getDisks
-                      |> matchPaths hostPaths)
-               |> List.filter
-                      (fun p ->
-                      not (List.contains p.state [ "EXPORTED"; "UNAVAIL" ]))
-               |> parsePools blockDevices
-           pps |> Map.iter (fun k v -> pools <- Map.add k v pools)
-           dds |> Map.iter (fun k v -> datasets <- Map.add k v datasets))
-    |> ignore
-    (pools, datasets)
+    |> Map.filterKeys ((<>) host)
+    |> Map.values
+    |> List.collect (fun x ->
+      x.zed
+      |> Map.values
+      |> List.filter (fun x -> x.state <> "EXPORTED")
+      |> List.filter (fun x -> x.state <> "UNAVAIL")
+      |> List.filter (fun x ->
+        let poolPaths =
+          x.vdev
+          |> getDisks
+          |> List.map Path
+          |> List.choose (BlockDevices.tryFindByPath blockDevices)
+          |> List.choose UEvent.tryFindById
+          |> Set.ofList
+
+        Set.isSubset poolPaths hostPaths
+      )
+    )
+
+  parsePools blockDevices otherPools
 
 let parseSysBlock (host : string) (state : State) =
     let xs =
         state.blockDevices
-        |> Map.toList
-        |> List.map snd
+        |> Map.values
         |> List.filter filterDevice
         |> List.map (LegacyBlockDev.ofUEvent state.blockDevices)
 
@@ -68,35 +71,40 @@ let parseSysBlock (host : string) (state : State) =
         |> List.map (fun x -> (x.major_minor, x))
         |> Map.ofList
 
-    let mutable blockDeviceNodes' =
-        Map.map (fun _ v -> LegacyDev.LegacyBlockDev v) blockDeviceNodes
     let mpaths = Mpath.ofBlockDevices state.blockDevices
 
     let ndt =
-        blockDeviceNodes
-        |> NormalizedDeviceTable.create
-        |> Mpath.addToNdt mpaths
+      blockDeviceNodes
+      |> NormalizedDeviceTable.create
+      |> Mpath.addToNdt mpaths
 
     let vgs, lvs = parseDmDevs xs
     let mds = parseMdraidDevs xs ndt
-    let zfspools, zfsdatasets = parseZfs xs state.zed
+    let zfspools, zfsdatasets = parseZfs state.blockDevices state.zed
     let localFs = parseLocalFs state.blockDevices zfsdatasets state.localMounts
-    let zfspools, zfsdatasets = discoverZpools host zfspools zfsdatasets xs
-    // update blockDeviceNodes map with zfs pools and datasets
-    Map(Seq.concat [ (Map.toSeq zfspools)
-                     (Map.toSeq zfsdatasets) ])
-    |> Map.iter
-           (fun _ v ->
-           blockDeviceNodes' <- Map.add v.block_device
-                                    (LegacyDev.LegacyZFSDev v) blockDeviceNodes')
+    let zfspools', zfsdatasets' = discoverZpools host state.blockDevices
+
+
+    let legacyBlockDeviceNodes =
+        Map.mapValues LegacyDev.LegacyBlockDev blockDeviceNodes
+
+    let legacyZfsNodes =
+      zfspools'
+      |> Map.merge zfsdatasets'
+      |> Map.merge zfspools
+      |> Map.merge zfsdatasets
+      |> Map.mapAll (fun k v ->
+        (v.block_device, LegacyDev.LegacyZFSDev v)
+      )
+
     {
-      devs = blockDeviceNodes'
+      devs =  Map.merge legacyZfsNodes legacyBlockDeviceNodes
       lvs = lvs
       vgs = vgs
       mds = mds
       local_fs = localFs
-      zfspools = zfspools
-      zfsdatasets = zfsdatasets
+      zfspools = Map.merge zfspools zfspools'
+      zfsdatasets = Map.merge zfsdatasets zfsdatasets'
       mpath = mpaths }
 
 let updateTree host x =

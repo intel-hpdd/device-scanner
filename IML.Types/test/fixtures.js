@@ -5039,7 +5039,7 @@ exports.scannerStateDatasets2 = {
               Disk: {
                 guid: 4304718208453908500,
                 state: 'ONLINE',
-                path: '/dev/disk/by-id/scsi-0QEMU_QEMU_HARDDISK_disk14-part1',
+                path: '/dev/sdb1',
                 dev_id: 'scsi-0QEMU_QEMU_HARDDISK_disk14-part1',
                 phys_path: 'virtio-pci-0000:00:05.0-scsi-0:0:0:13',
                 whole_disk: true,

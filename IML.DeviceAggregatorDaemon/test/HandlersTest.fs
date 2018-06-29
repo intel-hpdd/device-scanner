@@ -34,19 +34,9 @@ let heartbeatPayload =
     |> Message.encoder
     |> Some
 
-test "host has pool disks"
-<| fun () ->
-    toEqual
-        (matchPaths [ "/foo/bar"; "/foo/baz"; "/bar/baz" ]
-             [ "/foo/bar"; "/bar/baz" ], true) |> ignore
-test "host doesn't have pool disks"
-<| fun () ->
-    toEqual
-        (matchPaths [ "/foo/bar"; "/foo/baz"; "/bar/baz" ]
-             [ "/foo/bar"; "/bar/boz" ], true) |> ignore
-test "Discover no pools on host"
-<| fun () ->
-    discoverZpools "ffo.com" Map.empty Map.empty List.empty |> toMatchSnapshot
+test "Discover no pools on host" <| fun () ->
+    discoverZpools "ffo.com" Map.empty |> toMatchSnapshot
+
 testList "Server"
     [ let withSetup f (d : Jest.Bindings.DoneStatic) : unit =
           // bring up server to run test target handler

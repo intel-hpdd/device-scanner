@@ -53,7 +53,7 @@ let discoverZpools (host : string) (blockDevices : BlockDevices) =
           |> List.choose UEvent.tryFindById
           |> Set.ofList
 
-        Set.isSubset poolPaths hostPaths
+        not (Set.isEmpty poolPaths) && Set.isSubset poolPaths hostPaths
       )
     )
 
@@ -93,7 +93,7 @@ let parseSysBlock (host : string) (state : State) =
       |> Map.merge zfsdatasets'
       |> Map.merge zfspools
       |> Map.merge zfsdatasets
-      |> Map.mapAll (fun k v ->
+      |> Map.mapAll (fun _ v ->
         (v.block_device, LegacyDev.LegacyZFSDev v)
       )
 

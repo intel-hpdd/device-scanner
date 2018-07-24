@@ -12,7 +12,7 @@ open IML.Types.MessageTypes
 let private opts = createEmpty<Https.RequestOptions>
 
 opts.hostname <- Some Config.managerUrl
-opts.port <- Some 443
+opts.port <- Some !!Config.port
 opts.path <- Some "/iml-device-aggregator"
 opts.method <- Some Http.Methods.Post
 opts.rejectUnauthorized <- Some false

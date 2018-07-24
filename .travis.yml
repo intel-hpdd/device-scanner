@@ -26,10 +26,9 @@ jobs:
         depth: 999999
       env: 'Type=Continuous Deployment'
       script:
-        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
         - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
         - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli git'
-        - docker exec -it copr bash -c 'cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l)'
+        - docker exec -it copr bash -c 'cd /builddir && fake run build.fsx --release=$(git rev-list HEAD | wc -l) --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN'
     - stage: deploy-npm
       env: Type='npm deploy'
       script:
@@ -39,16 +38,10 @@ jobs:
         - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
     - stage: deploy-copr
       env: Type='Copr deploy'
-      before_deploy:
-        - openssl aes-256-cbc -K $encrypted_253525cedcf6_key -iv $encrypted_253525cedcf6_iv -in copr-mfl.enc -out copr-key -d
-        - curl -O https://raw.githubusercontent.com/m3t/travis_wait/master/travis_wait
-        - chmod 755 travis_wait
-      deploy:
-        skip_cleanup: true
-        provider: script
-        script: ./travis_wait "docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker bash -c 'yum install -y rpmdevtools copr-cli && cd /builddir && fake run build.fsx'"
-        on:
-          all_branches: true
+      script:
+        - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
+        - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli'
+        - docker exec -it copr bash -c 'cd /builddir && fake run build.fsx --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN'
 stages:
   - test
   - name: cd

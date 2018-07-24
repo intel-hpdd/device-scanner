@@ -8,10 +8,16 @@ open Fable.Core.JsInterop
 open Fable.Import.Node
 open IML.CommonLibrary
 
+let private envUrl : string = !!Globals.``process``.env?IML_MANAGER_URL
+let private parts = url.parse envUrl
+
 let managerUrl : string =
-    !!Globals.``process``.env?IML_MANAGER_URL
-    |> Option.bind (fun x -> (url.parse x).hostname)
+    parts.hostname
     |> Option.expect "Did not find IML_MANAGER_URL with hostname"
+
+let port : string =
+  parts.port
+  |> Option.expect "Did not find IML_MANAGER_URL with port"
 
 let cert = fs.readFileSync !!Globals.``process``.env?IML_CERT_PATH :> obj
 let key = fs.readFileSync !!Globals.``process``.env?IML_PRIVATE_KEY :> obj

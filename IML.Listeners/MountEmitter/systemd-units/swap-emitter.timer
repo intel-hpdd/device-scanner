@@ -1,6 +1,6 @@
 [Unit]
 Description=IML Swap Emitter Timer
-PartOf=device-scanner.socket
+PartOf=device-scanner.target
 After=local-fs.target
 After=device-scanner.socket
 
@@ -9,4 +9,4 @@ OnUnitActiveSec=60
 OnStartupSec=0
 
 [Install]
-WantedBy=device-scanner.socket
+WantedBy=device-scanner.target

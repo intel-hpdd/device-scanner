@@ -1,6 +1,6 @@
 [Unit]
 Description=IML Mount Emitter
-PartOf=device-scanner.socket
+PartOf=device-scanner.target
 After=local-fs.target
 After=device-scanner.socket
 Requires=mount-populator.service
@@ -14,4 +14,4 @@ StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=device-scanner.socket
+WantedBy=device-scanner.target

@@ -180,6 +180,7 @@ __EOF
       cp -r /vagrant /builddir
       cd /builddir
       npm i --ignore-scripts
+      npm i iltorb
       cert-sync /etc/pki/tls/certs/ca-bundle.crt
       npm run restore
     SHELL

@@ -97,6 +97,7 @@ Target.create "Build" (fun _ ->
   Fake.JavaScript.Npm.run "restore" id
 
   Fake.JavaScript.Npm.exec "install --ignore-scripts" id
+  Fake.JavaScript.Npm.exec "install iltorb" id
 
   (DotNet.exec id "fable" "npm-run build").ExitCode
     |> function

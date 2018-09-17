@@ -5,15 +5,14 @@ services:
 jobs:
   include:
     - stage: test
-      env: Type='build'
+      name: "Build"
       script:
         - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
         - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
     - stage: test
       language: node_js
-      node_js:
-        - 10
-      env: Type='unit test'
+      node_js: 10
+      name: "Unit Test"
       before_install:
         - npm i -g npm@latest codecov
       install: true
@@ -24,20 +23,20 @@ jobs:
     - stage: cd
       git:
         depth: 999999
-      env: 'Type=Continuous Deployment'
+      name: "Continuous Deployment"
       script:
         - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
         - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli git'
         - docker exec -it copr bash -c "cd /builddir && fake run build.fsx --release=\$(git rev-list HEAD | wc -l) --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN"
     - stage: deploy-npm
-      env: Type='npm deploy'
+      name: "Npm Deploy"
       script:
         - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
         - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
         - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
     - stage: deploy-copr
-      env: Type='Copr deploy'
+      name: "Copr Deploy"
       script:
         - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
         - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli'

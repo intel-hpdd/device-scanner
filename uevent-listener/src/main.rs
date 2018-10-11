@@ -1,0 +1,235 @@
+#![allow(unknown_lints)]
+#![warn(clippy)]
+#![cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+
+#[cfg(test)]
+#[macro_use]
+extern crate pretty_assertions;
+
+extern crate device_types;
+#[macro_use]
+extern crate im;
+extern crate serde_json;
+
+use device_types::{udev::UdevCommand, uevent::UEvent, Command};
+use im::{HashSet, Vector};
+use std::{env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit};
+
+fn required_field(name: &str) -> String {
+    env::var(name).unwrap()
+}
+
+fn optional_field(name: &str) -> Option<String> {
+    env::var(name).ok()
+}
+
+fn split_space(x: String) -> Vector<String> {
+    x.split(' ')
+        .filter(|x| x.trim() != "")
+        .map(|x| x.to_string())
+        .collect()
+}
+
+fn get_paths() -> HashSet<PathBuf> {
+    let devlinks = env::var("DEVLINKS").unwrap_or_else(|_| "".to_string());
+
+    let devname = required_field("DEVNAME");
+
+    let mut xs: HashSet<PathBuf> = split_space(devlinks)
+        .iter()
+        .map(|x| {
+            let mut p = PathBuf::new();
+            p.push(x.to_string());
+            p
+        }).collect();
+
+    xs.insert({
+        let mut p = PathBuf::new();
+        p.push(devname);
+        p
+    });
+
+    xs
+}
+
+fn empty_str_to_none(x: String) -> Option<String> {
+    match x.as_str() {
+        "" => None,
+        y => Some(y.to_string()),
+    }
+}
+
+fn parse_to(x: String) -> Option<i64> {
+    x.parse().ok()
+}
+
+fn is_one(x: String) -> bool {
+    x == "1"
+}
+
+fn lvm_uuids(x: String) -> Option<(String, String)> {
+    let lvm_pfix = "LVM-";
+    let uuid_len = 32;
+
+    if !x.starts_with(lvm_pfix) {
+        None
+    } else {
+        let uuids = x.get(lvm_pfix.len()..)?;
+
+        if uuids.len() != (uuid_len * 2) {
+            None
+        } else {
+            Some((
+                uuids.get(0..uuid_len)?.to_string(),
+                uuids.get(uuid_len..)?.to_string(),
+            ))
+        }
+    }
+}
+
+fn create_pathbuf(contents: &str) -> PathBuf {
+    let mut p = PathBuf::new();
+    p.push(contents);
+
+    p
+}
+
+fn md_devs<I>(iter: I) -> HashSet<PathBuf>
+where
+    I: Iterator<Item = (String, String)>,
+{
+    iter.filter(|(key, _)| key.starts_with("MD_DEVICE_"))
+        .filter(|(key, _)| key.ends_with("_DEV"))
+        .map(|(_, v)| create_pathbuf(&v))
+        .collect()
+}
+
+pub fn build_uevent() -> UEvent {
+    let devname = create_pathbuf(&required_field("DEVNAME"));
+    let devpath = create_pathbuf(&required_field("DEVPATH"));
+
+    UEvent {
+        major: required_field("MAJOR"),
+        minor: required_field("MINOR"),
+        seqnum: parse_to(required_field("SEQNUM")).expect("Expected SEQNUM to parse to i64"),
+        paths: get_paths(),
+        parent: None, // This will be filled in Later
+        devname,
+        devpath,
+        devtype: required_field("DEVTYPE"),
+        vendor: optional_field("ID_VENDOR"),
+        model: optional_field("ID_MODEL"),
+        serial: optional_field("ID_SERIAL"),
+        fs_type: optional_field("ID_FS_TYPE").and_then(empty_str_to_none),
+        fs_usage: optional_field("ID_FS_USAGE").and_then(empty_str_to_none),
+        fs_uuid: optional_field("ID_FS_UUID").and_then(empty_str_to_none),
+        part_entry_number: optional_field("ID_PART_ENTRY_NUMBER").and_then(parse_to),
+        size: optional_field("IML_SIZE")
+            .and_then(empty_str_to_none)
+            .and_then(parse_to)
+            .map(|x| x * 512),
+        scsi80: optional_field("IML_SCSI_80").map(|x| x.trim().to_string()),
+        scsi83: optional_field("IML_SCSI_83").map(|x| x.trim().to_string()),
+        read_only: optional_field("IML_IS_RO").map(is_one),
+        bios_boot: optional_field("IML_IS_BIOS_BOOT").map(is_one),
+        zfs_reserved: optional_field("IML_IS_ZFS_RESERVED").map(is_one),
+        is_mpath: optional_field("IML_IS_MPATH").map(is_one),
+        dm_slave_mms: optional_field("IML_DM_SLAVE_MMS")
+            .map(split_space)
+            .unwrap_or_else(|| vector![]),
+        dm_vg_size: Some(0),
+        md_devs: md_devs(env::vars()),
+        dm_multipath_devpath: optional_field("DM_MULTIPATH_DEVICE_PATH").map(is_one),
+        dm_name: optional_field("DM_NAME"),
+        dm_lv_name: optional_field("DM_LV_NAME"),
+        vg_uuid: optional_field("DM_UUID")
+            .and_then(lvm_uuids)
+            .map(|(x, _)| x),
+        lv_uuid: optional_field("DM_UUID")
+            .and_then(lvm_uuids)
+            .map(|(_, y)| y),
+        dm_vg_name: optional_field("DM_VG_NAME"),
+        md_uuid: optional_field("MD_UUID"),
+    }
+}
+
+fn send_data(x: String) {
+    let mut stream = UnixStream::connect("/var/run/device-scanner.sock").unwrap();
+
+    stream.write_all(x.as_bytes()).unwrap();
+
+    // let mut buff = Vec::new();
+
+    // stream.read_to_end(&mut buff).unwrap();
+}
+
+fn main() {
+    let event = build_uevent();
+
+    let result = match required_field("ACTION").as_ref() {
+        "add" => UdevCommand::Add(event),
+        "change" => UdevCommand::Change(event),
+        "remove" => UdevCommand::Remove(event),
+        _ => exit(1),
+    };
+
+    let x = serde_json::to_string(&Command::UdevCommand(result)).unwrap();
+
+    send_data(x)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_lvm_uuids() {
+        let input = "LVM-pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC83Ch5TjlWtPw1BCu2ytrGIjlgzeo7oEtu";
+
+        let result = lvm_uuids(input.to_string());
+
+        assert_eq!(
+            result,
+            Some((
+                "pV8TgNKMJVNrolJgMhVwg4CAeFFAIMC8".to_string(),
+                "3Ch5TjlWtPw1BCu2ytrGIjlgzeo7oEtu".to_string()
+            ))
+        )
+    }
+
+    #[test]
+    fn test_md_devs() {
+        let input = vec![
+            ("ACTION".to_string(), "ADD".to_string()),
+            ("DEVLINKS".to_string(), "/dev/disk/by-id/md-name-lotus-32vm6:0 /dev/disk/by-id/md-uuid-685b40ee:f2bc2028:f056f6d2:e292c910".to_string()),
+            ("DEVNAME".to_string(), "/dev/md0".to_string()),
+            ("DEVPATH".to_string(), "/devices/virtual/block/md0".to_string()),
+            ("DEVTYPE".to_string(), "disk".to_string()),
+            ("ID_FS_TYPE".to_string(), "".to_string()),
+            ("IML_IS_RO".to_string(), "0".to_string()),
+            ("IML_SIZE".to_string(), "41910272".to_string()),
+            ("MAJOR".to_string(), "9".to_string()),
+            ("MD_DEVICES".to_string(), "2".to_string()),
+            ("MD_DEVICE_sda_DEV".to_string(), "/dev/sda".to_string()),
+            ("MD_DEVICE_sda_ROLE".to_string(), "0".to_string()),
+            ("MD_DEVICE_sdd_DEV".to_string(), "/dev/sdd".to_string()),
+            ("MD_DEVICE_sdd_ROLE".to_string(), "1".to_string()),
+            ("MD_LEVEL".to_string(), "raid0".to_string()),
+            ("MD_METADATA".to_string(), "1.2".to_string()),
+            ("MD_NAME".to_string(), "lotus-32vm6:0".to_string()),
+            ("MD_UUID".to_string(), "685b40ee:f2bc2028:f056f6d2:e292c910".to_string()),
+            ("MINOR".to_string(), "0".to_string()),
+            ("MPATH_SBIN_PATH".to_string(), "/sbin".to_string()),
+            ("SUBSYSTEM".to_string(), "block".to_string()),
+            ("TAGS".to_string(), ":systemd:".to_string()),
+            ("USEC_INITIALIZED".to_string(), "426309440135".to_string()),
+        ];
+
+        let result = md_devs(input.into_iter());
+
+        assert_eq!(
+            result,
+            hashset![create_pathbuf("/dev/sda"), create_pathbuf("/dev/sdd")]
+        );
+    }
+}

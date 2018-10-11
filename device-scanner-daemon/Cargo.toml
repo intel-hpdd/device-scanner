@@ -1,0 +1,16 @@
+[package]
+name = "device-scanner-daemon"
+version = "0.1.0"
+authors = ["IML Team <iml@whamcloud.com>"]
+
+[dependencies]
+tokio = "0.1"
+futures = "0.1"
+serde = "1.0"
+serde_derive = "1.0"
+serde_json = "1.0"
+im = { version = "12.1.0", features = ["serde"] }
+device-types = { path = "../device-types", version = "0.1.0" }
+
+[dev-dependencies]
+pretty_assertions = "0.5"

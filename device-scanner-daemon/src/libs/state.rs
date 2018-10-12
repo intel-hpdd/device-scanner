@@ -307,6 +307,8 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
                         devpath: x.devpath.clone(),
                         uuid: x.lv_uuid.clone().expect("Expected lv_uuid"),
                         size: x.size.expect("Expected size"),
+                        major: x.major.clone(),
+                        minor: x.minor.clone(),
                         paths: x.paths.clone(),
                         mount_path,
                         filesystem_type,
@@ -320,7 +322,22 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
                     c
                 });
         }
-        Device::LogicalVolume { .. } => {}
+        Device::LogicalVolume {
+            major,
+            minor,
+            children,
+            ..
+        } => {
+            let ps = get_partitions(&b, &ys, &major, &minor);
+
+            ps.into_iter().fold(children, |c, mut x| {
+                build_device_graph(&mut x, b, ys);
+
+                c.insert(x);
+
+                c
+            });
+        }
         Device::MdRaid { .. } => {}
         Device::Zpool { .. } => {}
         Device::Dataset { .. } => {}

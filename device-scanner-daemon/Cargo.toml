@@ -2,6 +2,12 @@
 name = "device-scanner-daemon"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+autobins = false
+
+[[bin]]
+path = "src/bin/device_scanner_daemon.rs"
+name = "device_scanner_daemon"
+doc = false
 
 [dependencies]
 tokio = "0.1"

@@ -202,6 +202,8 @@ pub mod devices {
         LogicalVolume {
             name: String,
             uuid: String,
+            major: String,
+            minor: String,
             size: i64,
             children: Children,
             devpath: PathBuf,

@@ -136,7 +136,7 @@ pub fn build_uevent() -> UEvent {
         is_mpath: optional_field("IML_IS_MPATH").map(is_one),
         dm_slave_mms: optional_field("IML_DM_SLAVE_MMS")
             .map(split_space)
-            .unwrap_or_else(|| vector![]),
+            .unwrap_or_else(Vector::new),
         dm_vg_size: Some(0),
         md_devs: md_devs(env::vars()),
         dm_multipath_devpath: optional_field("DM_MULTIPATH_DEVICE_PATH").map(is_one),

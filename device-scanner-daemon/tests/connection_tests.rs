@@ -9,35 +9,58 @@ use tokio_mockstream::MockStream;
 
 use std::io::{self, Error, ErrorKind, Read, Write};
 
-struct FailMockStream(MockStream);
+#[derive(Debug)]
+enum MockStreams {
+    FailMockStream(MockStream),
+    MockStream(MockStream),
+}
 
-impl FailMockStream {
+impl MockStreams {
     fn empty() -> Self {
-        FailMockStream(MockStream::empty())
+        MockStreams::MockStream(MockStream::empty())
+    }
+    fn empty_fail() -> Self {
+        MockStreams::FailMockStream(MockStream::empty())
+    }
+    fn written(&self) -> &[u8] {
+        match self {
+            MockStreams::MockStream(x) => x.written(),
+            MockStreams::FailMockStream(x) => &[],
+        }
     }
 }
 
-impl Read for FailMockStream {
+impl Read for MockStreams {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.0.read(buf)
+        match self {
+            MockStreams::MockStream(x) | MockStreams::FailMockStream(x) => x.read(buf),
+        }
     }
 }
 
-impl AsyncRead for FailMockStream {}
+impl AsyncRead for MockStreams {}
 
-impl Write for FailMockStream {
-    fn write(&mut self, _: &[u8]) -> io::Result<usize> {
-        Err(Error::new(ErrorKind::Other, "oh no!"))
+impl Write for MockStreams {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self {
+            MockStreams::MockStream(x) => x.write(buf),
+            MockStreams::FailMockStream(x) => Err(Error::new(ErrorKind::Other, "oh no!")),
+        }
     }
 
     fn flush(&mut self) -> io::Result<()> {
-        Err(Error::new(ErrorKind::Other, "boom"))
+        match self {
+            MockStreams::MockStream(x) => x.flush(),
+            MockStreams::FailMockStream(x) => Err(Error::new(ErrorKind::Other, "boom")),
+        }
     }
 }
 
-impl AsyncWrite for FailMockStream {
+impl AsyncWrite for MockStreams {
     fn shutdown(&mut self) -> Poll<(), io::Error> {
-        self.0.shutdown()
+        match self {
+            MockStreams::MockStream(x) | MockStreams::FailMockStream(x) => x.shutdown(),
+        }
     }
 }
 
@@ -64,7 +87,7 @@ fn test_add_connection() {
 fn test_fail() {
     let (tx, fut) = handler();
 
-    let s = FailMockStream::empty();
+    let s = MockStreams::empty_fail();
 
     tx.unbounded_send(Command::Write("hello".to_string()))
         .unwrap();
@@ -76,4 +99,30 @@ fn test_fail() {
 
     assert_eq!(state.conns.len(), 0);
     assert_eq!(state.msg, Some("hello".to_string()));
+}
+
+#[test]
+fn test_fail_many() {
+    let (tx, fut) = handler();
+
+    let s1 = MockStreams::empty_fail();
+    let s2 = MockStreams::empty();
+    let s3 = MockStreams::empty_fail();
+
+    tx.unbounded_send(Command::Add(s1)).unwrap();
+    tx.unbounded_send(Command::Add(s2)).unwrap();
+    tx.unbounded_send(Command::Add(s3)).unwrap();
+    tx.unbounded_send(Command::Write("hello".to_string()))
+        .unwrap();
+    tx.unbounded_send(Command::Write("there".to_string()))
+        .unwrap();
+
+    drop(tx);
+
+    let runtime = Runtime::new().unwrap();
+    let state = runtime.block_on_all(fut).unwrap();
+
+    assert_eq!(state.conns.len(), 1);
+    assert_eq!(state.conns[0].written(), b"hellothere");
+    assert_eq!(state.msg, Some("there".to_string()));
 }

@@ -25,7 +25,7 @@ impl MockStreams {
     fn written(&self) -> &[u8] {
         match self {
             MockStreams::MockStream(x) => x.written(),
-            MockStreams::FailMockStream(x) => &[],
+            MockStreams::FailMockStream(_) => &[],
         }
     }
 }
@@ -44,14 +44,14 @@ impl Write for MockStreams {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         match self {
             MockStreams::MockStream(x) => x.write(buf),
-            MockStreams::FailMockStream(x) => Err(Error::new(ErrorKind::Other, "oh no!")),
+            MockStreams::FailMockStream(_) => Err(Error::new(ErrorKind::Other, "oh no!")),
         }
     }
 
     fn flush(&mut self) -> io::Result<()> {
         match self {
             MockStreams::MockStream(x) => x.flush(),
-            MockStreams::FailMockStream(x) => Err(Error::new(ErrorKind::Other, "boom")),
+            MockStreams::FailMockStream(_) => Err(Error::new(ErrorKind::Other, "boom")),
         }
     }
 }

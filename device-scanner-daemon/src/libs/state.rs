@@ -13,7 +13,7 @@ use device_types::{
 use im::{HashSet, Vector};
 use serde_json;
 use std::path::PathBuf;
-use tokio::prelude::*;
+use tokio::{net::UnixStream, prelude::*};
 
 fn update_udev(uevents: &mut UEvents, cmd: UdevCommand) {
     match cmd {
@@ -347,9 +347,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
                     c
                 });
         }
-        Device::LogicalVolume {
-            children, devpath, ..
-        } => {}
+        Device::LogicalVolume { .. } => {}
         Device::MdRaid { .. } => {}
         Device::Zpool { .. } => {}
         Device::Dataset { .. } => {}
@@ -419,15 +417,24 @@ fn build_device_list(x: &mut UEvents) -> Vector<UEvent> {
         .collect()
 }
 
+type ConnectionTx = UnboundedSender<connections::Command<UnixStream>>;
+
 pub fn handler() -> (
-    UnboundedSender<(Command, UnboundedSender<connections::Command>)>,
-    impl Future<Item = (), Error = ()>,
+    UnboundedSender<(Command, ConnectionTx)>,
+    impl Future<Item = State, Error = ()>,
 ) {
     let (tx, rx) = mpsc::unbounded();
 
     let fut = rx.fold(
         State::new(),
-        move |State { mut uevents, mut local_mounts }:State, (cmd, connections_tx): (Command, UnboundedSender<connections::Command>)| {
+        move |State {
+                  mut uevents,
+                  mut local_mounts,
+              }: State,
+              (cmd, connections_tx): (
+            Command,
+            UnboundedSender<connections::Command<UnixStream>>,
+        )| {
             {
                 match cmd {
                     Command::UdevCommand(x) => update_udev(&mut uevents, x),
@@ -439,31 +446,27 @@ pub fn handler() -> (
             let dev_list = build_device_list(&mut uevents);
             let dev_list = bucket_devices(&dev_list);
 
-            
-
             {
                 let mut root = Device::Root {
                     children: hashset![],
                 };
 
-
                 build_device_graph(&mut root, &dev_list, &local_mounts);
 
-                let s = serde_json::to_string::<Device>(&root).expect("Expected tree to serialize cleanly");
+                let s = serde_json::to_string::<Device>(&root)
+                    .expect("Expected tree to serialize cleanly");
 
                 connections_tx
                     .unbounded_send(connections::Command::Write(s))
                     .expect("Expected connection to send");
             };
 
-            
-
             Ok(State {
                 uevents,
-                local_mounts
+                local_mounts,
             })
         },
-    ).map(|_| ());
+    );
 
     (tx, fut)
 }

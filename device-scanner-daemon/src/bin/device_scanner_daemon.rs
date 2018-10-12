@@ -7,14 +7,14 @@ extern crate pretty_assertions;
 #[macro_use]
 extern crate im;
 
+extern crate device_scanner_daemon;
 extern crate device_types;
 extern crate futures;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
 
-mod connections;
-mod state;
+use device_scanner_daemon::{connections, state};
 
 use std::{
     io::BufReader,
@@ -22,7 +22,7 @@ use std::{
     os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
 };
 
-use tokio::{io::lines, net::UnixListener, prelude::*, reactor::Handle};
+use tokio::{io::lines, net::UnixListener, net::UnixStream, prelude::*, reactor::Handle};
 
 use futures::{
     future::{self, Either},
@@ -32,9 +32,9 @@ use futures::{
 use device_types::Command;
 
 fn processor(
-    socket: tokio::net::UnixStream,
-    message_tx: UnboundedSender<(Command, UnboundedSender<connections::Command>)>,
-    connections_tx: UnboundedSender<connections::Command>,
+    socket: UnixStream,
+    message_tx: UnboundedSender<(Command, UnboundedSender<connections::Command<UnixStream>>)>,
+    connections_tx: UnboundedSender<connections::Command<UnixStream>>,
 ) -> impl Future<Item = (), Error = ()> {
     lines(BufReader::new(socket))
         .into_future()
@@ -107,8 +107,8 @@ fn main() {
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
     runtime.spawn(server);
-    runtime.spawn(state_fut);
-    runtime.spawn(connections_fut);
+    runtime.spawn(state_fut.map(|_| ()));
+    runtime.spawn(connections_fut.map(|_| ()));
 
     runtime
         .shutdown_on_idle()

@@ -4,6 +4,10 @@ extern crate serde;
 extern crate serde_json;
 extern crate tokio;
 
+#[cfg(test)]
+#[macro_use]
+extern crate pretty_assertions;
+
 #[macro_use]
 extern crate im;
 

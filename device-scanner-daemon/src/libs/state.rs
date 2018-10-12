@@ -71,7 +71,7 @@ fn is_dm(x: &UEvent) -> bool {
 }
 
 fn is_partition(x: &UEvent) -> bool {
-    x.parent.is_some()
+    x.part_entry_mm.is_some()
 }
 
 fn is_mdraid(x: &UEvent) -> bool {
@@ -113,11 +113,16 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             }).collect()
     }
 
-    fn get_partitions(b: &Buckets, ys: &HashSet<Mount>, devpath: &PathBuf) -> HashSet<Device> {
+    fn get_partitions(
+        b: &Buckets,
+        ys: &HashSet<Mount>,
+        major: &str,
+        minor: &str,
+    ) -> HashSet<Device> {
         b.partitions
             .iter()
-            .filter(|&x| match x.parent {
-                Some(ref p) => p == devpath,
+            .filter(|&x| match x.part_entry_mm {
+                Some(ref p) => p == &format!("{}:{}", major, minor),
                 None => false,
             }).map(|x| {
                 let mount = find_mount(&x.paths, ys);
@@ -181,7 +186,6 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
                 });
         }
         Device::Mpath {
-            devpath,
             children,
             major,
             minor,
@@ -189,7 +193,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
         } => {
             let mut vs = get_vgs(&b, major, minor);
 
-            let mut ps = get_partitions(&b, &ys, devpath);
+            let mut ps = get_partitions(&b, &ys, &major, &minor);
 
             let zs = HashSet::unions(vec![vs, ps]);
 
@@ -200,7 +204,6 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             }
         }
         Device::ScsiDevice {
-            devpath,
             children,
             paths,
             major,
@@ -208,43 +211,13 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             ..
         }
         | Device::Partition {
-            devpath,
             children,
             paths,
             major,
             minor,
             ..
         } => {
-            let mut xs: HashSet<Device> = b
-                .partitions
-                .iter()
-                .filter(|&x| match x.parent {
-                    Some(ref p) => p == devpath,
-                    None => false,
-                }).map(|x| {
-                    let mount = find_mount(&x.paths, ys);
-
-                    let (filesystem_type, mount_path) = match mount {
-                        Some(Mount {
-                            fs_type: FsType(f),
-                            target: MountPoint(m),
-                            ..
-                        }) => (Some(f.clone()), Some(m.clone())),
-                        None => (x.fs_type.clone(), None),
-                    };
-
-                    Device::Partition {
-                        partition_number: x.part_entry_number.expect("Expected part_entry_number"),
-                        devpath: x.devpath.clone(),
-                        major: x.major.clone(),
-                        minor: x.minor.clone(),
-                        size: x.size.expect("Expected size"),
-                        paths: x.paths.clone(),
-                        filesystem_type,
-                        children: hashset![],
-                        mount_path,
-                    }
-                }).collect();
+            let mut xs: HashSet<Device> = get_partitions(&b, &ys, &major, &minor);
 
             let mut ms: HashSet<Device> = b
                 .mpaths
@@ -363,7 +336,7 @@ struct Buckets<'a> {
     rest: Vector<&'a UEvent>,
 }
 
-fn bucket_devices(xs: &Vector<UEvent>) -> Buckets {
+fn bucket_devices<'a>(xs: &Vector<&'a UEvent>) -> Buckets<'a> {
     let buckets = Buckets {
         dms: vector![],
         mds: vector![],
@@ -389,32 +362,8 @@ fn bucket_devices(xs: &Vector<UEvent>) -> Buckets {
     })
 }
 
-fn add_parents<'a>(x: &'a mut UEvent, xs: &HashSet<PathBuf>) -> UEvent {
-    let parent = x
-        .devpath
-        .parent()
-        .expect("Expected parent path for devpath")
-        .to_path_buf();
-
-    let parent = if xs.contains(&parent) {
-        Some(parent)
-    } else {
-        None
-    };
-
-    UEvent {
-        parent,
-        ..x.clone()
-    }
-}
-
-fn build_device_list(x: &mut UEvents) -> Vector<UEvent> {
-    let xs: HashSet<PathBuf> = x.clone().keys().cloned().collect();
-
-    x.iter_mut()
-        .filter(|y| keep_usable(y))
-        .map(|x| add_parents(x, &xs))
-        .collect()
+fn build_device_list(xs: &mut UEvents) -> Vector<&UEvent> {
+    xs.values().filter(|y| keep_usable(y)).collect()
 }
 
 type ConnectionTx = UnboundedSender<connections::Command<UnixStream>>;
@@ -435,18 +384,16 @@ pub fn handler() -> (
             Command,
             UnboundedSender<connections::Command<UnixStream>>,
         )| {
-            {
-                match cmd {
-                    Command::UdevCommand(x) => update_udev(&mut uevents, x),
-                    Command::MountCommand(x) => update_mount(&mut local_mounts, x),
-                    _ => (),
-                };
+            match cmd {
+                Command::UdevCommand(x) => update_udev(&mut uevents, x),
+                Command::MountCommand(x) => update_mount(&mut local_mounts, x),
+                _ => (),
             };
 
-            let dev_list = build_device_list(&mut uevents);
-            let dev_list = bucket_devices(&dev_list);
-
             {
+                let dev_list = build_device_list(&mut uevents);
+                let dev_list = bucket_devices(&dev_list);
+
                 let mut root = Device::Root {
                     children: hashset![],
                 };

@@ -4,17 +4,14 @@
 #[cfg(test)]
 #[macro_use]
 extern crate pretty_assertions;
-
 #[macro_use]
 extern crate im;
 
+extern crate device_types;
 extern crate futures;
 extern crate serde;
 extern crate serde_json;
-
 extern crate tokio;
-
-extern crate device_types;
 
 mod connections;
 mod state;
@@ -34,11 +31,11 @@ use futures::{
 
 use device_types::Command;
 
-fn processor<'a>(
+fn processor(
     socket: tokio::net::UnixStream,
     message_tx: UnboundedSender<(Command, UnboundedSender<connections::Command>)>,
     connections_tx: UnboundedSender<connections::Command>,
-) -> impl Future<Item = (), Error = ()> + 'a {
+) -> impl Future<Item = (), Error = ()> {
     lines(BufReader::new(socket))
         .into_future()
         .map_err(|(e, _)| eprintln!("error reading lines: {}", e))
@@ -70,13 +67,15 @@ fn processor<'a>(
                 if let Command::Stream = cmd {
                     connections_tx
                         .unbounded_send(connections::Command::Add(socket))
-                        .expect("expected connection send to work")
+                        .expect("Connection send failed")
                 } else {
-                    socket.shutdown(Shutdown::Both).unwrap();
+                    socket
+                        .shutdown(Shutdown::Both)
+                        .expect("Socket shutdown failed");
 
                     message_tx
                         .unbounded_send((cmd, connections_tx))
-                        .expect("expected message send to work")
+                        .expect("Message send failed")
                 };
             }
         })
@@ -86,8 +85,6 @@ fn main() {
     let (message_tx, state_fut) = state::handler();
 
     let (connections_tx, connections_fut) = connections::handler();
-
-    let mut runtime = tokio::runtime::Runtime::new().expect("could not create runtime");
 
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
@@ -103,9 +100,12 @@ fn main() {
                 message_tx.clone(),
                 connections_tx.clone(),
             ))
-        }).map_err(|e| panic!("{:?}", e));
+        });
 
-    println!("server starting");
+    println!("Server starting");
+
+    let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
+
     runtime.spawn(server);
     runtime.spawn(state_fut);
     runtime.spawn(connections_fut);
@@ -113,5 +113,5 @@ fn main() {
     runtime
         .shutdown_on_idle()
         .wait()
-        .expect("failed waiting on runtime");
+        .expect("Failed waiting on runtime");
 }

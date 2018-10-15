@@ -9,13 +9,14 @@ path = "src/bin/device_scanner_daemon.rs"
 name = "device_scanner_daemon"
 doc = false
 
+
 [dependencies]
 tokio = "0.1"
 futures = "0.1"
 serde = "1.0"
 serde_derive = "1.0"
 serde_json = "1.0"
-im = { version = "12.2.0", features = ["serde"] }
+im = { version = "12.1.0", features = ["serde"] }
 device-types = { path = "../device-types", version = "0.1.0" }
 
 [dev-dependencies]

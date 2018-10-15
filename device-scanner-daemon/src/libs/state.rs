@@ -1,5 +1,17 @@
+//! Handles Updates of state
+//!
+//! `device-scanner` uses a persistent streaming strategy
+//! where Unix domain sockets can connect and be fed device-graph changes as they occur.
+//! This module is responsible for internally storing the current state and building the next device-graph
+//! after each "tick" (an incoming device event).
+
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
+
+use im::{HashSet, Vector};
+use serde_json;
+use std::path::PathBuf;
+use tokio::{net::UnixStream, prelude::*};
 
 use connections;
 use device_types::{
@@ -10,11 +22,8 @@ use device_types::{
     uevent::UEvent,
     Command,
 };
-use im::{HashSet, Vector};
-use serde_json;
-use std::path::PathBuf;
-use tokio::{net::UnixStream, prelude::*};
 
+/// Mutably updates the Udev portion of the device map in response to `UdevCommand`s.
 fn update_udev(uevents: &mut UEvents, cmd: UdevCommand) {
     match cmd {
         UdevCommand::Add(x) | UdevCommand::Change(x) => uevents.insert(x.devpath.clone(), x),
@@ -22,6 +31,7 @@ fn update_udev(uevents: &mut UEvents, cmd: UdevCommand) {
     };
 }
 
+/// Mutably updates the Mount portion of the device map in response to `MountCommand`s.
 fn update_mount(local_mounts: &mut HashSet<Mount>, cmd: MountCommand) {
     match cmd {
         MountCommand::AddMount(target, source, fstype, opts) => {
@@ -62,12 +72,9 @@ fn is_mpath(x: &UEvent) -> bool {
 }
 
 fn is_dm(x: &UEvent) -> bool {
-    let xs: Option<Vector<String>> =
-        vector![x.lv_uuid.clone(), x.vg_uuid.clone(), x.dm_lv_name.clone()]
-            .into_iter()
-            .collect();
-
-    xs.is_some()
+    [&x.lv_uuid, &x.vg_uuid, &x.dm_lv_name]
+        .iter()
+        .all(|x| x.is_some())
 }
 
 fn is_partition(x: &UEvent) -> bool {
@@ -78,6 +85,14 @@ fn is_mdraid(x: &UEvent) -> bool {
     x.md_uuid.is_some()
 }
 
+fn format_major_minor(major: &str, minor: &str) -> String {
+    format!("{}:{}", major, minor)
+}
+
+fn find_by_major_minor(xs: &Vector<String>, major: &str, minor: &str) -> bool {
+    xs.contains(&format_major_minor(major, minor))
+}
+
 fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {
     ys.iter().find(
         |Mount {
@@ -85,19 +100,6 @@ fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a M
              ..
          }| { xs.iter().any(|x| x == s) },
     )
-}
-
-fn find_by_major_minor(xs: &Vector<String>, major: &str, minor: &str) -> bool {
-    xs.contains(&format!("{}:{}", major, minor))
-}
-
-fn intersections<I, T>(i: I) -> HashSet<T>
-where
-    I: IntoIterator<Item = HashSet<T>>,
-    T: ::std::hash::Hash + Eq + Clone,
-{
-    i.into_iter()
-        .fold(HashSet::default(), |a, b| a.intersection(b))
 }
 
 fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) {
@@ -122,7 +124,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
         b.partitions
             .iter()
             .filter(|&x| match x.part_entry_mm {
-                Some(ref p) => p == &format!("{}:{}", major, minor),
+                Some(ref p) => p == &format_major_minor(major, minor),
                 None => false,
             }).map(|x| {
                 let mount = find_mount(&x.paths, ys);
@@ -253,7 +255,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             let mut mds: HashSet<Device> = b
                 .mds
                 .iter()
-                .filter(|&x| intersections(vec![paths.clone(), x.md_devs.clone()]).is_empty())
+                .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
                 .map(|x| {
                     let mount = find_mount(&x.paths, ys);
 
@@ -328,15 +330,15 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             children,
             ..
         } => {
-            let ps = get_partitions(&b, &ys, &major, &minor);
+            get_partitions(&b, &ys, &major, &minor)
+                .into_iter()
+                .fold(children, |c, mut x| {
+                    build_device_graph(&mut x, b, ys);
 
-            ps.into_iter().fold(children, |c, mut x| {
-                build_device_graph(&mut x, b, ys);
+                    c.insert(x);
 
-                c.insert(x);
-
-                c
-            });
+                    c
+                });
         }
         Device::MdRaid { .. } => {}
         Device::Zpool { .. } => {}
@@ -433,4 +435,90 @@ pub fn handler() -> (
     );
 
     (tx, fut)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use device_types::{udev::UdevCommand, uevent::UEvent};
+
+    fn create_path_buf(s: &str) -> PathBuf {
+        let mut p = PathBuf::new();
+        p.push(s);
+
+        p
+    }
+
+    #[test]
+    fn test_udev_update() {
+        let ev = UEvent {
+            major: "253".to_string(),
+            minor: "20".to_string(),
+            seqnum: 3547,
+            paths: hashset![
+                create_path_buf(
+                    "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df"
+                ),
+                create_path_buf("/dev/mapper/mpathd1"),
+                create_path_buf("/dev/disk/by-uuid/b4550256-cf48-4013-8363-bfee5f52da12"),
+                create_path_buf("/dev/disk/by-partuuid/d643e32f-b6b9-4863-af8f-8950376e28da"),
+                create_path_buf("/dev/dm-20"),
+                create_path_buf("/dev/disk/by-id/dm-name-mpathd1")
+            ],
+            devname: create_path_buf("/dev/dm-20"),
+            devpath: create_path_buf("/devices/virtual/block/dm-20"),
+            devtype: "disk".to_string(),
+            vendor: None,
+            model: None,
+            serial: None,
+            fs_type: Some("ext4".to_string()),
+            fs_usage: Some("filesystem".to_string()),
+            fs_uuid: Some("b4550256-cf48-4013-8363-bfee5f52da12".to_string()),
+            part_entry_number: Some(1),
+            part_entry_mm: Some("253:13".to_string()),
+            size: Some(100_651_008),
+            scsi80: Some(
+                "SLIO-ORG ost12           50e41a84-1db2-44a9-92c3-1e7dfad48fce".to_string(),
+            ),
+            scsi83: Some("3600140550e41a841db244a992c31e7df".to_string()),
+            read_only: Some(false),
+            bios_boot: None,
+            zfs_reserved: None,
+            is_mpath: None,
+            dm_slave_mms: vector!["253:13".to_string()],
+            dm_vg_size: Some(0),
+            md_devs: hashset![],
+            dm_multipath_devpath: None,
+            dm_name: Some("mpathd1".to_string()),
+            dm_lv_name: None,
+            lv_uuid: None,
+            dm_vg_name: None,
+            vg_uuid: None,
+            md_uuid: None,
+        };
+
+        let mut ev2 = ev.clone();
+        ev2.size = Some(100_651_001);
+
+        let mut uevents = hashmap!{ev.devpath.clone() => ev.clone()};
+
+        let add_cmd = UdevCommand::Add(ev.clone());
+
+        update_udev(&mut uevents, add_cmd);
+
+        assert_eq!(hashmap!{ev.devpath.clone() => ev.clone()}, uevents);
+
+        let change_cmd = UdevCommand::Change(ev2.clone());
+
+        update_udev(&mut uevents, change_cmd);
+
+        assert_eq!(hashmap!{ev.devpath.clone() => ev2.clone()}, uevents);
+
+        let remove_cmd = UdevCommand::Remove(ev2.clone());
+
+        update_udev(&mut uevents, remove_cmd);
+
+        assert_eq!(hashmap!{}, uevents);
+    }
+
 }

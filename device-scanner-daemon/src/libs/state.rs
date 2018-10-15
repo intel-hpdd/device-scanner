@@ -63,6 +63,7 @@ fn update_mount(local_mounts: &mut HashSet<Mount>, cmd: MountCommand) {
     };
 }
 
+/// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
     x.size != Some(0) && x.size.is_some() && x.read_only != Some(true) && x.bios_boot != Some(true)
 }
@@ -102,90 +103,181 @@ fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a M
     )
 }
 
-fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) {
-    fn get_vgs(b: &Buckets, major: &str, minor: &str) -> HashSet<Device> {
-        b.dms
-            .iter()
-            .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
-            .map(|x| Device::VolumeGroup {
-                name: x.dm_vg_name.clone().expect("Expected dm_vg_name"),
+fn get_vgs(b: &Buckets, major: &str, minor: &str) -> HashSet<Device> {
+    b.dms
+        .iter()
+        .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
+        .map(|x| Device::VolumeGroup {
+            name: x.dm_vg_name.clone().expect("Expected dm_vg_name"),
+            children: hashset![],
+            size: x.dm_vg_size.expect("Expected size"),
+            uuid: x.vg_uuid.clone().expect("Expected vg_uuid"),
+        }).collect()
+}
+
+fn get_partitions(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> HashSet<Device> {
+    b.partitions
+        .iter()
+        .filter(|&x| match x.part_entry_mm {
+            Some(ref p) => p == &format_major_minor(major, minor),
+            None => false,
+        }).map(|x| {
+            let mount = find_mount(&x.paths, ys);
+
+            let (filesystem_type, mount_path) = match mount {
+                Some(Mount {
+                    fs_type: FsType(f),
+                    target: MountPoint(m),
+                    ..
+                }) => (Some(f.clone()), Some(m.clone())),
+                None => (x.fs_type.clone(), None),
+            };
+
+            Device::Partition {
+                partition_number: x.part_entry_number.expect("Expected part_entry_number"),
+                devpath: x.devpath.clone(),
+                major: x.major.clone(),
+                minor: x.minor.clone(),
+                size: x.size.expect("Expected size"),
+                paths: x.paths.clone(),
+                filesystem_type,
                 children: hashset![],
-                size: x.dm_vg_size.expect("Expected size"),
-                uuid: x.vg_uuid.clone().expect("Expected vg_uuid"),
-            }).collect()
-    }
+                mount_path,
+            }
+        }).collect()
+}
 
-    fn get_partitions(
-        b: &Buckets,
-        ys: &HashSet<Mount>,
-        major: &str,
-        minor: &str,
-    ) -> HashSet<Device> {
-        b.partitions
-            .iter()
-            .filter(|&x| match x.part_entry_mm {
-                Some(ref p) => p == &format_major_minor(major, minor),
-                None => false,
-            }).map(|x| {
-                let mount = find_mount(&x.paths, ys);
+fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> HashSet<Device> {
+    b.dms
+        .iter()
+        .filter(|&x| match x.vg_uuid {
+            Some(ref p) => p == uuid,
+            None => false,
+        }).map(|x| {
+            let mount = find_mount(&x.paths, ys);
 
-                let (filesystem_type, mount_path) = match mount {
-                    Some(Mount {
-                        fs_type: FsType(f),
-                        target: MountPoint(m),
-                        ..
-                    }) => (Some(f.clone()), Some(m.clone())),
-                    None => (x.fs_type.clone(), None),
-                };
+            let (filesystem_type, mount_path) = match mount {
+                Some(Mount {
+                    fs_type: FsType(f),
+                    target: MountPoint(m),
+                    ..
+                }) => (Some(f.clone()), Some(m.clone())),
+                None => (x.fs_type.clone(), None),
+            };
 
-                Device::Partition {
-                    partition_number: x.part_entry_number.expect("Expected part_entry_number"),
-                    devpath: x.devpath.clone(),
-                    major: x.major.clone(),
-                    minor: x.minor.clone(),
-                    size: x.size.expect("Expected size"),
-                    paths: x.paths.clone(),
-                    filesystem_type,
-                    children: hashset![],
-                    mount_path,
-                }
-            }).collect()
-    }
+            Device::LogicalVolume {
+                name: x.dm_lv_name.clone().expect("Expected dm_lv_name"),
+                devpath: x.devpath.clone(),
+                uuid: x.lv_uuid.clone().expect("Expected lv_uuid"),
+                size: x.size.expect("Expected size"),
+                major: x.major.clone(),
+                minor: x.minor.clone(),
+                paths: x.paths.clone(),
+                mount_path,
+                filesystem_type,
+                children: hashset![],
+            }
+        }).collect()
+}
 
+fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> HashSet<Device> {
+    b.rest
+        .iter()
+        .map(|x| {
+            let mount = find_mount(&x.paths, ys);
+
+            let (filesystem_type, mount_path) = match mount {
+                Some(Mount {
+                    fs_type: FsType(f),
+                    target: MountPoint(m),
+                    ..
+                }) => (Some(f.clone()), Some(m.clone())),
+                None => (x.fs_type.clone(), None),
+            };
+
+            Device::ScsiDevice {
+                serial: x.scsi83.clone().expect("Expected serial"),
+                devpath: x.devpath.clone(),
+                major: x.major.clone(),
+                minor: x.minor.clone(),
+                size: x.size.expect("Expected size"),
+                filesystem_type,
+                paths: x.paths.clone(),
+                children: hashset![],
+                mount_path,
+            }
+        }).collect()
+}
+
+fn get_mpaths(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> HashSet<Device> {
+    b.mpaths
+        .iter()
+        .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
+        .map(|x| {
+            let mount = find_mount(&x.paths, ys);
+
+            let (filesystem_type, mount_path) = match mount {
+                Some(Mount {
+                    fs_type: FsType(f),
+                    target: MountPoint(m),
+                    ..
+                }) => (Some(f.clone()), Some(m.clone())),
+                None => (x.fs_type.clone(), None),
+            };
+
+            Device::Mpath {
+                serial: x.scsi83.clone().expect("Expected serial"),
+                size: x.size.expect("Expected size"),
+                major: x.major.clone(),
+                minor: x.minor.clone(),
+                paths: x.paths.clone(),
+                filesystem_type,
+                children: hashset![],
+                devpath: x.devpath.clone(),
+                mount_path,
+            }
+        }).collect()
+}
+
+fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> HashSet<Device> {
+    b.mds
+        .iter()
+        .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
+        .map(|x| {
+            let mount = find_mount(&x.paths, ys);
+
+            let (filesystem_type, mount_path) = match mount {
+                Some(Mount {
+                    fs_type: FsType(f),
+                    target: MountPoint(m),
+                    ..
+                }) => (Some(f.clone()), Some(m.clone())),
+                None => (x.fs_type.clone(), None),
+            };
+
+            Device::MdRaid {
+                paths: x.paths.clone(),
+                filesystem_type,
+                mount_path,
+                major: x.major.clone(),
+                minor: x.minor.clone(),
+                size: x.size.expect("Expected size"),
+                children: hashset![],
+                uuid: x.md_uuid.clone().expect("Expected md_uuid"),
+            }
+        }).collect()
+}
+
+fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) {
     match ptr {
         Device::Root { children, .. } => {
-            b.rest
-                .iter()
-                .map(|x| {
-                    let mount = find_mount(&x.paths, ys);
+            get_scsis(&b, &ys).into_iter().fold(children, |c, mut x| {
+                build_device_graph(&mut x, b, ys);
 
-                    let (filesystem_type, mount_path) = match mount {
-                        Some(Mount {
-                            fs_type: FsType(f),
-                            target: MountPoint(m),
-                            ..
-                        }) => (Some(f.clone()), Some(m.clone())),
-                        None => (x.fs_type.clone(), None),
-                    };
+                c.insert(x);
 
-                    Device::ScsiDevice {
-                        serial: x.scsi83.clone().expect("Expected serial"),
-                        devpath: x.devpath.clone(),
-                        major: x.major.clone(),
-                        minor: x.minor.clone(),
-                        size: x.size.expect("Expected size"),
-                        filesystem_type,
-                        paths: x.paths.clone(),
-                        children: hashset![],
-                        mount_path,
-                    }
-                }).fold(children, |c, mut x| {
-                    build_device_graph(&mut x, b, ys);
-
-                    c.insert(x);
-
-                    c
-                });
+                c
+            });
         }
         Device::Mpath {
             children,
@@ -193,16 +285,14 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             minor,
             ..
         } => {
-            let mut vs = get_vgs(&b, major, minor);
+            let vs = get_vgs(&b, major, minor);
 
-            let mut ps = get_partitions(&b, &ys, &major, &minor);
+            let ps = get_partitions(&b, &ys, major, minor);
 
-            let zs = HashSet::unions(vec![vs, ps]);
+            for mut x in HashSet::unions(vec![vs, ps]) {
+                build_device_graph(&mut x, b, ys);
 
-            for mut z in zs {
-                build_device_graph(&mut z, b, ys);
-
-                children.insert(z);
+                children.insert(x);
             }
         }
         Device::ScsiDevice {
@@ -219,104 +309,24 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             minor,
             ..
         } => {
-            let mut xs: HashSet<Device> = get_partitions(&b, &ys, &major, &minor);
+            let xs = get_partitions(&b, &ys, &major, &minor);
 
-            let mut ms: HashSet<Device> = b
-                .mpaths
-                .iter()
-                .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
-                .map(|x| {
-                    let mount = find_mount(&x.paths, ys);
+            let ms = get_mpaths(&b, &ys, major, minor);
 
-                    let (filesystem_type, mount_path) = match mount {
-                        Some(Mount {
-                            fs_type: FsType(f),
-                            target: MountPoint(m),
-                            ..
-                        }) => (Some(f.clone()), Some(m.clone())),
-                        None => (x.fs_type.clone(), None),
-                    };
+            let vs = get_vgs(b, major, minor);
 
-                    Device::Mpath {
-                        serial: x.scsi83.clone().expect("Expected serial"),
-                        size: x.size.expect("Expected size"),
-                        major: x.major.clone(),
-                        minor: x.minor.clone(),
-                        paths: x.paths.clone(),
-                        filesystem_type,
-                        children: hashset![],
-                        devpath: x.devpath.clone(),
-                        mount_path,
-                    }
-                }).collect();
+            let mds = get_mds(&b, &ys, &paths);
 
-            let mut vs = get_vgs(b, major, minor);
+            for mut x in HashSet::unions(vec![xs, ms, vs, mds]) {
+                build_device_graph(&mut x, b, ys);
 
-            let mut mds: HashSet<Device> = b
-                .mds
-                .iter()
-                .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
-                .map(|x| {
-                    let mount = find_mount(&x.paths, ys);
-
-                    let (filesystem_type, mount_path) = match mount {
-                        Some(Mount {
-                            fs_type: FsType(f),
-                            target: MountPoint(m),
-                            ..
-                        }) => (Some(f.clone()), Some(m.clone())),
-                        None => (x.fs_type.clone(), None),
-                    };
-
-                    Device::MdRaid {
-                        paths: x.paths.clone(),
-                        filesystem_type,
-                        mount_path,
-                        size: x.size.expect("Expected size"),
-                        children: hashset![],
-                        uuid: x.md_uuid.clone().expect("Expected md_uuid"),
-                    }
-                }).collect();
-
-            let zs = HashSet::unions(vec![xs, ms, vs, mds]);
-
-            for mut z in zs {
-                build_device_graph(&mut z, b, ys);
-
-                children.insert(z);
+                children.insert(x);
             }
         }
         Device::VolumeGroup { children, uuid, .. } => {
-            b.dms
-                .iter()
-                .filter(|&x| match x.vg_uuid {
-                    Some(ref p) => p == uuid,
-                    None => false,
-                }).map(|x| {
-                    let mount = find_mount(&x.paths, ys);
-
-                    let (filesystem_type, mount_path) = match mount {
-                        Some(Mount {
-                            fs_type: FsType(f),
-                            target: MountPoint(m),
-                            ..
-                        }) => (Some(f.clone()), Some(m.clone())),
-                        None => (x.fs_type.clone(), None),
-                    };
-
-                    Device::LogicalVolume {
-                        name: x.dm_lv_name.clone().expect("Expected dm_lv_name"),
-                        devpath: x.devpath.clone(),
-                        uuid: x.lv_uuid.clone().expect("Expected lv_uuid"),
-                        size: x.size.expect("Expected size"),
-                        major: x.major.clone(),
-                        minor: x.minor.clone(),
-                        paths: x.paths.clone(),
-                        mount_path,
-                        filesystem_type,
-                        children: hashset![],
-                    }
-                }).fold(children, |c, mut x| {
+            get_lvs(&b, &ys, &uuid)
+                .into_iter()
+                .fold(children, |c, mut x| {
                     build_device_graph(&mut x, b, ys);
 
                     c.insert(x);
@@ -340,7 +350,22 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
                     c
                 });
         }
-        Device::MdRaid { .. } => {}
+        Device::MdRaid {
+            major,
+            minor,
+            children,
+            ..
+        } => {
+            let vs = get_vgs(&b, &major, &minor);
+
+            let ps = get_partitions(&b, &ys, major, minor);
+
+            for mut x in HashSet::unions(vec![vs, ps]) {
+                build_device_graph(&mut x, b, ys);
+
+                children.insert(x);
+            }
+        }
         Device::Zpool { .. } => {}
         Device::Dataset { .. } => {}
     };
@@ -440,7 +465,11 @@ pub fn handler() -> (
 #[cfg(test)]
 mod tests {
     use super::*;
-    use device_types::{udev::UdevCommand, uevent::UEvent};
+    use device_types::{
+        mount::{self, MountCommand},
+        udev::UdevCommand,
+        uevent::UEvent,
+    };
 
     fn create_path_buf(s: &str) -> PathBuf {
         let mut p = PathBuf::new();
@@ -519,6 +548,81 @@ mod tests {
         update_udev(&mut uevents, remove_cmd);
 
         assert_eq!(hashmap!{}, uevents);
+    }
+
+    #[test]
+    fn test_mount_update() {
+        let mut mounts = hashset!();
+
+        let add_cmd = MountCommand::AddMount(
+            MountPoint(create_path_buf("/mnt/part1")),
+            BdevPath(create_path_buf("/dev/sde1")),
+            FsType("ext4".to_string()),
+            mount::MountOpts("rw,relatime,data=ordered".to_string()),
+        );
+
+        update_mount(&mut mounts, add_cmd);
+
+        assert_eq!(
+            hashset!(Mount {
+                target: MountPoint(create_path_buf("/mnt/part1")),
+                source: BdevPath(create_path_buf("/dev/sde1")),
+                fs_type: FsType("ext4".to_string()),
+                opts: mount::MountOpts("rw,relatime,data=ordered".to_string())
+            }),
+            mounts
+        );
+
+        let mv_cmd = MountCommand::MoveMount(
+            MountPoint(create_path_buf("/mnt/part3")),
+            BdevPath(create_path_buf("/dev/sde1")),
+            FsType("ext4".to_string()),
+            mount::MountOpts("rw,relatime,data=ordered".to_string()),
+            MountPoint(create_path_buf("/mnt/part1")),
+        );
+
+        update_mount(&mut mounts, mv_cmd);
+
+        assert_eq!(
+            hashset!(Mount {
+                target: MountPoint(create_path_buf("/mnt/part3")),
+                source: BdevPath(create_path_buf("/dev/sde1")),
+                fs_type: FsType("ext4".to_string()),
+                opts: mount::MountOpts("rw,relatime,data=ordered".to_string())
+            }),
+            mounts
+        );
+
+        let replace_cmd = MountCommand::ReplaceMount(
+            MountPoint(create_path_buf("/mnt/part3")),
+            BdevPath(create_path_buf("/dev/sde1")),
+            FsType("ext4".to_string()),
+            mount::MountOpts("r,relatime,data=ordered".to_string()),
+            mount::MountOpts("rw,relatime,data=ordered".to_string()),
+        );
+
+        update_mount(&mut mounts, replace_cmd);
+
+        assert_eq!(
+            hashset!(Mount {
+                target: MountPoint(create_path_buf("/mnt/part3")),
+                source: BdevPath(create_path_buf("/dev/sde1")),
+                fs_type: FsType("ext4".to_string()),
+                opts: mount::MountOpts("r,relatime,data=ordered".to_string())
+            }),
+            mounts
+        );
+
+        let rm_cmd = MountCommand::RemoveMount(
+            MountPoint(create_path_buf("/mnt/part3")),
+            BdevPath(create_path_buf("/dev/sde1")),
+            FsType("ext4".to_string()),
+            mount::MountOpts("r,relatime,data=ordered".to_string()),
+        );
+
+        update_mount(&mut mounts, rm_cmd);
+
+        assert_eq!(hashset!(), mounts);
     }
 
 }

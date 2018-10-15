@@ -1,7 +1,6 @@
 #![allow(unknown_lints)]
 #![warn(clippy)]
 
-#[macro_use]
 extern crate im;
 
 extern crate device_scanner_daemon;

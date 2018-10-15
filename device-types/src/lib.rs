@@ -176,6 +176,8 @@ pub mod devices {
         },
         MdRaid {
             size: i64,
+            major: String,
+            minor: String,
             filesystem_type: Option<String>,
             paths: Paths,
             mount_path: Option<PathBuf>,

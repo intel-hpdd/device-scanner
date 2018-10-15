@@ -6,9 +6,10 @@
 #[macro_use]
 extern crate pretty_assertions;
 
-extern crate device_types;
-#[macro_use]
+#[cfg_attr(test, macro_use)]
 extern crate im;
+
+extern crate device_types;
 extern crate serde_json;
 
 use device_types::{udev::UdevCommand, uevent::UEvent, Command};

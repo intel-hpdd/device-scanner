@@ -1,0 +1,9 @@
+--- Cargo.toml.old	2018-10-18 18:22:49.133087952 +0000
++++ Cargo.toml	2018-10-18 18:23:42.571974036 +0000
+@@ -47,3 +47,6 @@
+ 
+ [dev-dependencies.tokio-mockstream]
+ version = "1.1"
++
++[patch.crates-io]
++device-types = { path = "../device-types-0.1.0" }

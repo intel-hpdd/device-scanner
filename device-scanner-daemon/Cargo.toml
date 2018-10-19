@@ -1,12 +1,13 @@
 [package]
 name = "device-scanner-daemon"
-version = "0.1.0"
+version = "2.0.0"
+description = "device-scanner-daemon builds an in-memory representation of devices using udev, zed and findmnt"
 authors = ["IML Team <iml@whamcloud.com>"]
 autobins = false
 
 [[bin]]
 path = "src/bin/device_scanner_daemon.rs"
-name = "device_scanner_daemon"
+name = "device-scanner-daemon"
 doc = false
 
 

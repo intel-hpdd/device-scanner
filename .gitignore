@@ -1,2 +1,6 @@
 /target
+/tmp
 **/*.rs.bk
+.vagrant
+id_rsa*
+hosts

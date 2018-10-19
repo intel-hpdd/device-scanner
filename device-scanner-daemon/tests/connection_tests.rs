@@ -79,7 +79,7 @@ fn test_add_connection() {
     let state = runtime.block_on_all(fut).unwrap();
 
     assert_eq!(state.conns.len(), 1);
-    assert_eq!(state.conns[0].written(), b"hello");
+    assert_eq!(state.conns[0].written(), b"hello\n");
     assert_eq!(state.msg, Some("hello".to_string()));
 }
 
@@ -123,6 +123,6 @@ fn test_fail_many() {
     let state = runtime.block_on_all(fut).unwrap();
 
     assert_eq!(state.conns.len(), 1);
-    assert_eq!(state.conns[0].written(), b"hellothere");
+    assert_eq!(state.conns[0].written(), b"hello\nthere\n");
     assert_eq!(state.msg, Some("there".to_string()));
 }

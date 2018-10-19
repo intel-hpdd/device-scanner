@@ -76,7 +76,7 @@ where
                         as Box<Future<Item = State<T>, Error = ()> + Send>
                 }
                 Some(msg) => {
-                    let fut = write_all(s, msg.clone())
+                    let fut = write_all(s, msg.clone() + "\n")
                         .then(|x| match x {
                             Ok((s, _)) => {
                                 conns.push(s);
@@ -95,7 +95,7 @@ where
             Command::Write(msg) => {
                 let xs: Vec<_> = conns
                     .drain(0..)
-                    .map(|v| write_to_stream(v, msg.clone()))
+                    .map(|v| write_to_stream(v, msg.clone() + "\n"))
                     .collect();
 
                 let fut = future::join_all(xs)

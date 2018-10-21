@@ -57,7 +57,7 @@
     "jest-junit": "^5.1.0",
     "pre-commit": "^1.2.2",
     "prettier": "^1.14.2",
-    "remark-cli": "^5.0.0",
+    "remark-cli": "^6.0.0",
     "remark-man": "^5.1.0",
     "rollup": "^0.66.0",
     "rollup-plugin-cleanup": "^3.0.0-beta.1",

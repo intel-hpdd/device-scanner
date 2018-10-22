@@ -1,9 +1,0 @@
---- Cargo.toml
-+++ Cargo.toml
-@@ -36,3 +36,6 @@
- 
- [dev-dependencies.tokio-mockstream]
- version = "1.1"
-+
-+[patch.crates-io]
-+device-types = { path = "../device-types-0.1.0" } 

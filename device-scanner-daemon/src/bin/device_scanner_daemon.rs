@@ -42,7 +42,7 @@ fn processor(
                 None => return Either::A(future::ok(None)),
             };
 
-            // Parse the command. If it's invalid, we simply cooerce to None, and print the error.
+            // Parse the command. If it's invalid, we simply coerce to None, and print the error.
             // This will short-circuit the rest of the future chain.
             let cmd: Command = match serde_json::from_str::<Command>(&x) {
                 Ok(c) => c,

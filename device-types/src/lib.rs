@@ -7,6 +7,14 @@ extern crate pretty_assertions;
 
 extern crate im;
 
+pub mod message {
+    #[derive(Debug, Serialize, Deserialize)]
+    pub enum Message {
+        Data(String),
+        Heartbeat,
+    }
+}
+
 pub mod state {
     use im::{HashMap, HashSet};
     use mount;
@@ -15,7 +23,7 @@ pub mod state {
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
-    #[derive(Default, Serialize)]
+    #[derive(Debug, Default, Serialize)]
     pub struct State {
         pub uevents: UEvents,
         pub local_mounts: HashSet<mount::Mount>,

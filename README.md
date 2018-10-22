@@ -1,13 +1,13 @@
 # device-scanner
 
 [![Build Status](https://travis-ci.org/whamcloud/device-scanner.svg?branch=master)](https://travis-ci.org/whamcloud/device-scanner)
-[![Greenkeeper badge](https://badges.greenkeeper.io/whamcloud/device-scanner.svg)](https://greenkeeper.io/)
 
-This repo provides a [persistent daemon](IML.DeviceScannerDaemon) That holds block devices + ZFS devices in memory.
+This repo provides:
 
-It also provides [listeners](IML.Listeners) that emit changes to the daemon.
-
-Finally, it also provides a [proxy](IML.ScannerProxyDaemon) that transforms the unix domain socket events to HTTP POSTs.
+- a [persistent daemon](device-scanner-daemon) That holds block devices, ZFS devices, and device mounts in memory.
+- a [binary](uevent-listener) that emits UEvents for block-devices as they occur.
+- a [binary](mount-emitter) that emits device mount changes as they occur.
+- a [proxy](device-scanner-proxy) that transforms the unix domain socket events to HTTP POSTs.
 
 ## Architecture
 
@@ -38,35 +38,27 @@ Finally, it also provides a [proxy](IML.ScannerProxyDaemon) that transforms the 
            └──────────────────┘
 ```
 
-## Development Requirements
+## Development Dependencies
 
-* [dotnet SDK](https://www.microsoft.com/net/download/core) 2.0 or higher
-* [node.js](https://nodejs.org) 6.11 or higher
-* [Vagrant](https://www.vagrantup.com) Optional
-* [Virtualbox](https://www.virtualbox.org/) Optional
-
-> npm comes bundled with node.js, but we recommend to use at least npm 5. If you
-> have npm installed, you can upgrade it by running `npm install -g npm`.
-
-Although is not a Fable requirement, on macOS and Linux you'll need
-[Mono](http://www.mono-project.com/) for other F# tooling like Paket or editor
-support.
+- [rust](https://www.rust-lang.org/)
+- [ZFS](https://zfsonlinux.org/) Optional
+- [Vagrant](https://www.vagrantup.com) Optional
+- [Virtualbox](https://www.virtualbox.org/) Optional
 
 ## Development setup
 
-* (Optional) Install ZFS via OS package manager
-* Install F# dependencies: `npm run restore`
-* Install JS dependencies: `npm i`
+- (Optional) Install ZFS via OS package manager
+- Install Rust deps: `cargo build`
 
 ### Building the app
 
 #### Local
 
-* `dotnet fable npm-build`
+- `cargo build`
 
 #### Vagrant
 
-* Running `vagrant up` will setup a complete environment. It will build `device-scanner`, package it as an RPM and install it on the node.
+- Running `vagrant up` will setup a complete environment. It will build `device-scanner`, `scanner-proxy`, and `device-aggregator`, package them as RPMs and install them on the correct nodes.
 
   To interact with the device-scanner in real time the following command can be used to keep the stream open such that updates can be seen as the data changes:
 
@@ -82,10 +74,4 @@ support.
 
 ### Testing the app
 
-* Run the tests `dotnet fable npm-test`
-* Run the tests and output code coverage `dotnet fable npm-coverage`
-* Run the tests in watch mode:
-  * In one terminal `dotnet fable start`
-  * In a second terminal `npm run test-watch`
-    * This will allow you to run all, or just a subset of tests, and will
-      re-test the changed files on save.
+- `cargo test`

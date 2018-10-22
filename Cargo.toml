@@ -1,5 +1,5 @@
 [workspace]
-members = ['device-types', 'device-scanner-daemon', 'uevent-listener', 'mount-emitter']
+members = ['device-types', 'device-scanner-daemon', 'futures-failure', 'device-scanner-proxy', 'uevent-listener', 'mount-emitter']
 
 [profile.release]
 lto = true

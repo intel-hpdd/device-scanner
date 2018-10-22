@@ -1,0 +1,10 @@
+[Unit]
+Description=IML Scanner Proxy Path
+PartOf=device-scanner.target
+After=device-scanner.socket
+
+[Path]
+PathExists=/etc/iml/manager-url.conf
+
+[Install]
+WantedBy=device-scanner.target

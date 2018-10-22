@@ -1,10 +1,10 @@
 %define     base_name device-scanner
-%define     proxy_name scanner-proxy
 %define     mount_name mount-emitter
 %define     aggregator_name device-aggregator
-%define     proxy_prefixed iml-%{proxy_name}
 %define     mount_prefixed iml-%{mount_name}
 %define     aggregator_prefixed iml-%{aggregator_name}
+%define     device_types device-types-0.1.0
+%define     futures_failure futures-failure-0.1.0
 
 Name:       iml-%{base_name}
 Version:    2.0.0
@@ -13,14 +13,12 @@ Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
 URL:        https://github.com/whamcloud/%{base_name}
-Patch0:     device-scanner-daemon-dev.patch
-Patch1:     uevent-listener-dev.patch
-Patch2:     mount-emitter-dev.patch
 Source0:    device-scanner-daemon-%{version}.crate
 Source1:    uevent-listener-0.1.0.crate
 Source2:    mount-emitter-0.1.0.crate
-Source3:    device-types-0.1.0.crate
-
+Source3:    device-scanner-proxy-0.1.0.crate
+Source4:    %{device_types}.crate
+Source5:    %{futures_failure}.crate
 
 %{?systemd_requires}
 BuildRequires: systemd
@@ -30,40 +28,56 @@ BuildRequires: openssl-devel
 
 Requires: socat
 
-
 %description
 device-scanner-daemon builds an in-memory representation of
 devices using udev, zed and findmnt.
 
 
+%package proxy
+Summary:    Forwards device-scanner updates to device-aggregator
+License:    MIT
+Group:      System Environment/Libraries
+Requires:   %{name} = %{version}-%{release}
+%description proxy
+scanner-proxy-daemon forwards device-scanner updates received
+
+
 %prep
-%setup -T -D -b 3 -n device-types-0.1.0
+%setup -T -D -b 5 -n %{futures_failure}
+
+%setup -T -D -b 4 -n %{device_types}
+
+%setup -T -D -b 3 -n device-scanner-proxy-0.1.0
 
 %setup -T -D -b 2 -n mount-emitter-0.1.0
-%if "%{?devel_build}"
-%patch2 -p0 -b .workspace_fixup
-%endif
 
 %setup -T -D -b 1 -n uevent-listener-0.1.0
-%if "%{?devel_build}"
-%patch1 -p0 -b .workspace_fixup
-%endif
 
 %setup -T -D -b 0 -n device-scanner-daemon-2.0.0
-%if "%{?devel_build}"
-%patch0 -p0 -b .workspace_fixup
-%endif
 
 
 %build
+cat << EOF > ../patch.txt
+[patch.crates-io]
+device-types = { path = "../%{device_types}" }
+futures-failure = { path = "../%{futures_failure}" }
+EOF
+
+cat ../patch.txt >> Cargo.toml
 cargo build --release
 upx target/release/device-scanner-daemon
 
+cd ../device-scanner-proxy-0.1.0
+cat ../patch.txt >> Cargo.toml
+cargo build --release
+
 cd ../uevent-listener-0.1.0
+cat ../patch.txt >> Cargo.toml
 cargo build --release
 upx target/release/uevent-listener
 
 cd ../mount-emitter-0.1.0
+cat ../patch.txt >> Cargo.toml
 cargo build --release
 upx target/release/mount-emitter
 
@@ -83,6 +97,11 @@ cp systemd-units/block-device-populator.service %{buildroot}%{_unitdir}
 cp systemd-units/zed-populator.service %{buildroot}%{_unitdir}
 cp systemd-units/00-device-scanner.preset %{buildroot}%{_presetdir}
 cp target/release/device-scanner-daemon %{buildroot}%{_bindir}
+
+cd ../device-scanner-proxy-0.1.0
+cp systemd-units/scanner-proxy.{service,path} %{buildroot}%{_unitdir}
+cp systemd-units/00-scanner-proxy.preset %{buildroot}%{_presetdir}
+cp target/release/device-scanner-proxy %{buildroot}%{_bindir}
 
 cd ../uevent-listener-0.1.0
 cp udev-rules/99-iml-device-scanner.rules %{buildroot}%{_sysconfdir}/udev/rules.d
@@ -113,10 +132,21 @@ cp target/release/mount-emitter %{buildroot}%{_bindir}
 %attr(0755,root,root)%{_bindir}/mount-emitter
 
 
+%files proxy
+%attr(0644,root,root)%{_unitdir}/scanner-proxy.service
+%attr(0644,root,root)%{_unitdir}/scanner-proxy.path
+%attr(0644,root,root)%{_presetdir}/00-scanner-proxy.preset
+%attr(0755,root,root)%{_bindir}/device-scanner-proxy
+
+
 %post
 systemctl preset device-scanner.socket
 systemctl preset mount-emitter.service
 systemctl preset swap-emitter.timer
+
+
+%post proxy
+systemctl preset scanner-proxy.path
 
 
 %preun
@@ -131,8 +161,17 @@ systemctl preset swap-emitter.timer
 %systemd_preun swap-emitter.service
 
 
+%preun proxy
+%systemd_preun scanner-proxy.path
+%systemd_preun scanner-proxy.service
+
+
 %postun
 %systemd_postun_with_restart device-scanner.socket
+
+
+%postun proxy
+%systemd_postun_with_restart scanner-proxy.path
 
 
 %changelog

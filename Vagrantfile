@@ -66,7 +66,7 @@ Vagrant.configure('2') do |config|
 
     device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      yum install -y htop
+      yum install -y htop jq
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://adm.local' > /etc/iml/manager-url.conf
     SHELL

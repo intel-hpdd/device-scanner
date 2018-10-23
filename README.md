@@ -47,7 +47,7 @@ This repo provides:
 
 ## Development setup
 
-- (Optional) Install ZFS via OS package manager
+- (Optional) [Install ZFS](https://zfsonlinux.org/) via OS package manager
 - Install Rust deps: `cargo build`
 
 ### Building the app

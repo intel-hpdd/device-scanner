@@ -5,12 +5,13 @@
 //! This module is responsible for internally storing the current state and building the next device-graph
 //! after each "tick" (an incoming device event).
 
+use failure::{Error, ResultExt};
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 
 use im::{HashSet, Vector};
 use serde_json;
-use std::path::PathBuf;
+use std::{path::PathBuf, result};
 use tokio::{net::UnixStream, prelude::*};
 
 use connections;
@@ -22,6 +23,8 @@ use device_types::{
     uevent::UEvent,
     Command,
 };
+
+type Result<T> = result::Result<T, Error>;
 
 /// Mutably updates the Udev portion of the device map in response to `UdevCommand`s.
 fn update_udev(uevents: &mut UEvents, cmd: UdevCommand) {
@@ -103,19 +106,32 @@ fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a M
     )
 }
 
-fn get_vgs(b: &Buckets, major: &str, minor: &str) -> HashSet<Device> {
+fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
     b.dms
         .iter()
         .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
-        .map(|x| Device::VolumeGroup {
-            name: x.dm_vg_name.clone().expect("Expected dm_vg_name"),
-            children: hashset![],
-            size: x.dm_vg_size.expect("Expected size"),
-            uuid: x.vg_uuid.clone().expect("Expected vg_uuid"),
+        .map(|x| {
+            Ok(Device::VolumeGroup {
+                name: x
+                    .dm_vg_name
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected dm_vg_name"))?,
+                children: hashset![],
+                size: x.dm_vg_size.ok_or_else(|| format_err!("Expected size"))?,
+                uuid: x
+                    .vg_uuid
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected vg_uuid"))?,
+            })
         }).collect()
 }
 
-fn get_partitions(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> HashSet<Device> {
+fn get_partitions(
+    b: &Buckets,
+    ys: &HashSet<Mount>,
+    major: &str,
+    minor: &str,
+) -> Result<HashSet<Device>> {
     b.partitions
         .iter()
         .filter(|&x| match x.part_entry_mm {
@@ -133,21 +149,23 @@ fn get_partitions(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) ->
                 None => (x.fs_type.clone(), None),
             };
 
-            Device::Partition {
-                partition_number: x.part_entry_number.expect("Expected part_entry_number"),
+            Ok(Device::Partition {
+                partition_number: x
+                    .part_entry_number
+                    .ok_or_else(|| format_err!("Expected part_entry_number"))?,
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.expect("Expected size"),
+                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
                 paths: x.paths.clone(),
                 filesystem_type,
                 children: hashset![],
                 mount_path,
-            }
+            })
         }).collect()
 }
 
-fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> HashSet<Device> {
+fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Device>> {
     b.dms
         .iter()
         .filter(|&x| match x.vg_uuid {
@@ -165,22 +183,28 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> HashSet<Device> {
                 None => (x.fs_type.clone(), None),
             };
 
-            Device::LogicalVolume {
-                name: x.dm_lv_name.clone().expect("Expected dm_lv_name"),
+            Ok(Device::LogicalVolume {
+                name: x
+                    .dm_lv_name
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected dm_lv_name"))?,
                 devpath: x.devpath.clone(),
-                uuid: x.lv_uuid.clone().expect("Expected lv_uuid"),
-                size: x.size.expect("Expected size"),
+                uuid: x
+                    .lv_uuid
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected lv_uuid"))?,
+                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
                 mount_path,
                 filesystem_type,
                 children: hashset![],
-            }
+            })
         }).collect()
 }
 
-fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> HashSet<Device> {
+fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
     b.rest
         .iter()
         .map(|x| {
@@ -195,21 +219,29 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> HashSet<Device> {
                 None => (x.fs_type.clone(), None),
             };
 
-            Device::ScsiDevice {
-                serial: x.scsi83.clone().expect("Expected serial"),
+            Ok(Device::ScsiDevice {
+                serial: x
+                    .scsi83
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected serial"))?,
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.expect("Expected size"),
+                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
                 filesystem_type,
                 paths: x.paths.clone(),
                 children: hashset![],
                 mount_path,
-            }
+            })
         }).collect()
 }
 
-fn get_mpaths(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> HashSet<Device> {
+fn get_mpaths(
+    b: &Buckets,
+    ys: &HashSet<Mount>,
+    major: &str,
+    minor: &str,
+) -> Result<HashSet<Device>> {
     b.mpaths
         .iter()
         .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
@@ -225,9 +257,12 @@ fn get_mpaths(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> Has
                 None => (x.fs_type.clone(), None),
             };
 
-            Device::Mpath {
-                serial: x.scsi83.clone().expect("Expected serial"),
-                size: x.size.expect("Expected size"),
+            Ok(Device::Mpath {
+                serial: x
+                    .scsi83
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected serial"))?,
+                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
@@ -235,11 +270,11 @@ fn get_mpaths(b: &Buckets, ys: &HashSet<Mount>, major: &str, minor: &str) -> Has
                 children: hashset![],
                 devpath: x.devpath.clone(),
                 mount_path,
-            }
+            })
         }).collect()
 }
 
-fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> HashSet<Device> {
+fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result<HashSet<Device>> {
     b.mds
         .iter()
         .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
@@ -255,45 +290,55 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> HashSe
                 None => (x.fs_type.clone(), None),
             };
 
-            Device::MdRaid {
+            Ok(Device::MdRaid {
                 paths: x.paths.clone(),
                 filesystem_type,
                 mount_path,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.expect("Expected size"),
+                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
                 children: hashset![],
-                uuid: x.md_uuid.clone().expect("Expected md_uuid"),
-            }
+                uuid: x
+                    .md_uuid
+                    .clone()
+                    .ok_or_else(|| format_err!("Expected md_uuid"))?,
+            })
         }).collect()
 }
 
-fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) {
+fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) -> Result<()> {
     match ptr {
         Device::Root { children, .. } => {
-            get_scsis(&b, &ys).into_iter().fold(children, |c, mut x| {
-                build_device_graph(&mut x, b, ys);
+            let ss = get_scsis(&b, &ys)?;
 
-                c.insert(x);
+            for mut x in ss {
+                build_device_graph(&mut x, b, ys)?;
 
-                c
-            });
+                children.insert(x);
+            }
+
+            Ok(())
         }
         Device::Mpath {
             children,
             major,
             minor,
+            paths,
             ..
         } => {
-            let vs = get_vgs(&b, major, minor);
+            let vs = get_vgs(&b, major, minor)?;
 
-            let ps = get_partitions(&b, &ys, major, minor);
+            let ps = get_partitions(&b, &ys, major, minor)?;
 
-            for mut x in HashSet::unions(vec![vs, ps]) {
-                build_device_graph(&mut x, b, ys);
+            let mds = get_mds(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![vs, ps, mds]) {
+                build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
             }
+
+            Ok(())
         }
         Device::ScsiDevice {
             children,
@@ -309,30 +354,33 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             minor,
             ..
         } => {
-            let xs = get_partitions(&b, &ys, &major, &minor);
+            let xs = get_partitions(&b, &ys, &major, &minor)?;
 
-            let ms = get_mpaths(&b, &ys, major, minor);
+            // This should only be present for scsi devs
+            let ms = get_mpaths(&b, &ys, major, minor)?;
 
-            let vs = get_vgs(b, major, minor);
+            let vs = get_vgs(b, major, minor)?;
 
-            let mds = get_mds(&b, &ys, &paths);
+            let mds = get_mds(&b, &ys, &paths)?;
 
             for mut x in HashSet::unions(vec![xs, ms, vs, mds]) {
-                build_device_graph(&mut x, b, ys);
+                build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
             }
+
+            Ok(())
         }
         Device::VolumeGroup { children, uuid, .. } => {
-            get_lvs(&b, &ys, &uuid)
-                .into_iter()
-                .fold(children, |c, mut x| {
-                    build_device_graph(&mut x, b, ys);
+            let lvs = get_lvs(&b, &ys, &uuid)?;
 
-                    c.insert(x);
+            for mut x in lvs {
+                build_device_graph(&mut x, b, ys)?;
 
-                    c
-                });
+                children.insert(x);
+            }
+
+            Ok(())
         }
         Device::LogicalVolume {
             major,
@@ -340,35 +388,40 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             children,
             ..
         } => {
-            get_partitions(&b, &ys, &major, &minor)
-                .into_iter()
-                .fold(children, |c, mut x| {
-                    build_device_graph(&mut x, b, ys);
+            let ps = get_partitions(&b, &ys, &major, &minor)?;
 
-                    c.insert(x);
+            for mut x in ps {
+                build_device_graph(&mut x, b, ys)?;
 
-                    c
-                });
+                children.insert(x);
+            }
+
+            Ok(())
         }
         Device::MdRaid {
             major,
             minor,
             children,
+            paths,
             ..
         } => {
-            let vs = get_vgs(&b, &major, &minor);
+            let vs = get_vgs(&b, &major, &minor)?;
 
-            let ps = get_partitions(&b, &ys, major, minor);
+            let ps = get_partitions(&b, &ys, major, minor)?;
 
-            for mut x in HashSet::unions(vec![vs, ps]) {
-                build_device_graph(&mut x, b, ys);
+            let mds = get_mds(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![vs, ps, mds]) {
+                build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
             }
+
+            Ok(())
         }
-        Device::Zpool { .. } => {}
-        Device::Dataset { .. } => {}
-    };
+        Device::Zpool { .. } => Ok(()),
+        Device::Dataset { .. } => Ok(()),
+    }
 }
 
 #[derive(Debug)]
@@ -414,20 +467,18 @@ type ConnectionTx = UnboundedSender<connections::Command<UnixStream>>;
 
 pub fn handler() -> (
     UnboundedSender<(Command, ConnectionTx)>,
-    impl Future<Item = State, Error = ()>,
+    impl Future<Item = State, Error = Error>,
 ) {
     let (tx, rx) = mpsc::unbounded();
 
-    let fut = rx.fold(
+    let fut = rx.map_err(|_| format_err!("error from rx handle")).fold(
         State::new(),
-        move |State {
-                  mut uevents,
-                  mut local_mounts,
-              }: State,
-              (cmd, connections_tx): (
-            Command,
-            UnboundedSender<connections::Command<UnixStream>>,
-        )| {
+        |State {
+             mut uevents,
+             mut local_mounts,
+         }: State,
+         (cmd, connections_tx): (Command, UnboundedSender<connections::Command<UnixStream>>)|
+         -> Result<State> {
             match cmd {
                 Command::UdevCommand(x) => update_udev(&mut uevents, x),
                 Command::MountCommand(x) => update_mount(&mut local_mounts, x),
@@ -442,14 +493,14 @@ pub fn handler() -> (
                     children: hashset![],
                 };
 
-                build_device_graph(&mut root, &dev_list, &local_mounts);
+                build_device_graph(&mut root, &dev_list, &local_mounts)?;
 
                 let s = serde_json::to_string::<Device>(&root)
-                    .expect("Expected tree to serialize cleanly");
+                    .context("Expected tree to serialize cleanly")?;
 
                 connections_tx
                     .unbounded_send(connections::Command::Write(s))
-                    .expect("Expected connection to send");
+                    .context("Expected connection to send")?;
             };
 
             Ok(State {

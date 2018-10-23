@@ -1,5 +1,6 @@
 extern crate failure;
 extern crate futures;
+use failure::Error;
 
 pub mod stream_failure {
     use failure::{Error, Fail};
@@ -174,6 +175,14 @@ pub mod future_failure {
 
             assert_eq!(xs, vec!["in test", "oh no!"]);
         }
+    }
+}
+
+/// Prints the chain of causes provided
+/// by `failure`
+pub fn print_cause_chain(e: &Error) {
+    for cause in e.iter_chain() {
+        eprintln!("{}", cause);
     }
 }
 

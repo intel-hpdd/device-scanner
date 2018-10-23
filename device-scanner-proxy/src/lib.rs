@@ -36,14 +36,6 @@ pub fn build_uri(url: &str) -> Result<hyper::Uri, Error> {
     hyper::Uri::from_parts(parts).map_err(Error::from)
 }
 
-/// Prints the chain of causes provided
-/// by `failure`
-pub fn print_cause_chain(e: &Error) {
-    for cause in e.iter_chain() {
-        eprintln!("{}", cause);
-    }
-}
-
 /// Sends a message to device-aggregator
 pub fn send_message(
     uri: &hyper::Uri,

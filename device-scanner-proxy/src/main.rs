@@ -23,7 +23,7 @@ use std::{
 
 use failure::{Error, ResultExt};
 use futures::future::{Either, Future};
-use futures_failure::{FutureExt, StreamExt};
+use futures_failure::{print_cause_chain, FutureExt, StreamExt};
 
 use tokio::{
     io::{lines, write_all},
@@ -34,7 +34,7 @@ use tokio::{
 
 use device_types::message::Message;
 
-use lib::{build_uri, print_cause_chain, send_message};
+use lib::{build_uri, send_message};
 
 fn required(name: &str) -> String {
     env::var(name).unwrap_or_else(|_| panic!("Expected {} to be supplied in ENV", name))

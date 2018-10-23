@@ -5,12 +5,17 @@ extern crate im;
 
 extern crate device_scanner_daemon;
 extern crate device_types;
+extern crate failure;
 extern crate futures;
+extern crate futures_failure;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
 
 use device_scanner_daemon::{connections, state};
+
+use failure::{Error, ResultExt};
+use futures_failure::{print_cause_chain, FutureExt};
 
 use std::{
     io::BufReader,
@@ -31,11 +36,12 @@ fn processor(
     socket: UnixStream,
     message_tx: UnboundedSender<(Command, UnboundedSender<connections::Command<UnixStream>>)>,
     connections_tx: UnboundedSender<connections::Command<UnixStream>>,
-) -> impl Future<Item = (), Error = ()> {
+) -> impl Future<Item = (), Error = Error> {
     lines(BufReader::new(socket))
         .into_future()
-        .map_err(|(e, _)| eprintln!("error reading lines: {}", e))
-        .and_then(|(x, lines)| {
+        .map_err(|(e, _)| e)
+        .context("While reading lines")
+        .and_then(|(x, socket_wrapped)| {
             // If `x` is `None`, then the client disconnected without sending a line of data
             let x: String = match x {
                 Some(x) => x,
@@ -53,27 +59,30 @@ fn processor(
                 }
             };
 
-            let socket = lines.into_inner().into_inner();
+            let socket = socket_wrapped.into_inner().into_inner();
 
             let output = (cmd, socket);
 
             Either::B(future::ok(Some(output)))
-        }).map(move |x| {
-            if let Some((cmd, socket)) = x {
+        }).and_then(move |x| match x {
+            Some((cmd, socket)) => {
                 if let Command::Stream = cmd {
                     connections_tx
                         .unbounded_send(connections::Command::Add(socket))
-                        .expect("Connection send failed")
+                        .context("Connection send failed")
+                        .map_err(Error::from)
                 } else {
                     socket
                         .shutdown(Shutdown::Both)
-                        .expect("Socket shutdown failed");
+                        .context("Socket shutdown failed")?;
 
                     message_tx
                         .unbounded_send((cmd, connections_tx))
-                        .expect("Message send failed")
-                };
+                        .context("Message send failed")
+                        .map_err(Error::from)
+                }
             }
+            None => Ok(()),
         })
 }
 
@@ -89,22 +98,26 @@ fn main() {
 
     let server = listener
         .incoming()
-        .map_err(|e| eprintln!("accept failed = {}", e))
+        .map_err(|e| eprintln!("accept failed, {:?}", e))
         .for_each(move |socket| {
-            tokio::spawn(processor(
-                socket,
-                message_tx.clone(),
-                connections_tx.clone(),
-            ))
+            tokio::spawn(
+                processor(socket, message_tx.clone(), connections_tx.clone())
+                    .map_err(|e| print_cause_chain(&e)),
+            )
         });
 
     println!("Server starting");
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
-    runtime.spawn(server);
-    runtime.spawn(state_fut.map(|_| ()));
-    runtime.spawn(connections_fut.map(|_| ()));
+    runtime.spawn(
+        future::select_all(vec![
+            Box::new(server) as Box<Future<Item = (), Error = ()> + Send>,
+            Box::new(state_fut.map(|_| ()).map_err(|e| print_cause_chain(&e))),
+            Box::new(connections_fut.map(|_| ())),
+        ]).map(|_| ())
+        .map_err(|_| ()),
+    );
 
     runtime
         .shutdown_on_idle()

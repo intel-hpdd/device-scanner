@@ -504,8 +504,6 @@ pub fn handler() -> (
              }: State,
              (cmd, connections_tx): (Command, connections::Tx)|
              -> Result<State> {
-                println!("got new state");
-
                 conns.push(connections_tx);
 
                 match cmd {
@@ -529,14 +527,10 @@ pub fn handler() -> (
                     let b = bytes::BytesMut::from(v);
                     let b = b.freeze();
 
-                    println!("finished with state");
-
                     conns = conns
                         .into_iter()
                         .filter(|c| c.unbounded_send(b.clone()).is_ok())
                         .collect();
-
-                    println!("conns size {}", conns.len());
                 };
 
                 Ok(State {

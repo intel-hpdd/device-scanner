@@ -120,7 +120,6 @@ where
                 }
                 Ok(Async::NotReady) => break,
                 Err(e) => {
-                    println!("got err {:?}", e);
                     // If we get *any* error on this socket, we resolve the future
                     // which closes the connection
                     return Ok(Async::Ready(c));

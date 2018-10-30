@@ -522,9 +522,8 @@ pub fn handler() -> (
 
                     build_device_graph(&mut root, &dev_list, &local_mounts)?;
 
-                    let v = serde_json::to_vec(&root)?;
-                    // Using bytes here allows us
-                    let b = bytes::BytesMut::from(v);
+                    let v = serde_json::to_string(&root)?;
+                    let b = bytes::BytesMut::from(v + "\n");
                     let b = b.freeze();
 
                     conns = conns

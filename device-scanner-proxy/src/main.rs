@@ -22,13 +22,12 @@ use std::{
 };
 
 use failure::{Error, ResultExt};
-use futures::future::Future;
+use futures::{future::Future, stream::Stream};
 use futures_failure::{print_cause_chain, FutureExt, StreamExt};
 
 use tokio::{
     io::{lines, write_all},
     net::UnixStream,
-    prelude::*,
     timer::Interval,
 };
 
@@ -61,40 +60,30 @@ fn main() -> Result<(), Error> {
             serde_json::to_string(&Message::Heartbeat)
                 .context("Expected Heartbeat to serialize")
                 .map_err(Error::from)
-        }).for_each(move |json| {
-            send_message(&uri, json, &pfx).or_else(|e| {
-                print_cause_chain(&e);
-
-                future::ok(())
-            })
         }).map_err(|e| {
             print_cause_chain(&e);
+        }).for_each(move |json| {
+            tokio::spawn(send_message(&uri, json, &pfx).map_err(|e| {
+                print_cause_chain(&e);
+            }))
         });
 
     let stream = UnixStream::connect("/var/run/device-scanner.sock")
         .context("Connecting to device-scanner.sock")
-        .and_then(move |conn| {
-            let (read, write) = conn.split();
-
-            write_all(write, "\"Stream\"\n")
-                .context("Writing to the Stream")
-                .and_then(move |_| {
-                    lines(BufReader::new(read))
-                        .context("Error reading line")
-                        .map(Message::Data)
-                        .and_then(|msg| {
-                            serde_json::to_string::<Message>(&msg)
-                                .context("Expected Message to serialize")
-                                .map_err(Error::from)
-                        }).for_each(move |json| {
-                            send_message(&uri2, json, &pfx2).or_else(|e| {
-                                print_cause_chain(&e);
-
-                                future::ok(())
-                            })
-                        })
-                })
-        }).map_err(|e| print_cause_chain(&e));
+        .and_then(|conn| write_all(conn, "\"Stream\"\n").context("Writing to the Stream"))
+        .map(|(c, _)| lines(BufReader::new(c)).context("Error reading line"))
+        .flatten_stream()
+        .map(Message::Data)
+        .and_then(|msg| {
+            serde_json::to_string::<Message>(&msg)
+                .context("Expected Message to serialize")
+                .map_err(Error::from)
+        }).map_err(|e| print_cause_chain(&e))
+        .for_each(move |json| {
+            tokio::spawn(send_message(&uri2, json, &pfx2).map_err(|e| {
+                print_cause_chain(&e);
+            }))
+        });
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 

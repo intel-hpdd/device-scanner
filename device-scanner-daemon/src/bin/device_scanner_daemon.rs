@@ -82,12 +82,8 @@ fn processor(
             }
             None => Ok(None),
         }).and_then(|x| match x {
-            Some(connection) => {
-                println!("sending a new connection to the channel");
-
-                Box::new(connection.map(|_| ()))
-                    as Box<Future<Item = (), Error = error::Error> + Send>
-            }
+            Some(connection) => Box::new(connection.map(|_| ()))
+                as Box<Future<Item = (), Error = error::Error> + Send>,
             None => Box::new(futures::future::ok(())),
         })
 }

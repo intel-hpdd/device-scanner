@@ -23,7 +23,7 @@ pub mod state {
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
-    #[derive(Debug, Default, Serialize)]
+    #[derive(Debug, Clone, Default, Serialize, Deserialize)]
     pub struct State {
         pub uevents: UEvents,
         pub local_mounts: HashSet<mount::Mount>,

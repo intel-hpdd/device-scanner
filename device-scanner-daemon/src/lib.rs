@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate failure;
-
 #[cfg(test)]
 #[macro_use]
 extern crate pretty_assertions;
@@ -8,6 +5,7 @@ extern crate pretty_assertions;
 #[macro_use]
 extern crate im;
 
+extern crate bytes;
 extern crate device_types;
 extern crate futures;
 extern crate serde;

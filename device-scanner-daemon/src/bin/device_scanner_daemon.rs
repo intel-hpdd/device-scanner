@@ -5,17 +5,10 @@ extern crate im;
 
 extern crate device_scanner_daemon;
 extern crate device_types;
-extern crate failure;
 extern crate futures;
-extern crate futures_failure;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
-
-use device_scanner_daemon::{connections, state};
-
-use failure::{Error, ResultExt};
-use futures_failure::{print_cause_chain, FutureExt};
 
 use std::{
     io::BufReader,
@@ -30,33 +23,35 @@ use futures::{
     sync::mpsc::UnboundedSender,
 };
 
+use device_scanner_daemon::{connections, error, state};
 use device_types::Command;
 
+/// Takes an incoming socket and message tx handle
+///
+/// Consumes the first line of the stream
+/// and parses it into a `Command`.
+///
+/// Wraps the socket into a `Connection` and pushes it's handle into the message tx
+/// so future messages can fanout to all connections.
 fn processor(
     socket: UnixStream,
-    message_tx: UnboundedSender<(Command, UnboundedSender<connections::Command<UnixStream>>)>,
-    connections_tx: UnboundedSender<connections::Command<UnixStream>>,
-) -> impl Future<Item = (), Error = Error> {
+    message_tx: UnboundedSender<(Command, connections::Tx)>,
+) -> impl Future<Item = (), Error = error::Error> {
     lines(BufReader::new(socket))
         .into_future()
-        .map_err(|(e, _)| e)
-        .context("While reading lines")
+        .map_err(|(e, _)| e.into())
         .and_then(|(x, socket_wrapped)| {
-            // If `x` is `None`, then the client disconnected without sending a line of data
-            let x: String = match x {
+            let x = x.and_then(|x| {
+                serde_json::from_str::<Command>(x.trim_end())
+                    .map_err(|e| {
+                        eprintln!("Could not parse command. Tried to parse: {}, got: {}", x, e);
+                        e
+                    }).ok()
+            });
+
+            let cmd = match x {
                 Some(x) => x,
                 None => return Either::A(future::ok(None)),
-            };
-
-            // Parse the command. If it's invalid, we simply coerce to None, and print the error.
-            // This will short-circuit the rest of the future chain.
-            let cmd: Command = match serde_json::from_str::<Command>(&x) {
-                Ok(c) => c,
-                Err(e) => {
-                    eprintln!("Could not parse command. Tried to parse: {}, got: {}", x, e);
-
-                    return Either::A(future::ok(None));
-                }
             };
 
             let socket = socket_wrapped.into_inner().into_inner();
@@ -65,31 +60,40 @@ fn processor(
 
             Either::B(future::ok(Some(output)))
         }).and_then(move |x| match x {
-            Some((cmd, socket)) => {
-                if let Command::Stream = cmd {
-                    connections_tx
-                        .unbounded_send(connections::Command::Add(socket))
-                        .context("Connection send failed")
-                        .map_err(Error::from)
-                } else {
-                    socket
-                        .shutdown(Shutdown::Both)
-                        .context("Socket shutdown failed")?;
+            Some((Command::Stream, socket)) => {
+                let connection = connections::Connection::new(socket);
 
-                    message_tx
-                        .unbounded_send((cmd, connections_tx))
-                        .context("Message send failed")
-                        .map_err(Error::from)
-                }
+                message_tx
+                    .clone()
+                    .unbounded_send((Command::Stream, connection.tx.clone()))?;
+
+                Ok(Some(connection))
             }
-            None => Ok(()),
+            Some((cmd, socket)) => {
+                socket.shutdown(Shutdown::Both)?;
+
+                let connection = connections::Connection::new(socket);
+
+                message_tx
+                    .clone()
+                    .unbounded_send((cmd, connection.tx.clone()))?;
+
+                Ok(Some(connection))
+            }
+            None => Ok(None),
+        }).and_then(|x| match x {
+            Some(connection) => {
+                println!("sending a new connection to the channel");
+
+                Box::new(connection.map(|_| ()))
+                    as Box<Future<Item = (), Error = error::Error> + Send>
+            }
+            None => Box::new(futures::future::ok(())),
         })
 }
 
 fn main() {
     let (message_tx, state_fut) = state::handler();
-
-    let (connections_tx, connections_fut) = connections::handler();
 
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
@@ -100,24 +104,15 @@ fn main() {
         .incoming()
         .map_err(|e| eprintln!("accept failed, {:?}", e))
         .for_each(move |socket| {
-            tokio::spawn(
-                processor(socket, message_tx.clone(), connections_tx.clone())
-                    .map_err(|e| print_cause_chain(&e)),
-            )
+            tokio::spawn(processor(socket, message_tx.clone()).map_err(|e| ()))
         });
 
     println!("Server starting");
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
-    runtime.spawn(
-        future::select_all(vec![
-            Box::new(server) as Box<Future<Item = (), Error = ()> + Send>,
-            Box::new(state_fut.map(|_| ()).map_err(|e| print_cause_chain(&e))),
-            Box::new(connections_fut.map(|_| ())),
-        ]).map(|_| ())
-        .map_err(|_| ()),
-    );
+    runtime.spawn(server);
+    runtime.spawn(state_fut.map(|_| ()).map_err(|e| ()));
 
     runtime
         .shutdown_on_idle()

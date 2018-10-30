@@ -5,29 +5,30 @@
 //! This module is responsible for internally storing the current state and building the next device-graph
 //! after each "tick" (an incoming device event).
 
-use failure::{Error, ResultExt};
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 
 use im::{HashSet, Vector};
 use serde_json;
-use std::{path::PathBuf, result};
-use tokio::{net::UnixStream, prelude::*};
+use std::{io, path::PathBuf, result};
+use tokio::prelude::*;
 
 use connections;
 use device_types::{
     devices::Device,
     mount::{BdevPath, FsType, Mount, MountCommand, MountPoint},
-    state::{State, UEvents},
+    state,
     udev::UdevCommand,
     uevent::UEvent,
     Command,
 };
 
-type Result<T> = result::Result<T, Error>;
+use error;
+
+type Result<T> = result::Result<T, error::Error>;
 
 /// Mutably updates the Udev portion of the device map in response to `UdevCommand`s.
-fn update_udev(uevents: &mut UEvents, cmd: UdevCommand) {
+fn update_udev(uevents: &mut state::UEvents, cmd: UdevCommand) {
     match cmd {
         UdevCommand::Add(x) | UdevCommand::Change(x) => uevents.insert(x.devpath.clone(), x),
         UdevCommand::Remove(x) => uevents.remove(&x.devpath),
@@ -115,13 +116,15 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                 name: x
                     .dm_vg_name
                     .clone()
-                    .ok_or_else(|| format_err!("Expected dm_vg_name"))?,
+                    .ok_or_else(|| error::none_error("Expected dm_vg_name"))?,
                 children: hashset![],
-                size: x.dm_vg_size.ok_or_else(|| format_err!("Expected size"))?,
+                size: x
+                    .dm_vg_size
+                    .ok_or_else(|| error::none_error("Expected Size"))?,
                 uuid: x
                     .vg_uuid
                     .clone()
-                    .ok_or_else(|| format_err!("Expected vg_uuid"))?,
+                    .ok_or_else(|| error::none_error("Expected vg_uuid"))?,
             })
         }).collect()
 }
@@ -152,11 +155,11 @@ fn get_partitions(
             Ok(Device::Partition {
                 partition_number: x
                     .part_entry_number
-                    .ok_or_else(|| format_err!("Expected part_entry_number"))?,
+                    .ok_or_else(|| error::none_error("Expected part_entry_number"))?,
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
+                size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 paths: x.paths.clone(),
                 filesystem_type,
                 children: hashset![],
@@ -187,13 +190,13 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 name: x
                     .dm_lv_name
                     .clone()
-                    .ok_or_else(|| format_err!("Expected dm_lv_name"))?,
+                    .ok_or_else(|| error::none_error("Expected dm_lv_name"))?,
                 devpath: x.devpath.clone(),
                 uuid: x
                     .lv_uuid
                     .clone()
-                    .ok_or_else(|| format_err!("Expected lv_uuid"))?,
-                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
+                    .ok_or_else(|| error::none_error("Expected lv_uuid"))?,
+                size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
@@ -223,11 +226,11 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 serial: x
                     .scsi83
                     .clone()
-                    .ok_or_else(|| format_err!("Expected serial"))?,
+                    .ok_or_else(|| error::none_error("Expected serial"))?,
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
+                size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 filesystem_type,
                 paths: x.paths.clone(),
                 children: hashset![],
@@ -261,8 +264,8 @@ fn get_mpaths(
                 serial: x
                     .scsi83
                     .clone()
-                    .ok_or_else(|| format_err!("Expected serial"))?,
-                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
+                    .ok_or_else(|| error::none_error("Expected serial"))?,
+                size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
@@ -296,12 +299,12 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
                 mount_path,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
-                size: x.size.ok_or_else(|| format_err!("Expected size"))?,
+                size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 children: hashset![],
                 uuid: x
                     .md_uuid
                     .clone()
-                    .ok_or_else(|| format_err!("Expected md_uuid"))?,
+                    .ok_or_else(|| error::none_error("Expected md_uuid"))?,
             })
         }).collect()
 }
@@ -459,56 +462,92 @@ fn bucket_devices<'a>(xs: &Vector<&'a UEvent>) -> Buckets<'a> {
     })
 }
 
-fn build_device_list(xs: &mut UEvents) -> Vector<&UEvent> {
+fn build_device_list(xs: &mut state::UEvents) -> Vector<&UEvent> {
     xs.values().filter(|y| keep_usable(y)).collect()
 }
 
-type ConnectionTx = UnboundedSender<connections::Command<UnixStream>>;
+pub struct State {
+    conns: Vec<connections::Tx>,
+    state: state::State,
+}
+
+impl State {
+    fn new() -> Self {
+        State {
+            conns: vec![],
+            state: state::State::new(),
+        }
+    }
+}
 
 pub fn handler() -> (
-    UnboundedSender<(Command, ConnectionTx)>,
-    impl Future<Item = State, Error = Error>,
+    UnboundedSender<(Command, connections::Tx)>,
+    impl Future<Item = State, Error = error::Error>,
 ) {
     let (tx, rx) = mpsc::unbounded();
 
-    let fut = rx.map_err(|_| format_err!("error from rx handle")).fold(
-        State::new(),
-        |State {
-             mut uevents,
-             mut local_mounts,
-         }: State,
-         (cmd, connections_tx): (Command, UnboundedSender<connections::Command<UnixStream>>)|
-         -> Result<State> {
-            match cmd {
-                Command::UdevCommand(x) => update_udev(&mut uevents, x),
-                Command::MountCommand(x) => update_mount(&mut local_mounts, x),
-                _ => (),
-            };
+    let fut = rx
+        .map_err(|_| {
+            error::Error::Io(io::Error::new(
+                io::ErrorKind::Other,
+                "Could not consume rx stream",
+            ))
+        }).fold(
+            State::new(),
+            |State {
+                 mut conns,
+                 state:
+                     state::State {
+                         mut uevents,
+                         mut local_mounts,
+                     },
+             }: State,
+             (cmd, connections_tx): (Command, connections::Tx)|
+             -> Result<State> {
+                println!("got new state");
 
-            {
-                let dev_list = build_device_list(&mut uevents);
-                let dev_list = bucket_devices(&dev_list);
+                conns.push(connections_tx);
 
-                let mut root = Device::Root {
-                    children: hashset![],
+                match cmd {
+                    Command::UdevCommand(x) => update_udev(&mut uevents, x),
+                    Command::MountCommand(x) => update_mount(&mut local_mounts, x),
+                    _ => (),
                 };
 
-                build_device_graph(&mut root, &dev_list, &local_mounts)?;
+                {
+                    let dev_list = build_device_list(&mut uevents);
+                    let dev_list = bucket_devices(&dev_list);
 
-                let s = serde_json::to_string::<Device>(&root)
-                    .context("Expected tree to serialize cleanly")?;
+                    let mut root = Device::Root {
+                        children: hashset![],
+                    };
 
-                connections_tx
-                    .unbounded_send(connections::Command::Write(s))
-                    .context("Expected connection to send")?;
-            };
+                    build_device_graph(&mut root, &dev_list, &local_mounts)?;
 
-            Ok(State {
-                uevents,
-                local_mounts,
-            })
-        },
-    );
+                    let v = serde_json::to_vec(&root)?;
+                    // Using bytes here allows us
+                    let b = bytes::BytesMut::from(v);
+                    let b = b.freeze();
+
+                    println!("finished with state");
+
+                    conns = conns
+                        .into_iter()
+                        .filter(|c| c.unbounded_send(b.clone()).is_ok())
+                        .collect();
+
+                    println!("conns size {}", conns.len());
+                };
+
+                Ok(State {
+                    conns,
+                    state: state::State {
+                        uevents,
+                        local_mounts,
+                    },
+                })
+            },
+        );
 
     (tx, fut)
 }

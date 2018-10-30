@@ -1,128 +1,43 @@
+extern crate bytes;
 extern crate device_scanner_daemon;
 extern crate futures;
 extern crate tokio;
-extern crate tokio_mockstream;
 
-use device_scanner_daemon::connections::{handler, Command};
-use tokio::{prelude::*, runtime::Runtime};
-use tokio_mockstream::MockStream;
+mod mock_stream;
 
-use std::io::{self, Error, ErrorKind, Read, Write};
+use device_scanner_daemon::{connections::Connection, error};
 
-#[derive(Debug)]
-enum MockStreams {
-    FailMockStream(MockStream),
-    MockStream(MockStream),
-}
+use bytes::Bytes;
 
-impl MockStreams {
-    fn empty() -> Self {
-        MockStreams::MockStream(MockStream::empty())
-    }
-    fn empty_fail() -> Self {
-        MockStreams::FailMockStream(MockStream::empty())
-    }
-    fn written(&self) -> &[u8] {
-        match self {
-            MockStreams::MockStream(x) => x.written(),
-            MockStreams::FailMockStream(_) => &[],
-        }
-    }
-}
+use tokio::runtime::Runtime;
 
-impl Read for MockStreams {
-    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        match self {
-            MockStreams::MockStream(x) | MockStreams::FailMockStream(x) => x.read(buf),
-        }
-    }
-}
+#[test]
+fn test_write_one() -> error::Result<()> {
+    let s = mock_stream::MockStream::empty();
 
-impl AsyncRead for MockStreams {}
+    let c = Connection::new(s);
+    c.tx.unbounded_send(Bytes::from("hello\n"))?;
 
-impl Write for MockStreams {
-    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
-        match self {
-            MockStreams::MockStream(x) => x.write(buf),
-            MockStreams::FailMockStream(_) => Err(Error::new(ErrorKind::Other, "oh no!")),
-        }
-    }
+    let mut runtime = Runtime::new()?;
+    let s = runtime.block_on(c)?;
 
-    fn flush(&mut self) -> io::Result<()> {
-        match self {
-            MockStreams::MockStream(x) => x.flush(),
-            MockStreams::FailMockStream(_) => Err(Error::new(ErrorKind::Other, "boom")),
-        }
-    }
-}
+    assert_eq!(s.written(), b"hello\n");
 
-impl AsyncWrite for MockStreams {
-    fn shutdown(&mut self) -> Poll<(), io::Error> {
-        match self {
-            MockStreams::MockStream(x) | MockStreams::FailMockStream(x) => x.shutdown(),
-        }
-    }
+    Ok(())
 }
 
 #[test]
-fn test_add_connection() {
-    let (tx, fut) = handler();
+fn test_write_many() -> error::Result<()> {
+    let s = mock_stream::MockStream::empty();
 
-    let s = MockStream::empty();
+    let c = Connection::new(s);
+    c.tx.unbounded_send(Bytes::from("hello\n"))?;
+    c.tx.unbounded_send(Bytes::from("there\n"))?;
 
-    tx.unbounded_send(Command::Write("hello".to_string()))
-        .unwrap();
-    tx.unbounded_send(Command::Add(s)).unwrap();
-    drop(tx);
+    let mut runtime = Runtime::new()?;
+    let s = runtime.block_on(c)?;
 
-    let runtime = Runtime::new().unwrap();
-    let state = runtime.block_on_all(fut).unwrap();
+    assert_eq!(s.written(), b"hello\nthere\n");
 
-    assert_eq!(state.conns.len(), 1);
-    assert_eq!(state.conns[0].written(), b"hello\n");
-    assert_eq!(state.msg, Some("hello".to_string()));
-}
-
-#[test]
-fn test_fail() {
-    let (tx, fut) = handler();
-
-    let s = MockStreams::empty_fail();
-
-    tx.unbounded_send(Command::Write("hello".to_string()))
-        .unwrap();
-    tx.unbounded_send(Command::Add(s)).unwrap();
-    drop(tx);
-
-    let runtime = Runtime::new().unwrap();
-    let state = runtime.block_on_all(fut).unwrap();
-
-    assert_eq!(state.conns.len(), 0);
-    assert_eq!(state.msg, Some("hello".to_string()));
-}
-
-#[test]
-fn test_fail_many() {
-    let (tx, fut) = handler();
-
-    let s1 = MockStreams::empty_fail();
-    let s2 = MockStreams::empty();
-    let s3 = MockStreams::empty_fail();
-
-    tx.unbounded_send(Command::Add(s1)).unwrap();
-    tx.unbounded_send(Command::Add(s2)).unwrap();
-    tx.unbounded_send(Command::Add(s3)).unwrap();
-    tx.unbounded_send(Command::Write("hello".to_string()))
-        .unwrap();
-    tx.unbounded_send(Command::Write("there".to_string()))
-        .unwrap();
-
-    drop(tx);
-
-    let runtime = Runtime::new().unwrap();
-    let state = runtime.block_on_all(fut).unwrap();
-
-    assert_eq!(state.conns.len(), 1);
-    assert_eq!(state.conns[0].written(), b"hello\nthere\n");
-    assert_eq!(state.msg, Some("there".to_string()));
+    Ok(())
 }

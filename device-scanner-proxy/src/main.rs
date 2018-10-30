@@ -1,8 +1,6 @@
 #![allow(unknown_lints)]
 #![warn(clippy)]
 
-extern crate device_types;
-
 extern crate failure;
 extern crate futures;
 extern crate futures_failure;
@@ -13,6 +11,8 @@ extern crate serde_json;
 extern crate tokio;
 extern crate tokio_tls;
 
+extern crate device_types;
+
 mod lib;
 
 use std::{
@@ -22,7 +22,7 @@ use std::{
 };
 
 use failure::{Error, ResultExt};
-use futures::future::{Either, Future};
+use futures::future::Future;
 use futures_failure::{print_cause_chain, FutureExt, StreamExt};
 
 use tokio::{
@@ -53,9 +53,9 @@ fn main() -> Result<(), Error> {
 
     println!("Starting device-scanner-proxy server");
 
-    // Send a heartbeat every 30s to let the device-aggregator know this
+    // Send a heartbeat every 10s to let the device-aggregator know this
     // node is still alive.
-    let timer = Interval::new(Instant::now(), Duration::from_secs(30))
+    let timer = Interval::new(Instant::now(), Duration::from_secs(10))
         .context("While creating interval")
         .and_then(|_| {
             serde_json::to_string(&Message::Heartbeat)
@@ -75,8 +75,6 @@ fn main() -> Result<(), Error> {
         .context("Connecting to device-scanner.sock")
         .and_then(move |conn| {
             let (read, write) = conn.split();
-
-            println!("Connected to device-scanner socket");
 
             write_all(write, "\"Stream\"\n")
                 .context("Writing to the Stream")
@@ -100,11 +98,8 @@ fn main() -> Result<(), Error> {
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
-    runtime.spawn(
-        future::select_all(vec![Either::A(stream), Either::B(timer)])
-            .map(|_| ())
-            .map_err(|_| ()),
-    );
+    runtime.spawn(stream);
+    runtime.spawn(timer);
 
     runtime
         .shutdown_on_idle()

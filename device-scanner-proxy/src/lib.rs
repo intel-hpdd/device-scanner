@@ -62,6 +62,7 @@ fn build_https_client(pfx: &[u8]) -> Result<Client<HttpsConnector>, Error> {
     let tls_conn = TlsConnector::from(
         native_tls::TlsConnector::builder()
             .identity(id)
+            .danger_accept_invalid_certs(true)
             .build()
             .context("building TlsConnector")?,
     );

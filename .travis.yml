@@ -5,19 +5,19 @@ jobs:
   include:
     - stage: test
       name: "Unit Tests"
-      rust: 1.29.1
+      rust: 1.30.0
       script:
         - cargo test
     - stage: test
       name: "Format Check"
-      rust: 1.29.1
+      rust: 1.30.0
       before_script:
         - rustup component add rustfmt-preview
       script:
         - cargo fmt --all -- --check
     - stage: test
       name: "Linting Check"
-      rust: 1.29.1
+      rust: 1.30.0
       before_script:
         - rustup component add clippy-preview
       script:

@@ -355,7 +355,7 @@ NGINX_CONF = <<-__EOF
       listen 80;
 
       location /device-aggregator {
-        proxy_pass http://localhost:8008;
+        proxy_pass http://127.0.0.1:8008;
       }
   }
 
@@ -377,7 +377,7 @@ NGINX_CONF = <<-__EOF
 
       location /iml-device-aggregator {
         proxy_set_header x-ssl-client-name $host;
-        proxy_pass http://localhost:8008;
+        proxy_pass http://127.0.0.1:8008;
       }
   }
 __EOF

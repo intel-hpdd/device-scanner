@@ -1,8 +1,4 @@
 %define     base_name device-scanner
-%define     mount_name mount-emitter
-%define     aggregator_name device-aggregator
-%define     mount_prefixed iml-%{mount_name}
-%define     aggregator_prefixed iml-%{aggregator_name}
 %define     device_types device-types-0.1.0
 %define     futures_failure futures-failure-0.1.0
 
@@ -17,13 +13,13 @@ Source0:    device-scanner-daemon-%{version}.crate
 Source1:    uevent-listener-0.1.0.crate
 Source2:    mount-emitter-0.1.0.crate
 Source3:    device-scanner-proxy-0.1.0.crate
-Source4:    %{device_types}.crate
-Source5:    %{futures_failure}.crate
+Source4:    device-aggregator-2.0.0.crate
+Source5:    %{device_types}.crate
+Source6:    %{futures_failure}.crate
 
 %{?systemd_requires}
 BuildRequires: systemd
-BuildRequires: cargo
-BuildRequires: upx
+BuildRequires: gcc
 BuildRequires: openssl-devel
 
 Requires: socat
@@ -42,10 +38,21 @@ Requires:   %{name} = %{version}-%{release}
 scanner-proxy-daemon forwards device-scanner updates received
 
 
-%prep
-%setup -T -D -b 5 -n %{futures_failure}
+%package aggregator
+Summary:    Assembles global device view from multiple device scanner instances.
+License:    MIT
+Group:      System Environment/Libraries
+%description aggregator
+device-aggregator aggregates data received from device
+scanner instances.
 
-%setup -T -D -b 4 -n %{device_types}
+
+%prep
+%setup -T -D -b 6 -n %{futures_failure}
+
+%setup -T -D -b 5 -n %{device_types}
+
+%setup -T -D -b 4 -n device-aggregator-2.0.0
 
 %setup -T -D -b 3 -n device-scanner-proxy-0.1.0
 
@@ -65,21 +72,22 @@ EOF
 
 cat ../patch.txt >> Cargo.toml
 cargo build --release
-upx target/release/device-scanner-daemon
 
 cd ../device-scanner-proxy-0.1.0
+cat ../patch.txt >> Cargo.toml
+cargo build --release
+
+cd ../device-aggregator-2.0.0
 cat ../patch.txt >> Cargo.toml
 cargo build --release
 
 cd ../uevent-listener-0.1.0
 cat ../patch.txt >> Cargo.toml
 cargo build --release
-upx target/release/uevent-listener
 
 cd ../mount-emitter-0.1.0
 cat ../patch.txt >> Cargo.toml
 cargo build --release
-upx target/release/mount-emitter
 
 
 %clean
@@ -102,6 +110,11 @@ cd ../device-scanner-proxy-0.1.0
 cp systemd-units/scanner-proxy.{service,path} %{buildroot}%{_unitdir}
 cp systemd-units/00-scanner-proxy.preset %{buildroot}%{_presetdir}
 cp target/release/device-scanner-proxy %{buildroot}%{_bindir}
+
+cd ../device-aggregator-2.0.0
+cp systemd-units/device-aggregator.service %{buildroot}%{_unitdir}
+cp systemd-units/00-device-aggregator.preset %{buildroot}%{_presetdir}
+cp target/release/device-aggregator %{buildroot}%{_bindir}
 
 cd ../uevent-listener-0.1.0
 cp udev-rules/99-iml-device-scanner.rules %{buildroot}%{_sysconfdir}/udev/rules.d
@@ -138,6 +151,10 @@ cp target/release/mount-emitter %{buildroot}%{_bindir}
 %attr(0644,root,root)%{_presetdir}/00-scanner-proxy.preset
 %attr(0755,root,root)%{_bindir}/device-scanner-proxy
 
+%files aggregator
+%attr(0644,root,root)%{_unitdir}/device-aggregator.service
+%attr(0644,root,root)%{_presetdir}/00-device-aggregator.preset
+%attr(0755,root,root)%{_bindir}/device-aggregator
 
 %post
 systemctl preset device-scanner.socket
@@ -148,6 +165,8 @@ systemctl preset swap-emitter.timer
 %post proxy
 systemctl preset scanner-proxy.path
 
+%post aggregator
+systemctl preset device-aggregator.service
 
 %preun
 %systemd_preun device-scanner.target
@@ -166,6 +185,9 @@ systemctl preset scanner-proxy.path
 %systemd_preun scanner-proxy.service
 
 
+%preun aggregator
+%systemd_preun device-aggregator.service
+
 %postun
 %systemd_postun_with_restart device-scanner.socket
 
@@ -173,6 +195,8 @@ systemctl preset scanner-proxy.path
 %postun proxy
 %systemd_postun_with_restart scanner-proxy.path
 
+%postun aggregator
+%systemd_postun_with_restart device-aggregator.service
 
 %changelog
 * Thu Oct 18 2018 Joe Grund <jgrund@whamcloud.com> 2.0.0-1

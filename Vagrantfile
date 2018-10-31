@@ -13,17 +13,23 @@ Vagrant.configure('2') do |config|
     v.linked_clone = true
   end
 
+  config.vm.synced_folder '.', '/vagrant',
+                          type: 'rsync',
+                          rsync__exclude: ['.git/', 'target/']
+
   create_hostfile(config)
   create_ssh_keys(config)
 
   ISCSI_NAME = "device-scanner-iscsi#{NAME_SUFFIX}".freeze
 
+  # Create iscsi server
   config.vm.define ISCSI_NAME do |iscsi|
     iscsi.vm.host_name = 'iscsi.local'
-
     iscsi.vm.provider 'virtualbox' do |v|
       v.name = ISCSI_NAME
+      v.cpus = 2
       v.memory = 256
+      v.customize ['modifyvm', :id, '--audio', 'none']
 
       create_iscsi_disks(v)
     end
@@ -38,14 +44,16 @@ Vagrant.configure('2') do |config|
   end
 
   SCANNER_NAME = 'device-scanner'.freeze
-
+  # Create device-scanner nodes
   config.vm.define "#{SCANNER_NAME}#{NAME_SUFFIX}" do |device_scanner|
     device_scanner.vm.host_name = 'device-scanner1.local'
 
     device_scanner.vm.provider 'virtualbox' do |v|
-      v.memory = 256
-      v.cpus = 4
       v.name = "#{SCANNER_NAME}#{NAME_SUFFIX}"
+      v.cpus = 4
+      v.memory = 256
+      v.customize ['modifyvm', :id, '--audio', 'none']
+
     end
 
     configure_private_network(
@@ -56,20 +64,51 @@ Vagrant.configure('2') do |config|
 
     configure_private_network(
       device_scanner,
+      ['10.0.30.11'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner,
       ['10.0.40.11', '10.0.50.11'],
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
 
     provision_iscsi_client(device_scanner)
     provision_mpath(device_scanner)
-    create_certs(device_scanner)
 
     device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
       yum install -y htop jq
       mkdir -p /etc/iml
-      echo 'IML_MANAGER_URL=https://adm.local' > /etc/iml/manager-url.conf
+      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
     SHELL
+  end
+
+  # Create aggregator node
+  AGGREGATOR_NAME = 'device-aggregator'.freeze
+  config.vm.define "#{AGGREGATOR_NAME}#{NAME_SUFFIX}" do |aggregator|
+    aggregator.vm.hostname = "#{AGGREGATOR_NAME}.local"
+
+    aggregator.vm.provider 'virtualbox' do |v|
+      v.name = "#{AGGREGATOR_NAME}#{NAME_SUFFIX}"
+      v.memory = 256
+      v.cpus = 4
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      aggregator,
+      ['10.0.30.10'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    aggregator.vm.provision 'deps', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release
+      yum install -y nginx htop jq
+    SHELL
+
+    write_nginx_conf(aggregator)
   end
 
   # Create test node
@@ -78,20 +117,29 @@ Vagrant.configure('2') do |config|
     test.vm.hostname = "#{TEST_NAME}.local"
 
     test.vm.provider 'virtualbox' do |v|
-      v.memory = 512
-      v.cpus = 4
       v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
+      v.cpus = 4
+      v.memory = 1024 # little more memory for building
     end
 
     configure_private_network(
       test,
-      ['10.0.10.30'],
+      ['10.0.10.12'],
       "device-scanner-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      test,
+      ['10.0.30.11'],
+      "device-aggregator-net#{NAME_SUFFIX}"
     )
 
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y cargo rust pdsh rpm-build upx openssl-devel
+      yum install -y pdsh rpm-build openssl-devel tree gcc
+      curl https://sh.rustup.rs -sSf > /home/vagrant/rustup.sh
+      chmod 755 /home/vagrant/rustup.sh
+      /home/vagrant/rustup.sh -y
     SHELL
 
     test.vm.provision 'build', type: 'shell', inline: <<-SHELL
@@ -99,6 +147,8 @@ Vagrant.configure('2') do |config|
       cd /vagrant/device-types
       cargo package --no-verify --allow-dirty
       cd /vagrant/device-scanner-daemon
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/device-aggregator
       cargo package --no-verify --allow-dirty
       cd /vagrant/uevent-listener
       cargo package --no-verify --allow-dirty
@@ -115,10 +165,19 @@ Vagrant.configure('2') do |config|
       rpmbuild --rebuild --define "_topdir /tmp/_topdir" --define="devel_build 1" /tmp/_topdir/SRPMS/iml-device-scanner-2.0.0-1.el7.src.rpm
     SHELL
 
+    distribute_certs(test)
+
     test.vm.provision 'deploy', type: 'shell', inline: <<-SHELL
-      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-*.rpm root@device-scanner1.local:/tmp
-      pdsh -w device-scanner[1].local yum install -y /tmp/*.rpm
-      pdsh -w device-scanner[1].local systemctl start device-scanner.target
+      pdsh -w device-scanner[1].local,device-aggregator.local 'yum remove -y iml-device-scanner-*' | dshbak
+
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-aggregator-*.rpm root@device-aggregator.local:/tmp
+      pdsh -w device-aggregator.local yum install -y /tmp/iml-device-scanner-aggregator-*.rpm
+      ssh root@device-aggregator.local systemctl enable --now device-aggregator.service nginx
+
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner1.local:/tmp
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner1.local:/tmp
+      pdsh -w device-scanner[1].local 'yum install -y /tmp/*.rpm' | dshbak
+      pdsh -w device-scanner[1].local systemctl enable --now device-scanner.target | dshbak
     SHELL
   end
 end
@@ -144,8 +203,9 @@ def create_hostfile(config)
 127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
-10.0.40.10 iscsi.local iscsi
 10.0.10.10 device-scanner1.local device-scanner1
+10.0.30.10 device-aggregator.local device-aggregator
+10.0.40.10 iscsi.local iscsi
 10.0.50.10 iscsi2.local iscsi2
     __EOF
   end
@@ -266,15 +326,70 @@ def provision_mpath(config)
   SHELL
 end
 
-def create_certs(config)
-  config.vm.provision 'certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /etc/iml
-      cd /etc/iml
+# Create certs and distribute them
+# to device-scanner-proxy and nginx proxy
+def distribute_certs(config)
+  config.vm.provision 'distribute_certs', type: 'shell', inline: <<-SHELL
+      mkdir -p /tmp/certs
+      cd /tmp/certs
       openssl req \
         -subj '/CN=managernode.com/O=Whamcloud/C=US' \
         -newkey rsa:1024 -nodes -keyout manager.key \
         -x509 -days 365 -out manager.crt
       openssl dhparam -out manager.pem 1024
       openssl pkcs12 -export -out certificate.pfx -inkey manager.key -in manager.crt -passout pass:
+
+      pdsh -w device-scanner[1].local mkdir -p /etc/iml
+      scp /tmp/certs/* root@device-scanner1.local:/etc/iml
+
+      pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
+      scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
   SHELL
+end
+
+NGINX_CONF = <<-__EOF
+  error_log syslog:server=unix:/dev/log;
+  access_log syslog:server=unix:/dev/log;
+
+  server {
+      listen 80;
+
+      location /device-aggregator {
+        proxy_pass http://localhost:8008;
+      }
+  }
+
+  server {
+      listen 443 ssl http2;
+
+      error_page 497 https://$http_host$request_uri;
+
+      ssl_certificate /var/lib/chroma/manager.crt;
+      ssl_certificate_key /var/lib/chroma/manager.key;
+      ssl_dhparam /var/lib/chroma/manager.pem;
+
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_prefer_server_ciphers on;
+      ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+      ssl_ecdh_curve secp384r1;
+      ssl_session_cache shared:SSL:10m;
+      ssl_session_tickets off;
+
+      location /iml-device-aggregator {
+        proxy_set_header x-ssl-client-name $host;
+        proxy_pass http://localhost:8008;
+      }
+  }
+__EOF
+             .freeze
+
+# Write out the proxy.conf needed
+# by device-aggregator for SSL termination
+# from device-scanner-proxy services.
+def write_nginx_conf(config)
+  config.vm.provision 'nginx',
+                      type: 'shell',
+                      inline: <<-SHELL
+                        echo '#{NGINX_CONF}' > /etc/nginx/conf.d/proxy.conf
+                      SHELL
 end

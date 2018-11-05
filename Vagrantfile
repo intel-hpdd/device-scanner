@@ -120,6 +120,7 @@ Vagrant.configure('2') do |config|
       v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
       v.cpus = 4
       v.memory = 1024 # little more memory for building
+      v.customize ['modifyvm', :id, '--audio', 'none']
     end
 
     configure_private_network(

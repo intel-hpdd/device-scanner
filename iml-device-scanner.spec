@@ -21,6 +21,9 @@ Source6:    %{futures_failure}.crate
 BuildRequires: systemd
 BuildRequires: gcc
 BuildRequires: openssl-devel
+BuildRequires: clang-5.0.0
+BuildRequires: libzfs2-devel
+BuildRequires: zfs
 
 Requires: socat
 
@@ -155,6 +158,14 @@ cp target/release/mount-emitter %{buildroot}%{_bindir}
 %attr(0644,root,root)%{_unitdir}/device-aggregator.service
 %attr(0644,root,root)%{_presetdir}/00-device-aggregator.preset
 %attr(0755,root,root)%{_bindir}/device-aggregator
+
+%triggerin -- zfs > 0.7.4
+if modprobe zfs; then
+  systemctl enable zfs-zed.service
+  systemctl start zfs-zed.service
+  systemctl kill -s SIGHUP zfs-zed.service
+  echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
+fi
 
 %post
 systemctl preset device-scanner.socket

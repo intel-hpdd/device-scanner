@@ -8,64 +8,23 @@
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 
-use im::{HashSet, Vector};
+use im::{hashset, vector, HashSet, Vector};
 use serde_json;
-use std::{io, path::PathBuf, result};
+use std::{io, iter::IntoIterator, path::PathBuf};
 use tokio::prelude::*;
 
 use connections;
 use device_types::{
     devices::Device,
-    mount::{BdevPath, FsType, Mount, MountCommand, MountPoint},
+    mount::{BdevPath, FsType, Mount, MountPoint},
     state,
-    udev::UdevCommand,
     uevent::UEvent,
     Command,
 };
 
-use error;
+use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
 
-type Result<T> = result::Result<T, error::Error>;
-
-/// Mutably updates the Udev portion of the device map in response to `UdevCommand`s.
-fn update_udev(uevents: &mut state::UEvents, cmd: UdevCommand) {
-    match cmd {
-        UdevCommand::Add(x) | UdevCommand::Change(x) => uevents.insert(x.devpath.clone(), x),
-        UdevCommand::Remove(x) => uevents.remove(&x.devpath),
-    };
-}
-
-/// Mutably updates the Mount portion of the device map in response to `MountCommand`s.
-fn update_mount(local_mounts: &mut HashSet<Mount>, cmd: MountCommand) {
-    match cmd {
-        MountCommand::AddMount(target, source, fstype, opts) => {
-            local_mounts.insert(Mount::new(target, source, fstype, opts))
-        }
-        MountCommand::RemoveMount(target, source, fstype, opts) => {
-            local_mounts.remove(&Mount::new(target, source, fstype, opts))
-        }
-        MountCommand::ReplaceMount(target, source, fstype, opts, old_ops) => {
-            local_mounts.remove(&Mount::new(
-                target.clone(),
-                source.clone(),
-                fstype.clone(),
-                old_ops,
-            ));
-
-            local_mounts.insert(Mount::new(target, source, fstype, opts))
-        }
-        MountCommand::MoveMount(target, source, fstype, opts, old_target) => {
-            local_mounts.remove(&Mount::new(
-                old_target,
-                source.clone(),
-                fstype.clone(),
-                opts.clone(),
-            ));
-
-            local_mounts.insert(Mount::new(target, source, fstype, opts))
-        }
-    };
-}
+use error::{self, Result};
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
@@ -309,6 +268,53 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
         }).collect()
 }
 
+fn get_vdev_paths(vdev: libzfs::VDev) -> HashSet<PathBuf> {
+    match vdev {
+        libzfs::VDev::Disk { path, .. } => hashset![path],
+        libzfs::VDev::File { .. } => hashset![],
+        libzfs::VDev::Mirror { children, .. }
+        | libzfs::VDev::RaidZ { children, .. }
+        | libzfs::VDev::Replacing { children, .. } => {
+            children.into_iter().flat_map(get_vdev_paths).collect()
+        }
+        libzfs::VDev::Root {
+            children,
+            spares,
+            cache,
+            ..
+        } => vec![children, spares, cache]
+            .into_iter()
+            .flatten()
+            .flat_map(get_vdev_paths)
+            .collect(),
+    }
+}
+
+fn get_pools(
+    b: &Buckets,
+    ys: &HashSet<Mount>,
+    paths: &HashSet<PathBuf>,
+) -> Result<HashSet<Device>> {
+    b.pools
+        .iter()
+        .filter(|&x| {
+            let vdev_paths = get_vdev_paths(x.vdev.clone());
+
+            !paths.clone().intersection(vdev_paths).is_empty()
+        }).map(|x| {
+            Ok(Device::Zpool {
+                guid: x.guid,
+                health: x.health.clone(),
+                name: x.name.clone(),
+                props: x.props.clone(),
+                state: x.state.clone(),
+                vdev: x.vdev.clone(),
+                size: x.size.parse()?,
+                children: hashset![],
+            })
+        }).collect()
+}
+
 fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) -> Result<()> {
     match ptr {
         Device::Root { children, .. } => {
@@ -335,7 +341,9 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             let mds = get_mds(&b, &ys, &paths)?;
 
-            for mut x in HashSet::unions(vec![vs, ps, mds]) {
+            let pools = get_pools(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
@@ -366,7 +374,9 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             let mds = get_mds(&b, &ys, &paths)?;
 
-            for mut x in HashSet::unions(vec![xs, ms, vs, mds]) {
+            let pools = get_pools(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![xs, ms, vs, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
@@ -389,11 +399,14 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             major,
             minor,
             children,
+            paths,
             ..
         } => {
             let ps = get_partitions(&b, &ys, &major, &minor)?;
 
-            for mut x in ps {
+            let pools = get_pools(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![ps, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
@@ -414,7 +427,9 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             let mds = get_mds(&b, &ys, &paths)?;
 
-            for mut x in HashSet::unions(vec![vs, ps, mds]) {
+            let pools = get_pools(&b, &ys, &paths)?;
+
+            for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
                 children.insert(x);
@@ -433,19 +448,21 @@ struct Buckets<'a> {
     mds: Vector<&'a UEvent>,
     mpaths: Vector<&'a UEvent>,
     partitions: Vector<&'a UEvent>,
+    pools: Vector<&'a libzfs::Pool>,
     rest: Vector<&'a UEvent>,
 }
 
-fn bucket_devices<'a>(xs: &Vector<&'a UEvent>) -> Buckets<'a> {
+fn bucket_devices<'a>(xs: &Vector<&'a UEvent>, ys: &'a state::ZedEvents) -> Buckets<'a> {
     let buckets = Buckets {
         dms: vector![],
         mds: vector![],
         mpaths: vector![],
         partitions: vector![],
+        pools: vector![],
         rest: vector![],
     };
 
-    xs.iter().fold(buckets, |mut acc, x| {
+    let mut buckets = xs.iter().fold(buckets, |mut acc, x| {
         if is_dm(&x) {
             acc.dms.push_back(x)
         } else if is_mdraid(&x) {
@@ -459,7 +476,11 @@ fn bucket_devices<'a>(xs: &Vector<&'a UEvent>) -> Buckets<'a> {
         }
 
         acc
-    })
+    });
+
+    buckets.pools = ys.values().collect();
+
+    buckets
 }
 
 fn build_device_list(xs: &mut state::UEvents) -> Vector<&UEvent> {
@@ -498,23 +519,34 @@ pub fn handler() -> (
                  mut conns,
                  state:
                      state::State {
-                         mut uevents,
-                         mut local_mounts,
+                         uevents,
+                         zed_events,
+                         local_mounts,
                      },
              }: State,
              (cmd, connections_tx): (Command, connections::Tx)|
              -> Result<State> {
                 conns.push(connections_tx);
 
-                match cmd {
-                    Command::UdevCommand(x) => update_udev(&mut uevents, x),
-                    Command::MountCommand(x) => update_mount(&mut local_mounts, x),
-                    _ => (),
+                let (mut uevents, local_mounts, zed_events) = match cmd {
+                    Command::UdevCommand(x) => {
+                        let uevents = update_udev(&uevents, x);
+                        (uevents, local_mounts, zed_events)
+                    }
+                    Command::MountCommand(x) => {
+                        let local_mounts = update_mount(local_mounts, x);
+                        (uevents, local_mounts, zed_events)
+                    }
+                    Command::ZedCommand(x) => {
+                        let zed_events = update_zed_events(zed_events, x)?;
+                        (uevents, local_mounts, zed_events)
+                    }
+                    _ => (uevents, local_mounts, zed_events),
                 };
 
                 {
                     let dev_list = build_device_list(&mut uevents);
-                    let dev_list = bucket_devices(&dev_list);
+                    let dev_list = bucket_devices(&dev_list, &zed_events);
 
                     let mut root = Device::Root {
                         children: hashset![],
@@ -537,175 +569,11 @@ pub fn handler() -> (
                     state: state::State {
                         uevents,
                         local_mounts,
+                        zed_events,
                     },
                 })
             },
         );
 
     (tx, fut)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use device_types::{
-        mount::{self, MountCommand},
-        udev::UdevCommand,
-        uevent::UEvent,
-    };
-
-    fn create_path_buf(s: &str) -> PathBuf {
-        let mut p = PathBuf::new();
-        p.push(s);
-
-        p
-    }
-
-    #[test]
-    fn test_udev_update() {
-        let ev = UEvent {
-            major: "253".to_string(),
-            minor: "20".to_string(),
-            seqnum: 3547,
-            paths: hashset![
-                create_path_buf(
-                    "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df"
-                ),
-                create_path_buf("/dev/mapper/mpathd1"),
-                create_path_buf("/dev/disk/by-uuid/b4550256-cf48-4013-8363-bfee5f52da12"),
-                create_path_buf("/dev/disk/by-partuuid/d643e32f-b6b9-4863-af8f-8950376e28da"),
-                create_path_buf("/dev/dm-20"),
-                create_path_buf("/dev/disk/by-id/dm-name-mpathd1")
-            ],
-            devname: create_path_buf("/dev/dm-20"),
-            devpath: create_path_buf("/devices/virtual/block/dm-20"),
-            devtype: "disk".to_string(),
-            vendor: None,
-            model: None,
-            serial: None,
-            fs_type: Some("ext4".to_string()),
-            fs_usage: Some("filesystem".to_string()),
-            fs_uuid: Some("b4550256-cf48-4013-8363-bfee5f52da12".to_string()),
-            part_entry_number: Some(1),
-            part_entry_mm: Some("253:13".to_string()),
-            size: Some(100_651_008),
-            scsi80: Some(
-                "SLIO-ORG ost12           50e41a84-1db2-44a9-92c3-1e7dfad48fce".to_string(),
-            ),
-            scsi83: Some("3600140550e41a841db244a992c31e7df".to_string()),
-            read_only: Some(false),
-            bios_boot: None,
-            zfs_reserved: None,
-            is_mpath: None,
-            dm_slave_mms: vector!["253:13".to_string()],
-            dm_vg_size: Some(0),
-            md_devs: hashset![],
-            dm_multipath_devpath: None,
-            dm_name: Some("mpathd1".to_string()),
-            dm_lv_name: None,
-            lv_uuid: None,
-            dm_vg_name: None,
-            vg_uuid: None,
-            md_uuid: None,
-        };
-
-        let mut ev2 = ev.clone();
-        ev2.size = Some(100_651_001);
-
-        let mut uevents = hashmap!{ev.devpath.clone() => ev.clone()};
-
-        let add_cmd = UdevCommand::Add(ev.clone());
-
-        update_udev(&mut uevents, add_cmd);
-
-        assert_eq!(hashmap!{ev.devpath.clone() => ev.clone()}, uevents);
-
-        let change_cmd = UdevCommand::Change(ev2.clone());
-
-        update_udev(&mut uevents, change_cmd);
-
-        assert_eq!(hashmap!{ev.devpath.clone() => ev2.clone()}, uevents);
-
-        let remove_cmd = UdevCommand::Remove(ev2.clone());
-
-        update_udev(&mut uevents, remove_cmd);
-
-        assert_eq!(hashmap!{}, uevents);
-    }
-
-    #[test]
-    fn test_mount_update() {
-        let mut mounts = hashset!();
-
-        let add_cmd = MountCommand::AddMount(
-            MountPoint(create_path_buf("/mnt/part1")),
-            BdevPath(create_path_buf("/dev/sde1")),
-            FsType("ext4".to_string()),
-            mount::MountOpts("rw,relatime,data=ordered".to_string()),
-        );
-
-        update_mount(&mut mounts, add_cmd);
-
-        assert_eq!(
-            hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part1")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
-                fs_type: FsType("ext4".to_string()),
-                opts: mount::MountOpts("rw,relatime,data=ordered".to_string())
-            }),
-            mounts
-        );
-
-        let mv_cmd = MountCommand::MoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
-            FsType("ext4".to_string()),
-            mount::MountOpts("rw,relatime,data=ordered".to_string()),
-            MountPoint(create_path_buf("/mnt/part1")),
-        );
-
-        update_mount(&mut mounts, mv_cmd);
-
-        assert_eq!(
-            hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
-                fs_type: FsType("ext4".to_string()),
-                opts: mount::MountOpts("rw,relatime,data=ordered".to_string())
-            }),
-            mounts
-        );
-
-        let replace_cmd = MountCommand::ReplaceMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
-            FsType("ext4".to_string()),
-            mount::MountOpts("r,relatime,data=ordered".to_string()),
-            mount::MountOpts("rw,relatime,data=ordered".to_string()),
-        );
-
-        update_mount(&mut mounts, replace_cmd);
-
-        assert_eq!(
-            hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
-                fs_type: FsType("ext4".to_string()),
-                opts: mount::MountOpts("r,relatime,data=ordered".to_string())
-            }),
-            mounts
-        );
-
-        let rm_cmd = MountCommand::RemoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
-            FsType("ext4".to_string()),
-            mount::MountOpts("r,relatime,data=ordered".to_string()),
-        );
-
-        update_mount(&mut mounts, rm_cmd);
-
-        assert_eq!(hashset!(), mounts);
-    }
-
 }

@@ -51,9 +51,8 @@ Vagrant.configure('2') do |config|
     device_scanner.vm.provider 'virtualbox' do |v|
       v.name = "#{SCANNER_NAME}#{NAME_SUFFIX}"
       v.cpus = 4
-      v.memory = 256
+      v.memory = 512 # Little more memory to install ZFS
       v.customize ['modifyvm', :id, '--audio', 'none']
-
     end
 
     configure_private_network(
@@ -79,9 +78,12 @@ Vagrant.configure('2') do |config|
 
     device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      yum install -y htop jq
+      yum install -y htop jq zfs
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
+      modprobe zfs
+      genhostid
+      zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
     SHELL
   end
 
@@ -138,6 +140,9 @@ Vagrant.configure('2') do |config|
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
       yum install -y pdsh rpm-build openssl-devel tree gcc
+      yum -y install yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum -y copr enable alonid/llvm-5.0.0
+      yum -y install clang-5.0.0 zfs libzfs2-devel --nogpgcheck
       curl https://sh.rustup.rs -sSf > /home/vagrant/rustup.sh
       chmod 755 /home/vagrant/rustup.sh
       /home/vagrant/rustup.sh -y

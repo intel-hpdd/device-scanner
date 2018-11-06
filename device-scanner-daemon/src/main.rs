@@ -1,9 +1,9 @@
 #![allow(unknown_lints)]
 #![warn(clippy)]
 
+extern crate bytes;
 extern crate im;
 
-extern crate device_scanner_daemon;
 extern crate device_types;
 extern crate futures;
 extern crate serde;
@@ -23,8 +23,10 @@ use futures::{
     sync::mpsc::UnboundedSender,
 };
 
-use device_scanner_daemon::{connections, error, state};
 use device_types::Command;
+
+extern crate device_scanner_daemon;
+use device_scanner_daemon::{connections, error, state};
 
 /// Takes an incoming socket and message tx handle
 ///

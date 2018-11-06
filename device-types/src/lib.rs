@@ -7,6 +7,8 @@ extern crate pretty_assertions;
 
 extern crate im;
 
+extern crate libzfs;
+
 pub mod message {
     #[derive(Debug, Serialize, Deserialize)]
     pub enum Message {
@@ -23,9 +25,12 @@ pub mod state {
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
+    pub type ZedEvents = HashMap<u64, libzfs::Pool>;
+
     #[derive(Debug, Clone, Default, Serialize, Deserialize)]
     pub struct State {
         pub uevents: UEvents,
+        pub zed_events: ZedEvents,
         pub local_mounts: HashSet<mount::Mount>,
     }
 
@@ -33,6 +38,7 @@ pub mod state {
         pub fn new() -> Self {
             State {
                 uevents: HashMap::new(),
+                zed_events: HashMap::new(),
                 local_mounts: HashSet::new(),
             }
         }
@@ -136,8 +142,62 @@ pub mod uevent {
 }
 
 pub mod zed {
+    pub mod zpool {
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct Name(pub String);
+
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct Guid(pub String);
+
+        impl From<u64> for Guid {
+            fn from(x: u64) -> Self {
+                Guid(format!("{:#018X}", x))
+            }
+        }
+
+        impl From<Guid> for Result<u64, std::num::ParseIntError> {
+            fn from(Guid(x): Guid) -> Self {
+                let without_prefix = x.trim_left_matches("0x");
+                u64::from_str_radix(without_prefix, 16)
+            }
+        }
+
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct State(pub String);
+
+        impl From<State> for String {
+            fn from(State(x): State) -> Self {
+                x
+            }
+        }
+    }
+
+    pub mod zfs {
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct Name(pub String);
+    }
+
+    pub mod prop {
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct Key(pub String);
+
+        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        pub struct Value(pub String);
+    }
+
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
-    pub enum ZedCommand {}
+    pub enum ZedCommand {
+        Init,
+        CreateZpool(zpool::Name, zpool::Guid, zpool::State),
+        ImportZpool(zpool::Name, zpool::Guid, zpool::State),
+        ExportZpool(zpool::Guid, zpool::State),
+        DestroyZpool(zpool::Guid),
+        CreateZfs(zpool::Guid, zfs::Name),
+        DestroyZfs(zpool::Guid, zfs::Name),
+        SetZpoolProp(zpool::Guid, prop::Key, prop::Value),
+        SetZfsProp(zpool::Guid, zfs::Name, prop::Key, prop::Value),
+        AddVdev(zpool::Guid),
+    }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
@@ -150,6 +210,7 @@ pub enum Command {
 
 pub mod devices {
     use im::HashSet;
+    use libzfs;
     use std::path::PathBuf;
 
     type Children = HashSet<Device>;
@@ -222,14 +283,20 @@ pub mod devices {
             mount_path: Option<PathBuf>,
         },
         Zpool {
-            guid: String,
+            guid: u64,
             name: String,
+            health: String,
+            state: String,
+            size: u64,
+            vdev: libzfs::VDev,
+            props: Vec<libzfs::ZProp>,
             children: Children,
-            size: i64,
         },
         Dataset {
             guid: String,
             name: String,
+            kind: String,
+            props: Vec<libzfs::ZProp>,
         },
     }
 }

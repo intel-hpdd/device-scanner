@@ -1,6 +1,6 @@
 use futures::sync::mpsc;
 use serde_json;
-use std::{error, fmt, io, result};
+use std::{error, fmt, io, num, result};
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -16,6 +16,8 @@ pub enum Error {
     Io(io::Error),
     SendError(Box<dyn error::Error + Send + Sync>),
     SerdeJson(serde_json::Error),
+    LibZfsError(libzfs::LibZfsError),
+    ParseIntError(num::ParseIntError),
     NoneError(Box<dyn error::Error + Send + Sync>),
 }
 
@@ -25,6 +27,8 @@ impl fmt::Display for Error {
             Error::Io(ref err) => write!(f, "{}", err),
             Error::SendError(ref err) => write!(f, "{}", err),
             Error::SerdeJson(ref err) => write!(f, "{}", err),
+            Error::LibZfsError(ref err) => write!(f, "{}", err),
+            Error::ParseIntError(ref err) => write!(f, "{}", err),
             Error::NoneError(ref err) => write!(f, "{}", err),
         }
     }
@@ -36,6 +40,8 @@ impl error::Error for Error {
             Error::Io(ref err) => Some(err),
             Error::SendError(_) => None,
             Error::SerdeJson(ref err) => Some(err),
+            Error::LibZfsError(ref err) => Some(err),
+            Error::ParseIntError(ref err) => Some(err),
             Error::NoneError(_) => None,
         }
     }
@@ -59,5 +65,17 @@ where
 impl From<serde_json::Error> for Error {
     fn from(err: serde_json::Error) -> Self {
         Error::SerdeJson(err)
+    }
+}
+
+impl From<libzfs::LibZfsError> for Error {
+    fn from(err: libzfs::LibZfsError) -> Self {
+        Error::LibZfsError(err)
+    }
+}
+
+impl From<num::ParseIntError> for Error {
+    fn from(err: num::ParseIntError) -> Self {
+        Error::ParseIntError(err)
     }
 }

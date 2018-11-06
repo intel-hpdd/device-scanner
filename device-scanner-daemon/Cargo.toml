@@ -3,12 +3,6 @@ name = "device-scanner-daemon"
 version = "2.0.0"
 description = "device-scanner-daemon builds an in-memory representation of devices using udev, zed and findmnt"
 authors = ["IML Team <iml@whamcloud.com>"]
-autobins = false
-
-[[bin]]
-path = "src/bin/device_scanner_daemon.rs"
-name = "device-scanner-daemon"
-doc = false
 
 
 [dependencies]
@@ -20,6 +14,7 @@ serde_json = "1.0"
 bytes = { version = "0.4", features = ["serde"] }
 im = { version = "12.0.0", features = ["serde"] }
 device-types = { path = "../device-types", version = "0.1.0" }
+libzfs = { git = "https://github.com/whamcloud/rust-libzfs", branch = "skip-nvpair-sys-build" }
 
 [dev-dependencies]
 pretty_assertions = "0.5"

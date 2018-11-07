@@ -2,6 +2,8 @@
 name = "device-types"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+description = "shared device types used throughout device-scanner and IML"
+license = "MIT"
 
 [dependencies]
 serde = "1.0"

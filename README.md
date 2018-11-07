@@ -5,13 +5,12 @@
 This repo provides:
 
 - a [persistent daemon](device-scanner-daemon) That holds block devices, ZFS devices, and device mounts in memory.
-- a [binary](uevent-listener) that emits UEvents for block-devices as they occur.
+- a [binary](uevent-listener) that emits UEvents for block-device changes as they occur.
 - a [binary](mount-emitter) that emits device mount changes as they occur.
-- a [proxy](device-scanner-proxy) that transforms the unix domain socket events to HTTP POSTs.
+- a [proxy](device-scanner-proxy) that transforms the unix domain socket events to HTTPS POSTs.
 
 ## Architecture
 
-```
     ┌───────────────┐ ┌───────────────┐
     │  Udev Script  │ │    ZEDlet     │
     └───────────────┘ └───────────────┘
@@ -36,7 +35,6 @@ This repo provides:
            ┌──────────────────┐
            │ Consumer Process │
            └──────────────────┘
-```
 
 ## Development Dependencies
 
@@ -50,7 +48,7 @@ This repo provides:
 - (Optional) [Install ZFS](https://zfsonlinux.org/) via OS package manager
 - Install Rust deps: `cargo build`
 
-### Building the app
+### Building
 
 #### Local
 
@@ -72,6 +70,6 @@ This repo provides:
   echo '"Stream"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock | jq
   ```
 
-### Testing the app
+### Testing
 
 - `cargo test`

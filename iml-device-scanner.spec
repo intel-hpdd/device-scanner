@@ -14,8 +14,9 @@ Source1:    uevent-listener-0.1.0.crate
 Source2:    mount-emitter-0.1.0.crate
 Source3:    device-scanner-proxy-0.1.0.crate
 Source4:    device-aggregator-2.0.0.crate
-Source5:    %{device_types}.crate
-Source6:    %{futures_failure}.crate
+Source5:    device-scanner-zedlets-0.1.0.crate
+Source6:    %{device_types}.crate
+Source7:    %{futures_failure}.crate
 
 %{?systemd_requires}
 BuildRequires: systemd
@@ -45,15 +46,18 @@ scanner-proxy-daemon forwards device-scanner updates received
 Summary:    Assembles global device view from multiple device scanner instances.
 License:    MIT
 Group:      System Environment/Libraries
+Autoreq:    0
 %description aggregator
 device-aggregator aggregates data received from device
 scanner instances.
 
 
 %prep
-%setup -T -D -b 6 -n %{futures_failure}
+%setup -T -D -b 7 -n %{futures_failure}
 
-%setup -T -D -b 5 -n %{device_types}
+%setup -T -D -b 6 -n %{device_types}
+
+%setup -T -D -b 5 -n device-scanner-zedlets-0.1.0
 
 %setup -T -D -b 4 -n device-aggregator-2.0.0
 
@@ -89,6 +93,10 @@ cat ../patch.txt >> Cargo.toml
 cargo build --release
 
 cd ../mount-emitter-0.1.0
+cat ../patch.txt >> Cargo.toml
+cargo build --release
+
+cd ../device-scanner-zedlets-0.1.0
 cat ../patch.txt >> Cargo.toml
 cargo build --release
 
@@ -130,6 +138,23 @@ cp systemd-units/swap-emitter.service %{buildroot}%{_unitdir}
 cp systemd-units/swap-emitter.timer %{buildroot}%{_unitdir}
 cp target/release/mount-emitter %{buildroot}%{_bindir}
 
+mkdir -p %{buildroot}%{_libexecdir}/zfs/zed.d
+cd ../device-scanner-zedlets-0.1.0
+cp target/release/pool_create-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp target/release/pool_import-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp target/release/vdev_add-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp target/release/pool_destroy-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp target/release/history_event-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp target/release/pool_export-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+
+mkdir -p %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/pool_create-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/pool_import-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/vdev_add-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/pool_destroy-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/history_event-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+ln -sf %{_libexecdir}/zfs/zed.d/pool_export-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
+
 
 %files
 %attr(0644,root,root)%{_unitdir}/block-device-populator.service
@@ -146,6 +171,8 @@ cp target/release/mount-emitter %{buildroot}%{_bindir}
 %attr(0755,root,root)%{_bindir}/device-scanner-daemon
 %attr(0755,root,root)%{_bindir}/uevent-listener
 %attr(0755,root,root)%{_bindir}/mount-emitter
+%attr(0755,root,root)%{_libexecdir}/zfs/zed.d/*
+%{_sysconfdir}/zfs/zed.d/*
 
 
 %files proxy
@@ -163,7 +190,6 @@ cp target/release/mount-emitter %{buildroot}%{_bindir}
 if modprobe zfs; then
   systemctl enable zfs-zed.service
   systemctl start zfs-zed.service
-  systemctl kill -s SIGHUP zfs-zed.service
   echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
 fi
 

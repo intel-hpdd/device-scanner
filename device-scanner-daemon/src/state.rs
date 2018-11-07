@@ -315,6 +315,30 @@ fn get_pools(
         }).collect()
 }
 
+fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
+    let ds = b
+        .pools
+        .iter()
+        .find(|p| p.guid == guid)
+        .map(|p| &p.datasets)
+        .ok_or_else(|| {
+            error::none_error(format!(
+                "Could not find pool with guid: {} in buckets",
+                guid
+            ))
+        })?;
+
+    ds.iter()
+        .map(|x| {
+            Ok(Device::Dataset {
+                name: x.name.clone(),
+                guid: x.guid.clone(),
+                kind: x.kind.clone(),
+                props: x.props.clone(),
+            })
+        }).collect()
+}
+
 fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) -> Result<()> {
     match ptr {
         Device::Root { children, .. } => {
@@ -437,7 +461,17 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::Zpool { .. } => Ok(()),
+        Device::Zpool { guid, children, .. } => {
+            let ds = get_datasets(&b, *guid)?;
+
+            for mut x in ds {
+                build_device_graph(&mut x, b, ys)?;
+
+                children.insert(x);
+            }
+
+            Ok(())
+        }
         Device::Dataset { .. } => Ok(()),
     }
 }

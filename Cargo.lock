@@ -316,6 +316,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "device-scanner-zedlets"
+version = "0.1.0"
+dependencies = [
+ "device-types 0.1.0",
+ "serde_json 1.0.32 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "device-types"
 version = "0.1.0"
 dependencies = [

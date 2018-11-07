@@ -160,6 +160,8 @@ Vagrant.configure('2') do |config|
       cargo package --no-verify --allow-dirty
       cd /vagrant/mount-emitter
       cargo package --no-verify --allow-dirty
+      cd /vagrant/device-scanner-zedlets
+      cargo package --no-verify --allow-dirty
       cd /vagrant/device-scanner-proxy
       cargo package --no-verify --allow-dirty
       cd /vagrant/futures-failure

@@ -16,7 +16,7 @@ pub enum Error {
     Io(io::Error),
     SendError(Box<dyn error::Error + Send + Sync>),
     SerdeJson(serde_json::Error),
-    LibZfsError(libzfs::LibZfsError),
+    LibZfsError(libzfs_types::LibZfsError),
     ParseIntError(num::ParseIntError),
     NoneError(Box<dyn error::Error + Send + Sync>),
 }
@@ -68,8 +68,8 @@ impl From<serde_json::Error> for Error {
     }
 }
 
-impl From<libzfs::LibZfsError> for Error {
-    fn from(err: libzfs::LibZfsError) -> Self {
+impl From<libzfs_types::LibZfsError> for Error {
+    fn from(err: libzfs_types::LibZfsError) -> Self {
         Error::LibZfsError(err)
     }
 }

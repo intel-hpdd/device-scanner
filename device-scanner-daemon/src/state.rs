@@ -571,7 +571,7 @@ pub fn handler() -> (
                         let local_mounts = update_mount(local_mounts, x);
                         (uevents, local_mounts, zed_events)
                     }
-                    Command::ZedCommand(x) => {
+                    Command::PoolCommand(x) => {
                         let zed_events = update_zed_events(zed_events, x)?;
                         (uevents, local_mounts, zed_events)
                     }

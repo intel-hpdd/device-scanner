@@ -1,2 +1,2 @@
 [workspace]
-members = ['device-types', 'device-scanner-daemon', 'futures-failure', 'device-scanner-proxy', 'device-aggregator', 'uevent-listener', 'mount-emitter', 'device-scanner-zedlets']
+members = ['device-types', 'device-scanner-daemon', 'futures-failure', 'device-scanner-proxy', 'device-aggregator', 'uevent-listener', 'mount-emitter', 'device-scanner-zedlets', 'zed-enhancer']

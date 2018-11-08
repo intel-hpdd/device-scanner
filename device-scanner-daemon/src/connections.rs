@@ -119,7 +119,7 @@ where
                     self.wr.split_to(n);
                 }
                 Ok(Async::NotReady) => break,
-                Err(e) => {
+                Err(_) => {
                     // If we get *any* error on this socket, we resolve the future
                     // which closes the connection
                     return Ok(Async::Ready(c));

@@ -6,7 +6,7 @@ extern crate im;
 extern crate bytes;
 extern crate device_types;
 extern crate futures;
-extern crate libzfs;
+extern crate libzfs_types;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;

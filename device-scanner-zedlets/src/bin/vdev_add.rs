@@ -5,7 +5,7 @@ use device_scanner_zedlets::{send_data, zpool, Result};
 use device_types::zed::ZedCommand;
 
 fn main() -> Result<()> {
-    let x = ZedCommand::AddVdev(zpool::get_guid()?);
+    let x = ZedCommand::AddVdev(zpool::get_name()?, zpool::get_guid()?);
 
     send_data(x)
 }

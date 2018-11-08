@@ -53,9 +53,9 @@ impl From<env::VarError> for Error {
 }
 
 pub fn send_data(z: ZedCommand) -> Result<()> {
-    let x = serde_json::to_string(&device_types::Command::ZedCommand(z))?;
+    let x = serde_json::to_string(&z)?;
 
-    let mut stream = UnixStream::connect("/var/run/device-scanner.sock")?;
+    let mut stream = UnixStream::connect("/var/run/zed-enhancer.sock")?;
 
     stream.write_all(x.as_bytes())?;
 

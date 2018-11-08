@@ -142,6 +142,19 @@ pub mod uevent {
 }
 
 pub mod zed {
+
+    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    pub enum PoolCommand {
+        AddPools(Vec<libzfs_types::Pool>),
+        AddPool(libzfs_types::Pool),
+        UpdatePool(libzfs_types::Pool),
+        RemovePool(zpool::Guid),
+        AddDataset(zpool::Guid, libzfs_types::Dataset),
+        RemoveDataset(zpool::Guid, zfs::Name),
+        SetZpoolProp(zpool::Guid, prop::Key, prop::Value),
+        SetZfsProp(zpool::Guid, zfs::Name, prop::Key, prop::Value),
+    }
+
     pub mod zpool {
         #[derive(Debug, PartialEq, Serialize, Deserialize)]
         pub struct Name(pub String);
@@ -196,14 +209,14 @@ pub mod zed {
         DestroyZfs(zpool::Guid, zfs::Name),
         SetZpoolProp(zpool::Guid, prop::Key, prop::Value),
         SetZfsProp(zpool::Guid, zfs::Name, prop::Key, prop::Value),
-        AddVdev(zpool::Guid),
+        AddVdev(zpool::Name, zpool::Guid),
     }
 }
 
 #[derive(Debug, PartialEq, Serialize, Deserialize)]
 pub enum Command {
     Stream,
-    ZedCommand(zed::ZedCommand),
+    PoolCommand(zed::PoolCommand),
     UdevCommand(udev::UdevCommand),
     MountCommand(mount::MountCommand),
 }

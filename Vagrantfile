@@ -43,13 +43,13 @@ Vagrant.configure('2') do |config|
     create_iscsi_targets(iscsi)
   end
 
-  SCANNER_NAME = 'device-scanner'.freeze
+  SCANNER_NAME = "device-scanner#{NAME_SUFFIX}".freeze
   # Create device-scanner nodes
-  config.vm.define "#{SCANNER_NAME}#{NAME_SUFFIX}" do |device_scanner|
+  config.vm.define SCANNER_NAME do |device_scanner|
     device_scanner.vm.host_name = 'device-scanner1.local'
 
     device_scanner.vm.provider 'virtualbox' do |v|
-      v.name = "#{SCANNER_NAME}#{NAME_SUFFIX}"
+      v.name = SCANNER_NAME
       v.cpus = 4
       v.memory = 512 # Little more memory to install ZFS
       v.customize ['modifyvm', :id, '--audio', 'none']

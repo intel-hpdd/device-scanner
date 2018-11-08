@@ -5,11 +5,11 @@ use device_types::{
 use error::{Error, Result};
 use std::result;
 
-pub fn into_zed_events(xs: Vec<libzfs::Pool>) -> state::ZedEvents {
+pub fn into_zed_events(xs: Vec<libzfs_types::Pool>) -> state::ZedEvents {
     xs.into_iter().map(|p| (p.guid, p)).collect()
 }
 
-pub fn take_pool(zed_events: &mut state::ZedEvents, guid: u64) -> Result<libzfs::Pool> {
+pub fn take_pool(zed_events: &mut state::ZedEvents, guid: u64) -> Result<libzfs_types::Pool> {
     zed_events
         .remove(&guid)
         .ok_or_else(|| Error::LibZfsError(libzfs::LibZfsError::PoolNotFound(None, Some(guid))))
@@ -75,7 +75,7 @@ pub fn update_zed_events(
 
             let dataset = libzfs::get_dataset_by_name(&name)?;
 
-            let mut ds: Vec<libzfs::Dataset> = pool
+            let mut ds: Vec<libzfs_types::Dataset> = pool
                 .datasets
                 .into_iter()
                 .filter(|d| d.name != name)
@@ -112,7 +112,10 @@ pub fn update_zed_events(
         ZedCommand::SetZfsProp(guid, zfs::Name(name), prop::Key(key), prop::Value(value)) => {
             let guid = guid_to_u64(guid)?;
 
-            fn get_dataset_in_pool(pool: libzfs::Pool, name: String) -> Result<libzfs::Dataset> {
+            fn get_dataset_in_pool(
+                pool: libzfs_types::Pool,
+                name: String,
+            ) -> Result<libzfs_types::Dataset> {
                 pool.datasets
                     .into_iter()
                     .find(|d| d.name == name)

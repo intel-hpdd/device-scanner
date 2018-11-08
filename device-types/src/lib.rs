@@ -7,7 +7,7 @@ extern crate pretty_assertions;
 
 extern crate im;
 
-extern crate libzfs;
+extern crate libzfs_types;
 
 pub mod message {
     #[derive(Debug, Serialize, Deserialize)]
@@ -25,7 +25,7 @@ pub mod state {
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
-    pub type ZedEvents = HashMap<u64, libzfs::Pool>;
+    pub type ZedEvents = HashMap<u64, libzfs_types::Pool>;
 
     #[derive(Debug, Clone, Default, Serialize, Deserialize)]
     pub struct State {
@@ -210,7 +210,7 @@ pub enum Command {
 
 pub mod devices {
     use im::HashSet;
-    use libzfs;
+    use libzfs_types;
     use std::path::PathBuf;
 
     type Children = HashSet<Device>;
@@ -288,15 +288,15 @@ pub mod devices {
             health: String,
             state: String,
             size: u64,
-            vdev: libzfs::VDev,
-            props: Vec<libzfs::ZProp>,
+            vdev: libzfs_types::VDev,
+            props: Vec<libzfs_types::ZProp>,
             children: Children,
         },
         Dataset {
             guid: String,
             name: String,
             kind: String,
-            props: Vec<libzfs::ZProp>,
+            props: Vec<libzfs_types::ZProp>,
         },
     }
 }

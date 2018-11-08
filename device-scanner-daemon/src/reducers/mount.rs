@@ -3,7 +3,10 @@ use im::HashSet;
 use device_types::mount::{Mount, MountCommand};
 
 /// Mutably updates the Mount portion of the device map in response to `MountCommand`s.
-pub fn update_mount(mut local_mounts: HashSet<Mount>, cmd: MountCommand) -> HashSet<Mount> {
+pub fn update_mount<S: ::std::hash::BuildHasher>(
+    mut local_mounts: HashSet<Mount, S>,
+    cmd: MountCommand,
+) -> HashSet<Mount, S> {
     match cmd {
         MountCommand::AddMount(target, source, fstype, opts) => {
             local_mounts.update(Mount::new(target, source, fstype, opts))

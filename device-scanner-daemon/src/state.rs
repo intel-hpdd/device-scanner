@@ -268,16 +268,16 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
         }).collect()
 }
 
-fn get_vdev_paths(vdev: libzfs::VDev) -> HashSet<PathBuf> {
+fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
     match vdev {
-        libzfs::VDev::Disk { path, .. } => hashset![path],
-        libzfs::VDev::File { .. } => hashset![],
-        libzfs::VDev::Mirror { children, .. }
-        | libzfs::VDev::RaidZ { children, .. }
-        | libzfs::VDev::Replacing { children, .. } => {
+        libzfs_types::VDev::Disk { path, .. } => hashset![path],
+        libzfs_types::VDev::File { .. } => hashset![],
+        libzfs_types::VDev::Mirror { children, .. }
+        | libzfs_types::VDev::RaidZ { children, .. }
+        | libzfs_types::VDev::Replacing { children, .. } => {
             children.into_iter().flat_map(get_vdev_paths).collect()
         }
-        libzfs::VDev::Root {
+        libzfs_types::VDev::Root {
             children,
             spares,
             cache,
@@ -482,7 +482,7 @@ struct Buckets<'a> {
     mds: Vector<&'a UEvent>,
     mpaths: Vector<&'a UEvent>,
     partitions: Vector<&'a UEvent>,
-    pools: Vector<&'a libzfs::Pool>,
+    pools: Vector<&'a libzfs_types::Pool>,
     rest: Vector<&'a UEvent>,
 }
 

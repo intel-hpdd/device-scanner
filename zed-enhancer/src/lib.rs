@@ -2,6 +2,7 @@ extern crate derive_more;
 extern crate device_types;
 extern crate libzfs;
 extern crate libzfs_types;
+extern crate log;
 extern crate serde_json;
 extern crate tokio;
 
@@ -56,6 +57,8 @@ fn guid_to_u64(guid: zpool::Guid) -> Result<u64> {
 
 /// Takes a ZedCommand and produces some PoolCommands.
 pub fn handle_zed_commands(cmd: ZedCommand) -> Result<PoolCommand> {
+    log::debug!("got cmd: {:?}", cmd);
+
     match cmd {
         ZedCommand::Init => {
             let pools = libzfs::get_imported_pools()?;
@@ -105,15 +108,20 @@ pub fn get_write_stream() -> impl AsyncWrite {
 }
 
 pub fn processor(socket: UnixStream) -> impl Future<Item = (), Error = Error> {
+    log::trace!("Incoming socket");
+
     let (r, _) = socket.split();
 
     lines(BufReader::new(r))
         .map_err(Error::Io)
-        .and_then(|x| serde_json::from_str::<_>(&x).map_err(Error::SerdeJson))
-        .and_then(handle_zed_commands)
+        .and_then(|x| {
+            serde_json::from_str::<device_types::zed::ZedCommand>(&x).map_err(Error::SerdeJson)
+        }).and_then(handle_zed_commands)
         .map(device_types::Command::PoolCommand)
         .and_then(|x| serde_json::to_string(&x).map_err(Error::SerdeJson))
         .for_each(|x| {
+            log::debug!("sending out: {:?}", x);
+
             tokio::io::write_all(get_write_stream(), x)
                 .map(|_| ())
                 .map_err(Error::Io)

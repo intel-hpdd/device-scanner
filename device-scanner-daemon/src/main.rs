@@ -5,7 +5,9 @@ extern crate bytes;
 extern crate im;
 
 extern crate device_types;
+extern crate env_logger;
 extern crate futures;
+extern crate log;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
@@ -91,6 +93,8 @@ fn processor(
 }
 
 fn main() {
+    env_logger::init();
+
     let (message_tx, state_fut) = state::handler();
 
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
@@ -102,15 +106,22 @@ fn main() {
         .incoming()
         .map_err(|e| eprintln!("accept failed, {:?}", e))
         .for_each(move |socket| {
-            tokio::spawn(processor(socket, message_tx.clone()).map_err(|e| ()))
+            tokio::spawn(
+                processor(socket, message_tx.clone())
+                    .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
+            )
         });
 
-    println!("Server starting");
+    log::info!("Server starting");
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
     runtime.spawn(server);
-    runtime.spawn(state_fut.map(|_| ()).map_err(|e| ()));
+    runtime.spawn(
+        state_fut
+            .map(|_| ())
+            .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
+    );
 
     runtime
         .shutdown_on_idle()

@@ -7,9 +7,11 @@
 //! before passing onwards to device-scanner.
 
 extern crate device_types;
+extern crate env_logger;
 extern crate futures;
 extern crate libzfs;
 extern crate libzfs_types;
+extern crate log;
 extern crate serde_json;
 extern crate tokio;
 
@@ -22,6 +24,8 @@ use std::os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener};
 use tokio::{net::UnixListener, prelude::*, reactor::Handle};
 
 fn main() {
+    env_logger::init();
+
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
     let listener = UnixListener::from_std(addr, &Handle::default())
@@ -30,9 +34,11 @@ fn main() {
     let server = listener
         .incoming()
         .map_err(|e| eprintln!("accept failed, {:?}", e))
-        .for_each(move |socket| tokio::spawn(processor(socket).map_err(|e| ())));
+        .for_each(move |socket| {
+            tokio::spawn(processor(socket).map_err(|e| log::error!("Unhandled Error: {:?}", e)))
+        });
 
-    println!("Server starting");
+    log::info!("Server starting");
 
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 

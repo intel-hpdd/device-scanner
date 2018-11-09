@@ -307,7 +307,7 @@ dependencies = [
  "device-types 0.1.0",
  "env_logger 0.5.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "im 12.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "im 12.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libzfs-types 0.1.0 (git+https://github.com/whamcloud/rust-libzfs?branch=skip-nvpair-sys-build)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_assertions 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -348,7 +348,7 @@ dependencies = [
 name = "device-types"
 version = "0.1.0"
 dependencies = [
- "im 12.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "im 12.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "libzfs-types 0.1.0 (git+https://github.com/whamcloud/rust-libzfs?branch=skip-nvpair-sys-build)",
  "pretty_assertions 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -613,7 +613,7 @@ dependencies = [
 
 [[package]]
 name = "im"
-version = "12.2.0"
+version = "12.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "rustc_version 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1594,7 +1594,7 @@ name = "uevent-listener"
 version = "0.1.0"
 dependencies = [
  "device-types 0.1.0",
- "im 12.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "im 12.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_assertions 0.5.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.33 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
@@ -1865,7 +1865,7 @@ dependencies = [
 "checksum humantime 1.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "0484fda3e7007f2a4a0d9c3a703ca38c71c54c55602ce4660c419fd32e188c9e"
 "checksum hyper 0.12.14 (registry+https://github.com/rust-lang/crates.io-index)" = "2f60ae467ef4fc5eba9a34d31648c9c8ed902faf45a217f6734ce9ea64779ac7"
 "checksum idna 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)" = "38f09e0f0b1fb55fdee1f17470ad800da77af5186a1a76c026b679358b7e844e"
-"checksum im 12.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ae9c7f9bb8aee47fc16d535a705f7867a9fc83bb822e5e1043bb98e77ffeed3c"
+"checksum im 12.0.0 (registry+https://github.com/rust-lang/crates.io-index)" = "1ca4b379f0383e3a502dfdd6a9424fd9707633160d5215bb42d7e00db8a056ab"
 "checksum indexmap 1.0.2 (registry+https://github.com/rust-lang/crates.io-index)" = "7e81a7c05f79578dbc15793d8b619db9ba32b4577003ef3af1a91c416798c58d"
 "checksum input_buffer 0.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8e1b822cc844905551931d6f81608ed5f50a79c1078a4e2b4d42dbc7c1eedfbf"
 "checksum iovec 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)" = "dbe6e417e7d0975db6512b90796e8ce223145ac4e33c377e4a42882a0e88bb08"

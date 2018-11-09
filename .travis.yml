@@ -20,9 +20,11 @@ jobs:
     - stage: test
       name: "Linting Check"
       rust: 1.30.1
-      before_script:
-        - rustup component add clippy-preview
       script:
-        - cargo clippy
+        - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
+        - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
+        - docker exec -i libzfs bash -c 'rustup update'
+        - docker exec -i libzfs bash -c 'rustup component add clippy-preview'
+        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy'
 stages:
   - test

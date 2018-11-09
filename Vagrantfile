@@ -166,6 +166,8 @@ Vagrant.configure('2') do |config|
       cargo package --no-verify --allow-dirty
       cd /vagrant/futures-failure
       cargo package --no-verify --allow-dirty
+      cd /vagrant/zed-enhancer
+      cargo package --no-verify --allow-dirty
       mkdir -p /tmp/_topdir/SOURCES
       mv -f /vagrant/target/package/*.crate /tmp/_topdir/SOURCES/
       cd /vagrant

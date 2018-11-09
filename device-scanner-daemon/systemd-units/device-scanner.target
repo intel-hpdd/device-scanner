@@ -4,9 +4,9 @@ Description=Device Scanner Services
 Requires=device-scanner.socket
 After=device-scanner.socket
 Requires=block-device-populator.service
-Requires=zed-populator.service
 Requires=swap-emitter.timer
 Requires=mount-emitter.service
+Wants=zed-populator.service
 Wants=scanner-proxy.path
 
 [Install]

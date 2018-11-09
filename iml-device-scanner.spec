@@ -15,8 +15,9 @@ Source2:    mount-emitter-0.1.0.crate
 Source3:    device-scanner-proxy-0.1.0.crate
 Source4:    device-aggregator-2.0.0.crate
 Source5:    device-scanner-zedlets-0.1.0.crate
-Source6:    %{device_types}.crate
-Source7:    %{futures_failure}.crate
+Source6:    zed-enhancer-0.1.0.crate
+Source7:    %{device_types}.crate
+Source8:    %{futures_failure}.crate
 
 %{?systemd_requires}
 BuildRequires: systemd
@@ -53,9 +54,11 @@ scanner instances.
 
 
 %prep
-%setup -T -D -b 7 -n %{futures_failure}
+%setup -T -D -b 8 -n %{futures_failure}
 
-%setup -T -D -b 6 -n %{device_types}
+%setup -T -D -b 7 -n %{device_types}
+
+%setup -T -D -b 6 -n zed-enhancer-0.1.0
 
 %setup -T -D -b 5 -n device-scanner-zedlets-0.1.0
 
@@ -100,6 +103,9 @@ cd ../device-scanner-zedlets-0.1.0
 cat ../patch.txt >> Cargo.toml
 cargo build --release
 
+cd ../zed-enhancer-0.1.0
+cat ../patch.txt >> Cargo.toml
+cargo build --release
 
 %clean
 rm -rf %{buildroot}
@@ -113,7 +119,6 @@ mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
 
 cp systemd-units/device-scanner.{target,socket,service} %{buildroot}%{_unitdir}
 cp systemd-units/block-device-populator.service %{buildroot}%{_unitdir}
-cp systemd-units/zed-populator.service %{buildroot}%{_unitdir}
 cp systemd-units/00-device-scanner.preset %{buildroot}%{_presetdir}
 cp target/release/device-scanner-daemon %{buildroot}%{_bindir}
 
@@ -156,9 +161,15 @@ ln -sf %{_libexecdir}/zfs/zed.d/history_event-scanner %{buildroot}%{_sysconfdir}
 ln -sf %{_libexecdir}/zfs/zed.d/pool_export-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
 
 
+cd ../zed-enhancer-0.1.0
+cp systemd-units/zed-enhancer.{service,socket} %{buildroot}%{_unitdir}
+cp systemd-units/zed-populator.service %{buildroot}%{_unitdir}
+cp systemd-units/00-zed-enhancer.preset %{buildroot}%{_presetdir}
+cp target/release/zed-enhancer %{buildroot}%{_bindir}
+cp udev-rules/99-iml-zed-enhancer.rules %{buildroot}%{_sysconfdir}/udev/rules.d
+
 %files
 %attr(0644,root,root)%{_unitdir}/block-device-populator.service
-%attr(0644,root,root)%{_unitdir}/zed-populator.service
 %attr(0644,root,root)%{_unitdir}/device-scanner.target
 %attr(0644,root,root)%{_unitdir}/device-scanner.socket
 %attr(0644,root,root)%{_unitdir}/device-scanner.service
@@ -166,11 +177,17 @@ ln -sf %{_libexecdir}/zfs/zed.d/pool_export-scanner %{buildroot}%{_sysconfdir}/z
 %attr(0644,root,root)%{_unitdir}/mount-populator.service
 %attr(0644,root,root)%{_unitdir}/swap-emitter.timer
 %attr(0644,root,root)%{_unitdir}/swap-emitter.service
+%attr(0644,root,root)%{_unitdir}/zed-enhancer.service
+%attr(0644,root,root)%{_unitdir}/zed-enhancer.socket
+%attr(0644,root,root)%{_unitdir}/zed-populator.service
+%attr(0644,root,root)%{_presetdir}/00-zed-enhancer.preset
 %attr(0644,root,root)%{_presetdir}/00-device-scanner.preset
 %attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-device-scanner.rules
+%attr(0644,root,root)%{_sysconfdir}/udev/rules.d/99-iml-zed-enhancer.rules
 %attr(0755,root,root)%{_bindir}/device-scanner-daemon
 %attr(0755,root,root)%{_bindir}/uevent-listener
 %attr(0755,root,root)%{_bindir}/mount-emitter
+%attr(0755,root,root)%{_bindir}/zed-enhancer
 %attr(0755,root,root)%{_libexecdir}/zfs/zed.d/*
 %{_sysconfdir}/zfs/zed.d/*
 
@@ -186,17 +203,12 @@ ln -sf %{_libexecdir}/zfs/zed.d/pool_export-scanner %{buildroot}%{_sysconfdir}/z
 %attr(0644,root,root)%{_presetdir}/00-device-aggregator.preset
 %attr(0755,root,root)%{_bindir}/device-aggregator
 
-%triggerin -- zfs > 0.7.4
-if modprobe zfs; then
-  systemctl enable zfs-zed.service
-  systemctl start zfs-zed.service
-  echo '{"ZedCommand":"Init"}' | socat - UNIX-CONNECT:/var/run/%{base_name}.sock
-fi
 
 %post
 systemctl preset device-scanner.socket
 systemctl preset mount-emitter.service
 systemctl preset swap-emitter.timer
+systemctl preset zed-enhancer.socket
 
 
 %post proxy
@@ -215,6 +227,8 @@ systemctl preset device-aggregator.service
 %systemd_preun mount-populator.service
 %systemd_preun swap-emitter.timer
 %systemd_preun swap-emitter.service
+%systemd_preun zed-enhancer.socket
+%systemd_preun zed-enhancer.service
 
 
 %preun proxy
@@ -227,6 +241,7 @@ systemctl preset device-aggregator.service
 
 %postun
 %systemd_postun_with_restart device-scanner.socket
+%systemd_postun_with_restart zed-enhancer.socket
 
 
 %postun proxy

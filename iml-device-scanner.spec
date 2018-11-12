@@ -26,6 +26,7 @@ BuildRequires: openssl-devel
 BuildRequires: clang-5.0.0
 BuildRequires: libzfs2-devel
 BuildRequires: zfs
+BuildRequires: cargo
 
 Requires: socat
 

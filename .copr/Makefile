@@ -1,8 +1,4 @@
 srpm:
-	curl https://sh.rustup.rs -sSf > ~/rustup.sh
-	chmod 755 ~/rustup.sh
-	~/rustup.sh -y
-	source $(HOME)/.cargo/env
 	mkdir -p /tmp/_topdir
 	cd device-types
 	cargo package --no-verify --allow-dirty

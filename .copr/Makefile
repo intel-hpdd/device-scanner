@@ -25,4 +25,4 @@ srpm: $(CARGO)
 	mkdir -p /tmp/_topdir/SOURCES
 	mv -f target/package/*.crate /tmp/_topdir/SOURCES/
 	rpmbuild -bs --define "_topdir /tmp/_topdir" iml-device-scanner.spec
-	cp -r /tmp/_topdir/SRPMS $(outdir)
+	cp -r /tmp/_topdir/SRPMS/* $(outdir)

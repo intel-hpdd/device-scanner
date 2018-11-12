@@ -8,7 +8,7 @@ license = "MIT"
 [dependencies]
 serde = "1.0"
 serde_derive = "1.0"
-libzfs-types = { git = "https://github.com/whamcloud/rust-libzfs", branch = "skip-nvpair-sys-build" }
+libzfs-types = "0.1.1"
 im = { version = "12.0.0", features = ["serde"] }
 
 [dev-dependencies]

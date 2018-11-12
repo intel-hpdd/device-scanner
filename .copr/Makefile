@@ -2,7 +2,7 @@ srpm:
 	curl https://sh.rustup.rs -sSf > ~/rustup.sh
 	chmod 755 ~/rustup.sh
 	~/rustup.sh -y
-	mkdir -p /tmp/_topdir
+	mkdir -p _topdir
 	cd device-types
 	$(HOME)/.cargo/bin package --no-verify --allow-dirty
 	cd ../device-scanner-daemon
@@ -22,7 +22,7 @@ srpm:
 	cd ../zed-enhancer
 	$(HOME)/.cargo/bin package --no-verify --allow-dirty
 	cd ../
-	mkdir -p /tmp/_topdir/SOURCES
-	mv -f target/package/*.crate /tmp/_topdir/SOURCES/
-	rpmbuild -bs --define "_topdir /tmp/_topdir" iml-device-scanner.spec
-	cp /tmp/_topdir/SRPMS $(outdir)
+	mkdir -p _topdir/SOURCES
+	mv -f target/package/*.crate _topdir/SOURCES/
+	rpmbuild -bs --define "_topdir _topdir" iml-device-scanner.spec
+	cp _topdir/SRPMS $(outdir)

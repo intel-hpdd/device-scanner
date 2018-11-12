@@ -1,8 +1,7 @@
 CARGO := $(shell if which cargo 2>/dev/null; then true; else echo cargo; fi)
 
 $(CARGO):
-	dnf install -y cargo 
-	
+	dnf install -y cargo
 
 srpm: $(CARGO)
 	cd device-types

@@ -1,7 +1,7 @@
 CARGO := $(shell if which cargo 2>/dev/null; then true; else echo cargo; fi)
 
 $(CARGO):
-	yum install -y cargo 
+	dnf install -y cargo 
 	
 
 srpm: $(CARGO)

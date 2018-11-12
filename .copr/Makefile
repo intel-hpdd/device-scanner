@@ -1,28 +1,30 @@
-srpm:
-	curl https://sh.rustup.rs -sSf > ~/rustup.sh
-	chmod 755 ~/rustup.sh
-	~/rustup.sh -y
-	mkdir -p _topdir
+CARGO := $(shell if which cargo 2>/dev/null; then true; else echo cargo; fi)
+
+$(CARGO):
+	yum install -y cargo 
+	
+
+srpm: $(CARGO)
 	cd device-types
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../device-scanner-daemon
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../device-aggregator
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../uevent-listener
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../mount-emitter
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../device-scanner-zedlets
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../device-scanner-proxy
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../futures-failure
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../zed-enhancer
-	$(HOME)/.cargo/bin package --no-verify --allow-dirty
+	cargo package --no-verify --allow-dirty
 	cd ../
-	mkdir -p _topdir/SOURCES
-	mv -f target/package/*.crate _topdir/SOURCES/
-	rpmbuild -bs --define "_topdir _topdir" iml-device-scanner.spec
-	cp _topdir/SRPMS $(outdir)
+	mkdir -p /tmp/_topdir/SOURCES
+	mv -f target/package/*.crate /tmp/_topdir/SOURCES/
+	rpmbuild -bs --define "_topdir /tmp/_topdir" iml-device-scanner.spec
+	cp /tmp/_topdir/SRPMS $(outdir)

@@ -139,13 +139,13 @@ Vagrant.configure('2') do |config|
 
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
+      # Install epel-testing so we can get rust >= 1.30
+      yum-config-manager --enable epel-testing
       yum install -y pdsh rpm-build openssl-devel tree gcc
       yum -y install yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
       yum -y copr enable alonid/llvm-5.0.0
       yum -y install clang-5.0.0 zfs libzfs2-devel --nogpgcheck
-      curl https://sh.rustup.rs -sSf > /home/vagrant/rustup.sh
-      chmod 755 /home/vagrant/rustup.sh
-      /home/vagrant/rustup.sh -y
+      yum -y install cargo
     SHELL
 
     test.vm.provision 'build', type: 'shell', inline: <<-SHELL

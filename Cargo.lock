@@ -695,13 +695,13 @@ dependencies = [
 
 [[package]]
 name = "libzfs"
-version = "0.6.12"
+version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "cstr-argument 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "foreign-types 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "libzfs-sys 0.5.7 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libzfs-sys 0.5.9 (registry+https://github.com/rust-lang/crates.io-index)",
  "libzfs-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "nvpair-sys 0.1.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde 1.0.80 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -710,7 +710,7 @@ dependencies = [
 
 [[package]]
 name = "libzfs-sys"
-version = "0.5.7"
+version = "0.5.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "bindgen 0.43.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1808,7 +1808,7 @@ dependencies = [
  "device-types 0.1.0",
  "env_logger 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.25 (registry+https://github.com/rust-lang/crates.io-index)",
- "libzfs 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libzfs 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)",
  "libzfs-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.33 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1888,8 +1888,8 @@ dependencies = [
 "checksum lazycell 1.2.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ddba4c30a78328befecec92fc94970e53b3ae385827d28620f0f5bb2493081e0"
 "checksum libc 0.2.43 (registry+https://github.com/rust-lang/crates.io-index)" = "76e3a3ef172f1a0b9a9ff0dd1491ae5e6c948b94479a3021819ba7d860c8645d"
 "checksum libloading 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)" = "9c3ad660d7cb8c5822cd83d10897b0f1f1526792737a179e73896152f85b88c2"
-"checksum libzfs 0.6.12 (registry+https://github.com/rust-lang/crates.io-index)" = "ab60451f1f6ffade7389c5630e997f85445a82785b5da2c5f3d3eebd0a2f79ee"
-"checksum libzfs-sys 0.5.7 (registry+https://github.com/rust-lang/crates.io-index)" = "2e6606322fc8d90244c0887a93ee9e0348e89e5515b17dde110a047df3832c05"
+"checksum libzfs 0.6.13 (registry+https://github.com/rust-lang/crates.io-index)" = "e64366210fd9c1f4871cf56539a5244b520b75bafe9a576cc6ec2be616f2f22a"
+"checksum libzfs-sys 0.5.9 (registry+https://github.com/rust-lang/crates.io-index)" = "31b340b29a9a74ed8d49972293ed399b97dac1c46168620a3757ec7874c4316c"
 "checksum libzfs-types 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)" = "781e3a0e71718873e3fb34ba980a2ff855079c2685d36c78c3df5586a9379bca"
 "checksum lock_api 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "775751a3e69bde4df9b38dd00a1b5d6ac13791e4223d4a0506577f0dd27cfb7a"
 "checksum log 0.4.6 (registry+https://github.com/rust-lang/crates.io-index)" = "c84ec4b527950aa83a329754b01dbe3f58361d1c5efacd1f6d68c494d08a17c6"

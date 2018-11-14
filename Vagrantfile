@@ -75,10 +75,11 @@ Vagrant.configure('2') do |config|
 
     provision_iscsi_client(device_scanner1)
     provision_mpath(device_scanner1)
+    install_zfs(device_scanner1)
 
     device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
-      yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      yum install -y htop jq zfs
+      yum install -y epel-release
+      yum install -y htop jq
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       modprobe zfs
@@ -88,7 +89,7 @@ Vagrant.configure('2') do |config|
   end
 
   SCANNER_NAME2 = "device-scanner2#{NAME_SUFFIX}".freeze
-  # Create device-scanner nodes
+  # Create device-scanner node 2
   config.vm.define SCANNER_NAME2 do |device_scanner2|
     device_scanner2.vm.host_name = 'device-scanner2.local'
 
@@ -119,10 +120,11 @@ Vagrant.configure('2') do |config|
 
     provision_iscsi_client(device_scanner2)
     provision_mpath(device_scanner2)
+    install_zfs(device_scanner2)
 
     device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
-      yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      yum install -y htop jq zfs
+      yum install -y epel-release
+      yum install -y htop jq
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       genhostid
@@ -179,14 +181,16 @@ Vagrant.configure('2') do |config|
       "device-aggregator-net#{NAME_SUFFIX}"
     )
 
+    install_zfs(config)
+
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
       # Install epel-testing so we can get rust >= 1.30
       yum-config-manager --enable epel-testing
       yum install -y pdsh rpm-build openssl-devel tree gcc
-      yum -y install yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum -y install yum-plugin-copr
       yum -y copr enable alonid/llvm-5.0.0
-      yum -y install clang-5.0.0 zfs libzfs2-devel --nogpgcheck
+      yum -y install clang-5.0.0 libzfs2-devel --nogpgcheck
       yum -y install cargo
     SHELL
 
@@ -376,6 +380,16 @@ def provision_mpath(config)
     cp /usr/share/doc/device-mapper-multipath-*/multipath.conf /etc/multipath.conf
     systemctl start multipathd.service
     systemctl enable multipathd.service
+  SHELL
+end
+
+# Installs zfs
+def install_zfs(config)
+  config.vm.provision 'zfs', type: 'shell', inline: <<-SHELL
+    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+    yum-config-manager --disable zfs
+    yum-config-manager --enable zfs-kmod
+    yum install -y zfs
   SHELL
 end
 

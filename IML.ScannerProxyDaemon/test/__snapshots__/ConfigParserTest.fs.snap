@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`Data Handler Should filter out all but the base64 encoded string of 'server' 1`] = `
-Array [
-  "c2VydmVy",
-]
-`;
-
-exports[`Data Handler Should parse url from map 1`] = `"foo.com"`;

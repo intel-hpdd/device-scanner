@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`writing a connection 1`] = `
-"{
-  \\"zed\\": {},
-  \\"blockDevices\\": {},
-  \\"localMounts\\": []
-}"
-`;

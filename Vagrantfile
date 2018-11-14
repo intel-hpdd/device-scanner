@@ -1,30 +1,230 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-NAME_SUFFIX = (ENV['NAME_SUFFIX'] || '').freeze
+require 'open3'
 
-def provision_mdns(config)
-  config.vm.provision 'mdns', type: 'shell', inline: <<-SHELL
-    yum install -y avahi nss-mdns
-    sed -i 's/myhostname/mdns/' /etc/nsswitch.conf
-    systemctl restart network
-    systemctl enable avahi-daemon.socket
-    systemctl start avahi-daemon.socket
-    systemctl start avahi-daemon.service
-    systemctl status avahi-daemon.service
-  SHELL
-end
+NAME_SUFFIX = (ENV['NAME_SUFFIX'] || '').freeze
+INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze
 
 Vagrant.configure('2') do |config|
-  config.vm.box = 'manager-for-lustre/centos75-1804-device-scanner'
-  config.vm.box_version = '0.0.5'
+  config.vm.box = 'centos/7'
 
   config.vm.provider 'virtualbox' do |v|
     v.linked_clone = true
   end
 
-  INT_NET_NAME = "scanner-net#{NAME_SUFFIX}".freeze
+  config.vm.synced_folder '.', '/vagrant',
+                          type: 'rsync',
+                          rsync__exclude: ['.git/', 'target/']
 
+  create_hostfile(config)
+  create_ssh_keys(config)
+
+  ISCSI_NAME = "device-scanner-iscsi#{NAME_SUFFIX}".freeze
+
+  # Create iscsi server
+  config.vm.define ISCSI_NAME do |iscsi|
+    iscsi.vm.host_name = 'iscsi.local'
+    iscsi.vm.provider 'virtualbox' do |v|
+      v.name = ISCSI_NAME
+      v.cpus = 2
+      v.memory = 256
+      v.customize ['modifyvm', :id, '--audio', 'none']
+
+      create_iscsi_disks(v)
+    end
+
+    configure_private_network(
+      iscsi,
+      ['10.0.40.10', '10.0.50.10'],
+      "device-scanner-iscsi-net#{NAME_SUFFIX}"
+    )
+
+    create_iscsi_targets(iscsi)
+  end
+
+  SCANNER_NAME = "device-scanner#{NAME_SUFFIX}".freeze
+  # Create device-scanner nodes
+  config.vm.define SCANNER_NAME do |device_scanner|
+    device_scanner.vm.host_name = 'device-scanner1.local'
+
+    device_scanner.vm.provider 'virtualbox' do |v|
+      v.name = SCANNER_NAME
+      v.cpus = 4
+      v.memory = 512 # Little more memory to install ZFS
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      device_scanner,
+      ['10.0.10.10'],
+      "device-scanner-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner,
+      ['10.0.30.11'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner,
+      ['10.0.40.11', '10.0.50.11'],
+      "device-scanner-iscsi-net#{NAME_SUFFIX}"
+    )
+
+    provision_iscsi_client(device_scanner)
+    provision_mpath(device_scanner)
+
+    device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum install -y htop jq zfs
+      mkdir -p /etc/iml
+      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
+      modprobe zfs
+      genhostid
+      zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
+    SHELL
+  end
+
+  # Create aggregator node
+  AGGREGATOR_NAME = 'device-aggregator'.freeze
+  config.vm.define "#{AGGREGATOR_NAME}#{NAME_SUFFIX}" do |aggregator|
+    aggregator.vm.hostname = "#{AGGREGATOR_NAME}.local"
+
+    aggregator.vm.provider 'virtualbox' do |v|
+      v.name = "#{AGGREGATOR_NAME}#{NAME_SUFFIX}"
+      v.memory = 256
+      v.cpus = 4
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      aggregator,
+      ['10.0.30.10'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    aggregator.vm.provision 'deps', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release
+      yum install -y nginx htop jq
+    SHELL
+
+    write_nginx_conf(aggregator)
+  end
+
+  # Create test node
+  TEST_NAME = 'test'.freeze
+  config.vm.define "#{TEST_NAME}#{NAME_SUFFIX}" do |test|
+    test.vm.hostname = "#{TEST_NAME}.local"
+
+    test.vm.provider 'virtualbox' do |v|
+      v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
+      v.cpus = 4
+      v.memory = 1024 # little more memory for building
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      test,
+      ['10.0.10.12'],
+      "device-scanner-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      test,
+      ['10.0.30.11'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release
+      # Install epel-testing so we can get rust >= 1.30
+      yum-config-manager --enable epel-testing
+      yum install -y pdsh rpm-build openssl-devel tree gcc
+      yum -y install yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum -y copr enable alonid/llvm-5.0.0
+      yum -y install clang-5.0.0 zfs libzfs2-devel --nogpgcheck
+      yum -y install cargo
+    SHELL
+
+    test.vm.provision 'build', type: 'shell', inline: <<-SHELL
+      rm -rf /tmp/_topdir
+      cd /vagrant/device-types
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/device-scanner-daemon
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/device-aggregator
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/uevent-listener
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/mount-emitter
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/device-scanner-zedlets
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/device-scanner-proxy
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/futures-failure
+      cargo package --no-verify --allow-dirty
+      cd /vagrant/zed-enhancer
+      cargo package --no-verify --allow-dirty
+      mkdir -p /tmp/_topdir/SOURCES
+      mv -f /vagrant/target/package/*.crate /tmp/_topdir/SOURCES/
+      cd /vagrant
+      rpmbuild -bs --define "_topdir /tmp/_topdir" /vagrant/iml-device-scanner.spec
+      rpmbuild --rebuild --define "_topdir /tmp/_topdir" --define="devel_build 1" /tmp/_topdir/SRPMS/iml-device-scanner-2.0.0-1.el7.src.rpm
+    SHELL
+
+    distribute_certs(test)
+
+    test.vm.provision 'deploy', type: 'shell', inline: <<-SHELL
+      pdsh -w device-scanner[1].local,device-aggregator.local 'yum remove -y iml-device-scanner-*' | dshbak
+
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-aggregator-*.rpm root@device-aggregator.local:/tmp
+      pdsh -w device-aggregator.local yum install -y /tmp/iml-device-scanner-aggregator-*.rpm
+      ssh root@device-aggregator.local systemctl enable --now device-aggregator.service nginx
+
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner1.local:/tmp
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner1.local:/tmp
+      pdsh -w device-scanner[1].local 'yum install -y /tmp/*.rpm' | dshbak
+      pdsh -w device-scanner[1].local systemctl enable --now device-scanner.target | dshbak
+    SHELL
+  end
+end
+
+# Checks if a scsi controller exists.
+# This is used as a predicate to create controllers, as vagrant does not provide this
+# functionality by default.
+def controller_exists(name, controller_name)
+  out, err = Open3.capture2e("VBoxManage showvminfo #{name}")
+
+  return false if err.exitstatus != 0
+
+  out.split(/\n/)
+     .select { |x| x.start_with? 'Storage Controller Name' }
+     .map { |x| x.split(':')[1].strip }
+     .any? { |x| x == controller_name }
+end
+
+# Creates a hosts file that is distributed to each node.
+def create_hostfile(config)
+  open('hosts', 'w') do |f|
+    f.puts <<-__EOF
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+
+10.0.10.10 device-scanner1.local device-scanner1
+10.0.30.10 device-aggregator.local device-aggregator
+10.0.40.10 iscsi.local iscsi
+10.0.50.10 iscsi2.local iscsi2
+    __EOF
+  end
+
+  config.vm.provision 'shell', inline: 'cp -f /vagrant/hosts /etc/hosts'
+end
+
+# Creates SSH keys that are shared between hosts
+def create_ssh_keys(config)
   system("ssh-keygen -t rsa -N '' -f id_rsa") unless File.exist?('id_rsa')
 
   config.vm.provision 'ssh', type: 'shell', inline: <<-SHELL
@@ -40,161 +240,166 @@ Vagrant.configure('2') do |config|
         StrictHostKeyChecking no
 __EOF
   SHELL
+end
 
-  # Create device-scanner node
-  SCANNER_NAME = 'device-scanner'.freeze
-  config.vm.define "#{SCANNER_NAME}#{NAME_SUFFIX}", primary: true do |device_scanner|
-    device_scanner.vm.hostname = SCANNER_NAME
-    device_scanner.ssh.username = 'root'
-    device_scanner.ssh.password = 'vagrant'
-    device_scanner.vm.network :forwarded_port,
-                              host: 8080,
-                              guest: 8080,
-                              auto_correct: true
-    device_scanner.vm.network 'private_network',
-                              ip: '10.0.0.10',
-                              virtualbox__intnet: INT_NET_NAME
-
-    device_scanner.vm.provider 'virtualbox' do |v|
-      v.memory = 2048
-      v.cpus = 4
-      v.name = "#{SCANNER_NAME}#{NAME_SUFFIX}"
-
-      disk1 = './tmp/disk1.vdi'
-      unless File.exist?(disk1)
-        v.customize ['createhd', '--filename', disk1, '--size', 500 * 1024]
-      end
-
-      v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
-      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1221NCJ6G801']
-      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port1/SerialNumber', '081118FC1221NCJ6G830']
-
-      (2..29).each do |i|
-        id = i.to_s.rjust(2, '0')
-        disk = "./tmp/disk#{i}.vdi"
-
-        unless File.exist?(disk)
-          v.customize ['createmedium', 'disk',
-                       '--filename', disk,
-                       '--size', '100',
-                       '--format', 'VDI',
-                       '--variant', 'fixed']
-        end
-
-        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', i, '--type', 'hdd', '--medium', disk]
-        v.customize ['setextradata', :id, "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber", "081118FC1221NCJ6G8#{id}"]
-      end
-    end
-
-    device_scanner.vm.provision 'deps', type: 'shell', inline: <<-SHELL
-      yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      dotnet tool install fake-cli -g
-      yum -y copr enable managerforlustre/manager-for-lustre-devel
-      yum install -y rpmdevtools
-      cd /etc/yum.repos.d
-      wget https://copr.fedorainfracloud.org/coprs/managerforlustre/manager-for-lustre-devel/repo/epel-7/managerforlustre-manager-for-lustre-devel-epel-7.repo
-    SHELL
-
-    device_scanner.vm.provision 'build', type: 'shell', inline: <<-SHELL
-      rm -rf /builddir
-      cp -r /vagrant /builddir
-    SHELL
-
-    device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
-      cd /builddir
-      fake run build.fsx -t RPM
-      yum install -y ./_topdir/RPMS/x86_64/iml-device-scanner-*.x86_64.rpm
-    SHELL
-
-    device_scanner.vm.provision 'mpath', type: 'shell', inline: <<-SHELL
-      cp /vagrant/multipath/multipath.conf /etc
-      systemctl enable multipathd
-      systemctl start multipathd
-      echo "InitiatorName=iqn.2018-03.com.test:client" > /etc/iscsi/initiatorname.iscsi
-      systemctl start iscsi
-      systemctl enable iscsi
-    SHELL
-
-    provision_mdns device_scanner
+# Creates a SATA Controller and attaches 10 disks to it
+def create_iscsi_disks(vbox)
+  unless controller_exists(ISCSI_NAME, 'SATA Controller')
+    vbox.customize ['storagectl', :id,
+                    '--name', 'SATA Controller',
+                    '--add', 'sata']
   end
 
-  # Create test node
-  TEST_NAME = 'test'.freeze
-  config.vm.define "#{TEST_NAME}#{NAME_SUFFIX}" do |test|
-    test.vm.hostname = TEST_NAME
-    test.ssh.username = 'root'
-    test.ssh.password = 'vagrant'
+  (1..10).each do |i|
+    id = i.to_s.rjust(2, '0')
+    disk = "./tmp/disk#{i}.vdi"
 
-    (20..40).step(10).each do |i|
-      test.vm.network 'private_network',
-                      ip: "10.0.0.#{i}",
-                      virtualbox__intnet: INT_NET_NAME
+    unless File.exist?(disk)
+      vbox.customize ['createmedium', 'disk',
+                      '--filename', disk,
+                      '--size', '100',
+                      '--format', 'VDI',
+                      '--variant', 'fixed']
     end
 
-    test.vm.provider 'virtualbox' do |v|
-      v.memory = 1024
-      v.cpus = 2
-      v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
-
-      disk1 = './tmp/test0.vdi'
-      unless File.exist?(disk1)
-        v.customize ['createhd', '--filename', disk1, '--size', 2 * 1024]
-      end
-
-      v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', 1, '--device', 0, '--type', 'hdd', '--medium', disk1]
-      v.customize ['setextradata', :id, 'VBoxInternal/Devices/ahci/0/Config/Port0/SerialNumber', '081118FC1223NCC281F0']
-
-      (1..2).each do |i|
-        id = i.to_s.rjust(2, '0')
-        disk = "./tmp/test#{i}.vdi"
-
-        unless File.exist?(disk)
-          v.customize ['createmedium', 'disk',
-                       '--filename', disk,
-                       '--size', '100',
-                       '--format', 'VDI',
-                       '--variant', 'fixed']
-        end
-
-        v.customize ['storageattach', :id, '--storagectl', 'SATA Controller', '--port', i, '--type', 'hdd', '--medium', disk]
-        v.customize ['setextradata', :id, "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber", "081118FC1223NCC281#{id}"]
-      end
-    end
-
-    test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
-      yum install -y targetcli
-    SHELL
-
-    test.vm.provision 'devices', type: 'shell', inline: <<-SHELL
-      cp /vagrant/multipath/saveconfig.json /etc/target/
-      pvcreate /dev/sdb /dev/sdc
-      vgcreate iscsivg /dev/sdc; lvcreate -l100%FREE -n iscsilv iscsivg
-      systemctl start target.service
-      systemctl enable target.service
-    SHELL
-
-    provision_mdns test
-
-    test.vm.provision 'install', type: 'shell', inline: <<-SHELL
-      rm -rf /builddir
-      cp -r /vagrant /builddir
-      cd /builddir
-      npm i --ignore-scripts
-      npm i iltorb
-      cert-sync /etc/pki/tls/certs/ca-bundle.crt
-      npm run restore
-    SHELL
-
-    test.vm.provision 'integration-test', type: 'shell', inline: <<-SHELL
-      cd /builddir
-      dotnet fable npm-run integration-test
-      cp /builddir/results.xml /vagrant
-    SHELL
-
-    test.vm.provision 'update-snapshot', type: 'shell', run: 'never', inline: <<-SHELL
-      cd /builddir
-      dotnet fable npm-run integration-test -- -u
-      cp -rf IML.IntegrationTest/__snapshots__ /vagrant/IML.IntegrationTest/__snapshots__
-    SHELL
+    vbox.customize [
+      'storageattach', :id,
+      '--storagectl', 'SATA Controller',
+      '--port', i,
+      '--type', 'hdd',
+      '--medium', disk
+    ]
+    vbox.customize [
+      'setextradata', :id,
+      "VBoxInternal/Devices/ahci/0/Config/Port#{i}/SerialNumber",
+      "081118FC1221NCJ6G8#{id}"
+    ]
   end
+end
+
+# Utilizes a private network for the given vm and ips
+def configure_private_network(config, ips, net_name)
+  ips.each do |ip|
+    config.vm.network 'private_network',
+                      ip: ip,
+                      netmask: '255.255.255.0',
+                      virtualbox__intnet: net_name
+  end
+end
+
+# Creates iscsi targets
+def create_iscsi_targets(iscsi)
+  disk_commands = ('b'..'z')
+                  .take(10)
+                  .flat_map.with_index do |x, i|
+    [
+      "targetcli /backstores/block create disk#{i + 1} /dev/sd#{x}",
+      "targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/luns/ create /backstores/block/disk#{i + 1}"
+    ]
+  end.join "\n"
+
+  iscsi.vm.provision 'bootstrap', type: 'shell', inline: <<-SHELL
+    yum -y install targetcli lsscsi
+    targetcli /iscsi set global auto_add_default_portal=false
+    targetcli /iscsi create iqn.2015-01.com.whamcloud.lu:disks
+
+    #{disk_commands}
+    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/portals/ create 10.0.40.10
+    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/portals/ create 10.0.50.10
+    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/acls create iqn.2015-01.com.whamcloud:disks
+    targetcli saveconfig
+    systemctl enable target
+  SHELL
+end
+
+# Sets up clients to connect to iscsi server
+def provision_iscsi_client(config)
+  config.vm.provision 'iscsi-client', type: 'shell', inline: <<-SHELL
+    yum -y install iscsi-initiator-utils lsscsi
+    echo "InitiatorName=iqn.2015-01.com.whamcloud:disks" > /etc/iscsi/initiatorname.iscsi
+    iscsiadm --mode discoverydb --type sendtargets --portal 10.0.40.10:3260 --discover
+    iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.40.10:3260 -o update -n node.startup -v automatic
+    iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.40.10:3260 -o update -n node.conn[0].startup -v automatic
+    iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.50.10:3260 -o update -n node.startup -v automatic
+    iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.50.10:3260 -o update -n node.conn[0].startup -v automatic
+    systemctl start iscsi
+  SHELL
+end
+
+# Sets up multipathing on client
+def provision_mpath(config)
+  config.vm.provision 'mpath', type: 'shell', inline: <<-SHELL
+    yum -y install device-mapper-multipath
+    cp /usr/share/doc/device-mapper-multipath-*/multipath.conf /etc/multipath.conf
+    systemctl start multipathd.service
+    systemctl enable multipathd.service
+  SHELL
+end
+
+# Create certs and distribute them
+# to device-scanner-proxy and nginx proxy
+def distribute_certs(config)
+  config.vm.provision 'distribute_certs', type: 'shell', inline: <<-SHELL
+      mkdir -p /tmp/certs
+      cd /tmp/certs
+      openssl req \
+        -subj '/CN=managernode.com/O=Whamcloud/C=US' \
+        -newkey rsa:1024 -nodes -keyout manager.key \
+        -x509 -days 365 -out manager.crt
+      openssl dhparam -out manager.pem 1024
+      openssl pkcs12 -export -out certificate.pfx -inkey manager.key -in manager.crt -passout pass:
+
+      pdsh -w device-scanner[1].local mkdir -p /etc/iml
+      scp /tmp/certs/* root@device-scanner1.local:/etc/iml
+
+      pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
+      scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
+  SHELL
+end
+
+NGINX_CONF = <<-__EOF
+  error_log syslog:server=unix:/dev/log;
+  access_log syslog:server=unix:/dev/log;
+
+  server {
+      listen 80;
+
+      location /device-aggregator {
+        proxy_pass http://127.0.0.1:8008;
+      }
+  }
+
+  server {
+      listen 443 ssl http2;
+
+      error_page 497 https://$http_host$request_uri;
+
+      ssl_certificate /var/lib/chroma/manager.crt;
+      ssl_certificate_key /var/lib/chroma/manager.key;
+      ssl_dhparam /var/lib/chroma/manager.pem;
+
+      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_prefer_server_ciphers on;
+      ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
+      ssl_ecdh_curve secp384r1;
+      ssl_session_cache shared:SSL:10m;
+      ssl_session_tickets off;
+
+      location /iml-device-aggregator {
+        proxy_set_header x-ssl-client-name $host;
+        proxy_pass http://127.0.0.1:8008;
+      }
+  }
+__EOF
+             .freeze
+
+# Write out the proxy.conf needed
+# by device-aggregator for SSL termination
+# from device-scanner-proxy services.
+def write_nginx_conf(config)
+  config.vm.provision 'nginx',
+                      type: 'shell',
+                      inline: <<-SHELL
+                        echo '#{NGINX_CONF}' > /etc/nginx/conf.d/proxy.conf
+                      SHELL
 end

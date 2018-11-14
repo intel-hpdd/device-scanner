@@ -1,51 +1,42 @@
-sudo: required
-language: generic
-services:
-  - docker
+language: rust
+cache: cargo
+
 jobs:
   include:
     - stage: test
-      name: "Build"
+      name: "Unit Tests"
+      language: generic
       script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
+        - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
+        - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
+        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo test'
     - stage: test
-      language: node_js
-      node_js: 10
-      name: "Unit Test"
-      before_install:
-        - npm i -g npm@latest codecov
-      install: true
+      name: "Format Check"
+      rust: 1.30.1
+      before_script:
+        - rustup component add rustfmt-preview
       script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i --ignore-scripts && npm run restore && dotnet fable npm-coverage -- --ci'
-        - codecov
+        - cargo fmt --all -- --check
+    - stage: test
+      name: "Linting Check"
+      language: generic
+      script:
+        - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
+        - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
+        - docker exec -i libzfs bash -c 'rustup update'
+        - docker exec -i libzfs bash -c 'rustup component add clippy-preview'
+        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy'
     - stage: cd
-      git:
-        depth: 999999
       name: "Continuous Deployment"
+      language: generic
       script:
-        - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
-        - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli git'
-        - docker exec -it copr bash -c "cd /builddir && fake run build.fsx --release=\$(git rev-list HEAD | wc -l) --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN"
-    - stage: deploy-npm
-      name: "Npm Deploy"
-      script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
-        - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
-        - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
-    - stage: deploy-copr
-      name: "Copr Deploy"
-      script:
-        - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
-        - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli'
-        - docker exec -it copr bash -c "cd /builddir && fake run build.fsx --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN"
+        - export $OWNER=managerforlustre
+        - export $PROJECT=device-scanner-devel
+        - export $PACKAGE=iml-device-scanner
+        - export $CLONE_URL=https://github.com/whamcloud/device-scanner.git
+        - export $SPEC=iml-device-scanner.spec
+        - docker run -it -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e CLONE_URL="$CLONE_URL" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr
 stages:
   - test
   - name: cd
     if: branch = master AND type = push AND fork = false
-  - name: deploy-npm
-    if: branch =~ ^v\d+\.\d+\.\d+$
-  - name: deploy-copr
-    if: branch =~ ^v\d+\.\d+\.\d+-.+$

@@ -1,6 +1,0 @@
-[copr-cli]
-login = @login@
-username = @username@
-token = @token@
-copr_url = https://copr.fedorainfracloud.org
-# expiration date: 2019-01-20

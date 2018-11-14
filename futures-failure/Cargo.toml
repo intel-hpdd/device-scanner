@@ -2,6 +2,7 @@
 name = "futures-failure"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+license = "MIT"
 
 [dependencies]
 futures = "0.1"

@@ -2,6 +2,7 @@
 name = "mount-emitter"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+license = "MIT"
 
 [[bin]]
 path = "src/bin/mount_emitter.rs"

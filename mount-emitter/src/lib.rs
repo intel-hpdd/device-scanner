@@ -1,3 +1,7 @@
+// Copyright (c) 2018 DDN. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
 //! Reads streaming mount information from stdin and forwards to `device-scanner` daemon.
 //!
 //! The `mount-emitter` crate uses `tokio` to stream stdin line by line, parse it

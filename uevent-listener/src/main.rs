@@ -1,6 +1,6 @@
-#![allow(unknown_lints)]
-#![warn(clippy)]
-#![cfg_attr(feature = "cargo-clippy", allow(needless_pass_by_value))]
+// Copyright (c) 2018 DDN. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
 #[cfg(test)]
 #[macro_use]
@@ -24,7 +24,7 @@ fn optional_field(name: &str) -> Option<String> {
     env::var(name).ok()
 }
 
-fn split_space(x: String) -> Vector<String> {
+fn split_space(x: &str) -> Vector<String> {
     x.split(' ')
         .filter(|x| x.trim() != "")
         .map(|x| x.to_string())
@@ -36,7 +36,7 @@ fn get_paths() -> HashSet<PathBuf> {
 
     let devname = required_field("DEVNAME");
 
-    let mut xs: HashSet<PathBuf> = split_space(devlinks)
+    let mut xs: HashSet<PathBuf> = split_space(&devlinks)
         .iter()
         .map(|x| {
             let mut p = PathBuf::new();
@@ -136,7 +136,7 @@ pub fn build_uevent() -> UEvent {
         zfs_reserved: optional_field("IML_IS_ZFS_RESERVED").map(is_one),
         is_mpath: optional_field("IML_IS_MPATH").map(is_one),
         dm_slave_mms: optional_field("IML_DM_SLAVE_MMS")
-            .map(split_space)
+            .map(|x| split_space(&x))
             .unwrap_or_else(Vector::new),
         dm_vg_size: Some(0),
         md_devs: md_devs(env::vars()),
@@ -158,10 +158,6 @@ fn send_data(x: String) {
     let mut stream = UnixStream::connect("/var/run/device-scanner.sock").unwrap();
 
     stream.write_all(x.as_bytes()).unwrap();
-
-    // let mut buff = Vec::new();
-
-    // stream.read_to_end(&mut buff).unwrap();
 }
 
 fn main() {

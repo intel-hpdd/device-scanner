@@ -43,12 +43,12 @@ Vagrant.configure('2') do |config|
     create_iscsi_targets(iscsi)
   end
 
-  SCANNER_NAME = "device-scanner#{NAME_SUFFIX}".freeze
-  # Create device-scanner nodes
-  config.vm.define SCANNER_NAME do |device_scanner|
-    device_scanner.vm.host_name = 'device-scanner1.local'
+  SCANNER_NAME = "device-scanner1#{NAME_SUFFIX}".freeze
+  # Create device-scanner node 1
+  config.vm.define SCANNER_NAME do |device_scanner1|
+    device_scanner1.vm.host_name = 'device-scanner1.local'
 
-    device_scanner.vm.provider 'virtualbox' do |v|
+    device_scanner1.vm.provider 'virtualbox' do |v|
       v.name = SCANNER_NAME
       v.cpus = 4
       v.memory = 512 # Little more memory to install ZFS
@@ -56,27 +56,27 @@ Vagrant.configure('2') do |config|
     end
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.10.10'],
       "device-scanner-net#{NAME_SUFFIX}"
     )
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.30.11'],
       "device-aggregator-net#{NAME_SUFFIX}"
     )
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.40.11', '10.0.50.11'],
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
 
-    provision_iscsi_client(device_scanner)
-    provision_mpath(device_scanner)
+    provision_iscsi_client(device_scanner1)
+    provision_mpath(device_scanner1)
 
-    device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
+    device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
       yum install -y htop jq zfs
       mkdir -p /etc/iml
@@ -84,6 +84,48 @@ Vagrant.configure('2') do |config|
       modprobe zfs
       genhostid
       zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
+    SHELL
+  end
+
+  SCANNER_NAME2 = "device-scanner2#{NAME_SUFFIX}".freeze
+  # Create device-scanner nodes
+  config.vm.define SCANNER_NAME2 do |device_scanner2|
+    device_scanner2.vm.host_name = 'device-scanner2.local'
+
+    device_scanner2.vm.provider 'virtualbox' do |v|
+      v.name = SCANNER_NAME2
+      v.cpus = 4
+      v.memory = 512 # Little more memory to install ZFS
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.10.11'],
+      "device-scanner-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.30.12'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.40.12', '10.0.50.12'],
+      "device-scanner-iscsi-net#{NAME_SUFFIX}"
+    )
+
+    provision_iscsi_client(device_scanner2)
+    provision_mpath(device_scanner2)
+
+    device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum install -y htop jq zfs
+      mkdir -p /etc/iml
+      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
+      genhostid
     SHELL
   end
 
@@ -214,6 +256,7 @@ def create_hostfile(config)
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 10.0.10.10 device-scanner1.local device-scanner1
+10.0.10.11 device-scanner2.local device-scanner2
 10.0.30.10 device-aggregator.local device-aggregator
 10.0.40.10 iscsi.local iscsi
 10.0.50.10 iscsi2.local iscsi2

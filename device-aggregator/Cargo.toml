@@ -2,6 +2,7 @@
 name = "device-aggregator"
 version = "2.0.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+license = "MIT"
 
 [dependencies]
 tokio = "0.1"

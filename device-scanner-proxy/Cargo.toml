@@ -2,6 +2,7 @@
 name = "device-scanner-proxy"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
+license = "MIT"
 
 [dependencies]
 tokio = "0.1"

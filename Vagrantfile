@@ -43,12 +43,12 @@ Vagrant.configure('2') do |config|
     create_iscsi_targets(iscsi)
   end
 
-  SCANNER_NAME = "device-scanner#{NAME_SUFFIX}".freeze
-  # Create device-scanner nodes
-  config.vm.define SCANNER_NAME do |device_scanner|
-    device_scanner.vm.host_name = 'device-scanner1.local'
+  SCANNER_NAME = "device-scanner1#{NAME_SUFFIX}".freeze
+  # Create device-scanner node 1
+  config.vm.define SCANNER_NAME do |device_scanner1|
+    device_scanner1.vm.host_name = 'device-scanner1.local'
 
-    device_scanner.vm.provider 'virtualbox' do |v|
+    device_scanner1.vm.provider 'virtualbox' do |v|
       v.name = SCANNER_NAME
       v.cpus = 4
       v.memory = 512 # Little more memory to install ZFS
@@ -56,34 +56,78 @@ Vagrant.configure('2') do |config|
     end
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.10.10'],
       "device-scanner-net#{NAME_SUFFIX}"
     )
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.30.11'],
       "device-aggregator-net#{NAME_SUFFIX}"
     )
 
     configure_private_network(
-      device_scanner,
+      device_scanner1,
       ['10.0.40.11', '10.0.50.11'],
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
 
-    provision_iscsi_client(device_scanner)
-    provision_mpath(device_scanner)
+    provision_iscsi_client(device_scanner1)
+    provision_mpath(device_scanner1)
+    install_zfs(device_scanner1)
 
-    device_scanner.vm.provision 'setup', type: 'shell', inline: <<-SHELL
-      yum install -y epel-release http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      yum install -y htop jq zfs
+    device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release
+      yum install -y htop jq
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       modprobe zfs
       genhostid
       zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
+    SHELL
+  end
+
+  SCANNER_NAME2 = "device-scanner2#{NAME_SUFFIX}".freeze
+  # Create device-scanner node 2
+  config.vm.define SCANNER_NAME2 do |device_scanner2|
+    device_scanner2.vm.host_name = 'device-scanner2.local'
+
+    device_scanner2.vm.provider 'virtualbox' do |v|
+      v.name = SCANNER_NAME2
+      v.cpus = 4
+      v.memory = 512 # Little more memory to install ZFS
+      v.customize ['modifyvm', :id, '--audio', 'none']
+    end
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.10.11'],
+      "device-scanner-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.30.12'],
+      "device-aggregator-net#{NAME_SUFFIX}"
+    )
+
+    configure_private_network(
+      device_scanner2,
+      ['10.0.40.12', '10.0.50.12'],
+      "device-scanner-iscsi-net#{NAME_SUFFIX}"
+    )
+
+    provision_iscsi_client(device_scanner2)
+    provision_mpath(device_scanner2)
+    install_zfs(device_scanner2)
+
+    device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
+      yum install -y epel-release
+      yum install -y htop jq
+      mkdir -p /etc/iml
+      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
+      genhostid
     SHELL
   end
 
@@ -120,7 +164,7 @@ Vagrant.configure('2') do |config|
 
     test.vm.provider 'virtualbox' do |v|
       v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
-      v.cpus = 4
+      v.cpus = 8
       v.memory = 1024 # little more memory for building
       v.customize ['modifyvm', :id, '--audio', 'none']
     end
@@ -137,14 +181,16 @@ Vagrant.configure('2') do |config|
       "device-aggregator-net#{NAME_SUFFIX}"
     )
 
+    install_zfs(config)
+
     test.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
       # Install epel-testing so we can get rust >= 1.30
       yum-config-manager --enable epel-testing
       yum install -y pdsh rpm-build openssl-devel tree gcc
-      yum -y install yum-plugin-copr http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+      yum -y install yum-plugin-copr
       yum -y copr enable alonid/llvm-5.0.0
-      yum -y install clang-5.0.0 zfs libzfs2-devel --nogpgcheck
+      yum -y install clang-5.0.0 libzfs2-devel --nogpgcheck
       yum -y install cargo
     SHELL
 
@@ -186,14 +232,17 @@ Vagrant.configure('2') do |config|
 
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner1.local:/tmp
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner1.local:/tmp
-      pdsh -w device-scanner[1].local 'yum install -y /tmp/*.rpm' | dshbak
-      pdsh -w device-scanner[1].local systemctl enable --now device-scanner.target | dshbak
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner2.local:/tmp
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner2.local:/tmp
+      pdsh -w device-scanner[1-2].local 'yum install -y /tmp/*.rpm' | dshbak
+      pdsh -w device-scanner[1-2].local systemctl enable --now device-scanner.target | dshbak
     SHELL
   end
 end
 
 # Checks if a scsi controller exists.
-# This is used as a predicate to create controllers, as vagrant does not provide this
+# This is used as a predicate to create controllers,
+# as vagrant does not provide this
 # functionality by default.
 def controller_exists(name, controller_name)
   out, err = Open3.capture2e("VBoxManage showvminfo #{name}")
@@ -214,6 +263,7 @@ def create_hostfile(config)
 ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
 
 10.0.10.10 device-scanner1.local device-scanner1
+10.0.10.11 device-scanner2.local device-scanner2
 10.0.30.10 device-aggregator.local device-aggregator
 10.0.40.10 iscsi.local iscsi
 10.0.50.10 iscsi2.local iscsi2
@@ -336,28 +386,60 @@ def provision_mpath(config)
   SHELL
 end
 
+# Installs zfs
+def install_zfs(config)
+  config.vm.provision 'zfs', type: 'shell', inline: <<-SHELL
+    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+    yum-config-manager --disable zfs
+    yum-config-manager --enable zfs-kmod
+    yum install -y zfs
+  SHELL
+end
+
 # Create certs and distribute them
 # to device-scanner-proxy and nginx proxy
 def distribute_certs(config)
   config.vm.provision 'distribute_certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /tmp/certs
-      cd /tmp/certs
-      openssl req \
-        -subj '/CN=managernode.com/O=Whamcloud/C=US' \
-        -newkey rsa:1024 -nodes -keyout manager.key \
-        -x509 -days 365 -out manager.crt
-      openssl dhparam -out manager.pem 1024
-      openssl pkcs12 -export -out certificate.pfx -inkey manager.key -in manager.crt -passout pass:
+    mkdir -p /tmp/certs
+    # Authority key and cert
+    openssl genrsa -out /tmp/certs/authority.pem 2048 -sha256
+    openssl req -new -sha256 -subj /C=AA/ST=AA/L=Location/O=Org/CN=x_local_authority -key /tmp/certs/authority.pem | openssl x509 -req -sha256 -signkey /tmp/certs/authority.pem -out /tmp/certs/authority.crt
 
-      pdsh -w device-scanner[1].local mkdir -p /etc/iml
-      scp /tmp/certs/* root@device-scanner1.local:/etc/iml
+    # Manager key and cert
+    openssl genrsa -out /tmp/certs/manager.pem 2048 -sha256
+    openssl req -new -sha256 -key /tmp/certs/manager.pem -subj /C=/ST=/L=/O=/CN=device-aggregator.local | openssl x509 -req -sha256 -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -out /tmp/certs/manager.crt
 
-      pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
-      scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
+    # Send certs to aggregator
+    pdsh -w device-aggregator.local rm -rf /var/lib/chroma
+    pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
+    scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
+
+    pdsh -w device-scanner[1,2].local rm -rf /etc/iml/certificate.pfx
+
+    # Device-scanner client-cert pfx
+    openssl genrsa -out /tmp/certs/private.pem 2048
+    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner1.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
+    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
+
+    scp /tmp/certs/certificate.pfx root@device-scanner1.local:/etc/iml
+
+    rm -rf /tmp/certs/{private.pem, self.crt, certificate.pfx}
+
+    # Device-scanner client-cert pfx
+    openssl genrsa -out /tmp/certs/private.pem 2048
+    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner2.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
+    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
+
+    scp /tmp/certs/certificate.pfx root@device-scanner2.local:/etc/iml
   SHELL
 end
 
 NGINX_CONF = <<-__EOF
+  map $ssl_client_s_dn $ssl_client_s_dn_cn {
+    default "";
+    ~CN=(?<CN>[^,]+) $CN;
+  }
+
   error_log syslog:server=unix:/dev/log;
   access_log syslog:server=unix:/dev/log;
 
@@ -375,18 +457,32 @@ NGINX_CONF = <<-__EOF
       error_page 497 https://$http_host$request_uri;
 
       ssl_certificate /var/lib/chroma/manager.crt;
-      ssl_certificate_key /var/lib/chroma/manager.key;
-      ssl_dhparam /var/lib/chroma/manager.pem;
+      ssl_certificate_key /var/lib/chroma/manager.pem;
+      ssl_trusted_certificate /var/lib/chroma/authority.crt;
+      ssl_client_certificate /var/lib/chroma/authority.crt;
+      ssl_verify_client on;
 
-      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_protocols TLSv1.2;
       ssl_prefer_server_ciphers on;
-      ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
-      ssl_ecdh_curve secp384r1;
+      ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:!DH+3DES:!ADH:!AECDH:!RC4:!aNULL:!MD5';
+
       ssl_session_cache shared:SSL:10m;
-      ssl_session_tickets off;
+
 
       location /iml-device-aggregator {
-        proxy_set_header x-ssl-client-name $host;
+        if ($ssl_client_verify != SUCCESS) {
+          return 401;
+        }
+
+        proxy_set_header X-SSL-Client-On $ssl_client_verify;
+        proxy_set_header X-SSL-Client-Name $ssl_client_s_dn_cn;
+        proxy_set_header X-SSL-Client-Serial $ssl_client_serial;
+
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Http-Host $http_host;
+
         proxy_pass http://127.0.0.1:8008;
       }
   }

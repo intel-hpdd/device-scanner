@@ -164,7 +164,7 @@ Vagrant.configure('2') do |config|
 
     test.vm.provider 'virtualbox' do |v|
       v.name = "#{TEST_NAME}#{NAME_SUFFIX}"
-      v.cpus = 4
+      v.cpus = 8
       v.memory = 1024 # little more memory for building
       v.customize ['modifyvm', :id, '--audio', 'none']
     end
@@ -397,24 +397,47 @@ end
 # to device-scanner-proxy and nginx proxy
 def distribute_certs(config)
   config.vm.provision 'distribute_certs', type: 'shell', inline: <<-SHELL
-      mkdir -p /tmp/certs
-      cd /tmp/certs
-      openssl req \
-        -subj '/CN=managernode.com/O=Whamcloud/C=US' \
-        -newkey rsa:1024 -nodes -keyout manager.key \
-        -x509 -days 365 -out manager.crt
-      openssl dhparam -out manager.pem 1024
-      openssl pkcs12 -export -out certificate.pfx -inkey manager.key -in manager.crt -passout pass:
+    mkdir -p /tmp/certs
+    # Authority key and cert
+    openssl genrsa -out /tmp/certs/authority.pem 2048 -sha256
+    openssl req -new -sha256 -subj /C=AA/ST=AA/L=Location/O=Org/CN=x_local_authority -key /tmp/certs/authority.pem | openssl x509 -req -sha256 -signkey /tmp/certs/authority.pem -out /tmp/certs/authority.crt
 
-      pdsh -w device-scanner[1].local mkdir -p /etc/iml
-      scp /tmp/certs/* root@device-scanner1.local:/etc/iml
+    # Manager key and cert
+    openssl genrsa -out /tmp/certs/manager.pem 2048 -sha256
+    openssl req -new -sha256 -key /tmp/certs/manager.pem -subj /C=/ST=/L=/O=/CN=device-aggregator.local | openssl x509 -req -sha256 -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -out /tmp/certs/manager.crt
 
-      pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
-      scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
+    # Send certs to aggregator
+    pdsh -w device-aggregator.local rm -rf /var/lib/chroma
+    pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
+    scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
+
+    pdsh -w device-scanner[1,2].local rm -rf /etc/iml
+    pdsh -w device-scanner[1,2].local mkdir /etc/iml
+
+    # Device-scanner client-cert pfx
+    openssl genrsa -out /tmp/certs/private.pem 2048
+    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner1.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
+    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
+
+    scp /tmp/certs/certificate.pfx root@device-scanner1.local:/etc/iml
+
+    rm -rf /tmp/certs/{private.pem, self.crt, certificate.pfx}
+
+    # Device-scanner client-cert pfx
+    openssl genrsa -out /tmp/certs/private.pem 2048
+    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner2.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
+    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
+
+    scp /tmp/certs/certificate.pfx root@device-scanner2.local:/etc/iml
   SHELL
 end
 
 NGINX_CONF = <<-__EOF
+  map $ssl_client_s_dn $ssl_client_s_dn_cn {
+    default "";
+    ~CN=(?<CN>[^,]+) $CN;
+  }
+
   error_log syslog:server=unix:/dev/log;
   access_log syslog:server=unix:/dev/log;
 
@@ -432,18 +455,32 @@ NGINX_CONF = <<-__EOF
       error_page 497 https://$http_host$request_uri;
 
       ssl_certificate /var/lib/chroma/manager.crt;
-      ssl_certificate_key /var/lib/chroma/manager.key;
-      ssl_dhparam /var/lib/chroma/manager.pem;
+      ssl_certificate_key /var/lib/chroma/manager.pem;
+      ssl_trusted_certificate /var/lib/chroma/authority.crt;
+      ssl_client_certificate /var/lib/chroma/authority.crt;
+      ssl_verify_client on;
 
-      ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
+      ssl_protocols TLSv1.2;
       ssl_prefer_server_ciphers on;
-      ssl_ciphers "EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH";
-      ssl_ecdh_curve secp384r1;
+      ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:!DH+3DES:!ADH:!AECDH:!RC4:!aNULL:!MD5';
+
       ssl_session_cache shared:SSL:10m;
-      ssl_session_tickets off;
+
 
       location /iml-device-aggregator {
-        proxy_set_header x-ssl-client-name $host;
+        if ($ssl_client_verify != SUCCESS) {
+          return 401;
+        }
+
+        proxy_set_header X-SSL-Client-On $ssl_client_verify;
+        proxy_set_header X-SSL-Client-Name $ssl_client_s_dn_cn;
+        proxy_set_header X-SSL-Client-Serial $ssl_client_serial;
+
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Http-Host $http_host;
+
         proxy_pass http://127.0.0.1:8008;
       }
   }

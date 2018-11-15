@@ -3,7 +3,9 @@
 // license that can be found in the LICENSE file.
 
 extern crate device_types;
+extern crate env_logger;
 extern crate futures;
+extern crate log;
 extern crate serde;
 extern crate serde_json;
 extern crate tokio;
@@ -12,7 +14,7 @@ extern crate warp;
 use device_types::{devices::Device, message::Message};
 use warp::Filter;
 
-use futures::prelude::*;
+use futures::Future;
 
 use std::{
     env,
@@ -26,12 +28,16 @@ use lib::{
 };
 
 fn main() -> aggregator_error::Result<()> {
+    env_logger::init();
+
     let cache = Arc::new(Mutex::new(Cache::default()));
 
     let cache_fut =
         warp::any().and_then(move || CacheFlush::new(cache.clone()).map_err(warp::reject::custom));
 
-    println!("Starting device-aggregator");
+    log::info!("Server starting");
+
+    let log = warp::log("device_aggregator");
 
     let port: u16 = env::var("DEVICE_AGGREGATOR_PORT")
         .expect("DEVICE_AGGREGATOR_PORT environment variable is required.")
@@ -45,13 +51,11 @@ fn main() -> aggregator_error::Result<()> {
         .map(
             |m: Message, host_name: String, cache: Arc<Mutex<Cache>>| match m {
                 Message::Heartbeat => {
-                    println!("in heartbeat for {:?}", host_name);
                     let cache = cache.clone();
                     cache.lock().unwrap().reset(&host_name);
                 }
                 Message::Data(d) => {
                     let device: Device = serde_json::from_str(&d).unwrap();
-                    println!("in data for {:?}, {:?}", host_name, d);
                     cache.lock().unwrap().upsert(&host_name, device);
                 }
             },
@@ -65,7 +69,7 @@ fn main() -> aggregator_error::Result<()> {
             cache.entries()
         }).map(|x| warp::reply::json(&x));
 
-    let routes = post.or(get);
+    let routes = post.or(get).with(log);
 
     warp::serve(routes).run(([127, 0, 0, 1], port));
 

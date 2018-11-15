@@ -232,14 +232,17 @@ Vagrant.configure('2') do |config|
 
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner1.local:/tmp
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner1.local:/tmp
-      pdsh -w device-scanner[1].local 'yum install -y /tmp/*.rpm' | dshbak
-      pdsh -w device-scanner[1].local systemctl enable --now device-scanner.target | dshbak
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner2.local:/tmp
+      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner2.local:/tmp
+      pdsh -w device-scanner[1-2].local 'yum install -y /tmp/*.rpm' | dshbak
+      pdsh -w device-scanner[1-2].local systemctl enable --now device-scanner.target | dshbak
     SHELL
   end
 end
 
 # Checks if a scsi controller exists.
-# This is used as a predicate to create controllers, as vagrant does not provide this
+# This is used as a predicate to create controllers,
+# as vagrant does not provide this
 # functionality by default.
 def controller_exists(name, controller_name)
   out, err = Open3.capture2e("VBoxManage showvminfo #{name}")
@@ -411,8 +414,7 @@ def distribute_certs(config)
     pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
     scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
 
-    pdsh -w device-scanner[1,2].local rm -rf /etc/iml
-    pdsh -w device-scanner[1,2].local mkdir /etc/iml
+    pdsh -w device-scanner[1,2].local rm -rf /etc/iml/certificate.pfx
 
     # Device-scanner client-cert pfx
     openssl genrsa -out /tmp/certs/private.pem 2048

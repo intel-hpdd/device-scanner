@@ -25,7 +25,7 @@ use device_types::{
     uevent::UEvent,
     Command,
 };
-use iml_device_fns::get_vdev_paths;
+use iml_device_fns::{find_by_major_minor, format_major_minor, get_vdev_paths};
 
 use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
 
@@ -52,14 +52,6 @@ fn is_partition(x: &UEvent) -> bool {
 
 fn is_mdraid(x: &UEvent) -> bool {
     x.md_uuid.is_some()
-}
-
-fn format_major_minor(major: &str, minor: &str) -> String {
-    format!("{}:{}", major, minor)
-}
-
-fn find_by_major_minor(xs: &Vector<String>, major: &str, minor: &str) -> bool {
-    xs.contains(&format_major_minor(major, minor))
 }
 
 fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {

@@ -27,3 +27,11 @@ pub fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
             .collect(),
     }
 }
+
+pub fn format_major_minor(major: &str, minor: &str) -> String {
+    format!("{}:{}", major, minor)
+}
+
+pub fn find_by_major_minor(xs: &im::Vector<String>, major: &str, minor: &str) -> bool {
+    xs.contains(&format_major_minor(major, minor))
+}

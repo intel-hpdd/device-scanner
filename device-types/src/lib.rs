@@ -13,6 +13,9 @@ extern crate im;
 
 extern crate libzfs_types;
 
+pub mod devices;
+pub mod uevent;
+
 pub mod message {
     #[derive(Debug, Serialize, Deserialize)]
     pub enum Message {
@@ -103,50 +106,7 @@ pub mod udev {
     }
 }
 
-pub mod uevent {
-    use im::{HashSet, Vector};
-    use std::path::PathBuf;
-
-    #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-    #[serde(rename_all = "camelCase")]
-    pub struct UEvent {
-        pub major: String,
-        pub minor: String,
-        pub seqnum: i64,
-        pub paths: HashSet<PathBuf>,
-        pub devname: PathBuf,
-        pub devpath: PathBuf,
-        pub devtype: String,
-        pub vendor: Option<String>,
-        pub model: Option<String>,
-        pub serial: Option<String>,
-        pub fs_type: Option<String>,
-        pub fs_usage: Option<String>,
-        pub fs_uuid: Option<String>,
-        pub part_entry_number: Option<i64>,
-        pub part_entry_mm: Option<String>,
-        pub size: Option<i64>,
-        pub scsi80: Option<String>,
-        pub scsi83: Option<String>,
-        pub read_only: Option<bool>,
-        pub bios_boot: Option<bool>,
-        pub zfs_reserved: Option<bool>,
-        pub is_mpath: Option<bool>,
-        pub dm_slave_mms: Vector<String>,
-        pub dm_vg_size: Option<i64>,
-        pub md_devs: HashSet<PathBuf>,
-        pub dm_multipath_devpath: Option<bool>,
-        pub dm_name: Option<String>,
-        pub dm_lv_name: Option<String>,
-        pub lv_uuid: Option<String>,
-        pub dm_vg_name: Option<String>,
-        pub vg_uuid: Option<String>,
-        pub md_uuid: Option<String>,
-    }
-}
-
 pub mod zed {
-
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
     pub enum PoolCommand {
         AddPools(Vec<libzfs_types::Pool>),
@@ -225,98 +185,6 @@ pub enum Command {
     MountCommand(mount::MountCommand),
 }
 
-pub mod devices {
-    use im::HashSet;
-    use libzfs_types;
-    use std::path::PathBuf;
-
-    type Children = HashSet<Device>;
-    type Paths = HashSet<PathBuf>;
-
-    #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
-    pub enum Device {
-        Root {
-            children: Children,
-        },
-        ScsiDevice {
-            serial: String,
-            major: String,
-            minor: String,
-            devpath: PathBuf,
-            size: i64,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount_path: Option<PathBuf>,
-            children: Children,
-        },
-        Partition {
-            partition_number: i64,
-            size: i64,
-            major: String,
-            minor: String,
-            devpath: PathBuf,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount_path: Option<PathBuf>,
-            children: Children,
-        },
-        MdRaid {
-            size: i64,
-            major: String,
-            minor: String,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount_path: Option<PathBuf>,
-            uuid: String,
-            children: Children,
-        },
-        Mpath {
-            devpath: PathBuf,
-            serial: String,
-            size: i64,
-            major: String,
-            minor: String,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            children: Children,
-            mount_path: Option<PathBuf>,
-        },
-        VolumeGroup {
-            name: String,
-            uuid: String,
-            size: i64,
-            children: Children,
-        },
-        LogicalVolume {
-            name: String,
-            uuid: String,
-            major: String,
-            minor: String,
-            size: i64,
-            children: Children,
-            devpath: PathBuf,
-            paths: Paths,
-            filesystem_type: Option<String>,
-            mount_path: Option<PathBuf>,
-        },
-        Zpool {
-            guid: u64,
-            name: String,
-            health: String,
-            state: String,
-            size: u64,
-            vdev: libzfs_types::VDev,
-            props: Vec<libzfs_types::ZProp>,
-            children: Children,
-        },
-        Dataset {
-            guid: String,
-            name: String,
-            kind: String,
-            props: Vec<libzfs_types::ZProp>,
-        },
-    }
-}
 
 #[cfg(test)]
 mod tests {
@@ -347,7 +215,7 @@ mod tests {
                     p
                 }),
                 mount::FsType("swap".to_string()),
-                mount::MountOpts("defaults".to_string())
+                mount::MountOpts("defaults".to_string()),
             ))
         )
     }

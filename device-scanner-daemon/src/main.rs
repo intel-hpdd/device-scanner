@@ -52,7 +52,7 @@ fn processor(
             let x = x.and_then(|x| {
                 serde_json::from_str::<Command>(x.trim_end())
                     .map_err(|e| {
-                        eprintln!("Could not parse command. Tried to parse: {}, got: {}", x, e);
+                        log::error!("Could not parse command. Tried to parse: {}, got: {}", x, e);
                         e
                     }).ok()
             });
@@ -70,6 +70,8 @@ fn processor(
         }).and_then(move |x| match x {
             Some((Command::Stream, socket)) => {
                 let connection = connections::Connection::new(socket);
+
+                log::debug!("Sending Stream command to message mpsc");
 
                 message_tx
                     .clone()
@@ -96,6 +98,12 @@ fn processor(
         })
 }
 
+fn log_stack(e: &impl std::error::Error) {
+    let stack = error::Error::print_stack(e);
+
+    log::error!("Unhandled Error: {}", stack);
+}
+
 fn main() {
     env_logger::init();
 
@@ -108,12 +116,9 @@ fn main() {
 
     let server = listener
         .incoming()
-        .map_err(|e| eprintln!("accept failed, {:?}", e))
+        .map_err(|e| log::error!("accept failed, {:?}", e))
         .for_each(move |socket| {
-            tokio::spawn(
-                processor(socket, message_tx.clone())
-                    .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
-            )
+            tokio::spawn(processor(socket, message_tx.clone()).map_err(|e| log_stack(&e)))
         });
 
     log::info!("Server starting");
@@ -121,11 +126,7 @@ fn main() {
     let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
 
     runtime.spawn(server);
-    runtime.spawn(
-        state_fut
-            .map(|_| ())
-            .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
-    );
+    runtime.spawn(state_fut.map(|_| ()).map_err(|e| log_stack(&e)));
 
     runtime
         .shutdown_on_idle()

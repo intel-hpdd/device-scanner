@@ -154,7 +154,7 @@ pub fn build_uevent() -> UEvent {
     }
 }
 
-fn send_data(x: String) {
+fn send_data(x: &str) {
     let mut stream = UnixStream::connect("/var/run/device-scanner.sock").unwrap();
 
     stream.write_all(x.as_bytes()).unwrap();
@@ -172,7 +172,7 @@ fn main() {
 
     let x = serde_json::to_string(&Command::UdevCommand(result)).unwrap();
 
-    send_data(x)
+    send_data(&x)
 }
 
 #[cfg(test)]

@@ -73,17 +73,17 @@ Vagrant.configure('2') do |config|
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
 
-    provision_iscsi_client(device_scanner1)
+    provision_iscsi_client(device_scanner1, 1)
     provision_mpath(device_scanner1)
     install_zfs(device_scanner1)
 
     device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y htop jq
+      yum install -y htop jq lvm2
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
-      modprobe zfs
       genhostid
+      modprobe zfs
       zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
     SHELL
   end
@@ -118,16 +118,19 @@ Vagrant.configure('2') do |config|
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
 
-    provision_iscsi_client(device_scanner2)
+    provision_iscsi_client(device_scanner2, 2)
     provision_mpath(device_scanner2)
     install_zfs(device_scanner2)
 
     device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y htop jq
+      yum install -y htop jq lvm2
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       genhostid
+      modprobe zfs
+      vgcreate vg1 /dev/mapper/mpathj /dev/mapper/mpathh
+      lvcreate --size 20M --name lv1 vg1
     SHELL
   end
 
@@ -151,7 +154,7 @@ Vagrant.configure('2') do |config|
 
     aggregator.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y nginx htop jq
+      yum install -y nginx htop jq postgresql-devel
     SHELL
 
     write_nginx_conf(aggregator)
@@ -177,7 +180,7 @@ Vagrant.configure('2') do |config|
 
     configure_private_network(
       test,
-      ['10.0.30.11'],
+      ['10.0.30.13'],
       "device-aggregator-net#{NAME_SUFFIX}"
     )
 
@@ -191,7 +194,7 @@ Vagrant.configure('2') do |config|
       yum -y install yum-plugin-copr
       yum -y copr enable alonid/llvm-5.0.0
       yum -y install clang-5.0.0 libzfs2-devel --nogpgcheck
-      yum -y install cargo
+      yum -y install cargo postgresql-devel
     SHELL
 
     test.vm.provision 'build', type: 'shell', inline: <<-SHELL
@@ -356,17 +359,19 @@ def create_iscsi_targets(iscsi)
     #{disk_commands}
     targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/portals/ create 10.0.40.10
     targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/portals/ create 10.0.50.10
-    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/acls create iqn.2015-01.com.whamcloud:disks
+    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/acls create iqn.2015-01.com.whamcloud:disks1
+    targetcli /iscsi/iqn.2015-01.com.whamcloud.lu:disks/tpg1/acls create iqn.2015-01.com.whamcloud:disks2
+
     targetcli saveconfig
     systemctl enable target
   SHELL
 end
 
 # Sets up clients to connect to iscsi server
-def provision_iscsi_client(config)
+def provision_iscsi_client(config, idx)
   config.vm.provision 'iscsi-client', type: 'shell', inline: <<-SHELL
     yum -y install iscsi-initiator-utils lsscsi
-    echo "InitiatorName=iqn.2015-01.com.whamcloud:disks" > /etc/iscsi/initiatorname.iscsi
+    echo "InitiatorName=iqn.2015-01.com.whamcloud:disks#{idx}" > /etc/iscsi/initiatorname.iscsi
     iscsiadm --mode discoverydb --type sendtargets --portal 10.0.40.10:3260 --discover
     iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.40.10:3260 -o update -n node.startup -v automatic
     iscsiadm --mode node --targetname iqn.2015-01.com.whamcloud.lu:disks --portal 10.0.40.10:3260 -o update -n node.conn[0].startup -v automatic

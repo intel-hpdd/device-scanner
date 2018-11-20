@@ -51,6 +51,22 @@ impl error::Error for Error {
     }
 }
 
+impl Error {
+    pub fn print_stack(e: &impl error::Error) -> String {
+        let mut buff = String::new();
+
+        let mut cause: Option<&error::Error> = Some(e);
+
+        while let Some(x) = cause {
+            buff += &format!("{}\n", x);
+
+            cause = x.cause();
+        }
+
+        buff
+    }
+}
+
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Error::Io(err)

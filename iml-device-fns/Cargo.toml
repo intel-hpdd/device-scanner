@@ -1,0 +1,8 @@
+[package]
+name = "iml-device-fns"
+version = "0.1.0"
+authors = ["IML Team <iml@whamcloud.com>"]
+
+[dependencies]
+im = "12.0.0"
+libzfs-types = "0.1.1"

@@ -266,6 +266,7 @@ pub mod devices {
             minor: String,
             filesystem_type: Option<String>,
             paths: Paths,
+            parent_paths: Paths,
             mount_path: Option<PathBuf>,
             uuid: String,
             children: Children,
@@ -285,6 +286,7 @@ pub mod devices {
             name: String,
             uuid: String,
             size: i64,
+            major_minors: im::Vector<String>,
             children: Children,
         },
         LogicalVolume {

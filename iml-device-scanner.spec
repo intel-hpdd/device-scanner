@@ -1,6 +1,7 @@
 %define     base_name device-scanner
 %define     device_types device-types-0.1.0
 %define     futures_failure futures-failure-0.1.0
+%define	    iml_device_fns iml-device-fns-0.1.0
 
 Name:       iml-%{base_name}
 Version:    2.0.0
@@ -18,6 +19,7 @@ Source5:    device-scanner-zedlets-0.1.0.crate
 Source6:    zed-enhancer-0.1.0.crate
 Source7:    %{device_types}.crate
 Source8:    %{futures_failure}.crate
+Source9:    %{iml_device_fns}.create
 
 %{?systemd_requires}
 BuildRequires: systemd
@@ -55,6 +57,8 @@ scanner instances.
 
 
 %prep
+%setup -T -D -b 9 -n %{iml_device_fns}
+
 %setup -T -D -b 8 -n %{futures_failure}
 
 %setup -T -D -b 7 -n %{device_types}
@@ -79,6 +83,7 @@ cat << EOF > ../patch.txt
 [patch.crates-io]
 device-types = { path = "../%{device_types}" }
 futures-failure = { path = "../%{futures_failure}" }
+iml-device-fns = { path = "../%{iml_device_fns}" }
 EOF
 
 cat ../patch.txt >> Cargo.toml

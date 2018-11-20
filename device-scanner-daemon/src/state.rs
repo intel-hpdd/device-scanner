@@ -25,6 +25,7 @@ use device_types::{
     uevent::UEvent,
     Command,
 };
+use iml_device_fns::get_vdev_paths;
 
 use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
 
@@ -81,6 +82,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .clone()
                     .ok_or_else(|| error::none_error("Expected dm_vg_name"))?,
                 children: hashset![],
+                major_minors: x.dm_slave_mms.clone(),
                 size: x
                     .dm_vg_size
                     .ok_or_else(|| error::none_error("Expected Size"))?,
@@ -263,6 +265,7 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
+                parent_paths: x.md_devs.clone(),
                 children: hashset![],
                 uuid: x
                     .md_uuid
@@ -270,28 +273,6 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
                     .ok_or_else(|| error::none_error("Expected md_uuid"))?,
             })
         }).collect()
-}
-
-fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
-    match vdev {
-        libzfs_types::VDev::Disk { path, .. } => hashset![path],
-        libzfs_types::VDev::File { .. } => hashset![],
-        libzfs_types::VDev::Mirror { children, .. }
-        | libzfs_types::VDev::RaidZ { children, .. }
-        | libzfs_types::VDev::Replacing { children, .. } => {
-            children.into_iter().flat_map(get_vdev_paths).collect()
-        }
-        libzfs_types::VDev::Root {
-            children,
-            spares,
-            cache,
-            ..
-        } => vec![children, spares, cache]
-            .into_iter()
-            .flatten()
-            .flat_map(get_vdev_paths)
-            .collect(),
-    }
 }
 
 fn get_pools(

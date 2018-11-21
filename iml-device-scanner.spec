@@ -19,7 +19,7 @@ Source5:    device-scanner-zedlets-0.1.0.crate
 Source6:    zed-enhancer-0.1.0.crate
 Source7:    %{device_types}.crate
 Source8:    %{futures_failure}.crate
-Source9:    %{iml_device_fns}.create
+Source9:    %{iml_device_fns}.crate
 
 %{?systemd_requires}
 BuildRequires: systemd

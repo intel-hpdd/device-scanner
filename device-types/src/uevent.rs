@@ -75,8 +75,7 @@ impl UEvent {
 
     /// Filter out any devices that are not suitable for mounting a filesystem.
     pub fn keep_usable(&self) -> bool {
-        self.size != Some(0)
-            && self.size.is_some()
+        self.size.filter(|x| *x > 0).is_some()
             && self.read_only != Some(true)
             && self.bios_boot != Some(true)
     }

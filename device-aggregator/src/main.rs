@@ -5,7 +5,6 @@
 extern crate daggy;
 extern crate device_types;
 
-#[macro_use]
 extern crate diesel;
 extern crate env_logger;
 extern crate futures;
@@ -27,7 +26,6 @@ use warp::Filter;
 use futures::{sync::mpsc, Future, Stream};
 
 use std::{
-    env,
     fs::File,
     sync::{Arc, Mutex},
 };
@@ -38,6 +36,7 @@ use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},
     dag::{build_dag, Weight},
+    env::get_var,
 };
 
 use std::time::Instant;
@@ -46,51 +45,6 @@ use daggy::{
     petgraph::{dot::Dot, visit::IntoNodeReferences},
     Dag,
 };
-
-use diesel::pg::PgConnection;
-use diesel::prelude::*;
-
-table! {
-    device {
-        id -> Integer,
-        size -> BigInt,
-        device_type -> VarChar,
-        serial -> VarChar,
-        device_host_id -> Integer,
-        mount_path -> Nullable<VarChar>,
-    }
-}
-
-table! {
-    device_host {
-        id -> Integer,
-        device_id -> Integer,
-        paths -> Array<VarChar>,
-        host_id -> Integer,
-    }
-}
-
-/// Get the environment variable or panic
-fn get_var(name: &str) -> String {
-    env::var(name).unwrap_or_else(|_| format!("{} environment variable is required.", name))
-}
-
-fn get_connect_string() -> String {
-    let db_host = get_var("DB_HOST");
-    let db_name = get_var("DB_NAME");
-    let db_user = get_var("DB_USER");
-    let db_password = get_var("DB_PASSWORD");
-
-    let db_password = match db_password.as_ref() {
-        "" => db_password,
-        _ => format!(":{}", db_password),
-    };
-
-    format!(
-        "postgresql://{}{}@{}/{}",
-        db_user, db_password, db_host, db_name
-    )
-}
 
 fn main() -> aggregator_error::Result<()> {
     env_logger::init();

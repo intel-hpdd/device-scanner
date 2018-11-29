@@ -185,7 +185,6 @@ pub enum Command {
     MountCommand(mount::MountCommand),
 }
 
-
 #[cfg(test)]
 mod tests {
     extern crate serde_json;

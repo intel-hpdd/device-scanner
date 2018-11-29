@@ -23,4 +23,3 @@ impl error::Error for Error {
         }
     }
 }
-

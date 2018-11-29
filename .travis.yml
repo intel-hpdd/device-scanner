@@ -8,7 +8,7 @@ jobs:
       language: generic
       script:
         - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
-        - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
+        - docker exec -i libzfs bash -c 'yum install -y openssl-devel postgresql-devel'
         - docker exec -i libzfs bash -c 'cd /device-scanner && cargo test'
     - stage: test
       name: "Format Check"

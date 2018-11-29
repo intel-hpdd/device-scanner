@@ -4,12 +4,14 @@ use std::path::PathBuf;
 use im::{hashset, HashSet};
 
 use daggy::{
-    petgraph::{graph::Graph, visit::IntoNodeReferences},
+    petgraph::{graph, visit::IntoNodeReferences},
     Dag,
 };
 
 #[derive(Copy, Clone, Debug)]
 pub struct Weight;
+
+type Graph = graph::Graph<Device, Weight>;
 
 /// Traverses a VDev tree and returns back it's paths
 pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> HashSet<PathBuf> {
@@ -35,7 +37,7 @@ pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> HashSet<PathBuf> {
 }
 
 fn get_vgs<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     parent: &'a Parent,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -45,7 +47,7 @@ fn get_vgs<'a>(
 }
 
 fn get_partitions<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     parent: &'a Parent,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -55,7 +57,7 @@ fn get_partitions<'a>(
 }
 
 fn get_lvs<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     parent: &'a Parent,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -64,9 +66,7 @@ fn get_lvs<'a>(
     })
 }
 
-fn get_scsis<'a>(
-    graph: &'a Graph<Device, Weight>,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
+fn get_scsis(graph: &Graph) -> impl Iterator<Item = (daggy::NodeIndex, &Device)> {
     graph.node_references().filter(|(_, x)| match x {
         Device::ScsiDevice(_) => true,
         _ => false,
@@ -74,7 +74,7 @@ fn get_scsis<'a>(
 }
 
 fn get_mpaths<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     parent: &'a Parent,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -84,7 +84,7 @@ fn get_mpaths<'a>(
 }
 
 fn get_mds<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     parent: &'a Parent,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -94,7 +94,7 @@ fn get_mds<'a>(
 }
 
 fn get_pools<'a>(
-    graph: &'a Graph<Device, Weight>,
+    graph: &'a Graph,
     paths: &'a HashSet<PathBuf>,
 ) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
     graph.node_references().filter(move |(_, x)| match x {
@@ -107,10 +107,7 @@ fn get_pools<'a>(
     })
 }
 
-fn get_datasets<'a>(
-    graph: &'a Graph<Device, Weight>,
-    guid: u64,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
+fn get_datasets(graph: &Graph, guid: u64) -> impl Iterator<Item = (daggy::NodeIndex, &Device)> {
     graph.node_references().filter(move |(_, x)| match x {
         Device::Dataset(d) => d.pool_guid == guid,
         _ => false,
@@ -119,7 +116,7 @@ fn get_datasets<'a>(
 
 pub fn build_dag(
     dag: &mut Dag<Device, Weight, u32>,
-    graph: &Graph<Device, Weight>,
+    graph: &Graph,
     node: &Device,
     node_idx: daggy::NodeIndex,
 ) -> Result<(), daggy::WouldCycle<Weight>> {
@@ -165,8 +162,6 @@ pub fn build_dag(
             let parent = p.as_parent();
 
             let devs = get_partitions(graph, &parent)
-                // This should only be present for scsi devs
-                .chain(get_mpaths(graph, &parent))
                 .chain(get_vgs(graph, &parent))
                 .chain(get_mds(graph, &parent))
                 .chain(get_pools(graph, &p.paths));

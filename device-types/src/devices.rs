@@ -272,6 +272,12 @@ impl std::fmt::Display for Zpool {
     }
 }
 
+impl AsParent for Zpool {
+    fn as_parent(&self) -> Parent {
+        (self.name(), Serial(self.guid.to_string()))
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub struct Dataset {
     pub guid: String,
@@ -293,6 +299,12 @@ impl std::fmt::Display for Dataset {
     }
 }
 
+impl AsParent for Dataset {
+    fn as_parent(&self) -> Parent {
+        (self.name(), Serial(self.guid.to_string()))
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub enum Device {
     Host(Host),
@@ -306,18 +318,34 @@ pub enum Device {
     Dataset(Dataset),
 }
 
-impl Device {
-    pub fn short_display(&self) -> String {
+impl std::fmt::Display for Device {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            Device::Host(x) => format!("{}", x),
-            Device::Dataset(x) => format!("{}", x),
-            Device::Zpool(x) => format!("{}", x),
-            Device::LogicalVolume(x) => format!("{}", x),
-            Device::MdRaid(x) => format!("{}", x),
-            Device::Mpath(x) => format!("{}", x),
-            Device::Partition(x) => format!("{}", x),
-            Device::ScsiDevice(x) => format!("{}", x),
-            Device::VolumeGroup(x) => format!("{}", x),
+            Device::Host(x) => write!(f, "{}", x),
+            Device::Dataset(x) => write!(f, "{}", x),
+            Device::Zpool(x) => write!(f, "{}", x),
+            Device::LogicalVolume(x) => write!(f, "{}", x),
+            Device::MdRaid(x) => write!(f, "{}", x),
+            Device::Mpath(x) => write!(f, "{}", x),
+            Device::Partition(x) => write!(f, "{}", x),
+            Device::ScsiDevice(x) => write!(f, "{}", x),
+            Device::VolumeGroup(x) => write!(f, "{}", x),
+        }
+    }
+}
+
+impl AsParent for Device {
+    fn as_parent(&self) -> Parent {
+        match self {
+            Device::Host(x) => x.as_parent(),
+            Device::Dataset(x) => x.as_parent(),
+            Device::Zpool(x) => x.as_parent(),
+            Device::LogicalVolume(x) => x.as_parent(),
+            Device::MdRaid(x) => x.as_parent(),
+            Device::Mpath(x) => x.as_parent(),
+            Device::Partition(x) => x.as_parent(),
+            Device::ScsiDevice(x) => x.as_parent(),
+            Device::VolumeGroup(x) => x.as_parent(),
         }
     }
 }

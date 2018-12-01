@@ -1,3 +1,5 @@
+use dag::Edge;
+use daggy::WouldCycle;
 use serde_json;
 use std::io;
 use std::{error, result};
@@ -11,6 +13,7 @@ pub enum Error {
     Timer(timer::Error),
     SerdeJsonError(serde_json::Error),
     ConnectionError(diesel::ConnectionError),
+    WouldCycle(WouldCycle<Edge>),
 }
 
 impl error::Error for Error {
@@ -20,6 +23,7 @@ impl error::Error for Error {
             Error::Timer(ref err) => Some(err),
             Error::SerdeJsonError(ref err) => Some(err),
             Error::ConnectionError(ref err) => Some(err),
+            Error::WouldCycle(ref err) => Some(err),
         }
     }
 }

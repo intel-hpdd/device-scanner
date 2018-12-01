@@ -1,5 +1,6 @@
-#![allow(proc_macro_derive_resolution_fallback)]
-
+use aggregator_error;
+use device_types::devices;
+use diesel::{pg::PgConnection, prelude::*};
 use env::get_var;
 
 #[derive(Queryable)]
@@ -20,7 +21,7 @@ pub struct DeviceHost {
     pub host_fqdn: String,
 }
 
-pub fn get_connect_string() -> String {
+fn get_connect_string() -> String {
     let db_host = get_var("DB_HOST");
     let db_name = get_var("DB_NAME");
     let db_user = get_var("DB_USER");
@@ -36,3 +37,42 @@ pub fn get_connect_string() -> String {
         db_user, db_password, db_host, db_name
     )
 }
+
+pub fn connector() -> impl Fn() -> aggregator_error::Result<diesel::PgConnection> {
+    let connect_string = get_connect_string();
+
+    move || {
+        PgConnection::establish(&connect_string.as_str())
+            .map_err(aggregator_error::Error::ConnectionError)
+    }
+}
+
+// Walk from the given node back to the roots.
+//
+// The intersection of all the root hosts is where the device can be mounted.
+// fn get_distinct_parents(dag: &dag::Dag, n: daggy::NodeIndex) -> im::HashSet<&devices::Host> {
+//     let parents = dag.parents(n);
+
+//     parents
+//         .iter(dag)
+//         .map(|(_, p)| match dag.node_weight(p).unwrap() {
+//             devices::Device::Host(h) => h,
+//             _ => get_distinct_parents(dag, n),
+//         }).collect()
+// }
+
+// pub fn populate_db(dag: &dag::Dag) {
+//     for (n, d) in dag.node_references() {
+//         match d {
+//             devices::Device::Host(_) => {}
+//             devices::Device::Mpath(m) => if let Some(ref fs) = m.filesystem_type {},
+//             devices::Device::ScsiDevice(s) => {}
+//             devices::Device::Partition(p) => {}
+//             devices::Device::VolumeGroup(vg) => {}
+//             devices::Device::LogicalVolume(lv) => {}
+//             devices::Device::MdRaid(m) => {}
+//             devices::Device::Zpool(z) => {}
+//             devices::Device::Dataset(_) => {}
+//         }
+//     }
+// }

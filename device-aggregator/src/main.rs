@@ -35,16 +35,14 @@ extern crate device_aggregator;
 use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},
-    dag::{build_dag, Weight},
+    dag::{self, add_shared_edges, populate_parents},
+    db,
     env::get_var,
 };
 
 use std::time::Instant;
 
-use daggy::{
-    petgraph::{dot::Dot, visit::IntoNodeReferences},
-    Dag,
-};
+use daggy::petgraph::dot::Dot;
 
 fn main() -> aggregator_error::Result<()> {
     env_logger::init();
@@ -62,7 +60,7 @@ fn main() -> aggregator_error::Result<()> {
         .parse()
         .expect("could not parse DEVICE_AGGREGATOR_PORT to u16");
 
-    // let connect_string = get_connect_string();
+    let connect = db::connector();
 
     let (tx, rx) = mpsc::unbounded();
 
@@ -111,48 +109,32 @@ fn main() -> aggregator_error::Result<()> {
             .for_each(|x| {
                 let now = Instant::now();
 
-                let mut dag: Dag<Device, Weight> =
-                    x.into_iter().fold(Dag::new(), |mut dag, (host, xs)| {
-                        let (scsis, other): (
-                            Vec<devices::Device>,
-                            Vec<devices::Device>,
-                        ) = xs.into_iter().partition(|x| match x {
-                            Device::ScsiDevice(_) => true,
-                            _ => false,
-                        });
+                let mut dag: dag::Dag = x
+                    .into_iter()
+                    .map(|(host, xs)| {
+                        let mut dag = dag::Dag::new();
 
                         let id = dag.add_node(devices::Device::Host(devices::Host(host)));
 
-                        let ids: Vec<_> = scsis.into_iter().map(|x| dag.add_node(x)).collect();
-
-                        for i in ids {
-                            dag.update_edge(id, i, Weight).unwrap();
-                        }
-
-                        for x in other {
+                        for x in xs {
                             dag.add_node(x);
                         }
 
-                        dag
-                    });
+                        let ro_dag = dag.clone();
 
-                let graph = dag.graph().clone();
+                        populate_parents(&mut dag, &ro_dag, id).unwrap();
 
-                let scsis = graph
-                    .node_references()
-                    .filter(|(_, x)| match x {
-                        Device::ScsiDevice(_) => true,
-                        _ => false,
-                    }).map(|(x, _)| x);
+                        (id, dag)
+                    }).try_fold(
+                        dag::Dag::new(),
+                        |mut l, (id, r)| -> aggregator_error::Result<dag::Dag> {
+                            dag::add(&mut l, &r, id)?;
 
-                for idx in scsis {
-                    let cloned_dag = dag.clone();
-                    let graph = cloned_dag.graph();
+                            Ok(l)
+                        },
+                    ).unwrap();
 
-                    let d = &graph[idx];
-
-                    build_dag(&mut dag, &graph, d, idx).unwrap();
-                }
+                add_shared_edges(&mut dag).unwrap();
 
                 let elapsed = now.elapsed();
                 log::debug!(
@@ -160,21 +142,14 @@ fn main() -> aggregator_error::Result<()> {
                     (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
                 );
 
-                let dag3 = dag.clone();
-
-                let g2 = dag3.map(|_, n| n.short_display(), |_, e| e);
-
-                let gviz = Dot::with_config(&g2, &[]);
+                let gviz = Dot::new(&dag);
 
                 let mut file = File::create("/tmp/gvis").unwrap();
-                file.write_all(format!("{:?}", gviz).as_ref());
+                file.write_all(format!("{}", gviz).as_ref());
 
-                // let conn = PgConnection::establish(&connect_string.as_str())?;
+                // let conn = connect()?;
 
-                // conn.transaction::<_, diesel::result::Error, _>(|| {
-                //     for dag in dags {}
-                //     Ok(())
-                // });
+                // conn.transaction::<_, diesel::result::Error, _>(|| Ok(()));
 
                 /* 
                     Each host contains a subtree of devices. We can use serials to map child devices to any parents across the cluster.

@@ -1,17 +1,21 @@
+use aggregator_error;
 use device_types::devices::{self, AsParent, Device, Parent};
 use std::path::PathBuf;
 
 use im::{hashset, HashSet};
 
-use daggy::{
-    petgraph::{graph, visit::IntoNodeReferences},
-    Dag,
+use daggy::petgraph::{
+    self,
+    visit::{Dfs, IntoNodeReferences},
 };
 
-#[derive(Copy, Clone, Debug)]
-pub struct Weight;
+#[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, derive_more::Display)]
+pub enum Edge {
+    Parent,
+    Shared,
+}
 
-type Graph = graph::Graph<Device, Weight>;
+pub type Dag = daggy::Dag<Device, Edge>;
 
 /// Traverses a VDev tree and returns back it's paths
 pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> HashSet<PathBuf> {
@@ -36,184 +40,209 @@ pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> HashSet<PathBuf> {
     }
 }
 
-fn get_vgs<'a>(
-    graph: &'a Graph,
-    parent: &'a Parent,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+/// Higher-order function that filters a dag based on the provided predicate.
+pub fn filter_refs(dag: &Dag, f: impl Fn(&Device) -> bool) -> Vec<daggy::NodeIndex> {
+    dag.node_references()
+        .filter(move |(_, x)| f(x))
+        .map(|(x, _)| x)
+        .collect()
+}
+
+fn is_vg(d: &Device, parent: &Parent) -> bool {
+    match d {
         Device::VolumeGroup(vg) => vg.parents.contains(parent),
         _ => false,
-    })
+    }
 }
 
-fn get_partitions<'a>(
-    graph: &'a Graph,
-    parent: &'a Parent,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_partition(d: &Device, parent: &Parent) -> bool {
+    match d {
         Device::Partition(p) => p.parents.contains(parent),
         _ => false,
-    })
+    }
 }
 
-fn get_lvs<'a>(
-    graph: &'a Graph,
-    parent: &'a Parent,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_lv(d: &Device, parent: &Parent) -> bool {
+    match d {
         Device::LogicalVolume(lv) => parent == &lv.parent,
         _ => false,
-    })
+    }
 }
 
-fn get_scsis(graph: &Graph) -> impl Iterator<Item = (daggy::NodeIndex, &Device)> {
-    graph.node_references().filter(|(_, x)| match x {
+fn is_scsi(d: &Device) -> bool {
+    match d {
         Device::ScsiDevice(_) => true,
         _ => false,
-    })
+    }
 }
 
-fn get_mpaths<'a>(
-    graph: &'a Graph,
-    parent: &'a Parent,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_mpath(d: &Device, parent: &Parent) -> bool {
+    match d {
         Device::Mpath(m) => m.parents.contains(parent),
         _ => false,
-    })
+    }
 }
 
-fn get_mds<'a>(
-    graph: &'a Graph,
-    parent: &'a Parent,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_md(d: &Device, parent: &Parent) -> bool {
+    match d {
         Device::MdRaid(m) => m.parents.contains(parent),
         _ => false,
-    })
+    }
 }
 
-fn get_pools<'a>(
-    graph: &'a Graph,
-    paths: &'a HashSet<PathBuf>,
-) -> impl Iterator<Item = (daggy::NodeIndex, &'a Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_pool(d: &Device, paths: &HashSet<PathBuf>) -> bool {
+    match d {
         Device::Zpool(z) => {
             let vdev_paths = get_vdev_paths(&z.vdev);
 
             !paths.clone().intersection(vdev_paths).is_empty()
         }
         _ => false,
-    })
+    }
 }
 
-fn get_datasets(graph: &Graph, guid: u64) -> impl Iterator<Item = (daggy::NodeIndex, &Device)> {
-    graph.node_references().filter(move |(_, x)| match x {
+fn is_dataset(d: &Device, guid: u64) -> bool {
+    match d {
         Device::Dataset(d) => d.pool_guid == guid,
         _ => false,
-    })
+    }
 }
 
-pub fn build_dag(
-    dag: &mut Dag<Device, Weight, u32>,
-    graph: &Graph,
-    node: &Device,
-    node_idx: daggy::NodeIndex,
-) -> Result<(), daggy::WouldCycle<Weight>> {
-    match node {
-        Device::Host(_) => {
-            for (idx, n) in get_scsis(graph) {
-                build_dag(dag, graph, n, idx)?;
+/// Add the subtree rooted at root of the rhs to the lhs.
+pub fn add(l: &mut Dag, r: &Dag, root: daggy::NodeIndex) -> aggregator_error::Result<()> {
+    let mut mapping = im::HashMap::new();
 
-                dag.update_edge(node_idx, idx, Weight)?;
-            }
+    let graph = r.graph();
+
+    for (old_idx, d) in graph.node_references() {
+        mapping.insert(old_idx, l.add_node(d.clone()));
+    }
+
+    let mut dfs = Dfs::new(&graph, root);
+
+    while let Some(nx) = dfs.next(&graph) {
+        for nx2 in graph.neighbors_directed(nx, petgraph::Incoming) {
+            l.update_edge(mapping[&nx2], mapping[&nx], Edge::Parent)?;
         }
+    }
+
+    Ok(())
+}
+
+pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
+    let edges: Vec<_> = {
+        let shared = dag.node_references().fold(
+            vec![],
+            |mut xs: Vec<HashSet<(daggy::NodeIndex, &Device)>>, (n, d)| {
+                let slot = xs
+                    .iter()
+                    .position(|ys| ys.iter().any(|(_, d2)| d.as_parent() == d2.as_parent()));
+
+                match slot {
+                    Some(i) => {
+                        xs[i].insert((n, d));
+                    }
+                    None => xs.push(hashset![(n, d)]),
+                }
+
+                xs
+            },
+        );
+
+        shared
+            .iter()
+            .map(|xs| {
+                xs.iter()
+                    .enumerate()
+                    .fold(hashset![], |mut hs, (i, (n1, _))| {
+                        for (n2, _) in xs.iter().skip(i + 1) {
+                            hs.insert((*n1, *n2));
+                        }
+
+                        hs
+                    })
+            }).flatten()
+            .collect()
+    };
+
+    log::debug!("Found these nodes to build edges on: {:?}", edges);
+
+    for (n1, n2) in edges {
+        dag.update_edge(n1, n2, Edge::Shared)?;
+    }
+
+    Ok(())
+}
+
+pub fn populate_parents(
+    dag: &mut Dag,
+    ro_dag: &Dag,
+    node_idx: daggy::NodeIndex,
+) -> Result<(), daggy::WouldCycle<Edge>> {
+    let devs = match ro_dag.node_weight(node_idx).unwrap() {
+        Device::Host(_) => filter_refs(ro_dag, |d| is_scsi(d)),
         Device::Mpath(m) => {
             let parent = m.as_parent();
 
-            let devs = get_vgs(graph, &parent)
-                .chain(get_partitions(graph, &parent))
-                .chain(get_mds(graph, &parent))
-                .chain(get_pools(graph, &m.paths));
-
-            for (idx, n) in devs {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| {
+                is_vg(d, &parent)
+                    || is_partition(d, &parent)
+                    || is_md(d, &parent)
+                    || is_pool(d, &m.paths)
+            })
         }
         Device::ScsiDevice(s) => {
             let parent = s.as_parent();
 
-            let devs = get_partitions(graph, &parent)
-                // This should only be present for scsi devs
-                .chain(get_mpaths(graph, &parent))
-                .chain(get_vgs(graph, &parent))
-                .chain(get_mds(graph, &parent))
-                .chain(get_pools(graph, &s.paths));
-
-            for (idx, n) in devs {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| {
+                is_partition(d, &parent)
+                    || is_mpath(d, &parent)
+                    || is_vg(d, &parent)
+                    || is_md(d, &parent)
+                    || is_pool(d, &s.paths)
+            })
         }
         Device::Partition(p) => {
             let parent = p.as_parent();
 
-            let devs = get_partitions(graph, &parent)
-                .chain(get_vgs(graph, &parent))
-                .chain(get_mds(graph, &parent))
-                .chain(get_pools(graph, &p.paths));
-
-            for (idx, n) in devs {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| {
+                is_partition(d, &parent)
+                    || is_vg(d, &parent)
+                    || is_md(d, &parent)
+                    || is_pool(d, &p.paths)
+            })
         }
         Device::VolumeGroup(vg) => {
             let parent = vg.as_parent();
-            for (idx, n) in get_lvs(graph, &parent) {
-                dag.update_edge(node_idx, idx, Weight)?;
 
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| is_lv(d, &parent))
         }
         Device::LogicalVolume(lv) => {
             let parent = lv.as_parent();
 
-            let devs = get_partitions(graph, &parent).chain(get_pools(graph, &lv.paths));
-
-            for (idx, n) in devs {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| {
+                is_partition(d, &parent) || is_pool(d, &lv.paths)
+            })
         }
         Device::MdRaid(m) => {
             let parent = m.as_parent();
 
-            let devs = get_vgs(graph, &parent)
-                .chain(get_partitions(graph, &parent))
-                .chain(get_mds(graph, &parent))
-                .chain(get_pools(graph, &m.paths));
-
-            for (idx, n) in devs {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
+            filter_refs(ro_dag, |d| {
+                is_vg(d, &parent)
+                    || is_partition(d, &parent)
+                    || is_md(d, &parent)
+                    || is_pool(d, &m.paths)
+            })
         }
-        Device::Zpool(devices::Zpool { guid, .. }) => {
-            for (idx, n) in get_datasets(graph, *guid) {
-                dag.update_edge(node_idx, idx, Weight)?;
-
-                build_dag(dag, graph, n, idx)?;
-            }
-        }
-        Device::Dataset(_) => {}
+        Device::Zpool(devices::Zpool { guid, .. }) => filter_refs(ro_dag, |d| is_dataset(d, *guid)),
+        Device::Dataset(_) => vec![],
     };
+
+    for idx in devs {
+        dag.update_edge(node_idx, idx, Edge::Parent)?;
+
+        populate_parents(dag, ro_dag, idx)?;
+    }
 
     Ok(())
 }

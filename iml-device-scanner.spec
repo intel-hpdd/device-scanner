@@ -3,7 +3,7 @@
 %define     futures_failure futures-failure-0.1.0
 
 Name:       iml-%{base_name}
-Version:    2.0.0
+Version:    2.0.1
 Release:    1%{?dist}
 Summary:    Maintains data of block and ZFS devices
 License:    MIT

@@ -1,6 +1,8 @@
 [Unit]
 Description=IML Device Aggregator Daemon
 PartOf=iml-manager.target
+Wants=postgresql.service
+After=postgresql.service
 
 [Service]
 Restart=always
@@ -8,3 +10,4 @@ ExecStart=/usr/bin/device-aggregator
 Environment=DEVICE_AGGREGATOR_PORT=8008
 StandardOutput=journal
 StandardError=journal
+

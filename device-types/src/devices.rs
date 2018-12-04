@@ -4,6 +4,8 @@ use std::path::PathBuf;
 
 pub type Paths = HashSet<PathBuf>;
 
+pub type MountPath = Option<PathBuf>;
+
 #[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Clone)]
 pub struct Serial(pub String);
 
@@ -76,7 +78,7 @@ pub struct ScsiDevice {
     pub size: i64,
     pub filesystem_type: Option<String>,
     pub paths: Paths,
-    pub mount_path: Option<PathBuf>,
+    pub mount_path: MountPath,
 }
 
 impl Type for ScsiDevice {
@@ -108,7 +110,7 @@ pub struct Partition {
     pub devpath: PathBuf,
     pub filesystem_type: Option<String>,
     pub paths: Paths,
-    pub mount_path: Option<PathBuf>,
+    pub mount_path: MountPath,
 }
 
 impl Type for Partition {
@@ -138,7 +140,7 @@ pub struct MdRaid {
     pub filesystem_type: Option<String>,
     pub paths: Paths,
     pub parents: Parents,
-    pub mount_path: Option<PathBuf>,
+    pub mount_path: MountPath,
     pub uuid: String,
 }
 
@@ -170,7 +172,7 @@ pub struct Mpath {
     pub parents: Parents,
     pub filesystem_type: Option<String>,
     pub paths: Paths,
-    pub mount_path: Option<PathBuf>,
+    pub mount_path: MountPath,
 }
 
 impl Type for Mpath {
@@ -228,7 +230,7 @@ pub struct LogicalVolume {
     pub devpath: PathBuf,
     pub paths: Paths,
     pub filesystem_type: Option<String>,
-    pub mount_path: Option<PathBuf>,
+    pub mount_path: MountPath,
 }
 
 impl Type for LogicalVolume {
@@ -258,6 +260,7 @@ pub struct Zpool {
     pub size: u64,
     pub vdev: libzfs_types::VDev,
     pub props: Vec<libzfs_types::ZProp>,
+    pub mount_path: MountPath,
 }
 
 impl Type for Zpool {
@@ -285,6 +288,7 @@ pub struct Dataset {
     pub name: String,
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,
+    pub mount_path: MountPath,
 }
 
 impl Type for Dataset {

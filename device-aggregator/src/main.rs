@@ -77,11 +77,21 @@ fn main() -> aggregator_error::Result<()> {
                 }
                 Message::Data(d) => {
                     let device: im::HashSet<Device> = serde_json::from_str(&d).unwrap();
-                    log::debug!("Got new data from host {}. Data: {:?}", host_name, &device);
+                    log::debug!("Got data from host {}", host_name);
                     let mut cache = cache.lock().unwrap();
-                    cache.upsert(&host_name, device);
 
-                    tx.clone().unbounded_send(cache.entries()).unwrap();
+                    let last_entries = cache.entries();
+                    let is_same = last_entries
+                        .get(&host_name)
+                        .filter(|&last_device| &device == last_device);
+
+                    if is_same.is_none() {
+                        log::debug!("Got new data from host {}. Data: {:?}", host_name, &device);
+
+                        cache.upsert(&host_name, device);
+
+                        tx.clone().unbounded_send(cache.entries()).unwrap();
+                    }
                 }
             },
         ).map(|_| warp::reply::with_status("", warp::http::StatusCode::CREATED));

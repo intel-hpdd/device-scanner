@@ -9,7 +9,7 @@ Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries
 URL:        https://github.com/whamcloud/%{base_name}
-Source0:    device-scanner-daemon-%{version}.crate
+Source0:    device-scanner-daemon-2.0.0.crate
 Source1:    uevent-listener-0.1.0.crate
 Source2:    mount-emitter-0.1.0.crate
 Source3:    device-scanner-proxy-0.1.0.crate

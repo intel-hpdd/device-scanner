@@ -1,24 +1,143 @@
+// Copyright (c) 2018 DDN. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
+
+//! # DB
+//!
+//! This module is an integration point between device-aggregator and chroma_core.
+//!
+//! It populates two tables, `device` and `device_host`.
+//!
+//! A `device` is a generic device that may be present on multiple hosts.
+//!
+//! A `device_host` is the instance of that device on a host.
+//!
+//! `device` to `device_host` is a 1:M relationship.
+//!
+//! Up to this point we have been stateless, but this module is stateful by using the db.
+//!
+//! The choice to be stateful here is because:
+//!
+//! 1. The need to have a "balanced" set of Lustre targets, and for this balance to be stable across ticks of
+//!    device discovery.
+//! 2. The need for devices to not be forgotten if they are in use as Lustre targets. Instead this should be an alert.
+//!
+
 use aggregator_error;
 use device_types::devices;
 use diesel::{pg::PgConnection, prelude::*};
 use env::get_var;
+use schema::{device, device_host};
+use std::path::PathBuf;
 
-#[derive(Queryable)]
+#[table_name = "device"]
+#[derive(Insertable, Queryable, Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Device {
-    pub id: i32,
-    pub size: u64,
     pub device_type: String,
     pub serial: String,
+    pub size: i64,
     pub fs_type: Option<String>,
-    pub mount_path: Option<String>,
 }
 
-#[derive(Queryable)]
+impl Device {
+    pub fn new(
+        size: i64,
+        device_type: &devices::DeviceType,
+        serial: &devices::Serial,
+        fs_type: &Option<String>,
+    ) -> Self {
+        Device {
+            size,
+            device_type: device_type.to_string(),
+            serial: serial.to_string(),
+            fs_type: fs_type.clone(),
+        }
+    }
+}
+
+#[table_name = "device_host"]
+#[derive(Queryable, Insertable, Debug, PartialEq, Eq, Hash, Clone)]
 pub struct DeviceHost {
-    pub id: i32,
-    pub device_id: i32,
-    pub paths: Vec<String>,
+    pub device_type: String,
+    pub device_serial: String,
     pub host_fqdn: String,
+    pub paths: Vec<String>,
+    pub mount_path: Option<String>,
+    pub is_active: bool,
+}
+
+impl DeviceHost {
+    pub fn new(
+        paths: &devices::Paths,
+        devices::Host(host_fqdn): devices::Host,
+        device_type: &devices::DeviceType,
+        device_serial: &devices::Serial,
+        mount_path: &devices::MountPath,
+        is_active: bool,
+    ) -> Self {
+        fn pathbuf_to_string(p: &PathBuf) -> String {
+            p.to_string_lossy().to_string()
+        }
+
+        let paths = paths.into_iter().map(pathbuf_to_string).collect();
+
+        let mount_path = mount_path.as_ref().map(|p| pathbuf_to_string(p));
+
+        DeviceHost {
+            device_type: device_type.to_string(),
+            device_serial: device_serial.to_string(),
+            host_fqdn,
+            paths,
+            mount_path,
+            is_active,
+        }
+    }
+}
+
+pub fn create_records_from_device_and_hosts<'a>(
+    (hs, d, h): (
+        im::HashSet<devices::Host>,
+        &'a devices::Device,
+        devices::Host,
+    ),
+) -> Option<(im::HashSet<DeviceHost>, Device)> {
+    log::debug!("create_records_from_device_and_hosts");
+
+    let d = d.as_mountable_storage_device();
+
+    let d = d.map(|d| {
+        let dev = Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
+
+        let hs = hs.without(&h);
+
+        let dev_hosts = hs
+            .into_iter()
+            .map(|host_fqdn| {
+                DeviceHost::new(
+                    &d.paths(),
+                    host_fqdn,
+                    &d.name(),
+                    &d.serial(),
+                    &d.mount_path(),
+                    false,
+                )
+            }).chain(std::iter::once(DeviceHost::new(
+                &d.paths(),
+                h,
+                &d.name(),
+                &d.serial(),
+                &d.mount_path(),
+                true,
+            ))).collect();
+
+        log::debug!("returning: ({:?}, {:?})", dev_hosts, dev);
+
+        (dev_hosts, dev)
+    });
+
+    log::debug!("Exiting: create_records_from_device_and_hosts");
+
+    d
 }
 
 fn get_connect_string() -> String {
@@ -46,33 +165,3 @@ pub fn connector() -> impl Fn() -> aggregator_error::Result<diesel::PgConnection
             .map_err(aggregator_error::Error::ConnectionError)
     }
 }
-
-// Walk from the given node back to the roots.
-//
-// The intersection of all the root hosts is where the device can be mounted.
-// fn get_distinct_parents(dag: &dag::Dag, n: daggy::NodeIndex) -> im::HashSet<&devices::Host> {
-//     let parents = dag.parents(n);
-
-//     parents
-//         .iter(dag)
-//         .map(|(_, p)| match dag.node_weight(p).unwrap() {
-//             devices::Device::Host(h) => h,
-//             _ => get_distinct_parents(dag, n),
-//         }).collect()
-// }
-
-// pub fn populate_db(dag: &dag::Dag) {
-//     for (n, d) in dag.node_references() {
-//         match d {
-//             devices::Device::Host(_) => {}
-//             devices::Device::Mpath(m) => if let Some(ref fs) = m.filesystem_type {},
-//             devices::Device::ScsiDevice(s) => {}
-//             devices::Device::Partition(p) => {}
-//             devices::Device::VolumeGroup(vg) => {}
-//             devices::Device::LogicalVolume(lv) => {}
-//             devices::Device::MdRaid(m) => {}
-//             devices::Device::Zpool(z) => {}
-//             devices::Device::Dataset(_) => {}
-//         }
-//     }
-// }

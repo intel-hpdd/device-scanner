@@ -155,7 +155,31 @@ fn main() -> aggregator_error::Result<()> {
                 let gviz = Dot::new(&dag);
 
                 let mut file = File::create("/tmp/gvis").unwrap();
-                file.write_all(format!("{}", gviz).as_ref());
+                file.write_all(format!("{}", gviz).as_ref()).unwrap();
+
+                let xs: Vec<_> = dag::into_device_set(&dag)
+                    .into_iter()
+                    .filter_map(db::create_records_from_device_and_hosts)
+                    .collect();
+
+                log::debug!("The records I want to insert: {:?}", xs);
+
+                let elapsed = now.elapsed();
+                log::debug!(
+                    "Built db records in {} ms",
+                    (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
+                );
+
+                let mut file = std::fs::OpenOptions::new()
+                    .append(true)
+                    .open("/tmp/finished")
+                    .unwrap();
+
+                writeln!(
+                    file,
+                    "finished in {}",
+                    (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
+                ).unwrap();
 
                 // let conn = connect()?;
 

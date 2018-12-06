@@ -221,7 +221,7 @@ Vagrant.configure('2') do |config|
       mv -f /vagrant/target/package/*.crate /tmp/_topdir/SOURCES/
       cd /vagrant
       rpmbuild -bs --define "_topdir /tmp/_topdir" /vagrant/iml-device-scanner.spec
-      rpmbuild --rebuild --define "_topdir /tmp/_topdir" --define="devel_build 1" /tmp/_topdir/SRPMS/iml-device-scanner-2.0.0-1.el7.src.rpm
+      rpmbuild --rebuild --define "_topdir /tmp/_topdir" --define="devel_build 1" /tmp/_topdir/SRPMS/iml-device-scanner-*.*.*-1.el7.src.rpm
     SHELL
 
     distribute_certs(test)

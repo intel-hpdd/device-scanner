@@ -54,7 +54,10 @@ fn get_parents(xs: &state::UEvents, f: impl Fn(&UEvent) -> bool) -> Result<Paren
         }).collect::<Result<Parents>>()
 }
 
-fn get_fs_and_mount<'a>(x: &'a UEvent, ys: &HashSet<Mount>) -> (Option<String>, Option<PathBuf>) {
+fn get_fs_and_mount<'a>(
+    x: &'a UEvent,
+    ys: &HashSet<Mount>,
+) -> (Option<String>, devices::MountPath) {
     let mount = ys.iter().find(
         |Mount {
              source: BdevPath(s),
@@ -72,10 +75,32 @@ fn get_fs_and_mount<'a>(x: &'a UEvent, ys: &HashSet<Mount>) -> (Option<String>, 
     }
 }
 
+fn get_zfs_mount_and_fs(name: &str, ys: &HashSet<Mount>) -> (Option<PathBuf>, Option<String>) {
+    let opt = ys
+        .iter()
+        .find(
+            |Mount {
+                 source: BdevPath(s),
+                 ..
+             }| { s.to_string_lossy() == name },
+        ).map(
+            |Mount {
+                 target: MountPoint(m),
+                 fs_type: FsType(f),
+                 ..
+             }| { (m.clone(), f.clone()) },
+        );
+
+    match opt {
+        Some((x, y)) => (Some(x), Some(y)),
+        None => (None, None),
+    }
+}
+
 fn create_md(
     x: &UEvent,
     filesystem_type: Option<String>,
-    mount_path: Option<PathBuf>,
+    mount_path: devices::MountPath,
     parents: Parents,
 ) -> Result<Device> {
     Ok(Device::MdRaid(devices::MdRaid {
@@ -97,7 +122,7 @@ fn create_md(
 fn create_mpath(
     x: &UEvent,
     filesystem_type: Option<String>,
-    mount_path: Option<PathBuf>,
+    mount_path: devices::MountPath,
     parents: Parents,
 ) -> Result<Device> {
     Ok(Device::Mpath(devices::Mpath {
@@ -116,7 +141,7 @@ fn create_mpath(
 fn create_partition(
     x: &UEvent,
     filesystem_type: Option<String>,
-    mount_path: Option<PathBuf>,
+    mount_path: devices::MountPath,
     parents: Parents,
 ) -> Result<Device> {
     Ok(Device::Partition(devices::Partition {
@@ -157,7 +182,7 @@ fn create_vg(x: &UEvent, parents: Parents) -> Result<Device> {
 fn create_lv(
     x: &UEvent,
     filesystem_type: Option<String>,
-    mount_path: Option<PathBuf>,
+    mount_path: devices::MountPath,
 ) -> Result<Device> {
     Ok(Device::LogicalVolume(devices::LogicalVolume {
         serial: x
@@ -189,7 +214,7 @@ fn create_lv(
 fn create_scsi(
     x: &UEvent,
     filesystem_type: Option<String>,
-    mount_path: Option<PathBuf>,
+    mount_path: devices::MountPath,
 ) -> Result<Device> {
     Ok(Device::ScsiDevice(devices::ScsiDevice {
         serial: x.get_serial()?,
@@ -203,25 +228,42 @@ fn create_scsi(
     }))
 }
 
-fn create_pool(x: &libzfs_types::Pool) -> Result<Device> {
+fn create_pool(
+    x: &libzfs_types::Pool,
+    mount_path: devices::MountPath,
+    filesystem_type: Option<String>,
+) -> Result<Device> {
     Ok(Device::Zpool(devices::Zpool {
-        guid: x.guid,
+        serial: Serial(x.guid.to_string()),
         health: x.health.clone(),
         name: x.name.clone(),
         props: x.props.clone(),
         state: x.state.clone(),
         vdev: x.vdev.clone(),
         size: x.size.parse()?,
+        paths: im::hashset![x.name.clone().into()],
+        filesystem_type,
+        mount_path,
     }))
 }
 
-fn create_dataset(x: &libzfs_types::Dataset, pool_guid: u64) -> Result<Device> {
+fn create_dataset(
+    x: &libzfs_types::Dataset,
+    pool_serial: Serial,
+    pool_size: i64,
+    mount_path: devices::MountPath,
+    filesystem_type: Option<String>,
+) -> Result<Device> {
     Ok(Device::Dataset(devices::Dataset {
         name: x.name.clone(),
-        pool_guid,
-        guid: x.guid.clone(),
+        pool_serial,
+        serial: Serial(x.guid.clone()),
         kind: x.kind.clone(),
         props: x.props.clone(),
+        size: pool_size,
+        paths: im::hashset![x.name.clone().into()],
+        mount_path,
+        filesystem_type,
     }))
 }
 
@@ -280,10 +322,21 @@ fn create_devices<'a>(
         let mut ds: Vec<Device> = p
             .datasets
             .iter()
-            .map(|d| create_dataset(&d, p.guid))
-            .collect::<Result<Vec<Device>>>()?;
+            .map(|d| {
+                let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&p.name, zs);
 
-        ds.push(create_pool(p)?);
+                create_dataset(
+                    &d,
+                    Serial(p.guid.to_string()),
+                    p.size.parse()?,
+                    mount_point,
+                    filesystem_type,
+                )
+            }).collect::<Result<Vec<Device>>>()?;
+
+        let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&p.name, zs);
+
+        ds.push(create_pool(p, mount_point, filesystem_type)?);
 
         Ok(ds)
     });

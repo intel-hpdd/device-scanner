@@ -3,21 +3,21 @@
 // license that can be found in the LICENSE file.
 
 table! {
-    device {
-        id -> Integer,
-        size -> BigInt,
+    device (device_type, serial) {
         device_type -> VarChar,
         serial -> VarChar,
+        size -> BigInt,
         fs_type -> Nullable<VarChar>,
-        mount_path -> Nullable<VarChar>,
     }
 }
 
 table! {
-    device_host {
-        id -> Integer,
-        device_id -> Integer,
-        paths -> Array<VarChar>,
+    device_host (device_type, device_serial, host_fqdn) {
+        device_type -> VarChar,
+        device_serial -> VarChar,
         host_fqdn -> VarChar,
+        paths -> Array<VarChar>,
+        mount_path -> Nullable<VarChar>,
+        is_active -> Bool,
     }
 }

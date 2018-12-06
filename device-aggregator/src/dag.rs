@@ -3,20 +3,36 @@
 // license that can be found in the LICENSE file.
 
 use aggregator_error;
-use device_types::devices::{self, AsParent, Device, Parent};
+use device_types::devices::{self, AsParent, Device, Parent, Type};
+use std::collections::VecDeque;
 use std::path::PathBuf;
 
 use im::{hashset, HashSet};
 
 use daggy::petgraph::{
-    self,
-    visit::{Dfs, IntoNodeReferences},
+    self, graph,
+    visit::{Dfs, EdgeRef, IntoNodeReferences, Walker},
 };
 
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, derive_more::Display)]
 pub enum Edge {
     Parent,
     Shared,
+}
+
+impl Edge {
+    fn is_shared(self) -> bool {
+        match self {
+            Edge::Shared => true,
+            _ => false,
+        }
+    }
+    fn is_parent(self) -> bool {
+        match self {
+            Edge::Parent => true,
+            _ => false,
+        }
+    }
 }
 
 pub type Dag = daggy::Dag<Device, Edge>;
@@ -52,27 +68,7 @@ pub fn filter_refs(dag: &Dag, f: impl Fn(&Device) -> bool) -> Vec<daggy::NodeInd
         .collect()
 }
 
-fn is_vg(d: &Device, parent: &Parent) -> bool {
-    match d {
-        Device::VolumeGroup(vg) => vg.parents.contains(parent),
-        _ => false,
-    }
-}
-
-fn is_partition(d: &Device, parent: &Parent) -> bool {
-    match d {
-        Device::Partition(p) => p.parents.contains(parent),
-        _ => false,
-    }
-}
-
-fn is_lv(d: &Device, parent: &Parent) -> bool {
-    match d {
-        Device::LogicalVolume(lv) => parent == &lv.parent,
-        _ => false,
-    }
-}
-
+/// Is the device a scsi device
 fn is_scsi(d: &Device) -> bool {
     match d {
         Device::ScsiDevice(_) => true,
@@ -80,6 +76,31 @@ fn is_scsi(d: &Device) -> bool {
     }
 }
 
+/// Is the device a partition
+fn is_partition(d: &Device, parent: &Parent) -> bool {
+    match d {
+        Device::Partition(p) => p.parents.contains(parent),
+        _ => false,
+    }
+}
+
+/// Is the device a volume group
+fn is_vg(d: &Device, parent: &Parent) -> bool {
+    match d {
+        Device::VolumeGroup(vg) => vg.parents.contains(parent),
+        _ => false,
+    }
+}
+
+/// Is the device a logical volume
+fn is_lv(d: &Device, parent: &Parent) -> bool {
+    match d {
+        Device::LogicalVolume(lv) => parent == &lv.parent,
+        _ => false,
+    }
+}
+
+/// Is the device a multipath device
 fn is_mpath(d: &Device, parent: &Parent) -> bool {
     match d {
         Device::Mpath(m) => m.parents.contains(parent),
@@ -87,6 +108,7 @@ fn is_mpath(d: &Device, parent: &Parent) -> bool {
     }
 }
 
+/// Is the device a mdraid device
 fn is_md(d: &Device, parent: &Parent) -> bool {
     match d {
         Device::MdRaid(m) => m.parents.contains(parent),
@@ -94,6 +116,7 @@ fn is_md(d: &Device, parent: &Parent) -> bool {
     }
 }
 
+/// Is the device a zpool
 fn is_pool(d: &Device, paths: &HashSet<PathBuf>) -> bool {
     match d {
         Device::Zpool(z) => {
@@ -105,9 +128,10 @@ fn is_pool(d: &Device, paths: &HashSet<PathBuf>) -> bool {
     }
 }
 
-fn is_dataset(d: &Device, guid: u64) -> bool {
+/// Is the device a dataset
+fn is_dataset(d: &Device, serial: &devices::Serial) -> bool {
     match d {
-        Device::Dataset(d) => d.pool_guid == guid,
+        Device::Dataset(d) => &d.pool_serial == serial,
         _ => false,
     }
 }
@@ -133,6 +157,123 @@ pub fn add(l: &mut Dag, r: &Dag, root: daggy::NodeIndex) -> aggregator_error::Re
     Ok(())
 }
 
+/// Given a dag and a starting node, return an iterator of the node's
+/// parents.
+fn get_parents<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
+    dag.graph()
+        .edges_directed(nx, petgraph::Incoming)
+        .filter(|e| e.weight().is_parent())
+        .map(|e| e.source())
+}
+
+/// Given a dag and a starting node, walk up the parents
+/// until the host is hit.
+pub fn get_active_host(dag: &Dag, nx: daggy::NodeIndex) -> Option<devices::Host> {
+    let graph = dag.graph();
+
+    let mut nx = Some(nx);
+
+    loop {
+        match nx {
+            Some(n) => {
+                if let Some(Device::Host(host)) = graph.node_weight(n) {
+                    break Some(host.clone());
+                }
+
+                nx = get_parents(dag, n).nth(0);
+            }
+            None => {
+                break None;
+            }
+        }
+    }
+}
+
+/// Given a dag and a search node, find it's shared siblings.
+fn get_shared<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+    let graph = dag.graph();
+
+    graph
+        .edges_directed(nx, petgraph::Outgoing)
+        .chain(graph.edges_directed(nx, petgraph::Incoming))
+        .filter(|e| e.weight().is_shared())
+        .filter_map(move |e| match (e.source(), e.target()) {
+            (source, target) if source == nx => Some(target),
+            (source, target) if target == nx => Some(source),
+            _ => None,
+        })
+}
+
+pub fn get_distinct_hosts2(dag: &Dag, nx: daggy::NodeIndex) -> im::HashSet<devices::Host> {
+    // The current level of the graph we're
+    // walking up
+    let level = hashset![];
+
+    hashset![]
+}
+
+/// Given a dag and a starting leaf device, walk up towards the root
+/// collecting the set of hosts that can use this device.
+pub fn get_distinct_hosts(dag: &Dag, nx: daggy::NodeIndex) -> im::HashSet<devices::Host> {
+    let mut visited = im::hashset![];
+
+    let mut all_hosts: im::HashSet<im::HashSet<devices::Host>> = im::hashset![];
+
+    let mut queue = VecDeque::new();
+
+    queue.push_back(nx);
+
+    while let Some(n) = queue.pop_front() {
+        if visited.contains(&n) {
+            continue;
+        }
+
+        let shared_hosts: im::HashSet<devices::Host> = get_shared(dag, n)
+            .filter_map(|x| get_active_host(dag, x))
+            .collect();
+
+        let parents = get_parents(dag, n).filter(|&x| {
+            dag.node_weight(x)
+                .map(|x| x.name() == devices::DeviceType::Host)
+                .is_none()
+        });
+
+        all_hosts.insert(shared_hosts);
+
+        queue.extend(parents);
+
+        visited.insert(n);
+    }
+
+    all_hosts
+        .into_iter()
+        .enumerate()
+        .fold(im::hashset![], |h, (idx, next)| {
+            if idx == 0 {
+                return next;
+            }
+
+            h.intersection(next)
+        })
+}
+
+pub fn into_device_set(
+    dag: &Dag,
+) -> im::HashSet<(im::HashSet<devices::Host>, &devices::Device, devices::Host)> {
+    dag.node_references()
+        .filter(|(nx, _)| dag.children(*nx).iter(dag).count() == 0)
+        .filter_map(|(nx, d)| get_active_host(dag, nx).map(|h| (nx, d, h)))
+        .map(|(nx, d, h)| (get_distinct_hosts(dag, nx), d, h))
+        .collect()
+}
+
+/// Find and add any shared edges between devices
 pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
     let edges: Vec<_> = {
         let shared = dag.node_references().fold(
@@ -178,6 +319,7 @@ pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
     Ok(())
 }
 
+/// Find and recursively add parent edges to nodes in the graph
 pub fn populate_parents(
     dag: &mut Dag,
     ro_dag: &Dag,
@@ -238,7 +380,7 @@ pub fn populate_parents(
                     || is_pool(d, &m.paths)
             })
         }
-        Device::Zpool(devices::Zpool { guid, .. }) => filter_refs(ro_dag, |d| is_dataset(d, *guid)),
+        Device::Zpool(z) => filter_refs(ro_dag, |d| is_dataset(d, &z.serial)),
         Device::Dataset(_) => vec![],
     };
 

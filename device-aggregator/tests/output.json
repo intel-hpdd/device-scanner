@@ -1,0 +1,1267 @@
+{
+  "device-scanner1.local": [
+    {
+      "ScsiDevice": {
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "major": "8",
+        "minor": "80",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:2/block/sdf",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-2",
+          "/dev/sdf",
+          "/dev/disk/by-id/scsi-3600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/disk/by-id/wwn-0x600140573b9052ae97d4ba6bea6d88ca"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-2",
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "size": 104857600,
+        "major": "253",
+        "minor": "2",
+        "parents": [["ScsiDevice", "3600140573b9052ae97d4ba6bea6d88ca"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/mapper/mpathc",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/dm-2",
+          "/dev/disk/by-id/dm-name-mpathc"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-1",
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "size": 104857600,
+        "major": "253",
+        "minor": "1",
+        "parents": [["ScsiDevice", "360014056b5c1866d3b44394a07a01fa3"]],
+        "filesystem_type": "zfs_member",
+        "paths": [
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/dm-name-mpathb",
+          "/dev/disk/by-id/dm-uuid-mpath-360014056b5c1866d3b44394a07a01fa3",
+          "/dev/dm-1",
+          "/dev/mapper/mpathb",
+          "/dev/disk/by-label/test"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "major": "8",
+        "minor": "224",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:6/block/sdo",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-3600140540ec63127f574f299bb38043a",
+          "/dev/sdo",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-6",
+          "/dev/disk/by-id/wwn-0x600140540ec63127f574f299bb38043a"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "major": "8",
+        "minor": "240",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:7/block/sdp",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdp",
+          "/dev/disk/by-id/wwn-0x6001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-id/scsi-36001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-7"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-7",
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "size": 104857600,
+        "major": "253",
+        "minor": "7",
+        "parents": [["ScsiDevice", "36001405db75be78db5e4f2a9322613b0"]],
+        "filesystem_type": "LVM2_member",
+        "paths": [
+          "/dev/dm-7",
+          "/dev/disk/by-id/lvm-pv-uuid-NXwWcs-Z8Ep-arBO-HJlH-Liq8-An2J-8mY3nr",
+          "/dev/mapper/mpathh",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-id/dm-name-mpathh"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Partition": {
+        "serial": "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3",
+        "partition_number": 1,
+        "parents": [
+          [
+            "ScsiDevice",
+            "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3"
+          ]
+        ],
+        "size": 42948624384,
+        "major": "8",
+        "minor": "1",
+        "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda/sda1",
+        "filesystem_type": "ext4",
+        "paths": [
+          "/dev/disk/by-uuid/b5b20816-947c-4616-b15a-abaae4afe31b",
+          "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+          "/dev/sda1",
+          "/dev/disk/by-id/ata-VBOX_HARDDISK_VB6951851d-1e63d1c3-part1"
+        ],
+        "mount_path": "/"
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "major": "8",
+        "minor": "48",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:1/block/sdd",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-id/scsi-360014056b5c1866d3b44394a07a01fa3",
+          "/dev/sdd",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/wwn-0x60014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-1"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3",
+        "major": "8",
+        "minor": "0",
+        "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda",
+        "size": 42949672960,
+        "filesystem_type": null,
+        "paths": [
+          "/dev/sda",
+          "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0",
+          "/dev/disk/by-id/ata-VBOX_HARDDISK_VB6951851d-1e63d1c3"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "major": "65",
+        "minor": "16",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:8/block/sdr",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-36001405b1af552dbbf64206b77a6330c",
+          "/dev/sdr",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-8",
+          "/dev/disk/by-id/wwn-0x6001405b1af552dbbf64206b77a6330c"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405bc4db20f31424849853c24830",
+        "major": "65",
+        "minor": "64",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:9/block/sdu",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405bc4db20f31424849853c24830",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-9",
+          "/dev/disk/by-id/scsi-36001405bc4db20f31424849853c24830",
+          "/dev/sdu"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "major": "65",
+        "minor": "32",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:8/block/sds",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sds",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-8",
+          "/dev/disk/by-id/scsi-36001405b1af552dbbf64206b77a6330c",
+          "/dev/disk/by-id/wwn-0x6001405b1af552dbbf64206b77a6330c"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-4",
+        "serial": "36001405048e9801f68343399da29a672",
+        "size": 104857600,
+        "major": "253",
+        "minor": "4",
+        "parents": [["ScsiDevice", "36001405048e9801f68343399da29a672"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/dm-4",
+          "/dev/disk/by-id/dm-name-mpathe",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405048e9801f68343399da29a672",
+          "/dev/mapper/mpathe"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-5",
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "size": 104857600,
+        "major": "253",
+        "minor": "5",
+        "parents": [["ScsiDevice", "36001405455a83f4cbc24d45ba84aee68"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/disk/by-id/dm-uuid-mpath-36001405455a83f4cbc24d45ba84aee68",
+          "/dev/mapper/mpathf",
+          "/dev/dm-5",
+          "/dev/disk/by-id/dm-name-mpathf"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "major": "8",
+        "minor": "32",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:0/block/sdc",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdc",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-label/test"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-9",
+        "serial": "36001405bc4db20f31424849853c24830",
+        "size": 104857600,
+        "major": "253",
+        "minor": "9",
+        "parents": [["ScsiDevice", "36001405bc4db20f31424849853c24830"]],
+        "filesystem_type": "LVM2_member",
+        "paths": [
+          "/dev/dm-9",
+          "/dev/mapper/mpathj",
+          "/dev/disk/by-id/lvm-pv-uuid-PfUadN-2531-RpUr-rd9n-y0HZ-czI8-g1ctwG",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405bc4db20f31424849853c24830",
+          "/dev/disk/by-id/dm-name-mpathj"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "major": "8",
+        "minor": "192",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:6/block/sdm",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-6",
+          "/dev/disk/by-id/scsi-3600140540ec63127f574f299bb38043a",
+          "/dev/disk/by-id/wwn-0x600140540ec63127f574f299bb38043a",
+          "/dev/sdm"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405bc4db20f31424849853c24830",
+        "major": "65",
+        "minor": "48",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:9/block/sdt",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405bc4db20f31424849853c24830",
+          "/dev/sdt",
+          "/dev/disk/by-id/scsi-36001405bc4db20f31424849853c24830",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-9"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "major": "8",
+        "minor": "96",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:2/block/sdg",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-3600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-2",
+          "/dev/sdg",
+          "/dev/disk/by-id/wwn-0x600140573b9052ae97d4ba6bea6d88ca"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "major": "8",
+        "minor": "160",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:5/block/sdk",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-5",
+          "/dev/disk/by-id/scsi-36001405455a83f4cbc24d45ba84aee68",
+          "/dev/disk/by-id/wwn-0x6001405455a83f4cbc24d45ba84aee68",
+          "/dev/sdk"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "major": "8",
+        "minor": "208",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:5/block/sdn",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-5",
+          "/dev/sdn",
+          "/dev/disk/by-id/wwn-0x6001405455a83f4cbc24d45ba84aee68",
+          "/dev/disk/by-id/scsi-36001405455a83f4cbc24d45ba84aee68"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-8",
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "size": 104857600,
+        "major": "253",
+        "minor": "8",
+        "parents": [["ScsiDevice", "36001405b1af552dbbf64206b77a6330c"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/disk/by-id/dm-name-mpathi",
+          "/dev/mapper/mpathi",
+          "/dev/dm-8",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405b1af552dbbf64206b77a6330c"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "major": "8",
+        "minor": "16",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:0/block/sdb",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdb",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0",
+          "/dev/disk/by-label/test"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Zpool": {
+        "serial": "8981758005725934928",
+        "name": "test",
+        "health": "ONLINE",
+        "state": "ACTIVE",
+        "size": 83886080,
+        "vdev": {
+          "Root": {
+            "children": [
+              {
+                "Mirror": {
+                  "children": [
+                    {
+                      "Disk": {
+                        "guid": 13268924090230393150,
+                        "state": "ONLINE",
+                        "path": "/dev/mapper/mpatha",
+                        "dev_id": "dm-uuid-mpath-3600140547abdb28e0d74699961a09c99",
+                        "phys_path": null,
+                        "whole_disk": false,
+                        "is_log": null
+                      }
+                    },
+                    {
+                      "Disk": {
+                        "guid": 11451074687033064368,
+                        "state": "ONLINE",
+                        "path": "/dev/mapper/mpathb",
+                        "dev_id": "dm-uuid-mpath-360014056b5c1866d3b44394a07a01fa3",
+                        "phys_path": null,
+                        "whole_disk": false,
+                        "is_log": null
+                      }
+                    }
+                  ],
+                  "is_log": false
+                }
+              }
+            ],
+            "spares": [
+              {
+                "Disk": {
+                  "guid": 13273728475395797947,
+                  "state": "ONLINE",
+                  "path": "/dev/mapper/mpathd",
+                  "dev_id": "dm-uuid-mpath-3600140598854abe976d45099fc6b0529",
+                  "phys_path": null,
+                  "whole_disk": false,
+                  "is_log": null
+                }
+              },
+              {
+                "Disk": {
+                  "guid": 613267510246981581,
+                  "state": "ONLINE",
+                  "path": "/dev/mapper/mpathe",
+                  "dev_id": "dm-uuid-mpath-36001405048e9801f68343399da29a672",
+                  "phys_path": null,
+                  "whole_disk": false,
+                  "is_log": null
+                }
+              }
+            ],
+            "cache": [
+              {
+                "Disk": {
+                  "guid": 17340407835195702239,
+                  "state": "ONLINE",
+                  "path": "/dev/mapper/mpathc",
+                  "dev_id": "dm-uuid-mpath-3600140573b9052ae97d4ba6bea6d88ca",
+                  "phys_path": null,
+                  "whole_disk": false,
+                  "is_log": null
+                }
+              }
+            ]
+          }
+        },
+        "props": [],
+        "paths": ["test"],
+        "filesystem_type": "zfs",
+        "mount_path": "/test"
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "major": "8",
+        "minor": "64",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:1/block/sde",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-id/scsi-360014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-1",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/wwn-0x60014056b5c1866d3b44394a07a01fa3",
+          "/dev/sde"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "major": "65",
+        "minor": "0",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:7/block/sdq",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdq",
+          "/dev/disk/by-id/scsi-36001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-7",
+          "/dev/disk/by-id/wwn-0x6001405db75be78db5e4f2a9322613b0"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "major": "8",
+        "minor": "112",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:3/block/sdh",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdh",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-3",
+          "/dev/disk/by-id/wwn-0x600140598854abe976d45099fc6b0529",
+          "/dev/disk/by-id/scsi-3600140598854abe976d45099fc6b0529"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405048e9801f68343399da29a672",
+        "major": "8",
+        "minor": "144",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:4/block/sdj",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405048e9801f68343399da29a672",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-4",
+          "/dev/sdj",
+          "/dev/disk/by-id/scsi-36001405048e9801f68343399da29a672"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405048e9801f68343399da29a672",
+        "major": "8",
+        "minor": "176",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:4/block/sdl",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-36001405048e9801f68343399da29a672",
+          "/dev/sdl",
+          "/dev/disk/by-id/wwn-0x6001405048e9801f68343399da29a672",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-4"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "major": "8",
+        "minor": "128",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:3/block/sdi",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-3600140598854abe976d45099fc6b0529",
+          "/dev/sdi",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-3",
+          "/dev/disk/by-id/wwn-0x600140598854abe976d45099fc6b0529"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-3",
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "size": 104857600,
+        "major": "253",
+        "minor": "3",
+        "parents": [["ScsiDevice", "3600140598854abe976d45099fc6b0529"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/mapper/mpathd",
+          "/dev/disk/by-id/dm-name-mpathd",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140598854abe976d45099fc6b0529",
+          "/dev/dm-3"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-6",
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "size": 104857600,
+        "major": "253",
+        "minor": "6",
+        "parents": [["ScsiDevice", "3600140540ec63127f574f299bb38043a"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/mapper/mpathg",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140540ec63127f574f299bb38043a",
+          "/dev/dm-6",
+          "/dev/disk/by-id/dm-name-mpathg"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-0",
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "size": 104857600,
+        "major": "253",
+        "minor": "0",
+        "parents": [["ScsiDevice", "3600140547abdb28e0d74699961a09c99"]],
+        "filesystem_type": "zfs_member",
+        "paths": [
+          "/dev/mapper/mpatha",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-id/dm-name-mpatha",
+          "/dev/dm-0",
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-uuid/8981758005725934928"
+        ],
+        "mount_path": null
+      }
+    }
+  ],
+  "device-scanner2.local": [
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-0",
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "size": 104857600,
+        "major": "253",
+        "minor": "0",
+        "parents": [["ScsiDevice", "3600140547abdb28e0d74699961a09c99"]],
+        "filesystem_type": "zfs_member",
+        "paths": [
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-label/test",
+          "/dev/mapper/mpatha",
+          "/dev/dm-0",
+          "/dev/disk/by-id/dm-name-mpatha"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405bc4db20f31424849853c24830",
+        "major": "65",
+        "minor": "48",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:9/block/sdt",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdt",
+          "/dev/disk/by-id/scsi-36001405bc4db20f31424849853c24830",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-9",
+          "/dev/disk/by-id/wwn-0x6001405bc4db20f31424849853c24830"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "major": "8",
+        "minor": "224",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:6/block/sdo",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdo",
+          "/dev/disk/by-id/scsi-3600140540ec63127f574f299bb38043a",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-6",
+          "/dev/disk/by-id/wwn-0x600140540ec63127f574f299bb38043a"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "major": "8",
+        "minor": "208",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:6/block/sdn",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-3600140540ec63127f574f299bb38043a",
+          "/dev/disk/by-id/wwn-0x600140540ec63127f574f299bb38043a",
+          "/dev/sdn",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-6"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-6",
+        "serial": "3600140540ec63127f574f299bb38043a",
+        "size": 104857600,
+        "major": "253",
+        "minor": "6",
+        "parents": [["ScsiDevice", "3600140540ec63127f574f299bb38043a"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/dm-6",
+          "/dev/mapper/mpathg",
+          "/dev/disk/by-id/dm-name-mpathg",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140540ec63127f574f299bb38043a"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "major": "8",
+        "minor": "240",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:7/block/sdp",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-7",
+          "/dev/disk/by-id/wwn-0x6001405db75be78db5e4f2a9322613b0",
+          "/dev/sdp",
+          "/dev/disk/by-id/scsi-36001405db75be78db5e4f2a9322613b0"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-2",
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "size": 104857600,
+        "major": "253",
+        "minor": "2",
+        "parents": [["ScsiDevice", "3600140573b9052ae97d4ba6bea6d88ca"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/disk/by-id/dm-name-mpathc",
+          "/dev/dm-2",
+          "/dev/mapper/mpathc",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140573b9052ae97d4ba6bea6d88ca"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-1",
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "size": 104857600,
+        "major": "253",
+        "minor": "1",
+        "parents": [["ScsiDevice", "360014056b5c1866d3b44394a07a01fa3"]],
+        "filesystem_type": "zfs_member",
+        "paths": [
+          "/dev/dm-1",
+          "/dev/mapper/mpathb",
+          "/dev/disk/by-id/dm-uuid-mpath-360014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-id/dm-name-mpathb",
+          "/dev/disk/by-uuid/8981758005725934928"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3",
+        "major": "8",
+        "minor": "0",
+        "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda",
+        "size": 42949672960,
+        "filesystem_type": null,
+        "paths": [
+          "/dev/disk/by-id/ata-VBOX_HARDDISK_VB6951851d-1e63d1c3",
+          "/dev/sda",
+          "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "major": "8",
+        "minor": "128",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:3/block/sdi",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-3",
+          "/dev/disk/by-id/wwn-0x600140598854abe976d45099fc6b0529",
+          "/dev/sdi",
+          "/dev/disk/by-id/scsi-3600140598854abe976d45099fc6b0529"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "major": "8",
+        "minor": "176",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:5/block/sdl",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdl",
+          "/dev/disk/by-id/scsi-36001405455a83f4cbc24d45ba84aee68",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-5",
+          "/dev/disk/by-id/wwn-0x6001405455a83f4cbc24d45ba84aee68"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "major": "8",
+        "minor": "80",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:2/block/sdf",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/sdf",
+          "/dev/disk/by-id/scsi-3600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-2"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Partition": {
+        "serial": "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3",
+        "partition_number": 1,
+        "parents": [
+          [
+            "ScsiDevice",
+            "1ATA     VBOX HARDDISK                           VB6951851d-1e63d1c3"
+          ]
+        ],
+        "size": 42948624384,
+        "major": "8",
+        "minor": "1",
+        "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda/sda1",
+        "filesystem_type": "ext4",
+        "paths": [
+          "/dev/disk/by-uuid/b5b20816-947c-4616-b15a-abaae4afe31b",
+          "/dev/sda1",
+          "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+          "/dev/disk/by-id/ata-VBOX_HARDDISK_VB6951851d-1e63d1c3-part1"
+        ],
+        "mount_path": "/"
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-3",
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "size": 104857600,
+        "major": "253",
+        "minor": "3",
+        "parents": [["ScsiDevice", "3600140598854abe976d45099fc6b0529"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/mapper/mpathd",
+          "/dev/disk/by-id/dm-uuid-mpath-3600140598854abe976d45099fc6b0529",
+          "/dev/disk/by-id/dm-name-mpathd",
+          "/dev/dm-3"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405048e9801f68343399da29a672",
+        "major": "8",
+        "minor": "144",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:4/block/sdj",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-36001405048e9801f68343399da29a672",
+          "/dev/disk/by-id/wwn-0x6001405048e9801f68343399da29a672",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-4",
+          "/dev/sdj"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "LogicalVolume": {
+        "serial": "b3IV4qBbvlNIJOyQgr9ENb3BOVGi91kZ",
+        "name": "lv1",
+        "parent": ["VolumeGroup", "ic5QDGwBIZffKCiYp3yKL4hDP4P8hdBp"],
+        "major": "253",
+        "minor": "10",
+        "size": 20971520,
+        "devpath": "/devices/virtual/block/dm-10",
+        "paths": [
+          "/dev/dm-10",
+          "/dev/mapper/vg1-lv1",
+          "/dev/disk/by-id/dm-uuid-LVM-ic5QDGwBIZffKCiYp3yKL4hDP4P8hdBpb3IV4qBbvlNIJOyQgr9ENb3BOVGi91kZ",
+          "/dev/vg1/lv1",
+          "/dev/disk/by-id/dm-name-vg1-lv1"
+        ],
+        "filesystem_type": null,
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-5",
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "size": 104857600,
+        "major": "253",
+        "minor": "5",
+        "parents": [["ScsiDevice", "36001405455a83f4cbc24d45ba84aee68"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/dm-5",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405455a83f4cbc24d45ba84aee68",
+          "/dev/disk/by-id/dm-name-mpathf",
+          "/dev/mapper/mpathf"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "major": "8",
+        "minor": "16",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:0/block/sdb",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0",
+          "/dev/sdb",
+          "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-label/test"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-8",
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "size": 104857600,
+        "major": "253",
+        "minor": "8",
+        "parents": [["ScsiDevice", "36001405b1af552dbbf64206b77a6330c"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/disk/by-id/dm-uuid-mpath-36001405b1af552dbbf64206b77a6330c",
+          "/dev/disk/by-id/dm-name-mpathi",
+          "/dev/mapper/mpathi",
+          "/dev/dm-8"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140573b9052ae97d4ba6bea6d88ca",
+        "major": "8",
+        "minor": "96",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:2/block/sdg",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-3600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/disk/by-id/wwn-0x600140573b9052ae97d4ba6bea6d88ca",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-2",
+          "/dev/sdg"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "major": "8",
+        "minor": "64",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:1/block/sde",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-1",
+          "/dev/sde",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-id/wwn-0x60014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-id/scsi-360014056b5c1866d3b44394a07a01fa3"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "major": "65",
+        "minor": "32",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:8/block/sds",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-36001405b1af552dbbf64206b77a6330c",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-8",
+          "/dev/disk/by-id/wwn-0x6001405b1af552dbbf64206b77a6330c",
+          "/dev/sds"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140598854abe976d45099fc6b0529",
+        "major": "8",
+        "minor": "112",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:3/block/sdh",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdh",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-3",
+          "/dev/disk/by-id/scsi-3600140598854abe976d45099fc6b0529",
+          "/dev/disk/by-id/wwn-0x600140598854abe976d45099fc6b0529"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405bc4db20f31424849853c24830",
+        "major": "65",
+        "minor": "64",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:9/block/sdu",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405bc4db20f31424849853c24830",
+          "/dev/disk/by-id/scsi-36001405bc4db20f31424849853c24830",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-9",
+          "/dev/sdu"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405048e9801f68343399da29a672",
+        "major": "8",
+        "minor": "160",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:4/block/sdk",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405048e9801f68343399da29a672",
+          "/dev/sdk",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-4",
+          "/dev/disk/by-id/scsi-36001405048e9801f68343399da29a672"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405b1af552dbbf64206b77a6330c",
+        "major": "65",
+        "minor": "16",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:8/block/sdr",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405b1af552dbbf64206b77a6330c",
+          "/dev/disk/by-id/scsi-36001405b1af552dbbf64206b77a6330c",
+          "/dev/sdr",
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-8"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "3600140547abdb28e0d74699961a09c99",
+        "major": "8",
+        "minor": "32",
+        "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:0/block/sdc",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0",
+          "/dev/disk/by-label/test",
+          "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99",
+          "/dev/sdc"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "VolumeGroup": {
+        "serial": "ic5QDGwBIZffKCiYp3yKL4hDP4P8hdBp",
+        "name": "vg1",
+        "size": 0,
+        "parents": [["Mpath", "36001405bc4db20f31424849853c24830"]]
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405455a83f4cbc24d45ba84aee68",
+        "major": "8",
+        "minor": "192",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:5/block/sdm",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/sdm",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-5",
+          "/dev/disk/by-id/wwn-0x6001405455a83f4cbc24d45ba84aee68",
+          "/dev/disk/by-id/scsi-36001405455a83f4cbc24d45ba84aee68"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "major": "65",
+        "minor": "0",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:7/block/sdq",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/wwn-0x6001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-id/scsi-36001405db75be78db5e4f2a9322613b0",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-7",
+          "/dev/sdq"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-7",
+        "serial": "36001405db75be78db5e4f2a9322613b0",
+        "size": 104857600,
+        "major": "253",
+        "minor": "7",
+        "parents": [["ScsiDevice", "36001405db75be78db5e4f2a9322613b0"]],
+        "filesystem_type": "LVM2_member",
+        "paths": [
+          "/dev/mapper/mpathh",
+          "/dev/dm-7",
+          "/dev/disk/by-id/dm-name-mpathh",
+          "/dev/disk/by-id/lvm-pv-uuid-NXwWcs-Z8Ep-arBO-HJlH-Liq8-An2J-8mY3nr",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405db75be78db5e4f2a9322613b0"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-9",
+        "serial": "36001405bc4db20f31424849853c24830",
+        "size": 104857600,
+        "major": "253",
+        "minor": "9",
+        "parents": [["ScsiDevice", "36001405bc4db20f31424849853c24830"]],
+        "filesystem_type": "LVM2_member",
+        "paths": [
+          "/dev/disk/by-id/dm-uuid-mpath-36001405bc4db20f31424849853c24830",
+          "/dev/dm-9",
+          "/dev/mapper/mpathj",
+          "/dev/disk/by-id/lvm-pv-uuid-PfUadN-2531-RpUr-rd9n-y0HZ-czI8-g1ctwG",
+          "/dev/disk/by-id/dm-name-mpathj"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "ScsiDevice": {
+        "serial": "360014056b5c1866d3b44394a07a01fa3",
+        "major": "8",
+        "minor": "48",
+        "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:1/block/sdd",
+        "size": 104857600,
+        "filesystem_type": "mpath_member",
+        "paths": [
+          "/dev/disk/by-id/scsi-360014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-id/wwn-0x60014056b5c1866d3b44394a07a01fa3",
+          "/dev/disk/by-uuid/8981758005725934928",
+          "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-1",
+          "/dev/sdd",
+          "/dev/disk/by-label/test"
+        ],
+        "mount_path": null
+      }
+    },
+    {
+      "Mpath": {
+        "devpath": "/devices/virtual/block/dm-4",
+        "serial": "36001405048e9801f68343399da29a672",
+        "size": 104857600,
+        "major": "253",
+        "minor": "4",
+        "parents": [["ScsiDevice", "36001405048e9801f68343399da29a672"]],
+        "filesystem_type": null,
+        "paths": [
+          "/dev/dm-4",
+          "/dev/disk/by-id/dm-name-mpathe",
+          "/dev/mapper/mpathe",
+          "/dev/disk/by-id/dm-uuid-mpath-36001405048e9801f68343399da29a672"
+        ],
+        "mount_path": null
+      }
+    }
+  ]
+}

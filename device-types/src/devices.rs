@@ -40,12 +40,36 @@ pub enum DeviceType {
     Dataset,
 }
 
+impl std::fmt::Display for DeviceType {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            DeviceType::Host => write!(f, "host"),
+            DeviceType::ScsiDevice => write!(f, "scsi device"),
+            DeviceType::Partition => write!(f, "partition"),
+            DeviceType::MdRaid => write!(f, "mdraid"),
+            DeviceType::Mpath => write!(f, "multipath"),
+            DeviceType::VolumeGroup => write!(f, "volume group"),
+            DeviceType::LogicalVolume => write!(f, "logical volume"),
+            DeviceType::Zpool => write!(f, "zpool"),
+            DeviceType::Dataset => write!(f, "dataset"),
+        }
+    }
+}
+
 pub trait Type {
     fn name(&self) -> DeviceType;
 }
 
 pub trait AsParent {
     fn as_parent(&self) -> Parent;
+}
+
+pub trait MountableStorageDevice: Type {
+    fn paths(&self) -> &Paths;
+    fn serial(&self) -> &Serial;
+    fn mount_path(&self) -> &MountPath;
+    fn size(&self) -> i64;
+    fn filesystem_type(&self) -> &Option<String>;
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
@@ -99,6 +123,24 @@ impl std::fmt::Display for ScsiDevice {
     }
 }
 
+impl MountableStorageDevice for ScsiDevice {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub struct Partition {
     pub serial: Serial,
@@ -128,6 +170,24 @@ impl AsParent for Partition {
 impl std::fmt::Display for Partition {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Partition: {}", self.serial)
+    }
+}
+
+impl MountableStorageDevice for Partition {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
     }
 }
 
@@ -162,6 +222,24 @@ impl std::fmt::Display for MdRaid {
     }
 }
 
+impl MountableStorageDevice for MdRaid {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub struct Mpath {
     pub devpath: PathBuf,
@@ -190,6 +268,24 @@ impl AsParent for Mpath {
 impl std::fmt::Display for Mpath {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         write!(f, "Mpath: {}", self.serial)
+    }
+}
+
+impl MountableStorageDevice for Mpath {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
     }
 }
 
@@ -251,15 +347,35 @@ impl std::fmt::Display for LogicalVolume {
     }
 }
 
+impl MountableStorageDevice for LogicalVolume {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
+    }
+}
+
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub struct Zpool {
-    pub guid: u64,
+    pub serial: Serial,
     pub name: String,
     pub health: String,
     pub state: String,
-    pub size: u64,
+    pub size: i64,
     pub vdev: libzfs_types::VDev,
     pub props: Vec<libzfs_types::ZProp>,
+    pub paths: Paths,
+    pub filesystem_type: Option<String>,
     pub mount_path: MountPath,
 }
 
@@ -271,24 +387,45 @@ impl Type for Zpool {
 
 impl std::fmt::Display for Zpool {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Zpool: {} {}", self.name, self.guid)
+        write!(f, "Zpool: {} {}", self.name, self.serial)
     }
 }
 
 impl AsParent for Zpool {
     fn as_parent(&self) -> Parent {
-        (self.name(), Serial(self.guid.to_string()))
+        (self.name(), self.serial.clone())
+    }
+}
+
+impl MountableStorageDevice for Zpool {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
     }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
 pub struct Dataset {
-    pub guid: String,
-    pub pool_guid: u64,
+    pub serial: Serial,
+    pub pool_serial: Serial,
+    pub size: i64,
     pub name: String,
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,
+    pub paths: Paths,
     pub mount_path: MountPath,
+    pub filesystem_type: Option<String>,
 }
 
 impl Type for Dataset {
@@ -299,13 +436,31 @@ impl Type for Dataset {
 
 impl std::fmt::Display for Dataset {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "Dataset: {} {}", self.name, self.guid)
+        write!(f, "Dataset: {} {}", self.name, self.serial)
     }
 }
 
 impl AsParent for Dataset {
     fn as_parent(&self) -> Parent {
-        (self.name(), Serial(self.guid.to_string()))
+        (self.name(), self.serial.clone())
+    }
+}
+
+impl MountableStorageDevice for Dataset {
+    fn paths(&self) -> &Paths {
+        &self.paths
+    }
+    fn serial(&self) -> &Serial {
+        &self.serial
+    }
+    fn mount_path(&self) -> &MountPath {
+        &self.mount_path
+    }
+    fn size(&self) -> i64 {
+        self.size
+    }
+    fn filesystem_type(&self) -> &Option<String> {
+        &self.filesystem_type
     }
 }
 
@@ -320,6 +475,22 @@ pub enum Device {
     LogicalVolume(LogicalVolume),
     Zpool(Zpool),
     Dataset(Dataset),
+}
+
+impl Device {
+    pub fn as_mountable_storage_device(&self) -> Option<&MountableStorageDevice> {
+        match self {
+            Device::Host(_) => None,
+            Device::Dataset(x) => Some(x as &MountableStorageDevice),
+            Device::Zpool(x) => Some(x as &MountableStorageDevice),
+            Device::LogicalVolume(x) => Some(x as &MountableStorageDevice),
+            Device::MdRaid(x) => Some(x as &MountableStorageDevice),
+            Device::Mpath(x) => Some(x as &MountableStorageDevice),
+            Device::Partition(x) => Some(x as &MountableStorageDevice),
+            Device::ScsiDevice(x) => Some(x as &MountableStorageDevice),
+            Device::VolumeGroup(_) => None,
+        }
+    }
 }
 
 impl std::fmt::Display for Device {
@@ -350,6 +521,22 @@ impl AsParent for Device {
             Device::Partition(x) => x.as_parent(),
             Device::ScsiDevice(x) => x.as_parent(),
             Device::VolumeGroup(x) => x.as_parent(),
+        }
+    }
+}
+
+impl Type for Device {
+    fn name(&self) -> DeviceType {
+        match self {
+            Device::Host(x) => x.name(),
+            Device::Dataset(x) => x.name(),
+            Device::Zpool(x) => x.name(),
+            Device::LogicalVolume(x) => x.name(),
+            Device::MdRaid(x) => x.name(),
+            Device::Mpath(x) => x.name(),
+            Device::Partition(x) => x.name(),
+            Device::ScsiDevice(x) => x.name(),
+            Device::VolumeGroup(x) => x.name(),
         }
     }
 }

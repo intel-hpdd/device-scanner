@@ -19,7 +19,7 @@ use futures::{
     sync::mpsc::{self, UnboundedReceiver, UnboundedSender},
 };
 
-use error;
+use crate::error;
 
 use tokio::prelude::*;
 

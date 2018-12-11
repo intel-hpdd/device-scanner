@@ -18,7 +18,7 @@ use std::{
 };
 
 use device_aggregator::{
-    aggregator_error,
+    aggregator_error::{Error, Result},
     cache::{Cache, CacheFlush},
     dag::{self, add_shared_edges, populate_parents},
     db,
@@ -29,7 +29,7 @@ use std::time::Instant;
 
 use daggy::petgraph::dot::Dot;
 
-fn main() -> aggregator_error::Result<()> {
+fn main() -> Result<()> {
     env_logger::init();
 
     let cache = Arc::new(Mutex::new(Cache::default()));
@@ -45,7 +45,7 @@ fn main() -> aggregator_error::Result<()> {
         .parse()
         .expect("could not parse DEVICE_AGGREGATOR_PORT to u16");
 
-    let connect = db::connector();
+    // let connect = db::connector();
 
     let (tx, rx) = mpsc::unbounded();
 
@@ -102,7 +102,7 @@ fn main() -> aggregator_error::Result<()> {
     rt.spawn(fut);
 
     rt.spawn(
-        rx.map_err(|_| -> aggregator_error::Error { unreachable!("unbounded rx never errors") })
+        rx.map_err(|_| -> Error { unreachable!("unbounded rx never errors") })
             .for_each(|x| {
                 let now = Instant::now();
 
@@ -123,14 +123,11 @@ fn main() -> aggregator_error::Result<()> {
 
                         (id, dag)
                     })
-                    .try_fold(
-                        dag::Dag::new(),
-                        |mut l, (id, r)| -> aggregator_error::Result<dag::Dag> {
-                            dag::add(&mut l, &r, id)?;
+                    .try_fold(dag::Dag::new(), |mut l, (id, r)| -> Result<dag::Dag> {
+                        dag::add(&mut l, &r, id)?;
 
-                            Ok(l)
-                        },
-                    )
+                        Ok(l)
+                    })
                     .unwrap();
 
                 add_shared_edges(&mut dag).unwrap();
@@ -149,7 +146,7 @@ fn main() -> aggregator_error::Result<()> {
                 let xs: Vec<_> = dag::into_device_set(&dag)?
                     .into_iter()
                     .map(db::create_records_from_device_and_hosts)
-                    .collect();
+                    .collect::<Result<Vec<_>>>()?;
 
                 log::debug!("The records I want to insert: {:?}", xs);
 

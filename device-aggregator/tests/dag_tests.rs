@@ -94,7 +94,7 @@ fn test_get_distinct_hosts() -> aggregator_error::Result<()> {
 fn test_get_distinct_hosts_one_host() -> aggregator_error::Result<()> {
     let mut dag = DevGraph::new();
 
-    let (device1, host1) = dag.create_host("host1");
+    let (_, host1) = dag.create_host("host1");
     let (device2, host2) = dag.create_host("host2");
 
     let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;

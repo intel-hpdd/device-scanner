@@ -4,6 +4,7 @@ version = "2.0.0"
 description = "device-scanner-daemon builds an in-memory representation of devices using udev, zed and findmnt"
 authors = ["IML Team <iml@whamcloud.com>"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 tokio = "0.1"

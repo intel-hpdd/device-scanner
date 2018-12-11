@@ -17,7 +17,6 @@ use serde_json;
 use std::{io, iter::IntoIterator, path::PathBuf};
 use tokio::prelude::*;
 
-use connections;
 use device_types::{
     devices::{self, Device, Parents, Serial},
     mount::{BdevPath, FsType, Mount, MountPoint},
@@ -26,9 +25,11 @@ use device_types::{
     Command,
 };
 
-use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
-
-use error::{self, Result};
+use crate::{
+    connections,
+    error::{self, Result},
+    reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
+};
 
 pub fn format_major_minor(major: &str, minor: &str) -> String {
     format!("{}:{}", major, minor)

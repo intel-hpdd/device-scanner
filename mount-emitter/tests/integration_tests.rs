@@ -2,11 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate futures;
-extern crate mount_emitter;
-extern crate tokio;
-extern crate tokio_mockstream;
-
 use futures::done;
 use mount_emitter::looper;
 use std::io::BufReader;

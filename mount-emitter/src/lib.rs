@@ -8,15 +8,6 @@
 //! into a `MountCommand` variant and send the serialized result to `device-scanner`.
 //!
 
-#![allow(unknown_lints)]
-#![warn(clippy)]
-
-extern crate device_types;
-extern crate futures;
-extern crate serde_json;
-extern crate tokio;
-extern crate tokio_file_unix;
-
 #[cfg(test)]
 #[macro_use]
 extern crate snaptest;

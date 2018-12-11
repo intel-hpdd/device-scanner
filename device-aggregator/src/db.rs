@@ -102,48 +102,38 @@ impl DeviceHost {
 pub fn create_records_from_device_and_hosts<'a>(
     (d, hs): (&'a devices::Device, im::HashSet<dag::Host<'a>>),
 ) -> aggregator_error::Result<(im::HashSet<DeviceHost>, Device)> {
-    log::debug!("create_records_from_device_and_hosts");
-
     let d = d.as_mountable_storage_device().ok_or_else(|| {
         aggregator_error::Error::graph_error(format!(
             "Could not convert {:?} to mountable storage device",
             d
         ))
-    });
+    })?;
 
-    let d = d.map(|d| {
-        let dev = Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
+    let dev = Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
 
-        let dev_hosts = hs
-            .into_iter()
-            .map(|host| match host {
-                dag::Host::Active(host) => DeviceHost::new(
-                    &d.paths(),
-                    &host,
-                    &d.name(),
-                    &d.serial(),
-                    &d.mount_path(),
-                    true,
-                ),
-                dag::Host::Inactive(host) => DeviceHost::new(
-                    &d.paths(),
-                    &host,
-                    &d.name(),
-                    &d.serial(),
-                    &d.mount_path(),
-                    false,
-                ),
-            })
-            .collect();
+    let dev_hosts = hs
+        .into_iter()
+        .map(|host| match host {
+            dag::Host::Active(host) => DeviceHost::new(
+                &d.paths(),
+                &host,
+                &d.name(),
+                &d.serial(),
+                &d.mount_path(),
+                true,
+            ),
+            dag::Host::Inactive(host) => DeviceHost::new(
+                &d.paths(),
+                &host,
+                &d.name(),
+                &d.serial(),
+                &d.mount_path(),
+                false,
+            ),
+        })
+        .collect();
 
-        log::debug!("returning: ({:?}, {:?})", dev_hosts, dev);
-
-        (dev_hosts, dev)
-    });
-
-    log::debug!("Exiting: create_records_from_device_and_hosts");
-
-    d
+    Ok((dev_hosts, dev))
 }
 
 fn get_connect_string() -> String {

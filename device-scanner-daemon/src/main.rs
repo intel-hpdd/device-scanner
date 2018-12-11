@@ -2,20 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#![allow(unknown_lints)]
-#![warn(clippy)]
-
-extern crate bytes;
-extern crate im;
-
-extern crate device_types;
-extern crate env_logger;
-extern crate futures;
-extern crate log;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
-
 use std::{
     io::BufReader,
     net::Shutdown,

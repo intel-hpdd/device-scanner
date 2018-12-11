@@ -6,15 +6,6 @@
 
 #[macro_use]
 extern crate diesel;
-extern crate daggy;
-extern crate derive_more;
-extern crate device_types;
-extern crate futures;
-extern crate im;
-extern crate libzfs_types;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
 
 pub mod aggregator_error;
 pub mod cache;

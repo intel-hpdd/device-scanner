@@ -1,71 +1,164 @@
-extern crate daggy;
-extern crate device_aggregator;
-extern crate device_types;
-extern crate im;
+// Copyright (c) 2018 DDN. All rights reserved.
+// Use of this source code is governed by a MIT-style
+// license that can be found in the LICENSE file.
 
-use daggy::{Dag, Walker};
-
+use device_aggregator::{aggregator_error, dag};
 use device_types::devices;
 
-use device_aggregator::dag;
-use std::path::PathBuf;
+struct DevGraph(pub dag::Dag);
+
+impl DevGraph {
+    fn new() -> Self {
+        DevGraph(daggy::Dag::new())
+    }
+    fn create_host(self: &mut Self, s: &str) -> (devices::Host, daggy::NodeIndex) {
+        let device = devices::Host(s.to_string());
+        let nx = self.0.add_node(devices::Device::Host(device.clone()));
+
+        (device, nx)
+    }
+    fn add_shared(
+        &mut self,
+        a: daggy::NodeIndex,
+        b: daggy::NodeIndex,
+    ) -> aggregator_error::Result<daggy::EdgeIndex> {
+        self.0
+            .add_edge(a, b, dag::Edge::Shared)
+            .map_err(aggregator_error::Error::WouldCycle)
+    }
+}
+
+trait AddChild<T> {
+    fn add_child(
+        &mut self,
+        x: T,
+        device: devices::Device,
+    ) -> aggregator_error::Result<daggy::NodeIndex>;
+}
+
+impl AddChild<daggy::NodeIndex> for DevGraph {
+    fn add_child(
+        &mut self,
+        x: daggy::NodeIndex,
+        device: devices::Device,
+    ) -> aggregator_error::Result<daggy::NodeIndex> {
+        let (_, nx) = self.0.add_child(x, dag::Edge::Parent, device);
+
+        Ok(nx)
+    }
+}
+
+impl AddChild<Vec<daggy::NodeIndex>> for DevGraph {
+    fn add_child(
+        &mut self,
+        xs: Vec<daggy::NodeIndex>,
+        device: devices::Device,
+    ) -> aggregator_error::Result<daggy::NodeIndex> {
+        let n = self.0.add_node(device);
+
+        for x in xs {
+            self.0.add_edge(x, n, dag::Edge::Parent)?;
+        }
+
+        Ok(n)
+    }
+}
+
+impl From<DevGraph> for dag::Dag {
+    fn from (d:DevGraph) -> Self {
+        d.0
+    }
+}
 
 #[test]
-fn test_get_distinct_hosts() {
-    let mut dag = daggy::Dag::new();
+fn test_get_distinct_hosts() -> aggregator_error::Result<()> {
+    let mut dag = DevGraph::new();
 
-    let device1 = devices::Host("host1".to_string());
-    let host1 = dag.add_node(devices::Device::Host(device1.clone()));
-    let device2 = devices::Host("host1".to_string());
-    let host2 = dag.add_node(devices::Device::Host(device2.clone()));
+    let (device1, host1) = dag.create_host("host1");
+    let (device2, host2) = dag.create_host("host2");
 
-    let (_, scsi1) = dag.add_child(
-        host1,
-        dag::Edge::Parent,
-        devices::Device::ScsiDevice(devices::ScsiDevice {
-            serial: devices::Serial("3600140547abdb28e0d74699961a09c99".to_string()),
-            major: "8".to_string(),
-            minor: "32".to_string(),
-            devpath: "/devices/platform/host3/session2/target3:0:0/3:0:0:0/block/sdc".into(),
-            size: 104857600,
-            filesystem_type: Some("mpath_member".to_string()),
-            paths: im::hashset![
-            "/dev/disk/by-label/test".into(),
-            "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99".into(),
-            "/dev/disk/by-uuid/8981758005725934928".into(),
-            "/dev/sdc".into(),
-            "/dev/disk/by-path/ip-10.0.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0".into(),
-            "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99".into()
-            ],
-            mount_path: None,
-        }),
-    );
+    let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;
 
-    let (_, scsi2) = dag.add_child(
-        host2, 
-        dag::Edge::Parent, 
-        devices::Device::ScsiDevice(devices::ScsiDevice { 
-            serial: devices::Serial("3600140547abdb28e0d74699961a09c99".to_string()), 
-            major: "8".to_string(), 
-            minor: "16".to_string(),
-            devpath: "/devices/platform/host2/session1/target2:0:0/2:0:0:0/block/sdb".into(), 
-            size: 104857600, 
-            filesystem_type: Some("mpath_member".to_string()), 
-            paths: im::hashset![
-                "/dev/disk/by-id/scsi-3600140547abdb28e0d74699961a09c99".into(), 
-                "/dev/disk/by-uuid/8981758005725934928".into(), 
-                "/dev/disk/by-label/test".into(), 
-                "/dev/disk/by-id/wwn-0x600140547abdb28e0d74699961a09c99".into(), 
-                "/dev/sdb".into(), 
-                "/dev/disk/by-path/ip-10.0.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:disks-lun-0".into()
-            ], 
-            mount_path: None
-        })
-    );
+    let scsi2 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
 
-    dag.add_edge(scsi1, scsi2, dag::Edge::Shared).unwrap();
+    dag.add_shared(scsi1, scsi2)?;
 
-    let actual = dag::get_distinct_hosts(&dag, scsi1);
+    let actual = dag::get_distinct_hosts(&dag.0, scsi1)?;
 
-    assert_eq!(im::hashset![device1, device2], actual);
+    assert_eq!(im::hashset![&device1, &device2], actual);
+
+    Ok(())
+}
+
+#[test]
+fn test_get_distinct_hosts_one_host() -> aggregator_error::Result<()> {
+    let mut dag = DevGraph::new();
+
+    let (device1, host1) = dag.create_host("host1");
+    let (device2, host2) = dag.create_host("host2");
+
+    let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;
+    let scsi2 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
+    dag.add_shared(scsi1, scsi2)?;
+
+    let scsi3 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
+
+    let mpath1 = dag.add_child(scsi1, devices::Device::Mpath(Default::default()))?;
+    let mpath2 = dag.add_child(scsi2, devices::Device::Mpath(Default::default()))?;
+    dag.add_shared(mpath1, mpath2)?;
+
+    let partition = dag.add_child(scsi3, devices::Device::Partition(Default::default()))?;
+
+    let vg = dag.add_child(
+        vec![mpath2, partition],
+        devices::Device::VolumeGroup(Default::default()),
+    )?;
+
+    let lv = dag.add_child(vg, devices::Device::LogicalVolume(Default::default()))?;
+
+    let actual = dag::get_distinct_hosts(&dag.0, lv)?;
+
+    assert_eq!(im::hashset![&device2], actual);
+
+    Ok(())
+}
+
+#[test]
+fn test_into_device_set() -> aggregator_error::Result<()> {
+    let mut dag = DevGraph::new();
+
+    let (device1, host1) = dag.create_host("host1");
+    let (device2, host2) = dag.create_host("host2");
+
+    let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;
+    let scsi2 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
+    dag.add_shared(scsi1, scsi2)?;
+
+    let scsi3 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
+
+    let mpath1 = dag.add_child(scsi1, devices::Device::Mpath(Default::default()))?;
+    let mpath2 = dag.add_child(scsi2, devices::Device::Mpath(Default::default()))?;
+    dag.add_shared(mpath1, mpath2)?;
+
+    let partition = dag.add_child(scsi3, devices::Device::Partition(Default::default()))?;
+
+    let vg = dag.add_child(
+        vec![mpath2, partition],
+        devices::Device::VolumeGroup(Default::default()),
+    )?;
+
+    let lv = dag.add_child(vg, devices::Device::LogicalVolume(Default::default()))?;
+
+    let inner = &dag.into();
+
+    let result = dag::into_device_set(&inner)?;
+
+    assert_eq!(im::hashset![], result);
+
+    // {(Mpath(Mpath { devpath: "", serial: Serial(""), size: 0, major: "", minor: "", parents: {}, filesystem_type: None, paths: {}, mount_path: None }), 
+    // {Inactive(Host("host2")), Active(Host("host1"))}), 
+    // (LogicalVolume(LogicalVolume { serial: Serial(""), name: "", parent: (VolumeGroup, Serial("")), major: "", minor: "", size: 0, devpath: "", paths: {}, filesystem_type: None, mount_path: None }), 
+    // {Active(Host("host2"))})}
+
+    Ok(())
 }

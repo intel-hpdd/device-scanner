@@ -23,12 +23,18 @@
 //! 2. The need for devices to not be forgotten if they are in use as Lustre targets. Instead this should be an alert.
 //!
 
-use aggregator_error;
-use device_types::devices;
-use diesel::{pg::PgConnection, prelude::*};
-use env::get_var;
-use schema::{device, device_host};
 use std::path::PathBuf;
+
+use diesel::{pg::PgConnection, prelude::*};
+
+use device_types::devices;
+
+use crate::{
+    aggregator_error, dag,
+    env::get_var,
+    schema::{device, device_host},
+};
+
 
 #[table_name = "device"]
 #[derive(Insertable, Queryable, Debug, PartialEq, Eq, Hash, Clone)]
@@ -69,7 +75,7 @@ pub struct DeviceHost {
 impl DeviceHost {
     pub fn new(
         paths: &devices::Paths,
-        devices::Host(host_fqdn): devices::Host,
+        devices::Host(host_fqdn): &devices::Host,
         device_type: &devices::DeviceType,
         device_serial: &devices::Serial,
         mount_path: &devices::MountPath,
@@ -86,7 +92,7 @@ impl DeviceHost {
         DeviceHost {
             device_type: device_type.to_string(),
             device_serial: device_serial.to_string(),
-            host_fqdn,
+            host_fqdn: host_fqdn.to_string(),
             paths,
             mount_path,
             is_active,
@@ -95,40 +101,41 @@ impl DeviceHost {
 }
 
 pub fn create_records_from_device_and_hosts<'a>(
-    (hs, d, h): (
-        im::HashSet<devices::Host>,
-        &'a devices::Device,
-        devices::Host,
-    ),
-) -> Option<(im::HashSet<DeviceHost>, Device)> {
+    (d, hs): (&'a devices::Device, im::HashSet<dag::Host<'a>>),
+) -> aggregator_error::Result<(im::HashSet<DeviceHost>, Device)> {
     log::debug!("create_records_from_device_and_hosts");
 
-    let d = d.as_mountable_storage_device();
+    let d = d.as_mountable_storage_device().ok_or_else(|| {
+        aggregator_error::Error::graph_error(format!(
+            "Could not convert {:?} to mountable storage device",
+            d
+        ))
+    });
 
     let d = d.map(|d| {
         let dev = Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
 
-        let hs = hs.without(&h);
-
         let dev_hosts = hs
             .into_iter()
-            .map(|host_fqdn| {
-                DeviceHost::new(
+            .map(|host| match host {
+                dag::Host::Active(host) => DeviceHost::new(
                     &d.paths(),
-                    host_fqdn,
+                    &host,
+                    &d.name(),
+                    &d.serial(),
+                    &d.mount_path(),
+                    true,
+                ),
+                dag::Host::Inactive(host) => DeviceHost::new(
+                    &d.paths(),
+                    &host,
                     &d.name(),
                     &d.serial(),
                     &d.mount_path(),
                     false,
-                )
-            }).chain(std::iter::once(DeviceHost::new(
-                &d.paths(),
-                h,
-                &d.name(),
-                &d.serial(),
-                &d.mount_path(),
-                true,
-            ))).collect();
+                ),
+            })
+            .collect();
 
         log::debug!("returning: ({:?}, {:?})", dev_hosts, dev);
 

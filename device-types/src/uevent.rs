@@ -1,7 +1,7 @@
 use im::{HashSet, Vector};
 use std::path::PathBuf;
 
-use devices;
+use crate::devices;
 
 #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]

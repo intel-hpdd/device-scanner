@@ -9,10 +9,6 @@ extern crate serde_derive;
 #[macro_use]
 extern crate pretty_assertions;
 
-extern crate im;
-
-extern crate libzfs_types;
-
 pub mod devices;
 pub mod uevent;
 
@@ -26,9 +22,9 @@ pub mod message {
 
 pub mod state {
     use im::{HashMap, HashSet};
-    use mount;
+    use crate::mount;
     use std::path::PathBuf;
-    use uevent;
+    use crate::uevent;
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
@@ -96,7 +92,7 @@ pub mod mount {
 }
 
 pub mod udev {
-    use uevent;
+    use crate::uevent;
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
     pub enum UdevCommand {

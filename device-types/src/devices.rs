@@ -6,7 +6,7 @@ pub type Paths = HashSet<PathBuf>;
 
 pub type MountPath = Option<PathBuf>;
 
-#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Hash, Serialize, Deserialize, Clone, Default)]
 pub struct Serial(pub String);
 
 impl std::fmt::Display for Serial {
@@ -72,7 +72,7 @@ pub trait MountableStorageDevice: Type {
     fn filesystem_type(&self) -> &Option<String>;
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct Host(pub String);
 
 impl Type for Host {
@@ -93,7 +93,7 @@ impl std::fmt::Display for Host {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct ScsiDevice {
     pub serial: Serial,
     pub major: String,
@@ -141,7 +141,7 @@ impl MountableStorageDevice for ScsiDevice {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct Partition {
     pub serial: Serial,
     pub partition_number: i64,
@@ -191,7 +191,7 @@ impl MountableStorageDevice for Partition {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct MdRaid {
     pub serial: Serial,
     pub size: i64,
@@ -240,7 +240,7 @@ impl MountableStorageDevice for MdRaid {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct Mpath {
     pub devpath: PathBuf,
     pub serial: Serial,
@@ -297,6 +297,17 @@ pub struct VolumeGroup {
     pub parents: Parents,
 }
 
+impl Default for VolumeGroup {
+    fn default() -> Self {
+        VolumeGroup {
+            serial: Default::default(),
+            name: Default::default(),
+            size: Default::default(),
+            parents: im::hashset![],
+        }
+    }
+}
+
 impl Type for VolumeGroup {
     fn name(&self) -> DeviceType {
         DeviceType::VolumeGroup
@@ -327,6 +338,23 @@ pub struct LogicalVolume {
     pub paths: Paths,
     pub filesystem_type: Option<String>,
     pub mount_path: MountPath,
+}
+
+impl Default for LogicalVolume {
+    fn default() -> Self {
+        LogicalVolume {
+            serial: Default::default(),
+            name: Default::default(),
+            parent: (DeviceType::VolumeGroup, Serial(Default::default())),
+            major: Default::default(),
+            minor: Default::default(),
+            size: Default::default(),
+            devpath: Default::default(),
+            paths: Default::default(),
+            filesystem_type: Default::default(),
+            mount_path: Default::default(),
+        }
+    }
 }
 
 impl Type for LogicalVolume {
@@ -415,7 +443,7 @@ impl MountableStorageDevice for Zpool {
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+#[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
 pub struct Dataset {
     pub serial: Serial,
     pub pool_serial: Serial,
@@ -538,5 +566,14 @@ impl Type for Device {
             Device::ScsiDevice(x) => x.name(),
             Device::VolumeGroup(x) => x.name(),
         }
+    }
+}
+
+impl Device {
+    pub fn is_scsi(&self) -> bool {
+        self.name() == DeviceType::ScsiDevice
+    }
+    pub fn is_host(&self) -> bool {
+        self.name() == DeviceType::Host
     }
 }

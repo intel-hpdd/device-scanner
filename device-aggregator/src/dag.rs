@@ -2,18 +2,28 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use aggregator_error;
-use device_types::devices::{self, AsParent, Device, Parent, Type};
-use std::collections::VecDeque;
-use std::path::PathBuf;
+use std::{iter::once, path::PathBuf};
 
 use im::{hashset, HashSet};
 
 use daggy::petgraph::{
     self, graph,
-    visit::{Dfs, EdgeRef, IntoNodeReferences, Walker},
+    visit::{Dfs, EdgeRef, IntoNodeReferences},
 };
 
+use device_types::devices::{self, AsParent, Device, Parent};
+
+use crate::aggregator_error::{Error, Result};
+
+#[derive(Debug, Clone, Hash, Eq, PartialEq)]
+pub enum Host<'a> {
+    Active(&'a devices::Host),
+    Inactive(&'a devices::Host),
+}
+
+/// Devices can be connected to
+/// each other by a parent -> child relationship
+/// or a shared device <-> device relationship.
 #[derive(Copy, Clone, Debug, Hash, Eq, PartialEq, derive_more::Display)]
 pub enum Edge {
     Parent,
@@ -137,7 +147,7 @@ fn is_dataset(d: &Device, serial: &devices::Serial) -> bool {
 }
 
 /// Add the subtree rooted at root of the rhs to the lhs.
-pub fn add(l: &mut Dag, r: &Dag, root: daggy::NodeIndex) -> aggregator_error::Result<()> {
+pub fn add(l: &mut Dag, r: &Dag, root: daggy::NodeIndex) -> Result<()> {
     let mut mapping = im::HashMap::new();
 
     let graph = r.graph();
@@ -169,27 +179,16 @@ fn get_parents<'a>(
         .map(|e| e.source())
 }
 
-/// Given a dag and a starting node, walk up the parents
-/// until the host is hit.
-pub fn get_active_host(dag: &Dag, nx: daggy::NodeIndex) -> Option<devices::Host> {
-    let graph = dag.graph();
-
-    let mut nx = Some(nx);
-
-    loop {
-        match nx {
-            Some(n) => {
-                if let Some(Device::Host(host)) = graph.node_weight(n) {
-                    break Some(host.clone());
-                }
-
-                nx = get_parents(dag, n).nth(0);
-            }
-            None => {
-                break None;
-            }
-        }
-    }
+/// Given a dag and a starting node, return an iterator of the node's
+/// children.
+fn get_children<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
+    dag.graph()
+        .edges_directed(nx, petgraph::Outgoing)
+        .filter(|e| e.weight().is_parent())
+        .map(|e| e.target())
 }
 
 /// Given a dag and a search node, find it's shared siblings.
@@ -210,71 +209,136 @@ fn get_shared<'a>(
         })
 }
 
-pub fn get_distinct_hosts2(dag: &Dag, nx: daggy::NodeIndex) -> im::HashSet<devices::Host> {
-    // The current level of the graph we're
-    // walking up
-    let level = hashset![];
+fn get_shared_and_self<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+    self::get_shared(dag, nx).chain(once(nx))
+}
 
-    hashset![]
+fn get_all_node_children<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+    self::get_shared_and_self(dag, nx).flat_map(move |x| self::get_children(dag, x))
+}
+
+fn get_all_node_parents<'a>(
+    dag: &'a Dag,
+    nx: daggy::NodeIndex,
+) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+    self::get_shared_and_self(dag, nx).flat_map(move |x| self::get_parents(dag, x))
+}
+
+/// Given a dag and a starting node, walk up the parents
+/// until the hosts are hit.
+pub fn get_active_hosts(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet<&devices::Host>> {
+    let mut nodes = vec![nx];
+
+    let mut hosts = im::hashset![];
+
+    while let Some(nx) = nodes.pop() {
+        match self::get_device(dag, nx)? {
+            Device::Host(host) => {
+                hosts.insert(host);
+            }
+            _ => nodes.extend(self::get_parents(dag, nx)),
+        }
+    }
+
+    Ok(hosts)
+}
+
+fn get_hosts_from_scsi(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet<&devices::Host>> {
+    self::get_parents(dag, nx)
+        .map(|nx| match dag.node_weight(nx) {
+            Some(devices::Device::Host(h)) => Ok(h),
+            _ => Err(Error::graph_error("Could not find host parent from device")),
+        })
+        .collect()
+}
+
+fn get_device(dag: &Dag, nx: daggy::NodeIndex) -> Result<&devices::Device> {
+    match dag.node_weight(nx) {
+        Some(x) => Ok(x),
+        None => Err(Error::graph_error("Did find node_weight"))?,
+    }
 }
 
 /// Given a dag and a starting leaf device, walk up towards the root
 /// collecting the set of hosts that can use this device.
-pub fn get_distinct_hosts(dag: &Dag, nx: daggy::NodeIndex) -> im::HashSet<devices::Host> {
-    let mut visited = im::hashset![];
+/// The resulting set is an intersection of all hosts that can use the device.
+pub fn get_distinct_hosts(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet<&devices::Host>> {
+    let mut not_scsis = vec![];
+    let mut scsis = im::hashset![];
 
-    let mut all_hosts: im::HashSet<im::HashSet<devices::Host>> = im::hashset![];
-
-    let mut queue = VecDeque::new();
-
-    queue.push_back(nx);
-
-    while let Some(n) = queue.pop_front() {
-        if visited.contains(&n) {
-            continue;
+    fn bin_device(
+        nx: daggy::NodeIndex,
+        not_scsis: &mut Vec<daggy::NodeIndex>,
+        scsis: &mut im::HashSet<daggy::NodeIndex>,
+        dag: &Dag,
+    ) -> Result<()> {
+        if self::is_scsi(self::get_device(dag, nx)?) {
+            scsis.insert(nx);
+        } else {
+            not_scsis.push(nx)
         }
 
-        let shared_hosts: im::HashSet<devices::Host> = get_shared(dag, n)
-            .filter_map(|x| get_active_host(dag, x))
-            .collect();
-
-        let parents = get_parents(dag, n).filter(|&x| {
-            dag.node_weight(x)
-                .map(|x| x.name() == devices::DeviceType::Host)
-                .is_none()
-        });
-
-        all_hosts.insert(shared_hosts);
-
-        queue.extend(parents);
-
-        visited.insert(n);
+        Ok(())
     }
 
-    all_hosts
+    bin_device(nx, &mut not_scsis, &mut scsis, &dag)?;
+
+    while let Some(nx) = not_scsis.pop() {
+        get_parents(dag, nx).try_for_each(|nx| bin_device(nx, &mut not_scsis, &mut scsis, &dag))?;
+    }
+
+    scsis
         .into_iter()
+        .map(|n| -> Result<im::HashSet<&devices::Host>> {
+            let results: im::HashSet<im::HashSet<&devices::Host>> =
+                self::get_shared_and_self(dag, n)
+                    .map(|n| self::get_hosts_from_scsi(dag, n))
+                    .collect::<Result<im::HashSet<im::HashSet<&devices::Host>>>>()?;
+
+            Ok(results.into_iter().flat_map(|x| x).collect())
+        })
         .enumerate()
-        .fold(im::hashset![], |h, (idx, next)| {
-            if idx == 0 {
-                return next;
+        .fold(Ok(im::hashset![]), |xs1, (i, xs2)| {
+            if i == 0 {
+                return xs2;
             }
 
-            h.intersection(next)
+            Ok(xs1?.intersection(xs2?))
         })
 }
 
 pub fn into_device_set(
     dag: &Dag,
-) -> im::HashSet<(im::HashSet<devices::Host>, &devices::Device, devices::Host)> {
+) -> Result<im::HashSet<(&devices::Device, im::HashSet<self::Host<'_>>)>> {
     dag.node_references()
-        .filter(|(nx, _)| dag.children(*nx).iter(dag).count() == 0)
-        .filter_map(|(nx, d)| get_active_host(dag, nx).map(|h| (nx, d, h)))
-        .map(|(nx, d, h)| (get_distinct_hosts(dag, nx), d, h))
+        .filter(|(nx, _)| self::get_all_node_children(dag, *nx).next().is_none())
+        .filter(|(nx, _)| self::get_all_node_parents(dag, *nx).next().is_some())
+        .map(|(nx, d)| {
+            let active_hosts = self::get_active_hosts(dag, nx)?;
+
+            let mut inactive_hosts = self::get_distinct_hosts(dag, nx)?;
+
+            inactive_hosts.retain(|x| !active_hosts.contains(x));
+
+            let all_hosts = active_hosts
+                .into_iter()
+                .map(Host::Active)
+                .chain(inactive_hosts.into_iter().map(Host::Inactive))
+                .collect();
+
+            Ok((d, all_hosts))
+        })
         .collect()
 }
 
 /// Find and add any shared edges between devices
-pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
+pub fn add_shared_edges(dag: &mut Dag) -> Result<()> {
     let edges: Vec<_> = {
         let shared = dag.node_references().fold(
             vec![],
@@ -306,7 +370,8 @@ pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
 
                         hs
                     })
-            }).flatten()
+            })
+            .flatten()
             .collect()
     };
 
@@ -320,11 +385,7 @@ pub fn add_shared_edges(dag: &mut Dag) -> aggregator_error::Result<()> {
 }
 
 /// Find and recursively add parent edges to nodes in the graph
-pub fn populate_parents(
-    dag: &mut Dag,
-    ro_dag: &Dag,
-    node_idx: daggy::NodeIndex,
-) -> Result<(), daggy::WouldCycle<Edge>> {
+pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex) -> Result<()> {
     let devs = match ro_dag.node_weight(node_idx).unwrap() {
         Device::Host(_) => filter_refs(ro_dag, |d| is_scsi(d)),
         Device::Mpath(m) => {
@@ -391,4 +452,48 @@ pub fn populate_parents(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use device_types::devices::{Device, DeviceType, Partition, Serial};
+
+    #[test]
+    fn is_scsi() {
+        let scsi = Device::ScsiDevice(Default::default());
+
+        let result = super::is_scsi(&scsi);
+
+        assert_eq!(result, true);
+    }
+
+    #[test]
+    fn is_not_scsi() {
+        let scsi = Device::VolumeGroup(Default::default());
+
+        let result = super::is_scsi(&scsi);
+
+        assert_eq!(result, false);
+    }
+    #[test]
+    fn is_partition() {
+        let mut partition: Partition = Default::default();
+
+        let parent = (DeviceType::ScsiDevice, Serial("3".to_string()));
+
+        partition.parents.insert(parent.clone());
+
+        let result = super::is_partition(&Device::Partition(partition), &parent);
+
+        assert_eq!(result, true);
+    }
+
+    #[test]
+    fn is_not_partition() {
+        let parent = (DeviceType::ScsiDevice, Serial("3".to_string()));
+
+        let result = super::is_partition(&Device::ScsiDevice(Default::default()), &parent);
+
+        assert_eq!(result, false);
+    }
 }

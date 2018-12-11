@@ -2,19 +2,6 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate daggy;
-extern crate device_types;
-
-extern crate diesel;
-extern crate env_logger;
-extern crate futures;
-extern crate im;
-extern crate log;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
-extern crate warp;
-
 use device_types::{
     devices::{self, Device},
     message::Message,
@@ -94,7 +81,8 @@ fn main() -> aggregator_error::Result<()> {
                     }
                 }
             },
-        ).map(|_| warp::reply::with_status("", warp::http::StatusCode::CREATED));
+        )
+        .map(|_| warp::reply::with_status("", warp::http::StatusCode::CREATED));
 
     let get = warp::get2()
         .and(cache_fut.clone())
@@ -102,7 +90,8 @@ fn main() -> aggregator_error::Result<()> {
             let cache = cache.clone();
             let cache = cache.lock().unwrap();
             cache.entries()
-        }).map(|x| warp::reply::json(&x));
+        })
+        .map(|x| warp::reply::json(&x));
 
     let routes = post.or(get).with(log);
 
@@ -115,7 +104,7 @@ fn main() -> aggregator_error::Result<()> {
     rt.spawn(fut);
 
     rt.spawn(
-        rx.map_err(|()| -> warp::Error { unreachable!("unbounded rx never errors") })
+        rx.map_err(|_| -> aggregator_error::Error { unreachable!("unbounded rx never errors") })
             .for_each(|x| {
                 let now = Instant::now();
 
@@ -135,14 +124,16 @@ fn main() -> aggregator_error::Result<()> {
                         populate_parents(&mut dag, &ro_dag, id).unwrap();
 
                         (id, dag)
-                    }).try_fold(
+                    })
+                    .try_fold(
                         dag::Dag::new(),
                         |mut l, (id, r)| -> aggregator_error::Result<dag::Dag> {
                             dag::add(&mut l, &r, id)?;
 
                             Ok(l)
                         },
-                    ).unwrap();
+                    )
+                    .unwrap();
 
                 add_shared_edges(&mut dag).unwrap();
 
@@ -157,9 +148,9 @@ fn main() -> aggregator_error::Result<()> {
                 let mut file = File::create("/tmp/gvis").unwrap();
                 file.write_all(format!("{}", gviz).as_ref()).unwrap();
 
-                let xs: Vec<_> = dag::into_device_set(&dag)
+                let xs: Vec<_> = dag::into_device_set(&dag)?
                     .into_iter()
-                    .filter_map(db::create_records_from_device_and_hosts)
+                    .map(db::create_records_from_device_and_hosts)
                     .collect();
 
                 log::debug!("The records I want to insert: {:?}", xs);
@@ -179,18 +170,20 @@ fn main() -> aggregator_error::Result<()> {
                     file,
                     "finished in {}",
                     (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
-                ).unwrap();
+                )
+                .unwrap();
 
                 // let conn = connect()?;
 
                 // conn.transaction::<_, diesel::result::Error, _>(|| Ok(()));
 
-                /* 
+                /*
                     Each host contains a subtree of devices. We can use serials to map child devices to any parents across the cluster.
                 */
 
                 Ok(())
-            }).map_err(|e| log::error!("Unhandled Error: {:?}", e)),
+            })
+            .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
     );
 
     rt.shutdown_on_idle().wait().unwrap();

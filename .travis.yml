@@ -12,7 +12,7 @@ jobs:
         - docker exec -i libzfs bash -c 'cd /device-scanner && cargo test'
     - stage: test
       name: "Format Check"
-      rust: 1.30.1
+      rust: 1.31.0
       before_script:
         - rustup component add rustfmt-preview
       script:

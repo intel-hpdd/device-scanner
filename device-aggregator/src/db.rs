@@ -35,7 +35,6 @@ use crate::{
     schema::{device, device_host},
 };
 
-
 #[table_name = "device"]
 #[derive(Insertable, Queryable, Debug, PartialEq, Eq, Hash, Clone)]
 pub struct Device {

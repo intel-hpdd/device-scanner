@@ -42,7 +42,8 @@ fn get_paths() -> HashSet<PathBuf> {
             let mut p = PathBuf::new();
             p.push(x.to_string());
             p
-        }).collect();
+        })
+        .collect();
 
     xs.insert({
         let mut p = PathBuf::new();

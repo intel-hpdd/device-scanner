@@ -21,10 +21,10 @@ pub mod message {
 }
 
 pub mod state {
-    use im::{HashMap, HashSet};
     use crate::mount;
-    use std::path::PathBuf;
     use crate::uevent;
+    use im::{HashMap, HashSet};
+    use std::path::PathBuf;
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 

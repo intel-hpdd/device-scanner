@@ -77,25 +77,25 @@ mod tests {
         let mut ev2 = ev.clone();
         ev2.size = Some(100_651_001);
 
-        let uevents = hashmap!{ev.devpath.clone() => ev.clone()};
+        let uevents = hashmap! {ev.devpath.clone() => ev.clone()};
 
         let add_cmd = UdevCommand::Add(ev.clone());
 
         let uevents = update_udev(&uevents, add_cmd);
 
-        assert_eq!(hashmap!{ev.devpath.clone() => ev.clone()}, uevents);
+        assert_eq!(hashmap! {ev.devpath.clone() => ev.clone()}, uevents);
 
         let change_cmd = UdevCommand::Change(ev2.clone());
 
         let uevents = update_udev(&uevents, change_cmd);
 
-        assert_eq!(hashmap!{ev.devpath.clone() => ev2.clone()}, uevents);
+        assert_eq!(hashmap! {ev.devpath.clone() => ev2.clone()}, uevents);
 
         let remove_cmd = UdevCommand::Remove(ev2.clone());
 
         let uevents = update_udev(&uevents, remove_cmd);
 
-        assert_eq!(hashmap!{}, uevents);
+        assert_eq!(hashmap! {}, uevents);
     }
 
 }

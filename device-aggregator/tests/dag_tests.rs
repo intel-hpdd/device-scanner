@@ -65,7 +65,7 @@ impl AddChild<Vec<daggy::NodeIndex>> for DevGraph {
 }
 
 impl From<DevGraph> for dag::Dag {
-    fn from (d:DevGraph) -> Self {
+    fn from(d: DevGraph) -> Self {
         d.0
     }
 }
@@ -127,7 +127,7 @@ fn test_get_distinct_hosts_one_host() -> aggregator_error::Result<()> {
 fn test_into_device_set() -> aggregator_error::Result<()> {
     let mut dag = DevGraph::new();
 
-    let (device1, host1) = dag.create_host("host1");
+    let (_, host1) = dag.create_host("host1");
     let (device2, host2) = dag.create_host("host2");
 
     let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;
@@ -147,18 +147,17 @@ fn test_into_device_set() -> aggregator_error::Result<()> {
         devices::Device::VolumeGroup(Default::default()),
     )?;
 
-    let lv = dag.add_child(vg, devices::Device::LogicalVolume(Default::default()))?;
+    let lv_device = devices::Device::LogicalVolume(Default::default());
+    dag.add_child(vg, lv_device.clone())?;
 
     let inner = &dag.into();
 
     let result = dag::into_device_set(&inner)?;
 
-    assert_eq!(im::hashset![], result);
-
-    // {(Mpath(Mpath { devpath: "", serial: Serial(""), size: 0, major: "", minor: "", parents: {}, filesystem_type: None, paths: {}, mount_path: None }), 
-    // {Inactive(Host("host2")), Active(Host("host1"))}), 
-    // (LogicalVolume(LogicalVolume { serial: Serial(""), name: "", parent: (VolumeGroup, Serial("")), major: "", minor: "", size: 0, devpath: "", paths: {}, filesystem_type: None, mount_path: None }), 
-    // {Active(Host("host2"))})}
+    assert_eq!(
+        im::hashset![(&lv_device, im::hashset![dag::Host::Active(&device2)])],
+        result
+    );
 
     Ok(())
 }

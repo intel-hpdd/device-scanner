@@ -51,7 +51,8 @@ fn get_parents(xs: &state::UEvents, f: impl Fn(&UEvent) -> bool) -> Result<Paren
             let serial = x.get_serial()?;
 
             Ok((x.get_type(), serial))
-        }).collect::<Result<Parents>>()
+        })
+        .collect::<Result<Parents>>()
 }
 
 fn get_fs_and_mount<'a>(
@@ -83,7 +84,8 @@ fn get_zfs_mount_and_fs(name: &str, ys: &HashSet<Mount>) -> (Option<PathBuf>, Op
                  source: BdevPath(s),
                  ..
              }| { s.to_string_lossy() == name },
-        ).map(
+        )
+        .map(
             |Mount {
                  target: MountPoint(m),
                  fs_type: FsType(f),
@@ -332,7 +334,8 @@ fn create_devices<'a>(
                     mount_point,
                     filesystem_type,
                 )
-            }).collect::<Result<Vec<Device>>>()?;
+            })
+            .collect::<Result<Vec<Device>>>()?;
 
         let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&p.name, zs);
 
@@ -372,7 +375,8 @@ pub fn handler() -> (
                 io::ErrorKind::Other,
                 "Could not consume rx stream",
             ))
-        }).fold(
+        })
+        .fold(
             State::new(),
             |State {
                  mut conns,

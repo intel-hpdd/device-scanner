@@ -17,8 +17,6 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-extern crate device_aggregator;
-
 use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},

@@ -79,7 +79,7 @@ Vagrant.configure('2') do |config|
 
     device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y htop jq lvm2
+      yum install -y htop jq lvm2 ntp
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       genhostid
@@ -124,7 +124,7 @@ Vagrant.configure('2') do |config|
 
     device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y htop jq lvm2
+      yum install -y htop jq lvm2 ntp
       mkdir -p /etc/iml
       echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       genhostid
@@ -154,7 +154,7 @@ Vagrant.configure('2') do |config|
 
     aggregator.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
-      yum install -y nginx htop jq postgresql-devel
+      yum install -y nginx htop jq postgresql-devel ntp
     SHELL
 
     write_nginx_conf(aggregator)

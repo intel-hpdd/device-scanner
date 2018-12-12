@@ -14,9 +14,7 @@
 //!
 //! `device` to `device_host` is a 1:M relationship.
 //!
-//! Up to this point we have been stateless, but this module is stateful by using the db.
-//!
-//! The choice to be stateful here is because:
+//! The choice to persist to the database is because:
 //!
 //! 1. The need to have a "balanced" set of Lustre targets, and for this balance to be stable across ticks of
 //!    device discovery.
@@ -30,13 +28,13 @@ use diesel::{pg::PgConnection, prelude::*};
 use device_types::devices;
 
 use crate::{
-    aggregator_error, dag,
+    aggregator_error,
     env::get_var,
     schema::{device, device_host},
 };
 
 #[table_name = "device"]
-#[derive(Insertable, Queryable, Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Insertable, Queryable, Debug, PartialEq, Eq, Ord, PartialOrd, Hash, Clone)]
 pub struct Device {
     pub device_type: String,
     pub serial: String,
@@ -61,7 +59,7 @@ impl Device {
 }
 
 #[table_name = "device_host"]
-#[derive(Queryable, Insertable, Debug, PartialEq, Eq, Hash, Clone)]
+#[derive(Queryable, Insertable, Debug, PartialEq, Eq, Hash, Ord, PartialOrd, Clone)]
 pub struct DeviceHost {
     pub device_type: String,
     pub device_serial: String,
@@ -97,43 +95,6 @@ impl DeviceHost {
             is_active,
         }
     }
-}
-
-pub fn create_records_from_device_and_hosts<'a>(
-    (d, hs): (&'a devices::Device, im::HashSet<dag::Host<'a>>),
-) -> aggregator_error::Result<(im::HashSet<DeviceHost>, Device)> {
-    let d = d.as_mountable_storage_device().ok_or_else(|| {
-        aggregator_error::Error::graph_error(format!(
-            "Could not convert {:?} to mountable storage device",
-            d
-        ))
-    })?;
-
-    let dev = Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
-
-    let dev_hosts = hs
-        .into_iter()
-        .map(|host| match host {
-            dag::Host::Active(host) => DeviceHost::new(
-                &d.paths(),
-                &host,
-                &d.name(),
-                &d.serial(),
-                &d.mount_path(),
-                true,
-            ),
-            dag::Host::Inactive(host) => DeviceHost::new(
-                &d.paths(),
-                &host,
-                &d.name(),
-                &d.serial(),
-                &d.mount_path(),
-                false,
-            ),
-        })
-        .collect();
-
-    Ok((dev_hosts, dev))
 }
 
 fn get_connect_string() -> String {

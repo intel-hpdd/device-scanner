@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use device_aggregator::{aggregator_error, dag};
+use device_aggregator::{aggregator_error, dag, db};
 use device_types::devices;
 
 struct DevGraph(pub dag::Dag);
@@ -128,7 +128,7 @@ fn test_into_device_set() -> aggregator_error::Result<()> {
     let mut dag = DevGraph::new();
 
     let (_, host1) = dag.create_host("host1");
-    let (device2, host2) = dag.create_host("host2");
+    let (_, host2) = dag.create_host("host2");
 
     let scsi1 = dag.add_child(host1, devices::Device::ScsiDevice(Default::default()))?;
     let scsi2 = dag.add_child(host2, devices::Device::ScsiDevice(Default::default()))?;
@@ -152,10 +152,25 @@ fn test_into_device_set() -> aggregator_error::Result<()> {
 
     let inner = &dag.into();
 
-    let result = dag::into_device_set(&inner)?;
+    let result = dag::into_db_records(&inner)?;
 
     assert_eq!(
-        im::hashset![(&lv_device, im::hashset![dag::Host::Active(&device2)])],
+        im::ordset![(
+            im::ordset![db::DeviceHost {
+                device_type: "logical volume".to_string(),
+                device_serial: "".to_string(),
+                host_fqdn: "host2".to_string(),
+                paths: vec![],
+                mount_path: None,
+                is_active: true
+            }],
+            db::Device {
+                device_type: "logical volume".to_string(),
+                serial: "".to_string(),
+                size: 0,
+                fs_type: None
+            }
+        )],
         result
     );
 

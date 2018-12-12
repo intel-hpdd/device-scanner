@@ -4,7 +4,7 @@
 
 use std::{iter::once, path::PathBuf};
 
-use im::{hashset, HashSet};
+use im::{hashset, ordset, HashSet, OrdSet};
 
 use daggy::petgraph::{
     self, graph,
@@ -13,7 +13,10 @@ use daggy::petgraph::{
 
 use device_types::devices::{self, AsParent, Device, Parent};
 
-use crate::aggregator_error::{Error, Result};
+use crate::{
+    aggregator_error::{Error, Result},
+    db,
+};
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub enum Host<'a> {
@@ -48,10 +51,10 @@ impl Edge {
 pub type Dag = daggy::Dag<Device, Edge>;
 
 /// Traverses a VDev tree and returns back it's paths
-pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> HashSet<PathBuf> {
+pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> OrdSet<PathBuf> {
     match vdev {
-        libzfs_types::VDev::Disk { path, .. } => hashset![path.clone()],
-        libzfs_types::VDev::File { .. } => hashset![],
+        libzfs_types::VDev::Disk { path, .. } => ordset![path.clone()],
+        libzfs_types::VDev::File { .. } => ordset![],
         libzfs_types::VDev::Mirror { children, .. }
         | libzfs_types::VDev::RaidZ { children, .. }
         | libzfs_types::VDev::Replacing { children, .. } => {
@@ -127,7 +130,7 @@ fn is_md(d: &Device, parent: &Parent) -> bool {
 }
 
 /// Is the device a zpool
-fn is_pool(d: &Device, paths: &HashSet<PathBuf>) -> bool {
+fn is_pool(d: &Device, paths: &OrdSet<PathBuf>) -> bool {
     match d {
         Device::Zpool(z) => {
             let vdev_paths = get_vdev_paths(&z.vdev);
@@ -313,26 +316,79 @@ pub fn get_distinct_hosts(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet
         })
 }
 
-pub fn into_device_set(
-    dag: &Dag,
-) -> Result<im::HashSet<(&devices::Device, im::HashSet<self::Host<'_>>)>> {
+pub fn into_db_records(dag: &Dag) -> Result<im::OrdSet<(im::OrdSet<db::DeviceHost>, db::Device)>> {
     dag.node_references()
         .filter(|(nx, _)| self::get_all_node_children(dag, *nx).next().is_none())
         .filter(|(nx, _)| self::get_all_node_parents(dag, *nx).next().is_some())
         .map(|(nx, d)| {
-            let active_hosts = self::get_active_hosts(dag, nx)?;
+            let hosts: im::HashSet<Host> = match d {
+                devices::Device::Host(_) | devices::Device::VolumeGroup(_) => Err(
+                    Error::graph_error("Tried to create a db record from an unmountable device"),
+                ),
+                devices::Device::ScsiDevice(_)
+                | devices::Device::Mpath(_)
+                | devices::Device::Partition(_) => {
+                    let hosts = self::get_distinct_hosts(dag, nx)?
+                        .into_iter()
+                        .map(Host::Active)
+                        .collect();
 
-            let mut inactive_hosts = self::get_distinct_hosts(dag, nx)?;
+                    let r: Result<im::HashSet<Host>> = Ok(hosts);
 
-            inactive_hosts.retain(|x| !active_hosts.contains(x));
+                    r
+                }
+                devices::Device::LogicalVolume(_)
+                | devices::Device::MdRaid(_)
+                | devices::Device::Zpool(_)
+                | devices::Device::Dataset(_) => {
+                    let active_hosts = self::get_active_hosts(dag, nx)?;
 
-            let all_hosts = active_hosts
+                    let mut inactive_hosts = self::get_distinct_hosts(dag, nx)?;
+
+                    inactive_hosts.retain(|x| !active_hosts.contains(x));
+
+                    let all_hosts = active_hosts
+                        .into_iter()
+                        .map(Host::Active)
+                        .chain(inactive_hosts.into_iter().map(Host::Inactive))
+                        .collect();
+
+                    Ok(all_hosts)
+                }
+            }?;
+
+            let d = d.as_mountable_storage_device().ok_or_else(|| {
+                Error::graph_error(format!(
+                    "Could not convert {:?} to mountable storage device",
+                    d
+                ))
+            })?;
+
+            let dev = db::Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
+
+            let dev_hosts = hosts
                 .into_iter()
-                .map(Host::Active)
-                .chain(inactive_hosts.into_iter().map(Host::Inactive))
+                .map(|host| match host {
+                    Host::Active(host) => db::DeviceHost::new(
+                        &d.paths(),
+                        &host,
+                        &d.name(),
+                        &d.serial(),
+                        &d.mount_path(),
+                        true,
+                    ),
+                    Host::Inactive(host) => db::DeviceHost::new(
+                        &d.paths(),
+                        &host,
+                        &d.name(),
+                        &d.serial(),
+                        &d.mount_path(),
+                        false,
+                    ),
+                })
                 .collect();
 
-            Ok((d, all_hosts))
+            Ok((dev_hosts, dev))
         })
         .collect()
 }
@@ -386,7 +442,11 @@ pub fn add_shared_edges(dag: &mut Dag) -> Result<()> {
 
 /// Find and recursively add parent edges to nodes in the graph
 pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex) -> Result<()> {
-    let devs = match ro_dag.node_weight(node_idx).unwrap() {
+    let dev = ro_dag
+        .node_weight(node_idx)
+        .ok_or_else(|| Error::graph_error("Could not find device in graph"))?;
+
+    let devs = match dev {
         Device::Host(_) => filter_refs(ro_dag, |d| is_scsi(d)),
         Device::Mpath(m) => {
             let parent = m.as_parent();

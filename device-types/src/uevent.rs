@@ -1,4 +1,4 @@
-use im::{HashSet, Vector};
+use im::{OrdSet, Vector};
 use std::path::PathBuf;
 
 use crate::devices;
@@ -9,7 +9,7 @@ pub struct UEvent {
     pub major: String,
     pub minor: String,
     pub seqnum: i64,
-    pub paths: HashSet<PathBuf>,
+    pub paths: OrdSet<PathBuf>,
     pub devname: PathBuf,
     pub devpath: PathBuf,
     pub devtype: String,
@@ -30,7 +30,7 @@ pub struct UEvent {
     pub is_mpath: Option<bool>,
     pub dm_slave_mms: Vector<String>,
     pub dm_vg_size: Option<i64>,
-    pub md_devs: HashSet<PathBuf>,
+    pub md_devs: OrdSet<PathBuf>,
     pub dm_multipath_devpath: Option<bool>,
     pub dm_name: Option<String>,
     pub dm_lv_name: Option<String>,

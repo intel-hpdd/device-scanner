@@ -12,7 +12,7 @@
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 
-use im::HashSet;
+use im::{OrdSet, HashSet};
 use serde_json;
 use std::{io, iter::IntoIterator, path::PathBuf};
 use tokio::prelude::*;
@@ -39,8 +39,8 @@ pub fn find_by_major_minor(xs: &im::Vector<String>, major: &str, minor: &str) ->
     xs.contains(&format_major_minor(major, minor))
 }
 
-/// Do the provided HashSets share any paths.
-fn do_paths_intersect(p1: HashSet<PathBuf>, p2: HashSet<PathBuf>) -> bool {
+/// Do the provided OrdSets share any paths.
+fn do_paths_intersect(p1: OrdSet<PathBuf>, p2: OrdSet<PathBuf>) -> bool {
     !p1.intersection(p2).is_empty()
 }
 
@@ -244,7 +244,7 @@ fn create_pool(
         state: x.state.clone(),
         vdev: x.vdev.clone(),
         size: x.size.parse()?,
-        paths: im::hashset![x.name.clone().into()],
+        paths: im::ordset![x.name.clone().into()],
         filesystem_type,
         mount_path,
     }))
@@ -264,7 +264,7 @@ fn create_dataset(
         kind: x.kind.clone(),
         props: x.props.clone(),
         size: pool_size,
-        paths: im::hashset![x.name.clone().into()],
+        paths: im::ordset![x.name.clone().into()],
         mount_path,
         filesystem_type,
     }))

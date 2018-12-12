@@ -21,7 +21,6 @@ use device_aggregator::{
     aggregator_error::{Error, Result},
     cache::{Cache, CacheFlush},
     dag::{self, add_shared_edges, populate_parents},
-    db,
     env::get_var,
 };
 
@@ -66,9 +65,9 @@ fn main() -> Result<()> {
                     let mut cache = cache.lock().unwrap();
 
                     let last_entries = cache.entries();
-                    let is_same = last_entries
-                        .get(&host_name)
-                        .filter(|&last_device| &device == last_device);
+                    let is_same = last_entries.get(&host_name).filter(|&last_device| {
+                        device.is_subset(last_device) && last_device.is_subset(&device)
+                    });
 
                     if is_same.is_none() {
                         log::debug!("Got new data from host {}. Data: {:?}", host_name, &device);
@@ -143,10 +142,7 @@ fn main() -> Result<()> {
                 let mut file = File::create("/tmp/gvis").unwrap();
                 file.write_all(format!("{}", gviz).as_ref()).unwrap();
 
-                let xs: Vec<_> = dag::into_device_set(&dag)?
-                    .into_iter()
-                    .map(db::create_records_from_device_and_hosts)
-                    .collect::<Result<Vec<_>>>()?;
+                let xs = dag::into_db_records(&dag)?;
 
                 log::debug!("The records I want to insert: {:?}", xs);
 

@@ -1,8 +1,8 @@
-use im::HashSet;
+use im::{OrdSet, HashSet};
 use libzfs_types;
 use std::path::PathBuf;
 
-pub type Paths = HashSet<PathBuf>;
+pub type Paths = OrdSet<PathBuf>;
 
 pub type MountPath = Option<PathBuf>;
 

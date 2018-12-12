@@ -40,8 +40,8 @@ pub fn find_by_major_minor(xs: &im::Vector<String>, major: &str, minor: &str) ->
 }
 
 /// Do the provided OrdSets share any paths.
-fn do_paths_intersect(p1: OrdSet<PathBuf>, p2: OrdSet<PathBuf>) -> bool {
-    !p1.intersection(p2).is_empty()
+fn do_paths_intersect(p1: &OrdSet<PathBuf>, p2: &OrdSet<PathBuf>) -> bool {
+    p1.iter().any(|p| p2.contains(p))
 }
 
 fn get_parents(xs: &state::UEvents, f: impl Fn(&UEvent) -> bool) -> Result<Parents> {
@@ -54,6 +54,29 @@ fn get_parents(xs: &state::UEvents, f: impl Fn(&UEvent) -> bool) -> Result<Paren
             Ok((x.get_type(), serial))
         })
         .collect::<Result<Parents>>()
+}
+
+/// Traverses a VDev tree and returns back it's paths
+fn get_vdev_paths(vdev: &libzfs_types::VDev) -> OrdSet<PathBuf> {
+    match vdev {
+        libzfs_types::VDev::Disk { path, .. } => im::ordset![path.clone()],
+        libzfs_types::VDev::File { .. } => im::ordset![],
+        libzfs_types::VDev::Mirror { children, .. }
+        | libzfs_types::VDev::RaidZ { children, .. }
+        | libzfs_types::VDev::Replacing { children, .. } => {
+            children.into_iter().flat_map(get_vdev_paths).collect()
+        }
+        libzfs_types::VDev::Root {
+            children,
+            spares,
+            cache,
+            ..
+        } => vec![children, spares, cache]
+            .into_iter()
+            .flatten()
+            .flat_map(get_vdev_paths)
+            .collect(),
+    }
 }
 
 fn get_fs_and_mount<'a>(
@@ -235,6 +258,7 @@ fn create_pool(
     x: &libzfs_types::Pool,
     mount_path: devices::MountPath,
     filesystem_type: Option<String>,
+    parents: Parents,
 ) -> Result<Device> {
     Ok(Device::Zpool(devices::Zpool {
         serial: Serial(x.guid.to_string()),
@@ -242,7 +266,7 @@ fn create_pool(
         name: x.name.clone(),
         props: x.props.clone(),
         state: x.state.clone(),
-        vdev: x.vdev.clone(),
+        parents,
         size: x.size.parse()?,
         paths: im::ordset![x.name.clone().into()],
         filesystem_type,
@@ -290,9 +314,7 @@ fn create_devices<'a>(
 
                     Ok(vec![vg, create_lv(x, fs, mount)?])
                 } else if x.is_mdraid() {
-                    let parents = get_parents(xs, |y| {
-                        do_paths_intersect(x.md_devs.clone(), y.paths.clone())
-                    })?;
+                    let parents = get_parents(xs, |y| do_paths_intersect(&x.md_devs, &y.paths))?;
 
                     let (fs, mount) = get_fs_and_mount(x, zs);
 
@@ -340,7 +362,11 @@ fn create_devices<'a>(
 
         let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&p.name, zs);
 
-        ds.push(create_pool(p, mount_point, filesystem_type)?);
+        let paths = self::get_vdev_paths(&p.vdev);
+
+        let parents = get_parents(xs, |y| do_paths_intersect(&y.paths, &paths))?;
+
+        ds.push(create_pool(p, mount_point, filesystem_type, parents)?);
 
         Ok(ds)
     });

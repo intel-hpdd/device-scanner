@@ -2,9 +2,9 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use std::{iter::once, path::PathBuf};
+use std::iter::once;
 
-use im::{hashset, ordset, HashSet, OrdSet};
+use im::{hashset, HashSet};
 
 use daggy::petgraph::{
     self, graph,
@@ -49,29 +49,6 @@ impl Edge {
 }
 
 pub type Dag = daggy::Dag<Device, Edge>;
-
-/// Traverses a VDev tree and returns back it's paths
-pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> OrdSet<PathBuf> {
-    match vdev {
-        libzfs_types::VDev::Disk { path, .. } => ordset![path.clone()],
-        libzfs_types::VDev::File { .. } => ordset![],
-        libzfs_types::VDev::Mirror { children, .. }
-        | libzfs_types::VDev::RaidZ { children, .. }
-        | libzfs_types::VDev::Replacing { children, .. } => {
-            children.into_iter().flat_map(get_vdev_paths).collect()
-        }
-        libzfs_types::VDev::Root {
-            children,
-            spares,
-            cache,
-            ..
-        } => vec![children, spares, cache]
-            .into_iter()
-            .flatten()
-            .flat_map(get_vdev_paths)
-            .collect(),
-    }
-}
 
 /// Higher-order function that filters a dag based on the provided predicate.
 pub fn filter_refs(dag: &Dag, f: impl Fn(&Device) -> bool) -> Vec<daggy::NodeIndex> {
@@ -130,13 +107,9 @@ fn is_md(d: &Device, parent: &Parent) -> bool {
 }
 
 /// Is the device a zpool
-fn is_pool(d: &Device, paths: &OrdSet<PathBuf>) -> bool {
+fn is_pool(d: &Device, parent: &Parent) -> bool {
     match d {
-        Device::Zpool(z) => {
-            let vdev_paths = get_vdev_paths(&z.vdev);
-
-            !paths.clone().intersection(vdev_paths).is_empty()
-        }
+        Device::Zpool(z) => z.parents.contains(parent),
         _ => false,
     }
 }
@@ -455,7 +428,7 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
                 is_vg(d, &parent)
                     || is_partition(d, &parent)
                     || is_md(d, &parent)
-                    || is_pool(d, &m.paths)
+                    || is_pool(d, &parent)
             })
         }
         Device::ScsiDevice(s) => {
@@ -466,7 +439,7 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
                     || is_mpath(d, &parent)
                     || is_vg(d, &parent)
                     || is_md(d, &parent)
-                    || is_pool(d, &s.paths)
+                    || is_pool(d, &parent)
             })
         }
         Device::Partition(p) => {
@@ -476,7 +449,7 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
                 is_partition(d, &parent)
                     || is_vg(d, &parent)
                     || is_md(d, &parent)
-                    || is_pool(d, &p.paths)
+                    || is_pool(d, &parent)
             })
         }
         Device::VolumeGroup(vg) => {
@@ -487,9 +460,7 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
         Device::LogicalVolume(lv) => {
             let parent = lv.as_parent();
 
-            filter_refs(ro_dag, |d| {
-                is_partition(d, &parent) || is_pool(d, &lv.paths)
-            })
+            filter_refs(ro_dag, |d| is_partition(d, &parent) || is_pool(d, &parent))
         }
         Device::MdRaid(m) => {
             let parent = m.as_parent();
@@ -498,7 +469,7 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
                 is_vg(d, &parent)
                     || is_partition(d, &parent)
                     || is_md(d, &parent)
-                    || is_pool(d, &m.paths)
+                    || is_pool(d, &parent)
             })
         }
         Device::Zpool(z) => filter_refs(ro_dag, |d| is_dataset(d, &z.serial)),

@@ -400,7 +400,7 @@ pub struct Zpool {
     pub health: String,
     pub state: String,
     pub size: i64,
-    pub vdev: libzfs_types::VDev,
+    pub parents: Parents,
     pub props: Vec<libzfs_types::ZProp>,
     pub paths: Paths,
     pub filesystem_type: Option<String>,

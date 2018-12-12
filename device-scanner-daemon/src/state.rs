@@ -12,7 +12,7 @@
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 
-use im::{OrdSet, HashSet};
+use im::{HashSet, OrdSet};
 use serde_json;
 use std::{io, iter::IntoIterator, path::PathBuf};
 use tokio::prelude::*;

@@ -1,4 +1,4 @@
-use im::{OrdSet, HashSet};
+use im::{HashSet, OrdSet};
 use libzfs_types;
 use std::path::PathBuf;
 

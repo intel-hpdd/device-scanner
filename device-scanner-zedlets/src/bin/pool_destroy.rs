@@ -11,5 +11,5 @@ use device_types::zed::ZedCommand;
 fn main() -> Result<()> {
     let x = ZedCommand::DestroyZpool(zpool::get_guid()?);
 
-    send_data(x)
+    send_data(&x)
 }

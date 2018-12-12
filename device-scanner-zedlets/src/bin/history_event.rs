@@ -36,7 +36,7 @@ fn main() -> Result<()> {
     };
 
     if let Some(x) = x {
-        send_data(x)?;
+        send_data(&x)?;
     }
 
     Ok(())

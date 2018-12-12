@@ -56,7 +56,7 @@ impl From<env::VarError> for Error {
     }
 }
 
-pub fn send_data(z: ZedCommand) -> Result<()> {
+pub fn send_data(z: &ZedCommand) -> Result<()> {
     let x = serde_json::to_string(&z)?;
 
     let mut stream = UnixStream::connect("/var/run/zed-enhancer.sock")?;

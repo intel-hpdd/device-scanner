@@ -227,7 +227,7 @@ Vagrant.configure('2') do |config|
     distribute_certs(test)
 
     test.vm.provision 'deploy', type: 'shell', inline: <<-SHELL
-      pdsh -w device-scanner[1].local,device-aggregator.local 'yum remove -y iml-device-scanner-*' | dshbak
+      pdsh -w device-scanner[1-2].local,device-aggregator.local 'yum remove -y iml-device-scanner-*' | dshbak
 
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-aggregator-*.rpm root@device-aggregator.local:/tmp
       pdsh -w device-aggregator.local yum install -y /tmp/iml-device-scanner-aggregator-*.rpm
@@ -394,7 +394,7 @@ end
 # Installs zfs
 def install_zfs(config)
   config.vm.provision 'zfs', type: 'shell', inline: <<-SHELL
-    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
+    yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_6.noarch.rpm
     yum-config-manager --disable zfs
     yum-config-manager --enable zfs-kmod
     yum install -y zfs

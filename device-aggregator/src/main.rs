@@ -2,25 +2,18 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use device_types::{
-    devices::{self, Device},
-    message::Message,
-};
+use std::sync::{Arc, Mutex};
 
-use std::io::prelude::*;
+use device_types::{devices::Device, message::Message};
+
 use warp::Filter;
 
 use futures::{sync::mpsc, Future, Stream};
 
-use std::{
-    fs::File,
-    sync::{Arc, Mutex},
-};
-
 use device_aggregator::{
     aggregator_error::{Error, Result},
     cache::{Cache, CacheFlush},
-    dag::{self, add_shared_edges, populate_parents},
+    dag,
     env::get_var,
 };
 
@@ -90,7 +83,18 @@ fn main() -> Result<()> {
         })
         .map(|x| warp::reply::json(&x));
 
-    let routes = post.or(get).with(log);
+    let get_gviz = warp::path("graphviz")
+        .and(cache_fut.clone())
+        .map(|cache: Arc<Mutex<Cache>>| {
+            let cache = cache.clone();
+            let cache = cache.lock().unwrap();
+
+            let dag = dag::into_dag(cache.entries()).unwrap();
+
+            format!("{}", Dot::new(&dag))
+        });
+
+    let routes = post.or(get_gviz).or(get).with(log);
 
     let service = warp::serve(routes);
 
@@ -105,46 +109,13 @@ fn main() -> Result<()> {
             .for_each(|x| {
                 let now = Instant::now();
 
-                let mut dag: dag::Dag = x
-                    .into_iter()
-                    .map(|(host, xs)| {
-                        let mut dag = dag::Dag::new();
-
-                        let id = dag.add_node(devices::Device::Host(devices::Host(host)));
-
-                        for x in xs {
-                            dag.add_node(x);
-                        }
-
-                        let ro_dag = dag.clone();
-
-                        populate_parents(&mut dag, &ro_dag, id)?;
-
-                        Ok((id, dag))
-                    })
-                    .try_fold(
-                        dag::Dag::new(),
-                        |mut l, x: Result<(daggy::NodeIndex, dag::Dag)>| -> Result<dag::Dag> {
-                            let (id, r) = x?;
-
-                            dag::add(&mut l, &r, id)?;
-
-                            Ok(l)
-                        },
-                    )?;
-
-                add_shared_edges(&mut dag)?;
+                let dag = dag::into_dag(x)?;
 
                 let elapsed = now.elapsed();
                 log::debug!(
                     "Built graph in {} ms",
                     (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
                 );
-
-                let gviz = Dot::new(&dag);
-
-                let mut file = File::create("/tmp/gvis")?;
-                file.write_all(format!("{}", gviz).as_ref())?;
 
                 let xs = dag::into_db_records(&dag)?;
 

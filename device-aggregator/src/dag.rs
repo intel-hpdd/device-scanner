@@ -2,7 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use std::iter::once;
+use std::{collections::HashMap, hash::BuildHasher, iter::once};
 
 use im::{hashset, HashSet};
 
@@ -483,6 +483,40 @@ pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex)
     }
 
     Ok(())
+}
+
+pub fn into_dag<S: BuildHasher>(x: HashMap<String, im::HashSet<Device>, S>) -> Result<Dag> {
+    let mut dag = x
+        .into_iter()
+        .map(|(host, xs)| {
+            let mut dag = Dag::new();
+
+            let id = dag.add_node(devices::Device::Host(devices::Host(host)));
+
+            for x in xs {
+                dag.add_node(x);
+            }
+
+            let ro_dag = dag.clone();
+
+            populate_parents(&mut dag, &ro_dag, id)?;
+
+            Ok((id, dag))
+        })
+        .try_fold(
+            Dag::new(),
+            |mut l, x: Result<(daggy::NodeIndex, Dag)>| -> Result<Dag> {
+                let (id, r) = x?;
+
+                self::add(&mut l, &r, id)?;
+
+                Ok(l)
+            },
+        )?;
+
+    add_shared_edges(&mut dag)?;
+
+    Ok(dag)
 }
 
 #[cfg(test)]

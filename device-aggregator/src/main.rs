@@ -118,18 +118,22 @@ fn main() -> Result<()> {
 
                         let ro_dag = dag.clone();
 
-                        populate_parents(&mut dag, &ro_dag, id).unwrap();
+                        populate_parents(&mut dag, &ro_dag, id)?;
 
-                        (id, dag)
+                        Ok((id, dag))
                     })
-                    .try_fold(dag::Dag::new(), |mut l, (id, r)| -> Result<dag::Dag> {
-                        dag::add(&mut l, &r, id)?;
+                    .try_fold(
+                        dag::Dag::new(),
+                        |mut l, x: Result<(daggy::NodeIndex, dag::Dag)>| -> Result<dag::Dag> {
+                            let (id, r) = x?;
 
-                        Ok(l)
-                    })
-                    .unwrap();
+                            dag::add(&mut l, &r, id)?;
 
-                add_shared_edges(&mut dag).unwrap();
+                            Ok(l)
+                        },
+                    )?;
+
+                add_shared_edges(&mut dag)?;
 
                 let elapsed = now.elapsed();
                 log::debug!(
@@ -139,8 +143,8 @@ fn main() -> Result<()> {
 
                 let gviz = Dot::new(&dag);
 
-                let mut file = File::create("/tmp/gvis").unwrap();
-                file.write_all(format!("{}", gviz).as_ref()).unwrap();
+                let mut file = File::create("/tmp/gvis")?;
+                file.write_all(format!("{}", gviz).as_ref())?;
 
                 let xs = dag::into_db_records(&dag)?;
 
@@ -151,18 +155,6 @@ fn main() -> Result<()> {
                     "Built db records in {} ms",
                     (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
                 );
-
-                let mut file = std::fs::OpenOptions::new()
-                    .append(true)
-                    .open("/tmp/finished")
-                    .unwrap();
-
-                writeln!(
-                    file,
-                    "finished in {}",
-                    (elapsed.as_secs() * 1_000) + u64::from(elapsed.subsec_millis())
-                )
-                .unwrap();
 
                 // let conn = connect()?;
 

@@ -101,6 +101,7 @@ pub struct ScsiDevice {
     pub devpath: PathBuf,
     pub size: i64,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -151,6 +152,7 @@ pub struct Partition {
     pub minor: String,
     pub devpath: PathBuf,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -198,6 +200,7 @@ pub struct MdRaid {
     pub major: String,
     pub minor: String,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub paths: Paths,
     pub parents: Parents,
     pub mount_path: MountPath,
@@ -249,6 +252,7 @@ pub struct Mpath {
     pub minor: String,
     pub parents: Parents,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -337,6 +341,7 @@ pub struct LogicalVolume {
     pub devpath: PathBuf,
     pub paths: Paths,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub mount_path: MountPath,
 }
 
@@ -352,6 +357,7 @@ impl Default for LogicalVolume {
             devpath: Default::default(),
             paths: Default::default(),
             filesystem_type: Default::default(),
+            filesystem_label: Default::default(),
             mount_path: Default::default(),
         }
     }
@@ -404,6 +410,7 @@ pub struct Zpool {
     pub props: Vec<libzfs_types::ZProp>,
     pub paths: Paths,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
     pub mount_path: MountPath,
 }
 
@@ -454,6 +461,7 @@ pub struct Dataset {
     pub paths: Paths,
     pub mount_path: MountPath,
     pub filesystem_type: Option<String>,
+    pub filesystem_label: Option<String>,
 }
 
 impl Type for Dataset {

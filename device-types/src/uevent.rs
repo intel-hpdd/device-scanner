@@ -19,6 +19,7 @@ pub struct UEvent {
     pub fs_type: Option<String>,
     pub fs_usage: Option<String>,
     pub fs_uuid: Option<String>,
+    pub fs_label: Option<String>,
     pub part_entry_number: Option<i64>,
     pub part_entry_mm: Option<String>,
     pub size: Option<i64>,

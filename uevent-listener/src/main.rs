@@ -121,6 +121,7 @@ pub fn build_uevent() -> UEvent {
         vendor: optional_field("ID_VENDOR"),
         model: optional_field("ID_MODEL"),
         serial: optional_field("ID_SERIAL"),
+        fs_label: optional_field("ID_FS_LABEL").and_then(empty_str_to_none),
         fs_type: optional_field("ID_FS_TYPE").and_then(empty_str_to_none),
         fs_usage: optional_field("ID_FS_USAGE").and_then(empty_str_to_none),
         fs_uuid: optional_field("ID_FS_UUID").and_then(empty_str_to_none),

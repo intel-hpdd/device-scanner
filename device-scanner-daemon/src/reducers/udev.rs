@@ -38,6 +38,7 @@ mod tests {
             vendor: None,
             model: None,
             serial: None,
+            fs_label: Some("blah".into()),
             fs_type: Some("ext4".to_string()),
             fs_usage: Some("filesystem".to_string()),
             fs_uuid: Some("b4550256-cf48-4013-8363-bfee5f52da12".to_string()),

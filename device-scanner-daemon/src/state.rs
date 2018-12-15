@@ -133,6 +133,7 @@ fn create_md(
         serial: x.get_serial()?,
         paths: x.paths.clone(),
         filesystem_type,
+        filesystem_label: x.fs_label.clone(),
         mount_path,
         major: x.major.clone(),
         minor: x.minor.clone(),
@@ -159,6 +160,7 @@ fn create_mpath(
         paths: x.paths.clone(),
         parents,
         filesystem_type,
+        filesystem_label: x.fs_label.clone(),
         devpath: x.devpath.clone(),
         mount_path,
     }))
@@ -182,7 +184,7 @@ fn create_partition(
         size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
         paths: x.paths.clone(),
         filesystem_type,
-
+        filesystem_label: x.fs_label.clone(),
         mount_path,
     }))
 }
@@ -234,6 +236,7 @@ fn create_lv(
         paths: x.paths.clone(),
         mount_path,
         filesystem_type,
+        filesystem_label: x.fs_label.clone(),
     }))
 }
 
@@ -249,6 +252,7 @@ fn create_scsi(
         minor: x.minor.clone(),
         size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
         filesystem_type,
+        filesystem_label: x.fs_label.clone(),
         paths: x.paths.clone(),
         mount_path,
     }))
@@ -270,6 +274,7 @@ fn create_pool(
         size: x.size.parse()?,
         paths: im::ordset![x.name.clone().into()],
         filesystem_type,
+        filesystem_label: None,
         mount_path,
     }))
 }
@@ -291,6 +296,11 @@ fn create_dataset(
         paths: im::ordset![x.name.clone().into()],
         mount_path,
         filesystem_type,
+        filesystem_label: x
+            .props
+            .iter()
+            .find(|x| x.name == "lustre:svname")
+            .map(|x| x.value.clone()),
     }))
 }
 

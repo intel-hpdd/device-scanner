@@ -168,7 +168,8 @@ fn test_into_device_set() -> aggregator_error::Result<()> {
                 device_type: "logical volume".to_string(),
                 serial: "".to_string(),
                 size: 0,
-                fs_type: None
+                fs_type: None,
+                fs_label: None
             }
         )],
         result

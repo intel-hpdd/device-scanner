@@ -70,6 +70,7 @@ pub trait MountableStorageDevice: Type {
     fn mount_path(&self) -> &MountPath;
     fn size(&self) -> i64;
     fn filesystem_type(&self) -> &Option<String>;
+    fn filesystem_label(&self) -> &Option<String>;
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -140,6 +141,9 @@ impl MountableStorageDevice for ScsiDevice {
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
     }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -191,6 +195,9 @@ impl MountableStorageDevice for Partition {
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
     }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -241,6 +248,9 @@ impl MountableStorageDevice for MdRaid {
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
     }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -290,6 +300,9 @@ impl MountableStorageDevice for Mpath {
     }
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
+    }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
     }
 }
 
@@ -397,6 +410,9 @@ impl MountableStorageDevice for LogicalVolume {
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
     }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
@@ -448,6 +464,9 @@ impl MountableStorageDevice for Zpool {
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
     }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -497,6 +516,9 @@ impl MountableStorageDevice for Dataset {
     }
     fn filesystem_type(&self) -> &Option<String> {
         &self.filesystem_type
+    }
+    fn filesystem_label(&self) -> &Option<String> {
+        &self.filesystem_label
     }
 }
 

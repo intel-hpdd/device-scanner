@@ -337,7 +337,13 @@ pub fn into_db_records(dag: &Dag) -> Result<im::OrdSet<(im::OrdSet<db::DeviceHos
                 ))
             })?;
 
-            let dev = db::Device::new(d.size(), &d.name(), &d.serial(), &d.filesystem_type());
+            let dev = db::Device::new(
+                d.size(),
+                &d.name(),
+                &d.serial(),
+                &d.filesystem_type(),
+                &d.filesystem_label(),
+            );
 
             let dev_hosts = hosts
                 .into_iter()

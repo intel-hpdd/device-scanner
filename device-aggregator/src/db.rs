@@ -40,6 +40,7 @@ pub struct Device {
     pub serial: String,
     pub size: i64,
     pub fs_type: Option<String>,
+    pub fs_label: Option<String>,
 }
 
 impl Device {
@@ -48,12 +49,14 @@ impl Device {
         device_type: &devices::DeviceType,
         serial: &devices::Serial,
         fs_type: &Option<String>,
+        fs_label: &Option<String>,
     ) -> Self {
         Device {
             size,
             device_type: device_type.to_string(),
             serial: serial.to_string(),
             fs_type: fs_type.clone(),
+            fs_label: fs_label.clone(),
         }
     }
 }

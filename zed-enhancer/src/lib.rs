@@ -2,13 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate derive_more;
-extern crate device_types;
-extern crate libzfs;
-extern crate libzfs_types;
-extern crate log;
-extern crate serde_json;
-extern crate tokio;
+use std::{error, fmt, io, io::BufReader, num, os::unix::net::UnixStream as NetUnixStream, result};
 
 use device_types::zed::{zfs, zpool, PoolCommand, ZedCommand};
 
@@ -19,8 +13,6 @@ use tokio::{
     prelude::*,
     reactor::Handle,
 };
-
-use std::{error, fmt, io, io::BufReader, num, os::unix::net::UnixStream as NetUnixStream, result};
 
 type Result<T> = result::Result<T, Error>;
 

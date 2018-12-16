@@ -4,6 +4,7 @@ DefaultDependencies=false
 Requires=zfs-zed.service
 After=zfs-zed.service
 After=device-scanner.socket
+After=zed-populator.service
 PartOf=device-scanner.target
 StopWhenUnneeded=true
 

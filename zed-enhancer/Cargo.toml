@@ -3,6 +3,7 @@ name = "zed-enhancer"
 version = "0.1.0"
 authors = ["IML Team <iml@whamcloud.com>"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 tokio = "0.1"

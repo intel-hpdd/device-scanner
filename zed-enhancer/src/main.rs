@@ -10,18 +10,7 @@
 //! This crate receives events from device-scanner-zedlets and may enhance them with further data
 //! before passing onwards to device-scanner.
 
-extern crate device_types;
-extern crate env_logger;
-extern crate futures;
-extern crate libzfs;
-extern crate libzfs_types;
-extern crate log;
-extern crate serde_json;
-extern crate tokio;
-
-mod lib;
-
-use lib::processor;
+use zed_enhancer::processor;
 
 use std::os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener};
 

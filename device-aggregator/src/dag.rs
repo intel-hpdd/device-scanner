@@ -343,6 +343,7 @@ pub fn into_db_records(dag: &Dag) -> Result<im::OrdSet<(im::OrdSet<db::DeviceHos
                 &d.serial(),
                 &d.filesystem_type(),
                 &d.filesystem_label(),
+                &d.filesystem_uuid(),
             );
 
             let dev_hosts = hosts

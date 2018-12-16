@@ -41,6 +41,7 @@ pub struct Device {
     pub size: i64,
     pub fs_type: Option<String>,
     pub fs_label: Option<String>,
+    pub fs_uuid: Option<String>,
 }
 
 impl Device {
@@ -50,6 +51,7 @@ impl Device {
         serial: &devices::Serial,
         fs_type: &Option<String>,
         fs_label: &Option<String>,
+        fs_uuid: &Option<String>,
     ) -> Self {
         Device {
             size,
@@ -57,6 +59,7 @@ impl Device {
             serial: serial.to_string(),
             fs_type: fs_type.clone(),
             fs_label: fs_label.clone(),
+            fs_uuid: fs_uuid.clone(),
         }
     }
 }

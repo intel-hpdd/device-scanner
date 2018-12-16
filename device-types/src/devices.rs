@@ -71,6 +71,7 @@ pub trait MountableStorageDevice: Type {
     fn size(&self) -> i64;
     fn filesystem_type(&self) -> &Option<String>;
     fn filesystem_label(&self) -> &Option<String>;
+    fn filesystem_uuid(&self) -> &Option<String>;
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -103,6 +104,7 @@ pub struct ScsiDevice {
     pub size: i64,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -144,6 +146,9 @@ impl MountableStorageDevice for ScsiDevice {
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
     }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -157,6 +162,7 @@ pub struct Partition {
     pub devpath: PathBuf,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -198,6 +204,9 @@ impl MountableStorageDevice for Partition {
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
     }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -208,6 +217,7 @@ pub struct MdRaid {
     pub minor: String,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
     pub paths: Paths,
     pub parents: Parents,
     pub mount_path: MountPath,
@@ -251,6 +261,9 @@ impl MountableStorageDevice for MdRaid {
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
     }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -263,6 +276,7 @@ pub struct Mpath {
     pub parents: Parents,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
     pub paths: Paths,
     pub mount_path: MountPath,
 }
@@ -303,6 +317,9 @@ impl MountableStorageDevice for Mpath {
     }
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
+    }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
     }
 }
 
@@ -355,6 +372,7 @@ pub struct LogicalVolume {
     pub paths: Paths,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
     pub mount_path: MountPath,
 }
 
@@ -371,6 +389,7 @@ impl Default for LogicalVolume {
             paths: Default::default(),
             filesystem_type: Default::default(),
             filesystem_label: Default::default(),
+            filesystem_uuid: Default::default(),
             mount_path: Default::default(),
         }
     }
@@ -412,6 +431,9 @@ impl MountableStorageDevice for LogicalVolume {
     }
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
+    }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
     }
 }
 
@@ -467,6 +489,9 @@ impl MountableStorageDevice for Zpool {
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
     }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &None
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone, Default)]
@@ -481,6 +506,7 @@ pub struct Dataset {
     pub mount_path: MountPath,
     pub filesystem_type: Option<String>,
     pub filesystem_label: Option<String>,
+    pub filesystem_uuid: Option<String>,
 }
 
 impl Type for Dataset {
@@ -519,6 +545,9 @@ impl MountableStorageDevice for Dataset {
     }
     fn filesystem_label(&self) -> &Option<String> {
         &self.filesystem_label
+    }
+    fn filesystem_uuid(&self) -> &Option<String> {
+        &self.filesystem_uuid
     }
 }
 

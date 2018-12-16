@@ -9,6 +9,7 @@ table! {
         size -> BigInt,
         fs_type -> Nullable<VarChar>,
         fs_label -> Nullable<VarChar>,
+        fs_uuid -> Nullable<VarChar>,
     }
 }
 

@@ -134,6 +134,7 @@ fn create_md(
         paths: x.paths.clone(),
         filesystem_type,
         filesystem_label: x.fs_label.clone(),
+        filesystem_uuid: x.fs_uuid.clone(),
         mount_path,
         major: x.major.clone(),
         minor: x.minor.clone(),
@@ -161,6 +162,7 @@ fn create_mpath(
         parents,
         filesystem_type,
         filesystem_label: x.fs_label.clone(),
+        filesystem_uuid: x.fs_uuid.clone(),
         devpath: x.devpath.clone(),
         mount_path,
     }))
@@ -185,6 +187,7 @@ fn create_partition(
         paths: x.paths.clone(),
         filesystem_type,
         filesystem_label: x.fs_label.clone(),
+        filesystem_uuid: x.fs_uuid.clone(),
         mount_path,
     }))
 }
@@ -237,6 +240,7 @@ fn create_lv(
         mount_path,
         filesystem_type,
         filesystem_label: x.fs_label.clone(),
+        filesystem_uuid: x.lv_uuid.clone(),
     }))
 }
 
@@ -253,6 +257,7 @@ fn create_scsi(
         size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
         filesystem_type,
         filesystem_label: x.fs_label.clone(),
+        filesystem_uuid: x.fs_uuid.clone(),
         paths: x.paths.clone(),
         mount_path,
     }))
@@ -301,6 +306,7 @@ fn create_dataset(
             .iter()
             .find(|x| x.name == "lustre:svname")
             .map(|x| x.value.clone()),
+        filesystem_uuid: Some(x.guid.clone()),
     }))
 }
 

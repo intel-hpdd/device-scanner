@@ -169,7 +169,8 @@ fn test_into_device_set() -> aggregator_error::Result<()> {
                 serial: "".to_string(),
                 size: 0,
                 fs_type: None,
-                fs_label: None
+                fs_label: None,
+                fs_uuid: None
             }
         )],
         result

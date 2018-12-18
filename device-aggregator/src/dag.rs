@@ -7,8 +7,8 @@ use std::{collections::HashMap, hash::BuildHasher, iter::once};
 use im::{hashset, HashSet};
 
 use daggy::petgraph::{
-    self, graph,
-    visit::{Dfs, EdgeRef, IntoNodeReferences},
+    self,
+    visit::{Dfs, EdgeRef, IntoEdgesDirected, IntoNeighborsDirected, IntoNodeReferences},
 };
 
 use device_types::devices::{self, AsParent, Device, Parent};
@@ -19,7 +19,7 @@ use crate::{
 };
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
-pub enum Host<'a> {
+enum Host<'a> {
     Active(&'a devices::Host),
     Inactive(&'a devices::Host),
 }
@@ -51,7 +51,7 @@ impl Edge {
 pub type Dag = daggy::Dag<Device, Edge>;
 
 /// Higher-order function that filters a dag based on the provided predicate.
-pub fn filter_refs(dag: &Dag, f: impl Fn(&Device) -> bool) -> Vec<daggy::NodeIndex> {
+fn filter_refs<N, E>(dag: &daggy::Dag<N, E>, f: impl Fn(&N) -> bool) -> Vec<daggy::NodeIndex> {
     dag.node_references()
         .filter(move |(_, x)| f(x))
         .map(|(x, _)| x)
@@ -123,24 +123,28 @@ fn is_dataset(d: &Device, serial: &devices::Serial) -> bool {
 }
 
 /// Add the subtree rooted at root of the rhs to the lhs.
-pub fn add(l: &mut Dag, r: &Dag, root: daggy::NodeIndex) -> Result<()> {
+fn add<N: Clone>(
+    l: daggy::Dag<N, Edge>,
+    r: &daggy::Dag<N, Edge>,
+    root: daggy::NodeIndex,
+) -> Result<daggy::Dag<N, Edge>> {
     let mut mapping = im::HashMap::new();
+    let mut l_mut = l;
 
-    let graph = r.graph();
-
-    for (old_idx, d) in graph.node_references() {
-        mapping.insert(old_idx, l.add_node(d.clone()));
+    for (old_idx, d) in r.node_references() {
+        mapping.insert(old_idx, l_mut.add_node(d.clone()));
     }
 
-    let mut dfs = Dfs::new(&graph, root);
+    let mut dfs = Dfs::new(&r, root);
 
-    while let Some(nx) = dfs.next(&graph) {
-        for nx2 in graph.neighbors_directed(nx, petgraph::Incoming) {
-            l.update_edge(mapping[&nx2], mapping[&nx], Edge::Parent)?;
+    // Transfer the edges into the lhs
+    while let Some(nx) = dfs.next(&r) {
+        for nx2 in r.neighbors_directed(nx, petgraph::Incoming) {
+            l_mut.update_edge(mapping[&nx2], mapping[&nx], Edge::Parent)?;
         }
     }
 
-    Ok(())
+    Ok(l_mut)
 }
 
 /// Given a dag and a starting node, return an iterator of the node's
@@ -149,8 +153,7 @@ fn get_parents<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
 ) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
-    dag.graph()
-        .edges_directed(nx, petgraph::Incoming)
+    dag.edges_directed(nx, petgraph::Incoming)
         .filter(|e| e.weight().is_parent())
         .map(|e| e.source())
 }
@@ -161,8 +164,7 @@ fn get_children<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
 ) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
-    dag.graph()
-        .edges_directed(nx, petgraph::Outgoing)
+    dag.edges_directed(nx, petgraph::Outgoing)
         .filter(|e| e.weight().is_parent())
         .map(|e| e.target())
 }
@@ -171,12 +173,9 @@ fn get_children<'a>(
 fn get_shared<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
-) -> impl Iterator<Item = graph::NodeIndex> + 'a {
-    let graph = dag.graph();
-
-    graph
-        .edges_directed(nx, petgraph::Outgoing)
-        .chain(graph.edges_directed(nx, petgraph::Incoming))
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
+    dag.edges_directed(nx, petgraph::Outgoing)
+        .chain(dag.edges_directed(nx, petgraph::Incoming))
         .filter(|e| e.weight().is_shared())
         .filter_map(move |e| match (e.source(), e.target()) {
             (source, target) if source == nx => Some(target),
@@ -188,27 +187,27 @@ fn get_shared<'a>(
 fn get_shared_and_self<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
-) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
     self::get_shared(dag, nx).chain(once(nx))
 }
 
 fn get_all_node_children<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
-) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
     self::get_shared_and_self(dag, nx).flat_map(move |x| self::get_children(dag, x))
 }
 
 fn get_all_node_parents<'a>(
     dag: &'a Dag,
     nx: daggy::NodeIndex,
-) -> impl Iterator<Item = graph::NodeIndex> + 'a {
+) -> impl Iterator<Item = daggy::NodeIndex> + 'a {
     self::get_shared_and_self(dag, nx).flat_map(move |x| self::get_parents(dag, x))
 }
 
 /// Given a dag and a starting node, walk up the parents
 /// until the hosts are hit.
-pub fn get_active_hosts(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet<&devices::Host>> {
+fn get_active_hosts(dag: &Dag, nx: daggy::NodeIndex) -> Result<im::HashSet<&devices::Host>> {
     let mut nodes = vec![nx];
 
     let mut hosts = im::hashset![];
@@ -374,7 +373,7 @@ pub fn into_db_records(dag: &Dag) -> Result<im::OrdSet<(im::OrdSet<db::DeviceHos
 }
 
 /// Find and add any shared edges between devices
-pub fn add_shared_edges(dag: &mut Dag) -> Result<()> {
+fn add_shared_edges(dag: &mut Dag) -> Result<()> {
     let edges: Vec<_> = {
         let shared = dag.node_references().fold(
             vec![],
@@ -411,8 +410,6 @@ pub fn add_shared_edges(dag: &mut Dag) -> Result<()> {
             .collect()
     };
 
-    log::debug!("Found these nodes to build edges on: {:?}", edges);
-
     for (n1, n2) in edges {
         dag.update_edge(n1, n2, Edge::Shared)?;
     }
@@ -421,7 +418,7 @@ pub fn add_shared_edges(dag: &mut Dag) -> Result<()> {
 }
 
 /// Find and recursively add parent edges to nodes in the graph
-pub fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex) -> Result<()> {
+fn populate_parents(dag: &mut Dag, ro_dag: &Dag, node_idx: daggy::NodeIndex) -> Result<()> {
     let dev = ro_dag
         .node_weight(node_idx)
         .ok_or_else(|| Error::graph_error("Could not find device in graph"))?;
@@ -512,12 +509,10 @@ pub fn into_dag<S: BuildHasher>(x: HashMap<String, im::HashSet<Device>, S>) -> R
         })
         .try_fold(
             Dag::new(),
-            |mut l, x: Result<(daggy::NodeIndex, Dag)>| -> Result<Dag> {
+            |l, x: Result<(daggy::NodeIndex, Dag)>| -> Result<Dag> {
                 let (id, r) = x?;
 
-                self::add(&mut l, &r, id)?;
-
-                Ok(l)
+                self::add(l, &r, id)
             },
         )?;
 
@@ -528,7 +523,9 @@ pub fn into_dag<S: BuildHasher>(x: HashMap<String, im::HashSet<Device>, S>) -> R
 
 #[cfg(test)]
 mod tests {
-    use device_types::devices::{Device, DeviceType, Partition, Serial};
+    use crate::aggregator_error::Result;
+    use daggy::petgraph::visit::IntoNodeReferences;
+    use device_types::devices::{Device, DeviceType, Partition, Serial, VolumeGroup};
 
     #[test]
     fn is_scsi() {
@@ -567,5 +564,57 @@ mod tests {
         let result = super::is_partition(&Device::ScsiDevice(Default::default()), &parent);
 
         assert_eq!(result, false);
+    }
+
+    #[test]
+    fn is_vg() {
+        let mut vg: VolumeGroup = Default::default();
+
+        let parent = (DeviceType::Mpath, Serial("3".into()));
+
+        vg.parents.insert(parent.clone());
+
+        let result = super::is_vg(&Device::VolumeGroup(vg), &parent);
+
+        assert_eq!(result, true);
+    }
+
+    #[test]
+    fn adder() -> Result<()> {
+        type TestDag = daggy::Dag<i32, super::Edge>;
+
+        let mut left: TestDag = daggy::Dag::new();
+        let one = left.add_node(1);
+        let two = left.add_node(2);
+        left.add_edge(one, two, super::Edge::Parent)?;
+
+        let mut right: TestDag = daggy::Dag::new();
+        let three = right.add_node(3);
+        let four = right.add_node(4);
+        right.add_edge(three, four, super::Edge::Parent)?;
+
+        let left = super::add(left, &right, three)?;
+
+        let mut expected: TestDag = daggy::Dag::new();
+        let one = expected.add_node(1);
+        let two = expected.add_node(2);
+        expected.add_edge(one, two, super::Edge::Parent)?;
+        let three = expected.add_node(3);
+        let four = expected.add_node(4);
+        expected.add_edge(three, four, super::Edge::Parent)?;
+
+        assert_eq!(
+            left.node_references()
+                .map(|(_, x)| *x)
+                .collect::<Vec<i32>>(),
+            vec![1, 2, 3, 4]
+        );
+
+        expected.find_edge(one, two).expect("Edge from one -> two");
+        expected
+            .find_edge(three, four)
+            .expect("Edge from three -> four");
+
+        Ok(())
     }
 }

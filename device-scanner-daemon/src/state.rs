@@ -364,7 +364,7 @@ fn create_devices<'a>(
             .datasets
             .iter()
             .map(|d| {
-                let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&p.name, zs);
+                let (mount_point, filesystem_type) = get_zfs_mount_and_fs(&d.name, zs);
 
                 create_dataset(
                     &d,

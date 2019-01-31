@@ -12,7 +12,7 @@ jobs:
         - docker exec -i libzfs bash -c 'cd /device-scanner && cargo test'
     - stage: test
       name: "Format Check"
-      rust: 1.30.1
+      rust: 1.32.0
       before_script:
         - rustup component add rustfmt-preview
       script:
@@ -24,8 +24,8 @@ jobs:
         - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
         - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
         - docker exec -i libzfs bash -c 'rustup update'
-        - docker exec -i libzfs bash -c 'rustup component add clippy-preview'
-        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy --all-targets --all-features'
+        - docker exec -i libzfs bash -c 'rustup component add clippy'
+        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy --all-targets --all-features -- -D warnings'
     - stage: cd
       name: "Continuous Deployment"
       language: generic

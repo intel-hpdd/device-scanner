@@ -7,8 +7,10 @@
 %define     aggregator_prefixed iml-%{aggregator_name}
 
 Name:       iml-%{base_name}
-Version:    @version@
-Release:    @release@%{?dist}
+Version:    2.2.0
+# Release Start
+Release:    1%{?dist}
+# Release End
 Summary:    Maintains data of block and ZFS devices
 License:    MIT
 Group:      System Environment/Libraries

@@ -35,7 +35,7 @@ jobs:
         - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
         - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
         - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
-    - stage: deploy-copr
+    - stage: deploy-copr-r5.0
       name: "Copr Deploy"
       script:
         - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
@@ -47,5 +47,5 @@ stages:
     if: branch = master AND type = push AND fork = false
   - name: deploy-npm
     if: branch =~ ^v\d+\.\d+\.\d+$
-  - name: deploy-copr
-    if: branch =~ ^v\d+\.\d+\.\d+-.+$
+  - name: deploy-copr-r5.0
+    if: branch =~ ^v\d+\.\d+\.\d+-.+-r5\.0$

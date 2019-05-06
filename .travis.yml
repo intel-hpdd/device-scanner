@@ -8,7 +8,7 @@ jobs:
       name: "copr build test"
       script:
         - export SPEC=iml-device-scanner.spec
-        - docker run -it -e SPEC="$SPEC" -e LOCAL_ONLY="True" -v $(pwd):/build:rw imlteam/copr
+        - docker run -it -e SPEC="$SPEC" -e LOCAL_ONLY="True" -v $(pwd):/build:rw imlteam/copr-dotnet
         - ((`find _topdir/RPMS -name *.rpm | wc -l` > 0))
     - stage: test
       language: node_js
@@ -28,7 +28,7 @@ jobs:
         - export PROJECT=manager-for-lustre-devel
         - export PACKAGE=iml-device-scanner
         - export SPEC=iml-device-scanner.spec
-        - docker run -it -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr
+        - docker run -it -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-dotnet
     - stage: deploy-npm
       name: "Npm Deploy"
       script:
@@ -44,7 +44,7 @@ jobs:
         - export PROJECT=manager-for-lustre-5.0
         - export PACKAGE=iml-device-scanner
         - export SPEC=iml-device-scanner.spec
-        - docker run -it -e PROD="true" -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr
+        - docker run -it -e PROD="true" -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-dotnet
 stages:
   - test
   - name: cd

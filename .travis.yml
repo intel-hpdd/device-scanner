@@ -32,10 +32,11 @@ jobs:
     - stage: deploy-npm
       name: "Npm Deploy"
       script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
-        - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
-        - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
+        - docker run -dit --privileged --name deploy-npm -v $(pwd):/build:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro centos:7
+        - docker exec -i deploy-npm bash -c 'yum groupinstall -y "Development Tools"'
+        - docker exec -i deploy-npm bash -c 'yum install epel-release'
+        - docker exec -i deploy-npm bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
+        - docker exec -i deploy-npm bash -c "cd /build/.copr && make deploy-npm"
     - stage: deploy-copr-r5.0
       name: "Copr 5.0 deploy"
       script:

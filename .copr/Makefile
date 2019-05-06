@@ -5,7 +5,7 @@ CARGO := $(shell if which cargo 2>/dev/null; then true; else echo cargo; fi)
 $(CARGO):
 	yum install -y cargo
 
-srpm: $(CARGO)
+build: $(CARGO)
 	mkdir -p ${TMPDIR}/_topdir/SOURCES
 	mkdir -p ${TMPDIR}/_topdir/SPECS
 	mkdir -p ${TMPDIR}/scratch
@@ -44,8 +44,12 @@ srpm: $(CARGO)
 		dotnet fable npm-run build && \
 		npm pack;
 
+srpm: build
 	cp ${TMPDIR}/scratch/iml-device-scanner-*.tgz ${TMPDIR}/_topdir/SOURCES/
 	cp iml-device-scanner.spec ${TMPDIR}/_topdir/SPECS/
 	rpmbuild -bs -D "_topdir ${TMPDIR}/_topdir" ${TMPDIR}/_topdir/SPECS/iml-device-scanner.spec
 	cp -rf ${TMPDIR}/_topdir ${BUILDROOT}/
 	cp -f _topdir/SRPMS/*.rpm $(outdir)
+
+deploy-npm: build
+	cd ${TMPDIR}/scratch && npm pub

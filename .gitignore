@@ -5,7 +5,6 @@ node_modules
 *.tgz
 *.rpm
 .vagrant
-.fake
 dist
 obj
 bin

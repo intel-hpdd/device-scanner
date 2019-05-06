@@ -88,7 +88,6 @@ __EOF
 
     device_scanner.vm.provision 'deps', type: 'shell', inline: <<-SHELL
       yum install -y http://download.zfsonlinux.org/epel/zfs-release.el7_5.noarch.rpm
-      dotnet tool install fake-cli -g
       yum -y copr enable managerforlustre/manager-for-lustre-devel
       yum install -y rpmdevtools
       cd /etc/yum.repos.d
@@ -102,7 +101,8 @@ __EOF
 
     device_scanner.vm.provision 'install', type: 'shell', inline: <<-SHELL
       cd /builddir
-      fake run build.fsx -t RPM
+      make -f .copr/Makefile rpm outdir=/tmp/
+      rpmbuild -D "_topdir ${PWD}/_topdir" -bb _topdir/SPECS/iml-device-scanner.spec
       yum install -y ./_topdir/RPMS/x86_64/iml-device-scanner-*.x86_64.rpm
     SHELL
 

@@ -13,7 +13,7 @@ build: $(CARGO)
 	rm -rf ${BUILDROOT}/_topdir
 
 	if ! rpm -q dotnet-sdk-2.1 2> /dev/null; then \
-		rpm -Uvh http://packages.microsoft.com/config/rhel/7/packages-microsoft-prod.rpm; \
+		yum-config-manager --add-repo=https://packages.microsoft.com/rhel/7/prod; \
 		yum-config-manager --add-repo=http://download.mono-project.com/repo/centos7-stable.repo; \
 		yum install -y epel-release; \
 		yum install -y mono-devel dotnet-sdk-2.1 nodejs nodejs-packaging; \

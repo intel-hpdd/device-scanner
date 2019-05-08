@@ -14,6 +14,7 @@ Source0:    iml-device-scanner.tar.gz
 
 %{?systemd_requires}
 
+Autoreq:  0
 Requires: socat
 
 %description

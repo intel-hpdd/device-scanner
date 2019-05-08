@@ -1,43 +1,99 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate failure;
-extern crate futures;
-extern crate futures_failure;
-extern crate hyper;
-extern crate native_tls;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
-extern crate tokio_tls;
-
-extern crate device_types;
-
 mod lib;
 
-use std::{
-    env, fs,
-    io::BufReader,
-    time::{Duration, Instant},
-};
-
+use crate::lib::{build_uri, send_message};
+use device_types::message::Message;
 use failure::{Error, ResultExt};
 use futures::{future::Future, stream::Stream};
 use futures_failure::{print_cause_chain, FutureExt, StreamExt};
-
+use lazy_static::lazy_static;
+use std::{
+    env,
+    io::BufReader,
+    path::Path,
+    process::Command,
+    time::{Duration, Instant},
+};
 use tokio::{
     io::{lines, write_all},
     net::UnixStream,
     timer::Interval,
 };
 
-use device_types::message::Message;
-
-use lib::{build_uri, send_message};
+/// Checks if the given path exists in the FS
+///
+/// # Arguments
+///
+/// * `name` - The path to check
+fn path_exists(name: &str) -> bool {
+    Path::new(name).exists()
+}
 
 fn required(name: &str) -> String {
     env::var(name).unwrap_or_else(|_| panic!("Expected {} to be supplied in ENV", name))
+}
+
+fn get_private_pem_path() -> String {
+    required("PRIVATE_PEM_PATH")
+}
+
+fn get_cert_path() -> String {
+    required("CRT_PATH")
+}
+
+fn get_pfx_path() -> String {
+    required("PFX_PATH")
+}
+
+fn get_authority_cert_path() -> String {
+    required("AUTHORITY_CRT_PATH")
+}
+
+/// Gets the pfx file.
+/// If pfx is not found it will be created.
+lazy_static! {
+    pub static ref PFX: Vec<u8> = {
+        let private_pem_path = get_private_pem_path();
+
+        if !path_exists(&private_pem_path) {
+            panic!("{} does not exist", private_pem_path)
+        };
+
+        let cert_path = get_cert_path();
+
+        if !path_exists(&cert_path) {
+            panic!("{} does not exist", cert_path)
+        }
+
+        let authority_cert_path = get_authority_cert_path();
+
+        let pfx_path = get_pfx_path();
+
+        if !path_exists(&pfx_path) {
+            Command::new("openssl")
+                .args(&[
+                    "pkcs12",
+                    "-export",
+                    "-out",
+                    &pfx_path,
+                    "-inkey",
+                    &private_pem_path,
+                    "-in",
+                    &cert_path,
+                    "-certfile",
+                    &authority_cert_path,
+                    "-passout",
+                    "pass:",
+                ])
+                .status()
+                .expect("Error creating pfx");
+        }
+
+        std::fs::read(&pfx_path).expect("Could not read pfx")
+    };
 }
 
 fn main() -> Result<(), Error> {
@@ -45,11 +101,6 @@ fn main() -> Result<(), Error> {
     let uri = build_uri(&uri)?;
     // Clone so we can use in each task
     let uri2 = uri.clone();
-
-    let pfx = required("IML_CERT_PFX");
-    let pfx = fs::read(pfx)?;
-    // Clone so we can use in each task
-    let pfx2 = pfx.clone();
 
     println!("Starting device-scanner-proxy server");
 
@@ -66,7 +117,7 @@ fn main() -> Result<(), Error> {
             print_cause_chain(&e);
         })
         .for_each(move |json| {
-            tokio::spawn(send_message(&uri, json, &pfx).map_err(|e| {
+            tokio::spawn(send_message(&uri, json, &PFX).map_err(|e| {
                 print_cause_chain(&e);
             }))
         });
@@ -84,7 +135,7 @@ fn main() -> Result<(), Error> {
         })
         .map_err(|e| print_cause_chain(&e))
         .for_each(move |json| {
-            tokio::spawn(send_message(&uri2, json, &pfx2).map_err(|e| {
+            tokio::spawn(send_message(&uri2, json, &PFX).map_err(|e| {
                 print_cause_chain(&e);
             }))
         });

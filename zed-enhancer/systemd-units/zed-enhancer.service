@@ -4,11 +4,13 @@ RefuseManualStart=true
 Requires=zed-enhancer.socket
 BindsTo=zed-enhancer.socket
 After=zed-enhancer.socket
+After=device-scanner.socket
 OnFailure=zed-populator.service
 StopWhenUnneeded=true
 
 [Service]
 Restart=on-failure
+Environment=RUST_LOG=info
 ExecStart=/usr/bin/zed-enhancer
 StandardOutput=journal
 StandardError=journal

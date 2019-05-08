@@ -9,7 +9,10 @@ After=scanner-proxy.path
 [Service]
 Restart=always
 EnvironmentFile=/etc/iml/manager-url.conf
-Environment=IML_CERT_PFX=/etc/iml/certificate.pfx
+Environment=PRIVATE_PEM_PATH=/etc/iml/private.pem
+Environment=CRT_PATH=/etc/iml/self.crt
+Environment=PFX_PATH=/etc/iml/identity.pfx
+Environment=AUTHORITY_CRT_PATH=/etc/iml/authority.crt
 ExecStart=/usr/bin/device-scanner-proxy
 StandardOutput=journal
 StandardError=journal

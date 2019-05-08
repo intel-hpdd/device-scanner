@@ -1,4 +1,4 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -8,14 +8,7 @@
 //! into a `MountCommand` variant and send the serialized result to `device-scanner`.
 //!
 
-#![allow(unknown_lints)]
-#![warn(clippy)]
-
-extern crate device_types;
-extern crate futures;
-extern crate serde_json;
-extern crate tokio;
-extern crate tokio_file_unix;
+use std::convert::AsRef;
 
 #[cfg(test)]
 #[macro_use]
@@ -56,7 +49,7 @@ fn line_to_command(x: &[u8]) -> MountCommand {
         x.get("OLD-TARGET"),
     );
 
-    match x.get("ACTION").map(|x| x.as_ref()) {
+    match x.get("ACTION").map(AsRef::as_ref) {
         Some("mount") | None => MountCommand::AddMount(target, source, fstype, mount_opts),
         Some("umount") => MountCommand::RemoveMount(target, source, fstype, mount_opts),
         Some("remount") => MountCommand::ReplaceMount(
@@ -129,7 +122,7 @@ where
 pub fn stdin_to_file() -> impl AsyncRead + BufRead {
     let file = tokio_file_unix::raw_stdin().unwrap();
     let file = tokio_file_unix::File::new_nb(file).unwrap();
-    file.into_reader(&Handle::current()).unwrap()
+    file.into_reader(&Handle::default()).unwrap()
 }
 
 /// Loops over lines streaming from STDIN.

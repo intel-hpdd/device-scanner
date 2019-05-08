@@ -3,8 +3,6 @@
 // license that can be found in the LICENSE file.
 
 #![allow(unknown_lints)]
-#![warn(clippy)]
-
 extern crate bytes;
 extern crate im;
 
@@ -54,7 +52,8 @@ fn processor(
                     .map_err(|e| {
                         eprintln!("Could not parse command. Tried to parse: {}, got: {}", x, e);
                         e
-                    }).ok()
+                    })
+                    .ok()
             });
 
             let cmd = match x {
@@ -67,7 +66,8 @@ fn processor(
             let output = (cmd, socket);
 
             Either::B(future::ok(Some(output)))
-        }).and_then(move |x| match x {
+        })
+        .and_then(move |x| match x {
             Some((Command::Stream, socket)) => {
                 let connection = connections::Connection::new(socket);
 
@@ -89,7 +89,8 @@ fn processor(
                 Ok(Some(connection))
             }
             None => Ok(None),
-        }).and_then(|x| match x {
+        })
+        .and_then(|x| match x {
             Some(connection) => Box::new(connection.map(|_| ()))
                 as Box<Future<Item = (), Error = error::Error> + Send>,
             None => Box::new(futures::future::ok(())),

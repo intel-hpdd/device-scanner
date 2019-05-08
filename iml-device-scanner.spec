@@ -1,39 +1,24 @@
 %define     base_name device-scanner
-%define     device_types device-types-0.1.0
-%define     futures_failure futures-failure-0.1.0
 
 Name:       iml-%{base_name}
-Version:    2.0.0
+Version:    3.0.0
+# Release Start
 Release:    1%{?dist}
+# Release End
 Summary:    Maintains data of block and ZFS devices
+
 License:    MIT
 Group:      System Environment/Libraries
 URL:        https://github.com/whamcloud/%{base_name}
-Source0:    device-scanner-daemon-%{version}.crate
-Source1:    uevent-listener-0.1.0.crate
-Source2:    mount-emitter-0.1.0.crate
-Source3:    device-scanner-proxy-0.1.0.crate
-Source4:    device-aggregator-2.0.0.crate
-Source5:    device-scanner-zedlets-0.1.0.crate
-Source6:    zed-enhancer-0.1.0.crate
-Source7:    %{device_types}.crate
-Source8:    %{futures_failure}.crate
+Source0:    iml-device-scanner.tar.gz
 
 %{?systemd_requires}
-BuildRequires: systemd
-BuildRequires: gcc
-BuildRequires: openssl-devel
-BuildRequires: clang-5.0.0
-BuildRequires: libzfs2-devel
-BuildRequires: zfs >= 0.7.9
-BuildRequires: cargo
 
 Requires: socat
 
 %description
 device-scanner-daemon builds an in-memory representation of
 devices using udev, zed and findmnt.
-
 
 %package proxy
 Summary:    Forwards device-scanner updates to device-aggregator
@@ -53,64 +38,10 @@ Autoreq:    0
 device-aggregator aggregates data received from device
 scanner instances.
 
-
 %prep
-%setup -T -D -b 8 -n %{futures_failure}
-
-%setup -T -D -b 7 -n %{device_types}
-
-%setup -T -D -b 6 -n zed-enhancer-0.1.0
-
-%setup -T -D -b 5 -n device-scanner-zedlets-0.1.0
-
-%setup -T -D -b 4 -n device-aggregator-2.0.0
-
-%setup -T -D -b 3 -n device-scanner-proxy-0.1.0
-
-%setup -T -D -b 2 -n mount-emitter-0.1.0
-
-%setup -T -D -b 1 -n uevent-listener-0.1.0
-
-%setup -T -D -b 0 -n device-scanner-daemon-2.0.0
-
+%setup -c
 
 %build
-cat << EOF > ../patch.txt
-[patch.crates-io]
-device-types = { path = "../%{device_types}" }
-futures-failure = { path = "../%{futures_failure}" }
-EOF
-
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../device-scanner-proxy-0.1.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../device-aggregator-2.0.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../uevent-listener-0.1.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../mount-emitter-0.1.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../device-scanner-zedlets-0.1.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-cd ../zed-enhancer-0.1.0
-cat ../patch.txt >> Cargo.toml
-cargo build --release
-
-%clean
-rm -rf %{buildroot}
-
 
 %install
 mkdir -p %{buildroot}%{_bindir}
@@ -118,40 +49,35 @@ mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_presetdir}
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
 
-cp systemd-units/device-scanner.{target,socket,service} %{buildroot}%{_unitdir}
-cp systemd-units/block-device-populator.service %{buildroot}%{_unitdir}
-cp systemd-units/00-device-scanner.preset %{buildroot}%{_presetdir}
-cp target/release/device-scanner-daemon %{buildroot}%{_bindir}
+cp device-scanner.{target,socket,service} %{buildroot}%{_unitdir}
+cp block-device-populator.service %{buildroot}%{_unitdir}
+cp 00-device-scanner.preset %{buildroot}%{_presetdir}
+cp device-scanner-daemon %{buildroot}%{_bindir}
 
-cd ../device-scanner-proxy-0.1.0
-cp systemd-units/scanner-proxy.{service,path} %{buildroot}%{_unitdir}
-cp systemd-units/00-scanner-proxy.preset %{buildroot}%{_presetdir}
-cp target/release/device-scanner-proxy %{buildroot}%{_bindir}
+cp scanner-proxy.{service,path} %{buildroot}%{_unitdir}
+cp 00-scanner-proxy.preset %{buildroot}%{_presetdir}
+cp device-scanner-proxy %{buildroot}%{_bindir}
 
-cd ../device-aggregator-2.0.0
-cp systemd-units/device-aggregator.service %{buildroot}%{_unitdir}
-cp systemd-units/00-device-aggregator.preset %{buildroot}%{_presetdir}
-cp target/release/device-aggregator %{buildroot}%{_bindir}
+cp device-aggregator.service %{buildroot}%{_unitdir}
+cp 00-device-aggregator.preset %{buildroot}%{_presetdir}
+cp device-aggregator %{buildroot}%{_bindir}
 
-cd ../uevent-listener-0.1.0
-cp udev-rules/99-iml-device-scanner.rules %{buildroot}%{_sysconfdir}/udev/rules.d
-cp target/release/uevent-listener %{buildroot}%{_bindir}
+cp 99-iml-device-scanner.rules %{buildroot}%{_sysconfdir}/udev/rules.d
+cp uevent-listener %{buildroot}%{_bindir}
 
-cd ../mount-emitter-0.1.0
-cp systemd-units/mount-emitter.service %{buildroot}%{_unitdir}
-cp systemd-units/mount-populator.service %{buildroot}%{_unitdir}
-cp systemd-units/swap-emitter.service %{buildroot}%{_unitdir}
-cp systemd-units/swap-emitter.timer %{buildroot}%{_unitdir}
-cp target/release/mount-emitter %{buildroot}%{_bindir}
+cp mount-emitter.service %{buildroot}%{_unitdir}
+cp mount-populator.service %{buildroot}%{_unitdir}
+cp swap-emitter.service %{buildroot}%{_unitdir}
+cp swap-emitter.timer %{buildroot}%{_unitdir}
+cp mount-emitter %{buildroot}%{_bindir}
 
 mkdir -p %{buildroot}%{_libexecdir}/zfs/zed.d
-cd ../device-scanner-zedlets-0.1.0
-cp target/release/pool_create-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
-cp target/release/pool_import-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
-cp target/release/vdev_add-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
-cp target/release/pool_destroy-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
-cp target/release/history_event-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
-cp target/release/pool_export-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp pool_create-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp pool_import-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp vdev_add-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp pool_destroy-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp history_event-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
+cp pool_export-scanner %{buildroot}%{_libexecdir}/zfs/zed.d
 
 mkdir -p %{buildroot}%{_sysconfdir}/zfs/zed.d
 ln -sf %{_libexecdir}/zfs/zed.d/pool_create-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
@@ -161,13 +87,11 @@ ln -sf %{_libexecdir}/zfs/zed.d/pool_destroy-scanner %{buildroot}%{_sysconfdir}/
 ln -sf %{_libexecdir}/zfs/zed.d/history_event-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
 ln -sf %{_libexecdir}/zfs/zed.d/pool_export-scanner %{buildroot}%{_sysconfdir}/zfs/zed.d
 
-
-cd ../zed-enhancer-0.1.0
-cp systemd-units/zed-enhancer.{service,socket} %{buildroot}%{_unitdir}
-cp systemd-units/zed-populator.service %{buildroot}%{_unitdir}
-cp systemd-units/00-zed-enhancer.preset %{buildroot}%{_presetdir}
-cp target/release/zed-enhancer %{buildroot}%{_bindir}
-cp udev-rules/99-iml-zed-enhancer.rules %{buildroot}%{_sysconfdir}/udev/rules.d
+cp zed-enhancer.{service,socket} %{buildroot}%{_unitdir}
+cp zed-populator.service %{buildroot}%{_unitdir}
+cp 00-zed-enhancer.preset %{buildroot}%{_presetdir}
+cp zed-enhancer %{buildroot}%{_bindir}
+cp 99-iml-zed-enhancer.rules %{buildroot}%{_sysconfdir}/udev/rules.d
 
 %files
 %attr(0644,root,root)%{_unitdir}/block-device-populator.service

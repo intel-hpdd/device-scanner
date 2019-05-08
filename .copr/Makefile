@@ -1,28 +1,26 @@
 CARGO := $(shell if which cargo 2>/dev/null; then true; else echo cargo; fi)
+BUILDROOT:=$(shell [ -d "/build" ] && echo "/build" || echo ".")
+TMPDIR:=$(shell mktemp -d)
 
 $(CARGO):
-	dnf install -y cargo
+	yum install -y cargo
 
 srpm: $(CARGO)
-	cd device-types; \
-	cargo package --no-verify --allow-dirty
-	cd device-scanner-daemon; \
-	cargo package --no-verify --allow-dirty
-	cd device-aggregator; \
-	cargo package --no-verify --allow-dirty
-	cd uevent-listener; \
-	cargo package --no-verify --allow-dirty
-	cd mount-emitter; \
-	cargo package --no-verify --allow-dirty
-	cd device-scanner-zedlets; \
-	cargo package --no-verify --allow-dirty
-	cd device-scanner-proxy; \
-	cargo package --no-verify --allow-dirty
-	cd futures-failure; \
-	cargo package --no-verify --allow-dirty
-	cd zed-enhancer; \
-	cargo package --no-verify --allow-dirty
-	mkdir -p /tmp/_topdir/SOURCES
-	mv -f target/package/*.crate /tmp/_topdir/SOURCES/
-	rpmbuild -bs --define "_topdir /tmp/_topdir" iml-device-scanner.spec
-	cp -r /tmp/_topdir/SRPMS/* $(outdir)
+	mkdir -p ${TMPDIR}/_topdir/SOURCES
+	mkdir -p ${TMPDIR}/_topdir/SPECS
+	mkdir -p ${TMPDIR}/release/iml-device-scanner
+	rm -rf ${BUILDROOT}/_topdir
+	cargo build --release
+	cp {device-aggregator,device-scanner-daemon,device-scanner-proxy,mount-emitter,zed-enhancer}/systemd-units/* \
+		{zed-enhancer,uevent-listener}/udev-rules/* \
+		target/release/device-{aggregator,scanner-daemon,scanner-proxy} \
+		target/release/{history_event,pool_create,pool_destroy,pool_export,pool_import,vdev_add}-scanner \
+		target/release/mount-emitter \
+		target/release/uevent-listener \
+		target/release/zed-enhancer \
+		${TMPDIR}/release/iml-device-scanner
+	tar -czvf ${TMPDIR}/_topdir/SOURCES/iml-device-scanner.tar.gz -C ${TMPDIR}/release/iml-device-scanner .
+	cp iml-device-scanner.spec ${TMPDIR}/_topdir/SPECS/
+	rpmbuild -bs -D "_topdir ${TMPDIR}/_topdir" ${TMPDIR}/_topdir/SPECS/iml-device-scanner.spec
+	cp -rf ${TMPDIR}/_topdir ${BUILDROOT}/
+	cp -f _topdir/SRPMS/*.rpm $(outdir)

@@ -1,7 +1,9 @@
-/target
-/tmp
+target/
+tmp/
+_topdir/
 **/*.rs.bk
 .vagrant
 id_rsa*
 hosts
 .idea
+.cargo

@@ -59,7 +59,8 @@ fn main() -> aggregator_error::Result<()> {
                     cache.lock().unwrap().upsert(&host_name, device);
                 }
             },
-        ).map(|_| warp::reply::with_status("", warp::http::StatusCode::CREATED));
+        )
+        .map(|_| warp::reply::with_status("", warp::http::StatusCode::CREATED));
 
     let get = warp::get2()
         .and(cache_fut.clone())
@@ -67,7 +68,8 @@ fn main() -> aggregator_error::Result<()> {
             let cache = cache.clone();
             let cache = cache.lock().unwrap();
             cache.entries()
-        }).map(|x| warp::reply::json(&x));
+        })
+        .map(|x| warp::reply::json(&x));
 
     let routes = post.or(get).with(log);
 

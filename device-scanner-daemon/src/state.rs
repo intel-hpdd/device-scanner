@@ -89,7 +89,8 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .clone()
                     .ok_or_else(|| error::none_error("Expected vg_uuid"))?,
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_partitions(
@@ -103,7 +104,8 @@ fn get_partitions(
         .filter(|&x| match x.part_entry_mm {
             Some(ref p) => p == &format_major_minor(major, minor),
             None => false,
-        }).map(|x| {
+        })
+        .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
             let (filesystem_type, mount_path) = match mount {
@@ -128,7 +130,8 @@ fn get_partitions(
                 children: hashset![],
                 mount_path,
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Device>> {
@@ -137,7 +140,8 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
         .filter(|&x| match x.vg_uuid {
             Some(ref p) => p == uuid,
             None => false,
-        }).map(|x| {
+        })
+        .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
             let (filesystem_type, mount_path) = match mount {
@@ -167,7 +171,8 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 filesystem_type,
                 children: hashset![],
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
@@ -199,7 +204,8 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 children: hashset![],
                 mount_path,
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_mpaths(
@@ -237,7 +243,8 @@ fn get_mpaths(
                 devpath: x.devpath.clone(),
                 mount_path,
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result<HashSet<Device>> {
@@ -269,7 +276,8 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
                     .clone()
                     .ok_or_else(|| error::none_error("Expected md_uuid"))?,
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
@@ -305,7 +313,8 @@ fn get_pools(
             let vdev_paths = get_vdev_paths(x.vdev.clone());
 
             !paths.clone().intersection(vdev_paths).is_empty()
-        }).map(|x| {
+        })
+        .map(|x| {
             Ok(Device::Zpool {
                 guid: x.guid,
                 health: x.health.clone(),
@@ -316,7 +325,8 @@ fn get_pools(
                 size: x.size.parse()?,
                 children: hashset![],
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
@@ -340,7 +350,8 @@ fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
                 kind: x.kind.clone(),
                 props: x.props.clone(),
             })
-        }).collect()
+        })
+        .collect()
 }
 
 fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) -> Result<()> {
@@ -551,7 +562,8 @@ pub fn handler() -> (
                 io::ErrorKind::Other,
                 "Could not consume rx stream",
             ))
-        }).fold(
+        })
+        .fold(
             State::new(),
             |State {
                  mut conns,

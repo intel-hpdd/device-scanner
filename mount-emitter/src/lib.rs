@@ -178,7 +178,8 @@ where
                 future::Either::B(wo.map(|_| next))
             })
         },
-    ).map_err(|e| panic!("{:?}", e))
+    )
+    .map_err(|e| panic!("{:?}", e))
 }
 
 #[cfg(test)]
@@ -195,7 +196,7 @@ mod tests {
         xs
     }
 
-    snaptest!{
+    snaptest! {
         fn test_line_to_hashmap_swap() -> StableVec {
             let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
@@ -203,7 +204,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_line_to_hashmap_mount() -> StableVec {
             let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
@@ -211,7 +212,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_swap() -> MountCommand {
             let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
@@ -219,7 +220,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_poll_mount() -> MountCommand {
             let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
@@ -227,7 +228,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_poll_umount() -> MountCommand {
             let line = b"ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
@@ -235,7 +236,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_poll_remount() -> MountCommand {
             let line = b"ACTION=\"remount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"ro,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"rw,data=ordered\"\n";
 
@@ -243,7 +244,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_poll_move() -> MountCommand {
             let line = b"ACTION=\"move\" TARGET=\"/mnt/part1a\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"/mnt/part1\" OLD-OPTIONS=\"\"\n";
 
@@ -251,7 +252,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_list_mount() -> MountCommand {
             let line = b"TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\"\n";
 
@@ -259,7 +260,7 @@ mod tests {
         }
     }
 
-    snaptest!{
+    snaptest! {
         fn test_swap_extra() -> MountCommand {
             let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/VolGroup00-LogVol01\" FSTYPE=\"swap\" OPTIONS=\"defaults\"";
 

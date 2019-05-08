@@ -174,7 +174,7 @@ pub mod zed {
 
         impl From<Guid> for Result<u64, std::num::ParseIntError> {
             fn from(Guid(x): Guid) -> Self {
-                let without_prefix = x.trim_left_matches("0x");
+                let without_prefix = x.trim_start_matches("0x");
                 u64::from_str_radix(without_prefix, 16)
             }
         }

@@ -61,9 +61,11 @@ fn main() -> Result<(), Error> {
             serde_json::to_string(&Message::Heartbeat)
                 .context("Expected Heartbeat to serialize")
                 .map_err(Error::from)
-        }).map_err(|e| {
+        })
+        .map_err(|e| {
             print_cause_chain(&e);
-        }).for_each(move |json| {
+        })
+        .for_each(move |json| {
             tokio::spawn(send_message(&uri, json, &pfx).map_err(|e| {
                 print_cause_chain(&e);
             }))
@@ -79,7 +81,8 @@ fn main() -> Result<(), Error> {
             serde_json::to_string::<Message>(&msg)
                 .context("Expected Message to serialize")
                 .map_err(Error::from)
-        }).map_err(|e| print_cause_chain(&e))
+        })
+        .map_err(|e| print_cause_chain(&e))
         .for_each(move |json| {
             tokio::spawn(send_message(&uri2, json, &pfx2).map_err(|e| {
                 print_cause_chain(&e);

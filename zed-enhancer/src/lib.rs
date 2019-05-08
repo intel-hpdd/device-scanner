@@ -120,7 +120,8 @@ pub fn processor(socket: UnixStream) -> impl Future<Item = (), Error = Error> {
         .map_err(Error::Io)
         .and_then(|x| {
             serde_json::from_str::<device_types::zed::ZedCommand>(&x).map_err(Error::SerdeJson)
-        }).and_then(handle_zed_commands)
+        })
+        .and_then(handle_zed_commands)
         .map(device_types::Command::PoolCommand)
         .and_then(|x| serde_json::to_string(&x).map_err(Error::SerdeJson))
         .for_each(|x| {

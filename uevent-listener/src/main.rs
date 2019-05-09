@@ -9,12 +9,11 @@ extern crate pretty_assertions;
 #[cfg_attr(test, macro_use)]
 extern crate im;
 
-extern crate device_types;
-extern crate serde_json;
-
 use device_types::{udev::UdevCommand, uevent::UEvent, Command};
 use im::{HashSet, Vector};
-use std::{env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit};
+use std::{
+    env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit, string::ToString,
+};
 
 fn required_field(name: &str) -> String {
     env::var(name).unwrap()
@@ -27,7 +26,7 @@ fn optional_field(name: &str) -> Option<String> {
 fn split_space(x: &str) -> Vector<String> {
     x.split(' ')
         .filter(|x| x.trim() != "")
-        .map(|x| x.to_string())
+        .map(ToString::to_string)
         .collect()
 }
 

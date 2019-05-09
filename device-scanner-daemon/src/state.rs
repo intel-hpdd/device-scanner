@@ -1,4 +1,4 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -9,26 +9,22 @@
 //! This module is responsible for internally storing the current state and building the next device-graph
 //! after each "tick" (an incoming device event).
 
-use futures::future::Future;
-use futures::sync::mpsc::{self, UnboundedSender};
-
-use im::{hashset, vector, HashSet, Vector};
-use serde_json;
-use std::{io, iter::IntoIterator, path::PathBuf};
-use tokio::prelude::*;
-
 use connections;
 use device_types::{
     devices::Device,
-    mount::{BdevPath, FsType, Mount, MountPoint},
+    mount::{BdevPath, Mount},
     state,
     uevent::UEvent,
     Command,
 };
-
-use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
-
 use error::{self, Result};
+use futures::future::Future;
+use futures::sync::mpsc::{self, UnboundedSender};
+use im::{hashset, vector, HashSet, Vector};
+use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
+use serde_json;
+use std::{io, iter::IntoIterator, path::PathBuf};
+use tokio::prelude::*;
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
@@ -108,15 +104,6 @@ fn get_partitions(
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            let (filesystem_type, mount_path) = match mount {
-                Some(Mount {
-                    fs_type: FsType(f),
-                    target: MountPoint(m),
-                    ..
-                }) => (Some(f.clone()), Some(m.clone())),
-                None => (x.fs_type.clone(), None),
-            };
-
             Ok(Device::Partition {
                 partition_number: x
                     .part_entry_number
@@ -126,9 +113,9 @@ fn get_partitions(
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 paths: x.paths.clone(),
-                filesystem_type,
+                filesystem_type: x.fs_type.clone(),
                 children: hashset![],
-                mount_path,
+                mount: mount.map(ToOwned::to_owned),
             })
         })
         .collect()
@@ -144,15 +131,6 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            let (filesystem_type, mount_path) = match mount {
-                Some(Mount {
-                    fs_type: FsType(f),
-                    target: MountPoint(m),
-                    ..
-                }) => (Some(f.clone()), Some(m.clone())),
-                None => (x.fs_type.clone(), None),
-            };
-
             Ok(Device::LogicalVolume {
                 name: x
                     .dm_lv_name
@@ -167,8 +145,8 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
-                mount_path,
-                filesystem_type,
+                mount: mount.map(ToOwned::to_owned),
+                filesystem_type: x.fs_type.clone(),
                 children: hashset![],
             })
         })
@@ -181,15 +159,6 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            let (filesystem_type, mount_path) = match mount {
-                Some(Mount {
-                    fs_type: FsType(f),
-                    target: MountPoint(m),
-                    ..
-                }) => (Some(f.clone()), Some(m.clone())),
-                None => (x.fs_type.clone(), None),
-            };
-
             Ok(Device::ScsiDevice {
                 serial: x
                     .scsi83
@@ -199,10 +168,10 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
-                filesystem_type,
+                filesystem_type: x.fs_type.clone(),
                 paths: x.paths.clone(),
                 children: hashset![],
-                mount_path,
+                mount: mount.map(ToOwned::to_owned),
             })
         })
         .collect()
@@ -220,15 +189,6 @@ fn get_mpaths(
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            let (filesystem_type, mount_path) = match mount {
-                Some(Mount {
-                    fs_type: FsType(f),
-                    target: MountPoint(m),
-                    ..
-                }) => (Some(f.clone()), Some(m.clone())),
-                None => (x.fs_type.clone(), None),
-            };
-
             Ok(Device::Mpath {
                 serial: x
                     .scsi83
@@ -238,10 +198,10 @@ fn get_mpaths(
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 paths: x.paths.clone(),
-                filesystem_type,
+                filesystem_type: x.fs_type.clone(),
                 children: hashset![],
                 devpath: x.devpath.clone(),
-                mount_path,
+                mount: mount.map(ToOwned::to_owned),
             })
         })
         .collect()
@@ -254,19 +214,10 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            let (filesystem_type, mount_path) = match mount {
-                Some(Mount {
-                    fs_type: FsType(f),
-                    target: MountPoint(m),
-                    ..
-                }) => (Some(f.clone()), Some(m.clone())),
-                None => (x.fs_type.clone(), None),
-            };
-
             Ok(Device::MdRaid {
                 paths: x.paths.clone(),
-                filesystem_type,
-                mount_path,
+                filesystem_type: x.fs_type.clone(),
+                mount: mount.map(ToOwned::to_owned),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,

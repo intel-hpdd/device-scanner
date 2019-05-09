@@ -16,7 +16,7 @@ pub fn update_udev(uevents: &state::UEvents, cmd: UdevCommand) -> state::UEvents
 mod tests {
     use super::*;
     use device_types::{udev::UdevCommand, uevent::UEvent};
-    use im::{hashmap, hashset, vector};
+    use im::{hashmap, ordset, vector};
     use std::path::PathBuf;
 
     fn create_path_buf(s: &str) -> PathBuf {
@@ -32,7 +32,7 @@ mod tests {
             major: "253".to_string(),
             minor: "20".to_string(),
             seqnum: 3547,
-            paths: hashset![
+            paths: ordset![
                 create_path_buf(
                     "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df"
                 ),
@@ -64,7 +64,7 @@ mod tests {
             is_mpath: None,
             dm_slave_mms: vector!["253:13".to_string()],
             dm_vg_size: Some(0),
-            md_devs: hashset![],
+            md_devs: ordset![],
             dm_multipath_devpath: None,
             dm_name: Some("mpathd1".to_string()),
             dm_lv_name: None,

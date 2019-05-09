@@ -7,7 +7,7 @@
 extern crate pretty_assertions;
 
 use device_types::{udev::UdevCommand, uevent::UEvent, Command};
-use im::{HashSet, Vector};
+use im::{OrdSet, Vector};
 use std::{
     env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit, string::ToString,
 };
@@ -27,12 +27,12 @@ fn split_space(x: &str) -> Vector<String> {
         .collect()
 }
 
-fn get_paths() -> HashSet<PathBuf> {
+fn get_paths() -> OrdSet<PathBuf> {
     let devlinks = env::var("DEVLINKS").unwrap_or_else(|_| "".to_string());
 
     let devname = required_field("DEVNAME");
 
-    let mut xs: HashSet<PathBuf> = split_space(&devlinks)
+    let mut xs: OrdSet<PathBuf> = split_space(&devlinks)
         .iter()
         .map(|x| {
             let mut p = PathBuf::new();
@@ -92,7 +92,7 @@ fn create_pathbuf(contents: &str) -> PathBuf {
     p
 }
 
-fn md_devs<I>(iter: I) -> HashSet<PathBuf>
+fn md_devs<I>(iter: I) -> OrdSet<PathBuf>
 where
     I: Iterator<Item = (String, String)>,
 {
@@ -175,7 +175,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use im::hashset;
+    use im::ordset;
 
     #[test]
     fn test_lvm_uuids() {
@@ -224,7 +224,7 @@ mod tests {
 
         assert_eq!(
             result,
-            hashset![create_pathbuf("/dev/sda"), create_pathbuf("/dev/sdd")]
+            ordset![create_pathbuf("/dev/sda"), create_pathbuf("/dev/sdd")]
         );
     }
 }

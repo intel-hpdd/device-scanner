@@ -105,7 +105,7 @@ pub fn update_zed_events(
                     .ok_or_else(|| Error::LibZfsError(libzfs_types::LibZfsError::ZfsNotFound(name)))
             }
 
-            let mut pool = take_pool(&mut zed_events, guid)?;
+            let pool = take_pool(&mut zed_events, guid)?;
             let mut dataset = get_dataset_in_pool(pool, name)?;
 
             dataset.props = update_prop(&key, &value, dataset.props);

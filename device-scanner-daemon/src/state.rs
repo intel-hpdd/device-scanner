@@ -20,7 +20,7 @@ use device_types::{
 use error::{self, Result};
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
-use im::{hashset, vector, HashSet, Vector};
+use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
 use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
 use serde_json;
 use std::{io, iter::IntoIterator, path::PathBuf};
@@ -57,7 +57,7 @@ fn find_by_major_minor(xs: &Vector<String>, major: &str, minor: &str) -> bool {
     xs.contains(&format_major_minor(major, minor))
 }
 
-fn find_mount<'a>(xs: &HashSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {
+fn find_mount<'a>(xs: &OrdSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {
     ys.iter().find(
         |Mount {
              source: BdevPath(s),
@@ -207,7 +207,7 @@ fn get_mpaths(
         .collect()
 }
 
-fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result<HashSet<Device>> {
+fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &OrdSet<PathBuf>) -> Result<HashSet<Device>> {
     b.mds
         .iter()
         .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
@@ -231,10 +231,10 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &HashSet<PathBuf>) -> Result
         .collect()
 }
 
-fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
+fn get_vdev_paths(vdev: libzfs_types::VDev) -> OrdSet<PathBuf> {
     match vdev {
-        libzfs_types::VDev::Disk { path, .. } => hashset![path],
-        libzfs_types::VDev::File { .. } => hashset![],
+        libzfs_types::VDev::Disk { path, .. } => ordset![path],
+        libzfs_types::VDev::File { .. } => ordset![],
         libzfs_types::VDev::Mirror { children, .. }
         | libzfs_types::VDev::RaidZ { children, .. }
         | libzfs_types::VDev::Replacing { children, .. } => {
@@ -253,11 +253,7 @@ fn get_vdev_paths(vdev: libzfs_types::VDev) -> HashSet<PathBuf> {
     }
 }
 
-fn get_pools(
-    b: &Buckets,
-    ys: &HashSet<Mount>,
-    paths: &HashSet<PathBuf>,
-) -> Result<HashSet<Device>> {
+fn get_pools(b: &Buckets, ys: &HashSet<Mount>, paths: &OrdSet<PathBuf>) -> Result<HashSet<Device>> {
     b.pools
         .iter()
         .filter(|&x| {

@@ -103,7 +103,7 @@ pub mod udev {
 }
 
 pub mod uevent {
-    use im::{HashSet, Vector};
+    use im::{OrdSet, Vector};
     use std::path::PathBuf;
 
     #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
@@ -112,7 +112,7 @@ pub mod uevent {
         pub major: String,
         pub minor: String,
         pub seqnum: i64,
-        pub paths: HashSet<PathBuf>,
+        pub paths: OrdSet<PathBuf>,
         pub devname: PathBuf,
         pub devpath: PathBuf,
         pub devtype: String,
@@ -133,7 +133,7 @@ pub mod uevent {
         pub is_mpath: Option<bool>,
         pub dm_slave_mms: Vector<String>,
         pub dm_vg_size: Option<i64>,
-        pub md_devs: HashSet<PathBuf>,
+        pub md_devs: OrdSet<PathBuf>,
         pub dm_multipath_devpath: Option<bool>,
         pub dm_name: Option<String>,
         pub dm_lv_name: Option<String>,
@@ -226,12 +226,12 @@ pub enum Command {
 
 pub mod devices {
     use crate::mount;
-    use im::HashSet;
+    use im::{HashSet, OrdSet};
     use libzfs_types;
     use std::path::PathBuf;
 
     type Children = HashSet<Device>;
-    type Paths = HashSet<PathBuf>;
+    type Paths = OrdSet<PathBuf>;
 
     #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
     pub enum Device {

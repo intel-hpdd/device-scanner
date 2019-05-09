@@ -6,9 +6,6 @@
 #[macro_use]
 extern crate pretty_assertions;
 
-#[cfg_attr(test, macro_use)]
-extern crate im;
-
 use device_types::{udev::UdevCommand, uevent::UEvent, Command};
 use im::{HashSet, Vector};
 use std::{
@@ -178,6 +175,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use im::hashset;
 
     #[test]
     fn test_lvm_uuids() {

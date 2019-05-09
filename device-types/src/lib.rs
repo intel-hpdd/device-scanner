@@ -22,10 +22,9 @@ pub mod message {
 }
 
 pub mod state {
+    use crate::{mount, uevent};
     use im::{HashMap, HashSet};
-    use mount;
     use std::path::PathBuf;
-    use uevent;
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
@@ -66,8 +65,8 @@ pub mod mount {
 
     #[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Clone)]
     pub struct Mount {
-        pub target: MountPoint,
         pub source: BdevPath,
+        pub target: MountPoint,
         pub fs_type: FsType,
         pub opts: MountOpts,
     }
@@ -93,7 +92,7 @@ pub mod mount {
 }
 
 pub mod udev {
-    use uevent;
+    use crate::uevent;
 
     #[derive(Debug, PartialEq, Serialize, Deserialize)]
     pub enum UdevCommand {
@@ -226,6 +225,7 @@ pub enum Command {
 }
 
 pub mod devices {
+    use crate::mount;
     use im::HashSet;
     use libzfs_types;
     use std::path::PathBuf;
@@ -246,7 +246,7 @@ pub mod devices {
             size: i64,
             filesystem_type: Option<String>,
             paths: Paths,
-            mount_path: Option<PathBuf>,
+            mount: Option<mount::Mount>,
             children: Children,
         },
         Partition {
@@ -257,7 +257,7 @@ pub mod devices {
             devpath: PathBuf,
             filesystem_type: Option<String>,
             paths: Paths,
-            mount_path: Option<PathBuf>,
+            mount: Option<mount::Mount>,
             children: Children,
         },
         MdRaid {
@@ -266,7 +266,7 @@ pub mod devices {
             minor: String,
             filesystem_type: Option<String>,
             paths: Paths,
-            mount_path: Option<PathBuf>,
+            mount: Option<mount::Mount>,
             uuid: String,
             children: Children,
         },
@@ -279,7 +279,7 @@ pub mod devices {
             filesystem_type: Option<String>,
             paths: Paths,
             children: Children,
-            mount_path: Option<PathBuf>,
+            mount: Option<mount::Mount>,
         },
         VolumeGroup {
             name: String,
@@ -297,7 +297,7 @@ pub mod devices {
             devpath: PathBuf,
             paths: Paths,
             filesystem_type: Option<String>,
-            mount_path: Option<PathBuf>,
+            mount: Option<mount::Mount>,
         },
         Zpool {
             guid: u64,

@@ -10,10 +10,6 @@
 
 use std::convert::AsRef;
 
-#[cfg(test)]
-#[macro_use]
-extern crate snaptest;
-
 use device_types::{
     mount::{BdevPath, FsType, MountCommand, MountOpts, MountPoint},
     Command,
@@ -178,6 +174,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use insta::assert_debug_snapshot_matches;
 
     type StableVec = Vec<(String, String)>;
 
@@ -189,75 +186,66 @@ mod tests {
         xs
     }
 
-    snaptest! {
-        fn test_line_to_hashmap_swap() -> StableVec {
-            let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
+    #[test]
+    fn test_line_to_hashmap_swap() {
+        let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
-            map_to_sorted_vec(line_to_hashmap(line))
-        }
+        assert_debug_snapshot_matches!(map_to_sorted_vec(line_to_hashmap(line)))
     }
 
-    snaptest! {
-        fn test_line_to_hashmap_mount() -> StableVec {
-            let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
+    #[test]
+    fn test_line_to_hashmap_mount() {
+        let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-            map_to_sorted_vec(line_to_hashmap(line))
-        }
+        assert_debug_snapshot_matches!(map_to_sorted_vec(line_to_hashmap(line)))
     }
 
-    snaptest! {
-        fn test_swap() -> MountCommand {
-            let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
+    #[test]
+    fn test_swap() {
+        let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_poll_mount() -> MountCommand {
-            let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
+    #[test]
+    fn test_poll_mount() {
+        let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_poll_umount() -> MountCommand {
-            let line = b"ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
+    #[test]
+    fn test_poll_umount() {
+        let line = b"ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_poll_remount() -> MountCommand {
-            let line = b"ACTION=\"remount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"ro,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"rw,data=ordered\"\n";
+    #[test]
+    fn test_poll_remount() {
+        let line = b"ACTION=\"remount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"ro,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"rw,data=ordered\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_poll_move() -> MountCommand {
-            let line = b"ACTION=\"move\" TARGET=\"/mnt/part1a\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"/mnt/part1\" OLD-OPTIONS=\"\"\n";
+    #[test]
+    fn test_poll_move() {
+        let line = b"ACTION=\"move\" TARGET=\"/mnt/part1a\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"/mnt/part1\" OLD-OPTIONS=\"\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_list_mount() -> MountCommand {
-            let line = b"TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\"\n";
+    #[test]
+    fn test_list_mount() {
+        let line = b"TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\"\n";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 
-    snaptest! {
-        fn test_swap_extra() -> MountCommand {
-            let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/VolGroup00-LogVol01\" FSTYPE=\"swap\" OPTIONS=\"defaults\"";
+    #[test]
+    fn test_swap_extra() {
+        let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/VolGroup00-LogVol01\" FSTYPE=\"swap\" OPTIONS=\"defaults\"";
 
-            line_to_command(line)
-        }
+        assert_debug_snapshot_matches!(line_to_command(line))
     }
 }

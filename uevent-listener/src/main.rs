@@ -9,7 +9,7 @@ extern crate pretty_assertions;
 use device_types::{udev::UdevCommand, uevent::UEvent, Command, DevicePath};
 use im::{OrdSet, Vector};
 use std::{
-    env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit, string::ToString,
+    convert::Into, env, io::prelude::*, os::unix::net::UnixStream, process::exit, string::ToString,
 };
 
 fn required_field(name: &str) -> String {
@@ -34,18 +34,11 @@ fn get_paths() -> OrdSet<DevicePath> {
 
     let mut xs: OrdSet<DevicePath> = split_space(&devlinks)
         .iter()
-        .map(|x| {
-            let mut p = PathBuf::new();
-            p.push(x.to_string());
-            DevicePath(p)
-        })
+        .map(Into::into)
+        .map(DevicePath)
         .collect();
 
-    xs.insert({
-        let mut p = PathBuf::new();
-        p.push(devname);
-        DevicePath(p)
-    });
+    xs.insert(DevicePath(devname.into()));
 
     xs
 }
@@ -85,27 +78,20 @@ fn lvm_uuids(x: String) -> Option<(String, String)> {
     }
 }
 
-fn create_pathbuf(contents: &str) -> PathBuf {
-    let mut p = PathBuf::new();
-    p.push(contents);
-
-    p
-}
-
 fn md_devs<I>(iter: I) -> OrdSet<DevicePath>
 where
     I: Iterator<Item = (String, String)>,
 {
     iter.filter(|(key, _)| key.starts_with("MD_DEVICE_"))
         .filter(|(key, _)| key.ends_with("_DEV"))
-        .map(|(_, v)| create_pathbuf(&v))
+        .map(|(_, v)| v.into())
         .map(DevicePath)
         .collect()
 }
 
 pub fn build_uevent() -> UEvent {
-    let devname = create_pathbuf(&required_field("DEVNAME"));
-    let devpath = create_pathbuf(&required_field("DEVPATH"));
+    let devname = required_field("DEVNAME").into();
+    let devpath = required_field("DEVPATH").into();
 
     UEvent {
         major: required_field("MAJOR"),
@@ -223,12 +209,6 @@ mod tests {
 
         let result = md_devs(input.into_iter());
 
-        assert_eq!(
-            result,
-            ordset![
-                DevicePath(create_pathbuf("/dev/sda")),
-                DevicePath(create_pathbuf("/dev/sdd"))
-            ]
-        );
+        assert_eq!(result, ordset!["/dev/sda".into(), "/dev/sdd".into()]);
     }
 }

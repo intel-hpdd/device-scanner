@@ -49,22 +49,14 @@ mod tests {
     };
     use im::hashset;
     use insta::assert_debug_snapshot_matches;
-    use std::path::PathBuf;
-
-    fn create_path_buf(s: &str) -> PathBuf {
-        let mut p = PathBuf::new();
-        p.push(s);
-
-        p
-    }
 
     #[test]
     fn test_mount_update() {
         let mounts: im::HashSet<device_types::mount::Mount> = hashset!();
 
         let add_cmd = MountCommand::AddMount(
-            MountPoint(create_path_buf("/mnt/part1")),
-            DevicePath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part1".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
         );
@@ -74,19 +66,19 @@ mod tests {
         assert_debug_snapshot_matches!(mounts);
 
         let mv_cmd = MountCommand::MoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            DevicePath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
-            MountPoint(create_path_buf("/mnt/part1")),
+            MountPoint("/mnt/part1".into()),
         );
 
         let mounts = update_mount(mounts, mv_cmd);
 
         assert_eq!(
             hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: DevicePath(create_path_buf("/dev/sde1")),
+                target: MountPoint("/mnt/part3".into()),
+                source: DevicePath("/dev/sde1".into()),
                 fs_type: FsType("ext4".to_string()),
                 opts: MountOpts("rw,relatime,data=ordered".to_string())
             }),
@@ -94,8 +86,8 @@ mod tests {
         );
 
         let replace_cmd = MountCommand::ReplaceMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            DevicePath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("r,relatime,data=ordered".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
@@ -105,8 +97,8 @@ mod tests {
 
         assert_eq!(
             hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: DevicePath(create_path_buf("/dev/sde1")),
+                target: MountPoint("/mnt/part3".into()),
+                source: DevicePath("/dev/sde1".into()),
                 fs_type: FsType("ext4".to_string()),
                 opts: MountOpts("r,relatime,data=ordered".to_string())
             }),
@@ -114,8 +106,8 @@ mod tests {
         );
 
         let rm_cmd = MountCommand::RemoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            DevicePath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("r,relatime,data=ordered".to_string()),
         );

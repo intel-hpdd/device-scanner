@@ -16,8 +16,8 @@ use device_types::{
 };
 use futures::{future, Future};
 use std::{
-    collections::HashMap, io::BufRead, os::unix::net::UnixStream as NetUnixStream, path::PathBuf,
-    process::exit, str,
+    collections::HashMap, io::BufRead, os::unix::net::UnixStream as NetUnixStream, process::exit,
+    str,
 };
 use tokio::{
     io::{AsyncRead, AsyncWrite},
@@ -25,20 +25,12 @@ use tokio::{
     reactor::Handle,
 };
 
-fn to_pathbuf(s: String) -> PathBuf {
-    let mut p = PathBuf::new();
-
-    p.push(s);
-
-    p
-}
-
 fn line_to_command(x: &[u8]) -> MountCommand {
     let mut x: IntermediateMap = line_to_hashmap(&x);
 
     let (target, source, fstype, mount_opts, old_opts, old_target) = (
-        MountPoint(to_pathbuf(x.remove("TARGET").expect("missing TARGET"))),
-        DevicePath(to_pathbuf(x.remove("SOURCE").expect("missing SOURCE"))),
+        MountPoint(x.remove("TARGET").expect("missing TARGET").into()),
+        DevicePath(x.remove("SOURCE").expect("missing SOURCE").into()),
         FsType(x.remove("FSTYPE").expect("missing FSTYPE")),
         MountOpts(x.remove("OPTIONS").expect("missing OPTIONS")),
         x.get("OLD-OPTIONS"),
@@ -60,9 +52,7 @@ fn line_to_command(x: &[u8]) -> MountCommand {
             source,
             fstype,
             mount_opts,
-            MountPoint(to_pathbuf(
-                old_target.expect("missing OLD-TARGET").to_string(),
-            )),
+            MountPoint(old_target.expect("missing OLD-TARGET").into()),
         ),
         Some(x) => {
             eprintln!("Unexpected ACTION: {}", x);

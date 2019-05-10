@@ -7,4 +7,4 @@ ListenStream=/var/run/device-aggregator.sock
 RemoveOnStop=true
 
 [Install]
-WantedBy=sockets.target
+WantedBy=iml-manager.target

@@ -1,31 +1,20 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate device_types;
-extern crate env_logger;
-extern crate futures;
-extern crate log;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
-extern crate warp;
+mod lib;
 
 use device_types::{devices::Device, message::Message};
-use warp::Filter;
-
 use futures::Future;
-
-use std::{
-    env,
-    sync::{Arc, Mutex},
-};
-
-mod lib;
 use lib::{
     aggregator_error,
     cache::{Cache, CacheFlush},
 };
+use std::{
+    env,
+    sync::{Arc, Mutex},
+};
+use warp::Filter;
 
 fn main() -> aggregator_error::Result<()> {
     env_logger::init();

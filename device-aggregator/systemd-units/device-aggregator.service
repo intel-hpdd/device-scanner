@@ -5,6 +5,6 @@ PartOf=iml-manager.target
 [Service]
 Restart=always
 ExecStart=/usr/bin/device-aggregator
-Environment=DEVICE_AGGREGATOR_PORT=8008
+EnvironmentFile=/var/lib/chroma/iml-settings.conf
 StandardOutput=journal
 StandardError=journal

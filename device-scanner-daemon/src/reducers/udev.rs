@@ -14,17 +14,9 @@ pub fn update_udev(uevents: &state::UEvents, cmd: UdevCommand) -> state::UEvents
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::update_udev;
     use device_types::{udev::UdevCommand, uevent::UEvent};
     use im::{hashmap, ordset, vector};
-    use std::path::PathBuf;
-
-    fn create_path_buf(s: &str) -> PathBuf {
-        let mut p = PathBuf::new();
-        p.push(s);
-
-        p
-    }
 
     #[test]
     fn test_udev_update() {
@@ -33,17 +25,15 @@ mod tests {
             minor: "20".to_string(),
             seqnum: 3547,
             paths: ordset![
-                create_path_buf(
-                    "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df"
-                ),
-                create_path_buf("/dev/mapper/mpathd1"),
-                create_path_buf("/dev/disk/by-uuid/b4550256-cf48-4013-8363-bfee5f52da12"),
-                create_path_buf("/dev/disk/by-partuuid/d643e32f-b6b9-4863-af8f-8950376e28da"),
-                create_path_buf("/dev/dm-20"),
-                create_path_buf("/dev/disk/by-id/dm-name-mpathd1")
+                "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df".into(),
+                "/dev/mapper/mpathd1".into(),
+                "/dev/disk/by-uuid/b4550256-cf48-4013-8363-bfee5f52da12".into(),
+                "/dev/disk/by-partuuid/d643e32f-b6b9-4863-af8f-8950376e28da".into(),
+                "/dev/dm-20".into(),
+                "/dev/disk/by-id/dm-name-mpathd1".into()
             ],
-            devname: create_path_buf("/dev/dm-20"),
-            devpath: create_path_buf("/devices/virtual/block/dm-20"),
+            devname: "/dev/dm-20".into(),
+            devpath: "/devices/virtual/block/dm-20".into(),
             devtype: "disk".to_string(),
             vendor: None,
             model: None,
@@ -97,5 +87,4 @@ mod tests {
 
         assert_eq!(hashmap! {}, uevents);
     }
-
 }

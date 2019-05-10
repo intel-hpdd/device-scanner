@@ -6,7 +6,7 @@ use device_types::{
     state,
     zed::{prop, zfs, zpool, PoolCommand},
 };
-use error::{Error, Result};
+use crate::error::{Error, Result};
 use libzfs_types;
 use std::result;
 

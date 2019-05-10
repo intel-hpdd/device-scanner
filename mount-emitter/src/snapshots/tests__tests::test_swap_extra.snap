@@ -1,5 +1,5 @@
 ---
-created: "2019-05-10T15:51:54.868847Z"
+created: "2019-05-10T20:35:14.497325Z"
 creator: insta@0.8.1
 source: mount-emitter/src/lib.rs
 expression: line_to_command(line)
@@ -8,7 +8,7 @@ AddMount(
     MountPoint(
         "swap"
     ),
-    BdevPath(
+    DevicePath(
         "/dev/mapper/VolGroup00-LogVol01"
     ),
     FsType(

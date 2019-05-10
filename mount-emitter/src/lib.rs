@@ -11,8 +11,8 @@
 use std::convert::AsRef;
 
 use device_types::{
-    mount::{BdevPath, FsType, MountCommand, MountOpts, MountPoint},
-    Command,
+    mount::{FsType, MountCommand, MountOpts, MountPoint},
+    Command, DevicePath,
 };
 use futures::{future, Future};
 use std::{
@@ -38,7 +38,7 @@ fn line_to_command(x: &[u8]) -> MountCommand {
 
     let (target, source, fstype, mount_opts, old_opts, old_target) = (
         MountPoint(to_pathbuf(x.remove("TARGET").expect("missing TARGET"))),
-        BdevPath(to_pathbuf(x.remove("SOURCE").expect("missing SOURCE"))),
+        DevicePath(to_pathbuf(x.remove("SOURCE").expect("missing SOURCE"))),
         FsType(x.remove("FSTYPE").expect("missing FSTYPE")),
         MountOpts(x.remove("OPTIONS").expect("missing OPTIONS")),
         x.get("OLD-OPTIONS"),

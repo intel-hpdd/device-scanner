@@ -1,0 +1,22 @@
+---
+created: "2019-05-10T21:38:38.959050Z"
+creator: insta@0.8.1
+source: device-scanner-daemon/src/reducers/mount.rs
+expression: mounts
+---
+{
+    Mount {
+        source: DevicePath(
+            "/dev/sde1"
+        ),
+        target: MountPoint(
+            "/mnt/part1"
+        ),
+        fs_type: FsType(
+            "ext4"
+        ),
+        opts: MountOpts(
+            "rw,relatime,data=ordered"
+        )
+    }
+}

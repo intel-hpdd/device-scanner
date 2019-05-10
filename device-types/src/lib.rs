@@ -1,20 +1,80 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#[macro_use]
-extern crate serde_derive;
+pub mod udev;
+pub mod uevent;
 
 #[cfg(test)]
 #[macro_use]
 extern crate pretty_assertions;
 
-extern crate im;
+use std::{
+    cmp::Ordering,
+    hash::{Hash, Hasher},
+    path::PathBuf,
+};
 
-extern crate libzfs_types;
+#[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
+pub struct DevicePath(pub PathBuf);
+
+impl From<&str> for DevicePath {
+    fn from(s: &str) -> DevicePath {
+        DevicePath(s.into())
+    }
+}
+
+fn find_sort_slot(DevicePath(p): &DevicePath) -> usize {
+    let o = &[
+        Box::new(|p: &PathBuf| p.starts_with("/dev/mapper/")) as Box<Fn(&PathBuf) -> bool>,
+        Box::new(|p| p.starts_with("/dev/disk/by-id/")),
+        Box::new(|p| p.starts_with("/dev/disk/by-path/")),
+        Box::new(|p| p.starts_with("/dev/")),
+        Box::new(|_| true),
+    ]
+    .iter()
+    .position(|f| f(&p))
+    .unwrap();
+
+    *o
+}
+
+impl Ord for DevicePath {
+    fn cmp(&self, other: &DevicePath) -> Ordering {
+        let a_slot = find_sort_slot(self);
+        let b_slot = find_sort_slot(other);
+
+        if a_slot > b_slot {
+            Ordering::Greater
+        } else if a_slot < b_slot {
+            Ordering::Less
+        } else {
+            self.0.partial_cmp(&other.0).unwrap()
+        }
+    }
+}
+
+impl PartialOrd for DevicePath {
+    fn partial_cmp(&self, other: &DevicePath) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl PartialEq for DevicePath {
+    fn eq(&self, other: &DevicePath) -> bool {
+        self.0 == other.0
+    }
+}
+
+impl Hash for DevicePath {
+    fn hash<H: Hasher>(&self, h: &mut H) {
+        self.0.as_path().hash(h)
+    }
+}
 
 pub mod message {
-    #[derive(Debug, Serialize, Deserialize)]
+    #[derive(Debug, serde::Serialize, serde::Deserialize)]
     pub enum Message {
         Data(String),
         Heartbeat,
@@ -30,7 +90,7 @@ pub mod state {
 
     pub type ZedEvents = HashMap<u64, libzfs_types::Pool>;
 
-    #[derive(Debug, Clone, Default, Serialize, Deserialize)]
+    #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
     pub struct State {
         pub uevents: UEvents,
         pub zed_events: ZedEvents,
@@ -49,30 +109,35 @@ pub mod state {
 }
 
 pub mod mount {
+    use crate::DevicePath;
     use std::path::PathBuf;
 
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+    #[serde(transparent)]
     pub struct MountPoint(pub PathBuf);
 
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-    pub struct BdevPath(pub PathBuf);
-
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+    #[serde(transparent)]
     pub struct FsType(pub String);
 
-    #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
     pub struct MountOpts(pub String);
 
-    #[derive(Debug, PartialEq, Eq, Hash, Serialize, Deserialize, Clone)]
+    #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
     pub struct Mount {
-        pub source: BdevPath,
+        pub source: DevicePath,
         pub target: MountPoint,
         pub fs_type: FsType,
         pub opts: MountOpts,
     }
 
     impl Mount {
-        pub fn new(target: MountPoint, source: BdevPath, fs_type: FsType, opts: MountOpts) -> Self {
+        pub fn new(
+            target: MountPoint,
+            source: DevicePath,
+            fs_type: FsType,
+            opts: MountOpts,
+        ) -> Self {
             Mount {
                 target,
                 source,
@@ -82,71 +147,18 @@ pub mod mount {
         }
     }
 
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum MountCommand {
-        AddMount(MountPoint, BdevPath, FsType, MountOpts),
-        RemoveMount(MountPoint, BdevPath, FsType, MountOpts),
-        ReplaceMount(MountPoint, BdevPath, FsType, MountOpts, MountOpts),
-        MoveMount(MountPoint, BdevPath, FsType, MountOpts, MountPoint),
-    }
-}
-
-pub mod udev {
-    use crate::uevent;
-
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
-    pub enum UdevCommand {
-        Add(uevent::UEvent),
-        Change(uevent::UEvent),
-        Remove(uevent::UEvent),
-    }
-}
-
-pub mod uevent {
-    use im::{OrdSet, Vector};
-    use std::path::PathBuf;
-
-    #[derive(Debug, PartialEq, Serialize, Deserialize, Clone)]
-    #[serde(rename_all = "camelCase")]
-    pub struct UEvent {
-        pub major: String,
-        pub minor: String,
-        pub seqnum: i64,
-        pub paths: OrdSet<PathBuf>,
-        pub devname: PathBuf,
-        pub devpath: PathBuf,
-        pub devtype: String,
-        pub vendor: Option<String>,
-        pub model: Option<String>,
-        pub serial: Option<String>,
-        pub fs_type: Option<String>,
-        pub fs_usage: Option<String>,
-        pub fs_uuid: Option<String>,
-        pub part_entry_number: Option<i64>,
-        pub part_entry_mm: Option<String>,
-        pub size: Option<i64>,
-        pub scsi80: Option<String>,
-        pub scsi83: Option<String>,
-        pub read_only: Option<bool>,
-        pub bios_boot: Option<bool>,
-        pub zfs_reserved: Option<bool>,
-        pub is_mpath: Option<bool>,
-        pub dm_slave_mms: Vector<String>,
-        pub dm_vg_size: Option<i64>,
-        pub md_devs: OrdSet<PathBuf>,
-        pub dm_multipath_devpath: Option<bool>,
-        pub dm_name: Option<String>,
-        pub dm_lv_name: Option<String>,
-        pub lv_uuid: Option<String>,
-        pub dm_vg_name: Option<String>,
-        pub vg_uuid: Option<String>,
-        pub md_uuid: Option<String>,
+        AddMount(MountPoint, DevicePath, FsType, MountOpts),
+        RemoveMount(MountPoint, DevicePath, FsType, MountOpts),
+        ReplaceMount(MountPoint, DevicePath, FsType, MountOpts, MountOpts),
+        MoveMount(MountPoint, DevicePath, FsType, MountOpts, MountPoint),
     }
 }
 
 pub mod zed {
 
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum PoolCommand {
         AddPools(Vec<libzfs_types::Pool>),
         AddPool(libzfs_types::Pool),
@@ -159,10 +171,10 @@ pub mod zed {
     }
 
     pub mod zpool {
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Name(pub String);
 
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Guid(pub String);
 
         impl From<u64> for Guid {
@@ -178,7 +190,7 @@ pub mod zed {
             }
         }
 
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct State(pub String);
 
         impl From<State> for String {
@@ -189,19 +201,19 @@ pub mod zed {
     }
 
     pub mod zfs {
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Name(pub String);
     }
 
     pub mod prop {
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Key(pub String);
 
-        #[derive(Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Value(pub String);
     }
 
-    #[derive(Debug, PartialEq, Serialize, Deserialize)]
+    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum ZedCommand {
         Init,
         CreateZpool(zpool::Name, zpool::Guid, zpool::State),
@@ -216,7 +228,7 @@ pub mod zed {
     }
 }
 
-#[derive(Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Command {
     Stream,
     PoolCommand(zed::PoolCommand),
@@ -225,21 +237,22 @@ pub enum Command {
 }
 
 pub mod devices {
-    use crate::mount;
+    use crate::{mount, DevicePath};
     use im::{HashSet, OrdSet};
     use libzfs_types;
     use std::path::PathBuf;
 
     type Children = HashSet<Device>;
-    type Paths = OrdSet<PathBuf>;
+    type Paths = OrdSet<DevicePath>;
 
-    #[derive(Debug, PartialEq, Eq, Serialize, Hash, Deserialize, Clone)]
+    #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
     pub enum Device {
         Root {
             children: Children,
         },
         ScsiDevice {
             serial: String,
+            scsi80: Option<String>,
             major: String,
             minor: String,
             devpath: PathBuf,
@@ -320,10 +333,25 @@ pub mod devices {
 
 #[cfg(test)]
 mod tests {
-    extern crate serde_json;
+    use super::{
+        mount, {Command, DevicePath},
+    };
+    use im::{ordset, OrdSet};
+    use insta::assert_debug_snapshot_matches;
 
-    use super::{mount, *};
-    use std::path::PathBuf;
+    #[test]
+    fn test_device_path_ordering() {
+        let xs: OrdSet<DevicePath> = ordset![
+            "/dev/disk/by-id/dm-uuid-part1-mpath-3600140550e41a841db244a992c31e7df".into(),
+            "/dev/mapper/mpathd1".into(),
+            "/dev/disk/by-uuid/b4550256-cf48-4013-8363-bfee5f52da12".into(),
+            "/dev/disk/by-partuuid/d643e32f-b6b9-4863-af8f-8950376e28da".into(),
+            "/dev/dm-20".into(),
+            "/dev/disk/by-id/dm-name-mpathd1".into()
+        ];
+
+        assert_debug_snapshot_matches!(xs);
+    }
 
     #[test]
     fn test_mount_deserialize() {
@@ -334,18 +362,8 @@ mod tests {
         assert_eq!(
             result,
             Command::MountCommand(mount::MountCommand::AddMount(
-                mount::MountPoint({
-                    let mut p = PathBuf::new();
-                    p.push("swap");
-
-                    p
-                }),
-                mount::BdevPath({
-                    let mut p = PathBuf::new();
-                    p.push("/dev/mapper/VolGroup00-LogVol01".to_string());
-
-                    p
-                }),
+                mount::MountPoint("swap".into()),
+                "/dev/mapper/VolGroup00-LogVol01".into(),
                 mount::FsType("swap".to_string()),
                 mount::MountOpts("defaults".to_string())
             ))

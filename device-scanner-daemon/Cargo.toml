@@ -4,6 +4,7 @@ version = "2.0.0"
 description = "device-scanner-daemon builds an in-memory representation of devices using udev, zed and findmnt"
 authors = ["IML Team <iml@whamcloud.com>"]
 license = "MIT"
+edition = "2018"
 
 [dependencies]
 tokio = "0.1"
@@ -19,4 +20,5 @@ device-types = { path = "../device-types", version = "0.1.0" }
 libzfs-types = "0.1.1"
 
 [dev-dependencies]
-pretty_assertions = "0.5"
+pretty_assertions = "0.6.1"
+insta = "0.8.1"

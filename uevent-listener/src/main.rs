@@ -6,7 +6,7 @@
 #[macro_use]
 extern crate pretty_assertions;
 
-use device_types::{udev::UdevCommand, uevent::UEvent, Command};
+use device_types::{udev::UdevCommand, uevent::UEvent, Command, DevicePath};
 use im::{OrdSet, Vector};
 use std::{
     env, io::prelude::*, os::unix::net::UnixStream, path::PathBuf, process::exit, string::ToString,
@@ -27,24 +27,24 @@ fn split_space(x: &str) -> Vector<String> {
         .collect()
 }
 
-fn get_paths() -> OrdSet<PathBuf> {
+fn get_paths() -> OrdSet<DevicePath> {
     let devlinks = env::var("DEVLINKS").unwrap_or_else(|_| "".to_string());
 
     let devname = required_field("DEVNAME");
 
-    let mut xs: OrdSet<PathBuf> = split_space(&devlinks)
+    let mut xs: OrdSet<DevicePath> = split_space(&devlinks)
         .iter()
         .map(|x| {
             let mut p = PathBuf::new();
             p.push(x.to_string());
-            p
+            DevicePath(p)
         })
         .collect();
 
     xs.insert({
         let mut p = PathBuf::new();
         p.push(devname);
-        p
+        DevicePath(p)
     });
 
     xs
@@ -92,13 +92,14 @@ fn create_pathbuf(contents: &str) -> PathBuf {
     p
 }
 
-fn md_devs<I>(iter: I) -> OrdSet<PathBuf>
+fn md_devs<I>(iter: I) -> OrdSet<DevicePath>
 where
     I: Iterator<Item = (String, String)>,
 {
     iter.filter(|(key, _)| key.starts_with("MD_DEVICE_"))
         .filter(|(key, _)| key.ends_with("_DEV"))
         .map(|(_, v)| create_pathbuf(&v))
+        .map(DevicePath)
         .collect()
 }
 
@@ -224,7 +225,10 @@ mod tests {
 
         assert_eq!(
             result,
-            ordset![create_pathbuf("/dev/sda"), create_pathbuf("/dev/sdd")]
+            ordset![
+                DevicePath(create_pathbuf("/dev/sda")),
+                DevicePath(create_pathbuf("/dev/sdd"))
+            ]
         );
     }
 }

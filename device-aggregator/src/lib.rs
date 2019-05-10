@@ -1,12 +1,6 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
-
-extern crate device_types;
-extern crate futures;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
 
 pub mod aggregator_error {
     use serde_json;

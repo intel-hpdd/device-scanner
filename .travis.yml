@@ -5,13 +5,14 @@ services:
 jobs:
   include:
     - stage: test
-      name: "Build"
+      name: "copr build test"
       script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
+        - export SPEC=iml-device-scanner.spec
+        - docker run -it -e SPEC="$SPEC" -e LOCAL_ONLY="True" -v $(pwd):/build:rw imlteam/copr-dotnet
+        - ((`find _topdir/RPMS -name *.rpm | wc -l` > 0))
     - stage: test
       language: node_js
-      node_js: 10
+      node_js: "10"
       name: "Unit Test"
       before_install:
         - npm i -g npm@latest codecov
@@ -21,31 +22,34 @@ jobs:
         - docker exec -it libzfs-dotnet bash -c 'cd /device-scanner/ && npm i --ignore-scripts && npm run restore && dotnet fable npm-coverage -- --ci'
         - codecov
     - stage: cd
-      git:
-        depth: 999999
       name: "Continuous Deployment"
       script:
-        - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
-        - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli git'
-        - docker exec -it copr bash -c "cd /builddir && fake run build.fsx --release=\$(git rev-list HEAD | wc -l) --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN"
+        - export OWNER=managerforlustre
+        - export PROJECT=manager-for-lustre-devel
+        - export PACKAGE=iml-device-scanner
+        - export SPEC=iml-device-scanner.spec
+        - docker run -it -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-dotnet
     - stage: deploy-npm
       name: "Npm Deploy"
       script:
-        - docker run -dit --privileged --name libzfs-dotnet -v $(pwd):/device-scanner:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro intelhpdd/libzfs-dotnet
-        - docker exec -i libzfs-dotnet bash -c 'cd /device-scanner/ && npm i && npm run restore && dotnet fable npm-build'
-        - docker exec -i libzfs-dotnet bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
-        - docker exec -i libzfs-dotnet bash -c "cd /device-scanner && npm pub"
-    - stage: deploy-copr
-      name: "Copr Deploy"
+        - docker run -dit --privileged --name deploy-npm -v $(pwd):/build:rw -v /sys/fs/cgroup:/sys/fs/cgroup:ro centos:7
+        - docker exec -i deploy-npm bash -c 'yum groupinstall -y "Development Tools"'
+        - docker exec -i deploy-npm bash -c 'yum install epel-release'
+        - docker exec -i deploy-npm bash -c "echo '//registry.npmjs.org/:_authToken=$NPM_TOKEN' > ~/.npmrc"
+        - docker exec -i deploy-npm bash -c "cd /build/.copr && make deploy-npm"
+    - stage: deploy-copr-r5.0
+      name: "Copr 5.0 deploy"
       script:
-        - docker run -dit --name copr -v $(pwd):/builddir imlteam/dotnet-docker /usr/sbin/init
-        - docker exec -it copr bash -c 'yum install -y rpmdevtools copr-cli'
-        - docker exec -it copr bash -c "cd /builddir && fake run build.fsx --copr-login=$COPR_LOGIN --copr-username=$COPR_USERNAME --copr-token=$COPR_TOKEN"
+        - export OWNER=managerforlustre
+        - export PROJECT=manager-for-lustre-5.0
+        - export PACKAGE=iml-device-scanner
+        - export SPEC=iml-device-scanner.spec
+        - docker run -it -e PROD="true" -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-dotnet
 stages:
   - test
   - name: cd
     if: branch = master AND type = push AND fork = false
   - name: deploy-npm
     if: branch =~ ^v\d+\.\d+\.\d+$
-  - name: deploy-copr
-    if: branch =~ ^v\d+\.\d+\.\d+-.+$
+  - name: deploy-copr-r5.0
+    if: branch =~ ^v\d+\.\d+\.\d+-.+-r5\.0$

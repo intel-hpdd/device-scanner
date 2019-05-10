@@ -1,0 +1,23 @@
+---
+created: "2019-05-10T15:51:54.839668Z"
+creator: insta@0.8.1
+source: mount-emitter/src/lib.rs
+expression: line_to_command(line)
+---
+MoveMount(
+    MountPoint(
+        "/mnt/part1a"
+    ),
+    BdevPath(
+        "/dev/sde1"
+    ),
+    FsType(
+        "ext4"
+    ),
+    MountOpts(
+        "rw,relatime,data=ordered"
+    ),
+    MountPoint(
+        "/mnt/part1"
+    )
+)

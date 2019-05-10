@@ -7,7 +7,7 @@
 %define     aggregator_prefixed iml-%{aggregator_name}
 
 Name:       iml-%{base_name}
-Version:    2.2.0
+Version:    2.2.1
 # Release Start
 Release:    1%{?dist}
 # Release End
@@ -219,6 +219,9 @@ fi
 %systemd_postun_with_restart %{aggregator_name}.socket
 
 %changelog
+* Fri May 10 2019 Will Johnson <wjohnson@whamcloud.com> - 2.2.1-1
+- Fix device-scanner.socket to be wanted by iml-manager.target.
+
 * Tue Jun 26 2018 Joe Grund <joe.grund@whamcloud.com> - 2.0.0-1
 - Remove module-tools
 - Remove vg_size check

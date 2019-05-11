@@ -2,17 +2,10 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate bytes;
-extern crate device_scanner_daemon;
-extern crate futures;
-extern crate tokio;
-
 mod mock_stream;
 
-use device_scanner_daemon::{connections::Connection, error};
-
 use bytes::Bytes;
-
+use device_scanner_daemon::{connections::Connection, error};
 use tokio::runtime::Runtime;
 
 #[test]

@@ -14,13 +14,13 @@
 //! This allows the server to make progress writing to each connection
 //! without blocking all writes on the longest one.
 
+use crate::error;
+use bytes::{BufMut, Bytes, BytesMut};
 use futures::{
     future::Future,
     sync::mpsc::{self, UnboundedReceiver, UnboundedSender},
 };
-use crate::error;
 use tokio::prelude::*;
-use bytes::{BufMut, Bytes, BytesMut};
 
 pub type Tx = UnboundedSender<Bytes>;
 

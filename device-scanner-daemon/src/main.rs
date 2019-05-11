@@ -2,35 +2,18 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-#![allow(unknown_lints)]
-extern crate bytes;
-extern crate im;
-
-extern crate device_types;
-extern crate env_logger;
-extern crate futures;
-extern crate log;
-extern crate serde;
-extern crate serde_json;
-extern crate tokio;
-
+use device_scanner_daemon::{connections, error, state};
+use device_types::Command;
+use futures::{
+    future::{self, Either},
+    sync::mpsc::UnboundedSender,
+};
 use std::{
     io::BufReader,
     net::Shutdown,
     os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
 };
-
 use tokio::{io::lines, net::UnixListener, net::UnixStream, prelude::*, reactor::Handle};
-
-use futures::{
-    future::{self, Either},
-    sync::mpsc::UnboundedSender,
-};
-
-use device_types::Command;
-
-extern crate device_scanner_daemon;
-use device_scanner_daemon::{connections, error, state};
 
 /// Takes an incoming socket and message tx handle
 ///

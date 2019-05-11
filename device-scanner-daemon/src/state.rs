@@ -9,21 +9,17 @@
 //! This module is responsible for internally storing the current state and building the next device-graph
 //! after each "tick" (an incoming device event).
 
-use connections;
-use device_types::{
-    devices::Device,
-    mount::{BdevPath, Mount},
-    state,
-    uevent::UEvent,
-    Command,
+use crate::{
+    connections,
+    error::{self, Result},
+    reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
 };
-use error::{self, Result};
+use device_types::{devices::Device, mount::Mount, state, uevent::UEvent, Command, DevicePath};
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
-use reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events};
 use serde_json;
-use std::{io, iter::IntoIterator, path::PathBuf};
+use std::{io, iter::IntoIterator};
 use tokio::prelude::*;
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
@@ -57,13 +53,9 @@ fn find_by_major_minor(xs: &Vector<String>, major: &str, minor: &str) -> bool {
     xs.contains(&format_major_minor(major, minor))
 }
 
-fn find_mount<'a>(xs: &OrdSet<PathBuf>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {
-    ys.iter().find(
-        |Mount {
-             source: BdevPath(s),
-             ..
-         }| { xs.iter().any(|x| x == s) },
-    )
+fn find_mount<'a>(xs: &OrdSet<DevicePath>, ys: &'a HashSet<Mount>) -> Option<&'a Mount> {
+    ys.iter()
+        .find(|Mount { source, .. }| xs.iter().any(|x| x == source))
 }
 
 fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
@@ -164,6 +156,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                     .scsi83
                     .clone()
                     .ok_or_else(|| error::none_error("Expected serial"))?,
+                scsi80: x.scsi80.clone(),
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
                 minor: x.minor.clone(),
@@ -207,7 +200,11 @@ fn get_mpaths(
         .collect()
 }
 
-fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &OrdSet<PathBuf>) -> Result<HashSet<Device>> {
+fn get_mds(
+    b: &Buckets,
+    ys: &HashSet<Mount>,
+    paths: &OrdSet<DevicePath>,
+) -> Result<HashSet<Device>> {
     b.mds
         .iter()
         .filter(|&x| paths.clone().intersection(x.md_devs.clone()).is_empty())
@@ -231,9 +228,9 @@ fn get_mds(b: &Buckets, ys: &HashSet<Mount>, paths: &OrdSet<PathBuf>) -> Result<
         .collect()
 }
 
-fn get_vdev_paths(vdev: libzfs_types::VDev) -> OrdSet<PathBuf> {
+fn get_vdev_paths(vdev: libzfs_types::VDev) -> OrdSet<DevicePath> {
     match vdev {
-        libzfs_types::VDev::Disk { path, .. } => ordset![path],
+        libzfs_types::VDev::Disk { path, .. } => ordset![DevicePath(path)],
         libzfs_types::VDev::File { .. } => ordset![],
         libzfs_types::VDev::Mirror { children, .. }
         | libzfs_types::VDev::RaidZ { children, .. }
@@ -253,7 +250,11 @@ fn get_vdev_paths(vdev: libzfs_types::VDev) -> OrdSet<PathBuf> {
     }
 }
 
-fn get_pools(b: &Buckets, ys: &HashSet<Mount>, paths: &OrdSet<PathBuf>) -> Result<HashSet<Device>> {
+fn get_pools(
+    b: &Buckets,
+    ys: &HashSet<Mount>,
+    paths: &OrdSet<DevicePath>,
+) -> Result<HashSet<Device>> {
     b.pools
         .iter()
         .filter(|&x| {

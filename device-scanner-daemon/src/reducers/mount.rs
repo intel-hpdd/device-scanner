@@ -2,9 +2,8 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-use im::HashSet;
-
 use device_types::mount::{Mount, MountCommand};
+use im::HashSet;
 
 /// Mutably updates the Mount portion of the device map in response to `MountCommand`s.
 pub fn update_mount<S: ::std::hash::BuildHasher>(
@@ -43,55 +42,43 @@ pub fn update_mount<S: ::std::hash::BuildHasher>(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use device_types::mount::*;
+    use super::update_mount;
+    use device_types::{
+        mount::{FsType, Mount, MountCommand, MountOpts, MountPoint},
+        DevicePath,
+    };
     use im::hashset;
-    use std::path::PathBuf;
-
-    fn create_path_buf(s: &str) -> PathBuf {
-        let mut p = PathBuf::new();
-        p.push(s);
-
-        p
-    }
+    use insta::assert_debug_snapshot_matches;
 
     #[test]
     fn test_mount_update() {
-        let mounts = hashset!();
+        let mounts: im::HashSet<device_types::mount::Mount> = hashset!();
 
         let add_cmd = MountCommand::AddMount(
-            MountPoint(create_path_buf("/mnt/part1")),
-            BdevPath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part1".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
         );
 
         let mounts = update_mount(mounts, add_cmd);
 
-        assert_eq!(
-            hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part1")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
-                fs_type: FsType("ext4".to_string()),
-                opts: MountOpts("rw,relatime,data=ordered".to_string())
-            }),
-            mounts
-        );
+        assert_debug_snapshot_matches!(mounts);
 
         let mv_cmd = MountCommand::MoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
-            MountPoint(create_path_buf("/mnt/part1")),
+            MountPoint("/mnt/part1".into()),
         );
 
         let mounts = update_mount(mounts, mv_cmd);
 
         assert_eq!(
             hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
+                target: MountPoint("/mnt/part3".into()),
+                source: DevicePath("/dev/sde1".into()),
                 fs_type: FsType("ext4".to_string()),
                 opts: MountOpts("rw,relatime,data=ordered".to_string())
             }),
@@ -99,8 +86,8 @@ mod tests {
         );
 
         let replace_cmd = MountCommand::ReplaceMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("r,relatime,data=ordered".to_string()),
             MountOpts("rw,relatime,data=ordered".to_string()),
@@ -110,8 +97,8 @@ mod tests {
 
         assert_eq!(
             hashset!(Mount {
-                target: MountPoint(create_path_buf("/mnt/part3")),
-                source: BdevPath(create_path_buf("/dev/sde1")),
+                target: MountPoint("/mnt/part3".into()),
+                source: DevicePath("/dev/sde1".into()),
                 fs_type: FsType("ext4".to_string()),
                 opts: MountOpts("r,relatime,data=ordered".to_string())
             }),
@@ -119,8 +106,8 @@ mod tests {
         );
 
         let rm_cmd = MountCommand::RemoveMount(
-            MountPoint(create_path_buf("/mnt/part3")),
-            BdevPath(create_path_buf("/dev/sde1")),
+            MountPoint("/mnt/part3".into()),
+            DevicePath("/dev/sde1".into()),
             FsType("ext4".to_string()),
             MountOpts("r,relatime,data=ordered".to_string()),
         );

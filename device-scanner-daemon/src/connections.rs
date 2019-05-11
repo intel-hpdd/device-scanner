@@ -18,11 +18,8 @@ use futures::{
     future::Future,
     sync::mpsc::{self, UnboundedReceiver, UnboundedSender},
 };
-
-use error;
-
+use crate::error;
 use tokio::prelude::*;
-
 use bytes::{BufMut, Bytes, BytesMut};
 
 pub type Tx = UnboundedSender<Bytes>;

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "zedlets that update device-scanner-daemon state"
 authors = ["IML Team <iml@whamcloud.com>"]
 license = "MIT"
+edition = "2018"
 
 [[bin]]
 name = "history_event-scanner"

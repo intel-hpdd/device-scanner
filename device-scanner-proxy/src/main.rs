@@ -2,9 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-mod lib;
-
-use crate::lib::{build_uri, send_message};
+use device_scanner_proxy::{build_uri, send_message};
 use device_types::message::Message;
 use failure::{Error, ResultExt};
 use futures::{future::Future, stream::Stream};

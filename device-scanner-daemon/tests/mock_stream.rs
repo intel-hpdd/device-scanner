@@ -1,12 +1,8 @@
 //! A fake stream for testing network applications backed by buffers.
 #![warn(missing_docs)]
 
-extern crate futures;
-extern crate tokio;
-
 use futures::Poll;
-use std::io;
-use std::io::{Cursor, Read, Write};
+use std::io::{self, Cursor, Read, Write};
 use tokio::prelude::*;
 
 /// A fake stream for testing network applications backed by buffers.

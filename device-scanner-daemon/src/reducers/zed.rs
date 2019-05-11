@@ -2,11 +2,11 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+use crate::error::{Error, Result};
 use device_types::{
     state,
     zed::{prop, zfs, zpool, PoolCommand},
 };
-use crate::error::{Error, Result};
 use libzfs_types;
 use std::result;
 

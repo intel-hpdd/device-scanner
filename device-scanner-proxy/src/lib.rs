@@ -2,25 +2,9 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate failure;
-extern crate futures;
-extern crate futures_failure;
-extern crate hyper;
-extern crate native_tls;
-extern crate tokio;
-extern crate tokio_tls;
-
-use std::{io, sync::Arc};
-use tokio::net::TcpStream;
-
-use tokio_tls::{TlsConnector, TlsStream};
-
 use failure::{Error, ResultExt};
 use futures::future::{err, Future};
 use futures_failure::FutureExt;
-
-use native_tls::Identity;
-
 use hyper::{
     client::{
         connect::{Connect, Connected, Destination},
@@ -29,8 +13,11 @@ use hyper::{
     header::HeaderValue,
     Body, Client, Method, Request,
 };
-
+use native_tls::Identity;
+use std::{io, sync::Arc};
+use tokio::net::TcpStream;
 use tokio::prelude::*;
+use tokio_tls::{TlsConnector, TlsStream};
 
 /// Builds a `Uri` out of a given string
 pub fn build_uri(url: &str) -> Result<hyper::Uri, Error> {

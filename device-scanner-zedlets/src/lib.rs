@@ -2,12 +2,8 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-extern crate device_types;
-extern crate serde_json;
-
-use std::{env, error, fmt, io, io::prelude::*, os::unix::net::UnixStream};
-
 use device_types::zed::ZedCommand;
+use std::{env, error, fmt, io, io::prelude::*, os::unix::net::UnixStream};
 
 pub type Result<T> = std::result::Result<T, Error>;
 

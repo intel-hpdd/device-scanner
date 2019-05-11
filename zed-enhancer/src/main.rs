@@ -10,11 +10,9 @@
 //! This crate receives events from device-scanner-zedlets and may enhance them with further data
 //! before passing onwards to device-scanner.
 
-mod lib;
-
-use lib::processor;
 use std::os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener};
 use tokio::{net::UnixListener, prelude::*, reactor::Handle};
+use zed_enhancer::processor;
 
 fn main() {
     env_logger::init();

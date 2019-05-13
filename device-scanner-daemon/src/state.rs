@@ -14,11 +14,19 @@ use crate::{
     error::{self, Result},
     reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
 };
-use device_types::{devices::Device, mount::Mount, state, uevent::UEvent, Command, DevicePath};
+use device_types::{
+    devices::{
+        Dataset, Device, LogicalVolume, MdRaid, Mpath, Partition, Root, ScsiDevice, VolumeGroup,
+        Zpool,
+    },
+    mount::Mount,
+    state,
+    uevent::UEvent,
+    Command, DevicePath,
+};
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
 use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
-use serde_json;
 use std::{io, iter::IntoIterator};
 use tokio::prelude::*;
 
@@ -63,7 +71,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
         .iter()
         .filter(|&x| find_by_major_minor(&x.dm_slave_mms, major, minor))
         .map(|x| {
-            Ok(Device::VolumeGroup {
+            Ok(Device::VolumeGroup(VolumeGroup {
                 name: x
                     .dm_vg_name
                     .clone()
@@ -76,7 +84,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .vg_uuid
                     .clone()
                     .ok_or_else(|| error::none_error("Expected vg_uuid"))?,
-            })
+            }))
         })
         .collect()
 }
@@ -96,7 +104,7 @@ fn get_partitions(
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            Ok(Device::Partition {
+            Ok(Device::Partition(Partition {
                 partition_number: x
                     .part_entry_number
                     .ok_or_else(|| error::none_error("Expected part_entry_number"))?,
@@ -108,7 +116,7 @@ fn get_partitions(
                 filesystem_type: x.fs_type.clone(),
                 children: hashset![],
                 mount: mount.map(ToOwned::to_owned),
-            })
+            }))
         })
         .collect()
 }
@@ -123,7 +131,7 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            Ok(Device::LogicalVolume {
+            Ok(Device::LogicalVolume(LogicalVolume {
                 name: x
                     .dm_lv_name
                     .clone()
@@ -140,7 +148,7 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 mount: mount.map(ToOwned::to_owned),
                 filesystem_type: x.fs_type.clone(),
                 children: hashset![],
-            })
+            }))
         })
         .collect()
 }
@@ -151,7 +159,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            Ok(Device::ScsiDevice {
+            Ok(Device::ScsiDevice(ScsiDevice {
                 serial: x
                     .scsi83
                     .clone()
@@ -165,7 +173,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 paths: x.paths.clone(),
                 children: hashset![],
                 mount: mount.map(ToOwned::to_owned),
-            })
+            }))
         })
         .collect()
 }
@@ -182,7 +190,7 @@ fn get_mpaths(
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            Ok(Device::Mpath {
+            Ok(Device::Mpath(Mpath {
                 serial: x
                     .scsi83
                     .clone()
@@ -195,7 +203,7 @@ fn get_mpaths(
                 children: hashset![],
                 devpath: x.devpath.clone(),
                 mount: mount.map(ToOwned::to_owned),
-            })
+            }))
         })
         .collect()
 }
@@ -211,7 +219,7 @@ fn get_mds(
         .map(|x| {
             let mount = find_mount(&x.paths, ys);
 
-            Ok(Device::MdRaid {
+            Ok(Device::MdRaid(MdRaid {
                 paths: x.paths.clone(),
                 filesystem_type: x.fs_type.clone(),
                 mount: mount.map(ToOwned::to_owned),
@@ -223,7 +231,7 @@ fn get_mds(
                     .md_uuid
                     .clone()
                     .ok_or_else(|| error::none_error("Expected md_uuid"))?,
-            })
+            }))
         })
         .collect()
 }
@@ -263,7 +271,7 @@ fn get_pools(
             !paths.clone().intersection(vdev_paths).is_empty()
         })
         .map(|x| {
-            Ok(Device::Zpool {
+            Ok(Device::Zpool(Zpool {
                 guid: x.guid,
                 health: x.health.clone(),
                 name: x.name.clone(),
@@ -272,7 +280,7 @@ fn get_pools(
                 vdev: x.vdev.clone(),
                 size: x.size.parse()?,
                 children: hashset![],
-            })
+            }))
         })
         .collect()
 }
@@ -292,36 +300,36 @@ fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
 
     ds.iter()
         .map(|x| {
-            Ok(Device::Dataset {
+            Ok(Device::Dataset(Dataset {
                 name: x.name.clone(),
                 guid: x.guid.clone(),
                 kind: x.kind.clone(),
                 props: x.props.clone(),
-            })
+            }))
         })
         .collect()
 }
 
 fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>) -> Result<()> {
     match ptr {
-        Device::Root { children, .. } => {
+        Device::Root(r) => {
             let ss = get_scsis(&b, &ys)?;
 
             for mut x in ss {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                r.children.insert(x);
             }
 
             Ok(())
         }
-        Device::Mpath {
+        Device::Mpath(Mpath {
             children,
             major,
             minor,
             paths,
             ..
-        } => {
+        }) => {
             let vs = get_vgs(&b, major, minor)?;
 
             let ps = get_partitions(&b, &ys, major, minor)?;
@@ -338,20 +346,20 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::ScsiDevice {
+        Device::ScsiDevice(ScsiDevice {
             children,
             paths,
             major,
             minor,
             ..
-        }
-        | Device::Partition {
+        })
+        | Device::Partition(Partition {
             children,
             paths,
             major,
             minor,
             ..
-        } => {
+        }) => {
             let xs = get_partitions(&b, &ys, &major, &minor)?;
 
             // This should only be present for scsi devs
@@ -371,7 +379,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::VolumeGroup { children, uuid, .. } => {
+        Device::VolumeGroup(VolumeGroup { children, uuid, .. }) => {
             let lvs = get_lvs(&b, &ys, &uuid)?;
 
             for mut x in lvs {
@@ -382,13 +390,13 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::LogicalVolume {
+        Device::LogicalVolume(LogicalVolume {
             major,
             minor,
             children,
             paths,
             ..
-        } => {
+        }) => {
             let ps = get_partitions(&b, &ys, &major, &minor)?;
 
             let pools = get_pools(&b, &ys, &paths)?;
@@ -401,13 +409,13 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::MdRaid {
+        Device::MdRaid(MdRaid {
             major,
             minor,
             children,
             paths,
             ..
-        } => {
+        }) => {
             let vs = get_vgs(&b, &major, &minor)?;
 
             let ps = get_partitions(&b, &ys, major, minor)?;
@@ -424,7 +432,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
 
             Ok(())
         }
-        Device::Zpool { guid, children, .. } => {
+        Device::Zpool(Zpool { guid, children, .. }) => {
             let ds = get_datasets(&b, *guid)?;
 
             for mut x in ds {
@@ -546,9 +554,7 @@ pub fn handler() -> (
                     let dev_list = build_device_list(&mut uevents);
                     let dev_list = bucket_devices(&dev_list, &zed_events);
 
-                    let mut root = Device::Root {
-                        children: hashset![],
-                    };
+                    let mut root = Device::Root(Root::default());
 
                     build_device_graph(&mut root, &dev_list, &local_mounts)?;
 

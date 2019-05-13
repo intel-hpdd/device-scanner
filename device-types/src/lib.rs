@@ -2,6 +2,7 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+pub mod devices;
 pub mod udev;
 pub mod uevent;
 
@@ -234,101 +235,6 @@ pub enum Command {
     PoolCommand(zed::PoolCommand),
     UdevCommand(udev::UdevCommand),
     MountCommand(mount::MountCommand),
-}
-
-pub mod devices {
-    use crate::{mount, DevicePath};
-    use im::{HashSet, OrdSet};
-    use libzfs_types;
-    use std::path::PathBuf;
-
-    type Children = HashSet<Device>;
-    type Paths = OrdSet<DevicePath>;
-
-    #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
-    pub enum Device {
-        Root {
-            children: Children,
-        },
-        ScsiDevice {
-            serial: String,
-            scsi80: Option<String>,
-            major: String,
-            minor: String,
-            devpath: PathBuf,
-            size: i64,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount: Option<mount::Mount>,
-            children: Children,
-        },
-        Partition {
-            partition_number: i64,
-            size: i64,
-            major: String,
-            minor: String,
-            devpath: PathBuf,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount: Option<mount::Mount>,
-            children: Children,
-        },
-        MdRaid {
-            size: i64,
-            major: String,
-            minor: String,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            mount: Option<mount::Mount>,
-            uuid: String,
-            children: Children,
-        },
-        Mpath {
-            devpath: PathBuf,
-            serial: String,
-            size: i64,
-            major: String,
-            minor: String,
-            filesystem_type: Option<String>,
-            paths: Paths,
-            children: Children,
-            mount: Option<mount::Mount>,
-        },
-        VolumeGroup {
-            name: String,
-            uuid: String,
-            size: i64,
-            children: Children,
-        },
-        LogicalVolume {
-            name: String,
-            uuid: String,
-            major: String,
-            minor: String,
-            size: i64,
-            children: Children,
-            devpath: PathBuf,
-            paths: Paths,
-            filesystem_type: Option<String>,
-            mount: Option<mount::Mount>,
-        },
-        Zpool {
-            guid: u64,
-            name: String,
-            health: String,
-            state: String,
-            size: u64,
-            vdev: libzfs_types::VDev,
-            props: Vec<libzfs_types::ZProp>,
-            children: Children,
-        },
-        Dataset {
-            guid: String,
-            name: String,
-            kind: String,
-            props: Vec<libzfs_types::ZProp>,
-        },
-    }
 }
 
 #[cfg(test)]

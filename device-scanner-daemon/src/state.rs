@@ -196,6 +196,11 @@ fn get_mpaths(
                     .scsi83
                     .clone()
                     .ok_or_else(|| error::none_error("Expected serial"))?,
+                scsi80: x.scsi80.clone(),
+                dm_name: x
+                    .dm_name
+                    .clone()
+                    .ok_or_else(|| error::none_error("Mpath device did not have a name"))?,
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),

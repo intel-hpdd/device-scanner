@@ -1,6 +1,9 @@
 [Unit]
 Description=IML Device Aggregator Daemon
 PartOf=iml-manager.target
+After=network.service
+After=iml-settings-populator.service
+Requires=iml-settings-populator.service
 
 [Service]
 Restart=always

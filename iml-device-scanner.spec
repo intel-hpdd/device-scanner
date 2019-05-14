@@ -134,8 +134,9 @@ cp 99-iml-zed-enhancer.rules %{buildroot}%{_sysconfdir}/udev/rules.d
 systemctl preset device-scanner.socket
 systemctl preset mount-emitter.service
 systemctl preset swap-emitter.timer
+systemctl preset zed-populator.service
 systemctl preset zed-enhancer.socket
-
+systemctl preset zed-enhancer.service
 
 %post proxy
 systemctl preset scanner-proxy.path

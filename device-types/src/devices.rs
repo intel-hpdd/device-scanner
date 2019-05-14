@@ -66,6 +66,8 @@ pub struct MdRaid {
 pub struct Mpath {
     pub devpath: PathBuf,
     pub serial: String,
+    pub scsi80: Option<String>,
+    pub dm_name: String,
     pub size: u64,
     pub major: String,
     pub minor: String,

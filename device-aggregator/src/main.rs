@@ -2,21 +2,21 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
-mod lib;
-
-use device_types::{devices::Device, message::Message};
-use futures::Future;
-use lib::{
+use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},
+    linux_plugin_transforms::{devtree2linuxoutput, LinuxPluginData},
 };
+use device_types::{devices::Device, message::Message};
+use futures::Future;
 use std::{
+    collections::BTreeMap,
     env,
     sync::{Arc, Mutex},
 };
 use warp::Filter;
 
-fn main() -> aggregator_error::Result<()> {
+fn main() -> Result<(), aggregator_error::Error> {
     env_logger::init();
 
     let cache = Arc::new(Mutex::new(Cache::default()));
@@ -54,11 +54,26 @@ fn main() -> aggregator_error::Result<()> {
     let get = warp::get2()
         .and(cache_fut.clone())
         .map(|cache: Arc<Mutex<Cache>>| {
-            let cache = cache.clone();
             let cache = cache.lock().unwrap();
-            cache.entries()
-        })
-        .map(|x| warp::reply::json(&x));
+
+            // Build out top-level structure.
+            // Check for shared items and add where needed.
+
+            let entries = cache.entries();
+
+            let xs: BTreeMap<&String, _> = entries
+                .iter()
+                .map(|(k, v)| {
+                    let mut out = LinuxPluginData::default();
+
+                    devtree2linuxoutput(&v, None, &mut out);
+
+                    (k, out)
+                })
+                .collect();
+
+            serde_json::to_string(&xs).unwrap()
+        });
 
     let routes = post.or(get).with(log);
 

@@ -1,7 +1,7 @@
 [Unit]
 Description=IML ZED Enhancer Daemon
-RefuseManualStart=true
-Requires=zed-enhancer.socket
+Requires=zfs-zed.service
+After=zfs-zed.service
 BindsTo=zed-enhancer.socket
 After=zed-enhancer.socket
 After=device-scanner.socket

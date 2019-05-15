@@ -10,6 +10,7 @@ use device_types::{
 use std::{
   cmp::Ordering,
   collections::{BTreeMap, BTreeSet},
+  fmt::Display,
   hash::{Hash, Hasher},
 };
 
@@ -40,8 +41,8 @@ impl Hash for MajorMinor {
   }
 }
 
-impl From<(&String, &String)> for MajorMinor {
-  fn from((major, minor): (&String, &String)) -> MajorMinor {
+impl<D1: Display, D2: Display> From<(D1, D2)> for MajorMinor {
+  fn from((major, minor): (D1, D2)) -> MajorMinor {
     MajorMinor(format!("{}:{}", major, minor))
   }
 }
@@ -88,8 +89,8 @@ pub struct LinuxPluginZpool<'a> {
   drives: BTreeSet<MajorMinor>,
   name: &'a str,
   path: &'a str,
-  size: &'a str,
-  uuid: &'a str,
+  size: u64,
+  uuid: u64,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -118,6 +119,7 @@ pub struct LinuxPluginData<'a> {
   pub mpath: BTreeMap<String, LinuxPluginMpathDevice<'a>>,
   pub vgs: BTreeMap<String, LinuxPluginVgDevice<'a>>,
   pub lvs: BTreeMap<String, BTreeMap<String, LinuxPluginLvDevice<'a>>>,
+  pub zfspools: BTreeMap<u64, LinuxPluginZpool<'a>>,
 }
 
 impl<'a> Default for LinuxPluginData<'a> {
@@ -128,6 +130,7 @@ impl<'a> Default for LinuxPluginData<'a> {
       mpath: BTreeMap::new(),
       vgs: BTreeMap::new(),
       lvs: BTreeMap::new(),
+      zfspools: BTreeMap::new(),
     }
   }
 }
@@ -208,15 +211,18 @@ impl<'a> From<(&'a LogicalVolume, Option<&LinuxPluginDevice<'a>>)> for LinuxPlug
   }
 }
 
-// impl<'a> From<(&'a Zpool, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginZpool<'a> {
-//   fn from((x, _p): (&'a Zpool, Option<&LinuxPluginDevice>)) -> LinuxPluginZpool<'a> {
-//     LinuxPluginZpool {
-//       name: x.name,
-//       path: x.path,
-//       block_device: ("zfspool", x.uuid),
-//     }
-//   }
-// }
+impl<'a> From<&'a Zpool> for LinuxPluginZpool<'a> {
+  fn from(x: &'a Zpool) -> LinuxPluginZpool<'a> {
+    LinuxPluginZpool {
+      name: &x.name,
+      path: &x.name,
+      block_device: ("zfspool", &x.guid).into(),
+      size: x.size,
+      uuid: x.guid,
+      drives: BTreeSet::new(),
+    }
+  }
+}
 
 fn add_mount<'a>(
   mount: &'a Mount,
@@ -356,13 +362,25 @@ pub fn devtree2linuxoutput<'a>(
         });
     }
     Device::Zpool(x) => {
-      // if x.children.is_empty() {
-      //   linux_plugin_data
-      //     .devs
-      //     .insert(("zfspool".into(), x.name).into())
-      // } else {
+      if x.children.is_empty() {
+        let pool = linux_plugin_data
+          .devs
+          .entry(("zfspool", x.guid).into())
+          .or_insert_with(|| LinuxPluginItem::LinuxPluginZpool(x.into()));
 
-      // }
+        if let LinuxPluginItem::LinuxPluginZpool(p) = pool {
+          p.drives.insert(parent.unwrap().major_minor.clone());
+
+          let p2 = linux_plugin_data
+            .zfspools
+            .entry(p.uuid)
+            .or_insert_with(|| p.clone());
+
+          p2.drives.insert(parent.unwrap().major_minor.clone());
+        };
+      } else {
+
+      }
     }
     _ => {}
   };
@@ -2081,6 +2099,364 @@ mod tests {
                 ],
                 "children": [],
                 "mount": null
+              }
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+    "#).unwrap();
+
+    let mut data = LinuxPluginData::default();
+
+    devtree2linuxoutput(&device, None, &mut data);
+
+    assert_json_snapshot_matches!(data);
+  }
+
+  #[test]
+  fn test_devtree2linuxoutput_zpool() {
+    let device:Device = serde_json::from_str(r#"
+      {
+  "Root": {
+    "children": [
+      {
+        "ScsiDevice": {
+          "serial": "36001405943dd5f394fb4b5ba71ec818f",
+          "scsi80": "SLIO-ORG mdt1            943dd5f3-94fb-4b5b-a71e-c818f04b201c",
+          "major": "8",
+          "minor": "64",
+          "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:1/block/sde",
+          "size": 5368709120,
+          "filesystem_type": "mpath_member",
+          "paths": [
+            "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
+            "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
+            "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/mdt",
+            "/dev/sde"
+          ],
+          "mount": null,
+          "children": [
+            {
+              "Mpath": {
+                "devpath": "/devices/virtual/block/dm-1",
+                "serial": "36001405943dd5f394fb4b5ba71ec818f",
+                "scsi80": "SLIO-ORG mdt1            943dd5f3-94fb-4b5b-a71e-c818f04b201c",
+                "dm_name": "mpathb",
+                "size": 5368709120,
+                "major": "253",
+                "minor": "1",
+                "filesystem_type": "zfs_member",
+                "paths": [
+                  "/dev/mapper/mpathb",
+                  "/dev/disk/by-id/dm-name-mpathb",
+                  "/dev/disk/by-id/dm-uuid-mpath-36001405943dd5f394fb4b5ba71ec818f",
+                  "/dev/disk/by-label/mds",
+                  "/dev/disk/by-uuid/15259234345131681652",
+                  "/dev/dm-1",
+                  "/dev/mdt"
+                ],
+                "children": [],
+                "mount": null
+              }
+            }
+          ]
+        }
+      },
+      {
+        "ScsiDevice": {
+          "serial": "36001405ecca605408894bc2aa708a09c",
+          "scsi80": "SLIO-ORG mgt1            ecca6054-0889-4bc2-aa70-8a09cd7d63a8",
+          "major": "8",
+          "minor": "32",
+          "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:0/block/sdc",
+          "size": 536870912,
+          "filesystem_type": "mpath_member",
+          "paths": [
+            "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
+            "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
+            "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+            "/dev/mgt",
+            "/dev/sdc"
+          ],
+          "mount": null,
+          "children": [
+            {
+              "Zpool": {
+                "guid": 3383432994541088300,
+                "name": "mgs",
+                "health": "ONLINE",
+                "state": "ACTIVE",
+                "size": 520093696,
+                "vdev": {
+                  "Root": {
+                    "children": [
+                      {
+                        "Disk": {
+                          "guid": 7562121608132560000,
+                          "state": "ONLINE",
+                          "path": "/dev/mgt",
+                          "dev_id": "dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                          "phys_path": null,
+                          "whole_disk": false,
+                          "is_log": false
+                        }
+                      }
+                    ],
+                    "spares": [],
+                    "cache": []
+                  }
+                },
+                "props": [],
+                "children": []
+              }
+            },
+            {
+              "Mpath": {
+                "devpath": "/devices/virtual/block/dm-0",
+                "serial": "36001405ecca605408894bc2aa708a09c",
+                "scsi80": "SLIO-ORG mgt1            ecca6054-0889-4bc2-aa70-8a09cd7d63a8",
+                "dm_name": "mpatha",
+                "size": 536870912,
+                "major": "253",
+                "minor": "0",
+                "filesystem_type": "zfs_member",
+                "paths": [
+                  "/dev/mapper/mpatha",
+                  "/dev/disk/by-id/dm-name-mpatha",
+                  "/dev/disk/by-id/dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                  "/dev/disk/by-label/mgs",
+                  "/dev/disk/by-uuid/3383432994541088053",
+                  "/dev/dm-0",
+                  "/dev/mgt"
+                ],
+                "children": [
+                  {
+                    "Zpool": {
+                      "guid": 3383432994541088300,
+                      "name": "mgs",
+                      "health": "ONLINE",
+                      "state": "ACTIVE",
+                      "size": 520093696,
+                      "vdev": {
+                        "Root": {
+                          "children": [
+                            {
+                              "Disk": {
+                                "guid": 7562121608132560000,
+                                "state": "ONLINE",
+                                "path": "/dev/mgt",
+                                "dev_id": "dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                                "phys_path": null,
+                                "whole_disk": false,
+                                "is_log": false
+                              }
+                            }
+                          ],
+                          "spares": [],
+                          "cache": []
+                        }
+                      },
+                      "props": [],
+                      "children": []
+                    }
+                  }
+                ],
+                "mount": null
+              }
+            }
+          ]
+        }
+      },
+      {
+        "ScsiDevice": {
+          "serial": "36001405943dd5f394fb4b5ba71ec818f",
+          "scsi80": "SLIO-ORG mdt1            943dd5f3-94fb-4b5b-a71e-c818f04b201c",
+          "major": "8",
+          "minor": "48",
+          "devpath": "/devices/platform/host3/session2/target3:0:0/3:0:0:1/block/sdd",
+          "size": 5368709120,
+          "filesystem_type": "mpath_member",
+          "paths": [
+            "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
+            "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
+            "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/mdt",
+            "/dev/sdd"
+          ],
+          "mount": null,
+          "children": [
+            {
+              "Mpath": {
+                "devpath": "/devices/virtual/block/dm-1",
+                "serial": "36001405943dd5f394fb4b5ba71ec818f",
+                "scsi80": "SLIO-ORG mdt1            943dd5f3-94fb-4b5b-a71e-c818f04b201c",
+                "dm_name": "mpathb",
+                "size": 5368709120,
+                "major": "253",
+                "minor": "1",
+                "filesystem_type": "zfs_member",
+                "paths": [
+                  "/dev/mapper/mpathb",
+                  "/dev/disk/by-id/dm-name-mpathb",
+                  "/dev/disk/by-id/dm-uuid-mpath-36001405943dd5f394fb4b5ba71ec818f",
+                  "/dev/disk/by-label/mds",
+                  "/dev/disk/by-uuid/15259234345131681652",
+                  "/dev/dm-1",
+                  "/dev/mdt"
+                ],
+                "children": [],
+                "mount": null
+              }
+            }
+          ]
+        }
+      },
+      {
+        "ScsiDevice": {
+          "serial": "36001405ecca605408894bc2aa708a09c",
+          "scsi80": "SLIO-ORG mgt1            ecca6054-0889-4bc2-aa70-8a09cd7d63a8",
+          "major": "8",
+          "minor": "16",
+          "devpath": "/devices/platform/host2/session1/target2:0:0/2:0:0:0/block/sdb",
+          "size": 536870912,
+          "filesystem_type": "mpath_member",
+          "paths": [
+            "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
+            "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
+            "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+            "/dev/mgt",
+            "/dev/sdb"
+          ],
+          "mount": null,
+          "children": [
+            {
+              "Mpath": {
+                "devpath": "/devices/virtual/block/dm-0",
+                "serial": "36001405ecca605408894bc2aa708a09c",
+                "scsi80": "SLIO-ORG mgt1            ecca6054-0889-4bc2-aa70-8a09cd7d63a8",
+                "dm_name": "mpatha",
+                "size": 536870912,
+                "major": "253",
+                "minor": "0",
+                "filesystem_type": "zfs_member",
+                "paths": [
+                  "/dev/mapper/mpatha",
+                  "/dev/disk/by-id/dm-name-mpatha",
+                  "/dev/disk/by-id/dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                  "/dev/disk/by-label/mgs",
+                  "/dev/disk/by-uuid/3383432994541088053",
+                  "/dev/dm-0",
+                  "/dev/mgt"
+                ],
+                "children": [
+                  {
+                    "Zpool": {
+                      "guid": 3383432994541088300,
+                      "name": "mgs",
+                      "health": "ONLINE",
+                      "state": "ACTIVE",
+                      "size": 520093696,
+                      "vdev": {
+                        "Root": {
+                          "children": [
+                            {
+                              "Disk": {
+                                "guid": 7562121608132560000,
+                                "state": "ONLINE",
+                                "path": "/dev/mgt",
+                                "dev_id": "dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                                "phys_path": null,
+                                "whole_disk": false,
+                                "is_log": false
+                              }
+                            }
+                          ],
+                          "spares": [],
+                          "cache": []
+                        }
+                      },
+                      "props": [],
+                      "children": []
+                    }
+                  }
+                ],
+                "mount": null
+              }
+            },
+            {
+              "Zpool": {
+                "guid": 3383432994541088300,
+                "name": "mgs",
+                "health": "ONLINE",
+                "state": "ACTIVE",
+                "size": 520093696,
+                "vdev": {
+                  "Root": {
+                    "children": [
+                      {
+                        "Disk": {
+                          "guid": 7562121608132560000,
+                          "state": "ONLINE",
+                          "path": "/dev/mgt",
+                          "dev_id": "dm-uuid-mpath-36001405ecca605408894bc2aa708a09c",
+                          "phys_path": null,
+                          "whole_disk": false,
+                          "is_log": false
+                        }
+                      }
+                    ],
+                    "spares": [],
+                    "cache": []
+                  }
+                },
+                "props": [],
+                "children": []
+              }
+            }
+          ]
+        }
+      },
+      {
+        "ScsiDevice": {
+          "serial": "1ATA     VBOX HARDDISK                           VB289a63d7-b2394fde",
+          "scsi80": "SATA     VBOX HARDDISK   VB289a63d7-b2394fde",
+          "major": "8",
+          "minor": "0",
+          "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda",
+          "size": 42949672960,
+          "filesystem_type": null,
+          "paths": [
+            "/dev/disk/by-id/ata-VBOX_HARDDISK_VB289a63d7-b2394fde",
+            "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0",
+            "/dev/sda"
+          ],
+          "mount": null,
+          "children": [
+            {
+              "Partition": {
+                "partition_number": 1,
+                "size": 42948624384,
+                "major": "8",
+                "minor": "1",
+                "devpath": "/devices/pci0000:00/0000:00:01.1/ata1/host0/target0:0:0/0:0:0:0/block/sda/sda1",
+                "filesystem_type": "xfs",
+                "paths": [
+                  "/dev/disk/by-id/ata-VBOX_HARDDISK_VB289a63d7-b2394fde-part1",
+                  "/dev/disk/by-path/pci-0000:00:01.1-ata-1.0-part1",
+                  "/dev/disk/by-uuid/f52f361a-da1a-4ea0-8c7f-ca2706e86b46",
+                  "/dev/sda1"
+                ],
+                "mount": {
+                  "source": "/dev/sda1",
+                  "target": "/",
+                  "fs_type": "xfs",
+                  "opts": "rw,relatime,attr2,inode64,noquota"
+                },
+                "children": []
               }
             }
           ]

@@ -52,4 +52,4 @@ stages:
   - name: cd
     if: branch = master AND type = push AND fork = false
   - name: deploy-copr-r5.0
-    if: branch =~ ^v\d+\.\d+\.\d+-.+-r5\.0$  
+    if: branch =~ ^v\d+\.\d+\.\d+-.+-r5\.0$

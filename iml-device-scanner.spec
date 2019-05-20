@@ -166,15 +166,14 @@ systemctl preset device-aggregator.service
 %systemd_preun device-aggregator.service
 
 %postun
-%systemd_postun_with_restart device-scanner.socket
-%systemd_postun_with_restart zed-enhancer.socket
-
+%systemd_postun device-scanner.socket
+%systemd_postun zed-enhancer.socket
 
 %postun proxy
-%systemd_postun_with_restart scanner-proxy.path
+%systemd_postun scanner-proxy.path
 
 %postun aggregator
-%systemd_postun_with_restart device-aggregator.service
+%systemd_postun device-aggregator.service
 
 %changelog
 * Thu Oct 18 2018 Joe Grund <jgrund@whamcloud.com> 2.0.0-1

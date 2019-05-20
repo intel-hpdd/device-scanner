@@ -50,8 +50,8 @@ fn empty_str_to_none(x: String) -> Option<String> {
     }
 }
 
-fn parse_to(x: String) -> Option<i64> {
-    x.parse().ok()
+fn parse_to<T: std::str::FromStr>(x: String) -> Option<T> {
+    x.parse::<T>().ok()
 }
 
 fn is_one(x: String) -> bool {
@@ -112,7 +112,7 @@ pub fn build_uevent() -> UEvent {
         size: optional_field("IML_SIZE")
             .and_then(empty_str_to_none)
             .and_then(parse_to)
-            .map(|x| x * 512),
+            .map(|x: u64| x * 512),
         scsi80: optional_field("IML_SCSI_80").map(|x| x.trim().to_string()),
         scsi83: optional_field("IML_SCSI_83").map(|x| x.trim().to_string()),
         read_only: optional_field("IML_IS_RO").map(is_one),

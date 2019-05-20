@@ -19,6 +19,7 @@ use device_types::{
         Dataset, Device, LogicalVolume, MdRaid, Mpath, Partition, Root, ScsiDevice, VolumeGroup,
         Zpool,
     },
+    get_vdev_paths,
     mount::Mount,
     state,
     uevent::UEvent,
@@ -26,7 +27,7 @@ use device_types::{
 };
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
-use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
+use im::{hashset, vector, HashSet, OrdSet, Vector};
 use std::{io, iter::IntoIterator};
 use tokio::prelude::*;
 
@@ -236,28 +237,6 @@ fn get_mds(
         .collect()
 }
 
-fn get_vdev_paths(vdev: libzfs_types::VDev) -> OrdSet<DevicePath> {
-    match vdev {
-        libzfs_types::VDev::Disk { path, .. } => ordset![DevicePath(path)],
-        libzfs_types::VDev::File { .. } => ordset![],
-        libzfs_types::VDev::Mirror { children, .. }
-        | libzfs_types::VDev::RaidZ { children, .. }
-        | libzfs_types::VDev::Replacing { children, .. } => {
-            children.into_iter().flat_map(get_vdev_paths).collect()
-        }
-        libzfs_types::VDev::Root {
-            children,
-            spares,
-            cache,
-            ..
-        } => vec![children, spares, cache]
-            .into_iter()
-            .flatten()
-            .flat_map(get_vdev_paths)
-            .collect(),
-    }
-}
-
 fn get_pools(
     b: &Buckets,
     ys: &HashSet<Mount>,
@@ -266,9 +245,9 @@ fn get_pools(
     b.pools
         .iter()
         .filter(|&x| {
-            let vdev_paths = get_vdev_paths(x.vdev.clone());
+            let vdev_paths = get_vdev_paths(&x.vdev.clone());
 
-            !paths.clone().intersection(vdev_paths).is_empty()
+            !paths.clone().intersection(vdev_paths.into()).is_empty()
         })
         .map(|x| {
             Ok(Device::Zpool(Zpool {

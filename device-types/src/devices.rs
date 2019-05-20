@@ -30,7 +30,7 @@ pub struct ScsiDevice {
     pub major: String,
     pub minor: String,
     pub devpath: PathBuf,
-    pub size: i64,
+    pub size: u64,
     pub filesystem_type: Option<String>,
     pub paths: Paths,
     pub mount: Option<mount::Mount>,
@@ -39,8 +39,8 @@ pub struct ScsiDevice {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Partition {
-    pub partition_number: i64,
-    pub size: i64,
+    pub partition_number: u64,
+    pub size: u64,
     pub major: String,
     pub minor: String,
     pub devpath: PathBuf,
@@ -52,7 +52,7 @@ pub struct Partition {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct MdRaid {
-    pub size: i64,
+    pub size: u64,
     pub major: String,
     pub minor: String,
     pub filesystem_type: Option<String>,
@@ -66,7 +66,7 @@ pub struct MdRaid {
 pub struct Mpath {
     pub devpath: PathBuf,
     pub serial: String,
-    pub size: i64,
+    pub size: u64,
     pub major: String,
     pub minor: String,
     pub filesystem_type: Option<String>,
@@ -79,7 +79,7 @@ pub struct Mpath {
 pub struct VolumeGroup {
     pub name: String,
     pub uuid: String,
-    pub size: i64,
+    pub size: u64,
     pub children: Children,
 }
 
@@ -89,7 +89,7 @@ pub struct LogicalVolume {
     pub uuid: String,
     pub major: String,
     pub minor: String,
-    pub size: i64,
+    pub size: u64,
     pub children: Children,
     pub devpath: PathBuf,
     pub paths: Paths,

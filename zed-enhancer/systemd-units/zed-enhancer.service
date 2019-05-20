@@ -6,7 +6,6 @@ BindsTo=zed-enhancer.socket
 After=zed-enhancer.socket
 After=device-scanner.socket
 OnFailure=zed-populator.service
-StopWhenUnneeded=true
 
 [Service]
 Restart=on-failure

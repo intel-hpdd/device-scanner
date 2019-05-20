@@ -1,6 +1,6 @@
 [Unit]
 Description=IML ZED Populator
-Requires=zed-enhancer.socket
+Wants=zed-enhancer.socket
 After=zed-enhancer.socket
 
 [Service]

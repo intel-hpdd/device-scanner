@@ -21,8 +21,8 @@ use std::{
 #[serde(transparent)]
 pub struct DevicePath(pub PathBuf);
 
-impl From<&str> for DevicePath {
-    fn from(s: &str) -> DevicePath {
+impl<S: Into<PathBuf>> From<S> for DevicePath {
+    fn from(s: S) -> DevicePath {
         DevicePath(s.into())
     }
 }

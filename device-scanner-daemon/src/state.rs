@@ -27,7 +27,7 @@ use device_types::{
 };
 use futures::future::Future;
 use futures::sync::mpsc::{self, UnboundedSender};
-use im::{hashset, vector, HashSet, OrdSet, Vector};
+use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
 use std::{io, iter::IntoIterator};
 use tokio::prelude::*;
 
@@ -255,10 +255,13 @@ fn get_pools(
             !paths.clone().intersection(vdev_paths.into()).is_empty()
         })
         .map(|x| {
+            let mount = find_mount(&ordset![x.name.clone().into()], ys);
+
             Ok(Device::Zpool(Zpool {
                 guid: x.guid,
                 health: x.health.clone(),
                 name: x.name.clone(),
+                mount: mount.map(ToOwned::to_owned),
                 props: x.props.clone(),
                 state: x.state.clone(),
                 vdev: x.vdev.clone(),
@@ -269,7 +272,7 @@ fn get_pools(
         .collect()
 }
 
-fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
+fn get_datasets(b: &Buckets, ys: &HashSet<Mount>, guid: u64) -> Result<HashSet<Device>> {
     let ds = b
         .pools
         .iter()
@@ -284,8 +287,11 @@ fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
 
     ds.iter()
         .map(|x| {
+            let mount = find_mount(&ordset![x.name.clone().into()], ys);
+
             Ok(Device::Dataset(Dataset {
                 name: x.name.clone(),
+                mount: mount.map(ToOwned::to_owned),
                 guid: x.guid.parse::<u64>()?,
                 kind: x.kind.clone(),
                 props: x.props.clone(),
@@ -417,7 +423,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             Ok(())
         }
         Device::Zpool(Zpool { guid, children, .. }) => {
-            let ds = get_datasets(&b, *guid)?;
+            let ds = get_datasets(&b, &ys, *guid)?;
 
             for mut x in ds {
                 build_device_graph(&mut x, b, ys)?;

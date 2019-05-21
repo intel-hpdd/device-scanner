@@ -41,6 +41,7 @@ mod tests {
             fs_type: Some("ext4".to_string()),
             fs_usage: Some("filesystem".to_string()),
             fs_uuid: Some("b4550256-cf48-4013-8363-bfee5f52da12".to_string()),
+            fs_label: Some("blah".into()),
             part_entry_number: Some(1),
             part_entry_mm: Some("253:13".to_string()),
             size: Some(100_651_008),

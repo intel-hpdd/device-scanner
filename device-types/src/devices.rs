@@ -109,6 +109,7 @@ pub struct Zpool {
     pub vdev: libzfs_types::VDev,
     pub props: Vec<libzfs_types::ZProp>,
     pub children: Children,
+    pub mount: Option<mount::Mount>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -117,6 +118,7 @@ pub struct Dataset {
     pub name: String,
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,
+    pub mount: Option<mount::Mount>,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]

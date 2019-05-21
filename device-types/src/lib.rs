@@ -2,6 +2,8 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+#![allow(clippy::large_enum_variant)]
+
 pub mod devices;
 pub mod udev;
 pub mod uevent;

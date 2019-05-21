@@ -107,6 +107,7 @@ pub fn build_uevent() -> UEvent {
         fs_type: optional_field("ID_FS_TYPE").and_then(empty_str_to_none),
         fs_usage: optional_field("ID_FS_USAGE").and_then(empty_str_to_none),
         fs_uuid: optional_field("ID_FS_UUID").and_then(empty_str_to_none),
+        fs_label: optional_field("ID_FS_LABEL").and_then(empty_str_to_none),
         part_entry_number: optional_field("ID_PART_ENTRY_NUMBER").and_then(parse_to),
         part_entry_mm: optional_field("ID_PART_ENTRY_DISK").and_then(empty_str_to_none),
         size: optional_field("IML_SIZE")

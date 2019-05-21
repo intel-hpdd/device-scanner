@@ -7,13 +7,14 @@ use device_types::Command;
 use futures::{
     future::{self, Either},
     sync::mpsc::UnboundedSender,
+    Future, Stream,
 };
 use std::{
     io::BufReader,
     net::Shutdown,
     os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
 };
-use tokio::{io::lines, net::UnixListener, net::UnixStream, prelude::*, reactor::Handle};
+use tokio::{io::lines, net::UnixListener, net::UnixStream, reactor::Handle};
 
 /// Takes an incoming socket and message tx handle
 ///
@@ -102,7 +103,10 @@ fn main() {
 
     log::info!("Server starting");
 
-    let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
+    let mut runtime = tokio::runtime::Builder::new()
+        .panic_handler(|err| std::panic::resume_unwind(err))
+        .build()
+        .expect("Tokio runtime failed to start");
 
     runtime.spawn(server);
     runtime.spawn(
@@ -114,5 +118,5 @@ fn main() {
     runtime
         .shutdown_on_idle()
         .wait()
-        .expect("Failed waiting on runtime");
+        .expect("Failed to shutdown runtime");
 }

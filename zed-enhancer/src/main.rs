@@ -1,4 +1,4 @@
-// Copyright (c) 2018 DDN. All rights reserved.
+// Copyright (c) 2019 DDN. All rights reserved.
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
@@ -15,7 +15,7 @@ use tokio::{net::UnixListener, prelude::*, reactor::Handle};
 use zed_enhancer::processor;
 
 fn main() {
-    env_logger::init();
+    env_logger::builder().default_format_timestamp(false).init();
 
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
@@ -31,12 +31,15 @@ fn main() {
 
     log::info!("Server starting");
 
-    let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
+    let mut runtime = tokio::runtime::Builder::new()
+        .panic_handler(|err| std::panic::resume_unwind(err))
+        .build()
+        .expect("Tokio runtime failed to start");
 
     runtime.spawn(server);
 
     runtime
         .shutdown_on_idle()
         .wait()
-        .expect("Failed waiting on runtime");
+        .expect("Failed to shutdown runtime");
 }

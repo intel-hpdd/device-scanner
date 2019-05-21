@@ -12,6 +12,7 @@ extern crate pretty_assertions;
 
 use std::{
     cmp::Ordering,
+    collections::BTreeSet,
     hash::{Hash, Hasher},
     path::PathBuf,
 };
@@ -39,6 +40,37 @@ fn find_sort_slot(DevicePath(p): &DevicePath) -> usize {
     .unwrap();
 
     *o
+}
+
+pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> BTreeSet<DevicePath> {
+    match vdev {
+        libzfs_types::VDev::Disk { dev_id, .. } => match dev_id {
+            Some(d) => {
+                let x = DevicePath(format!("/dev/disk/by-id/{}", d).into());
+                let mut b = BTreeSet::new();
+                b.insert(x);
+
+                b
+            }
+            None => BTreeSet::new(),
+        },
+        libzfs_types::VDev::File { .. } => BTreeSet::new(),
+        libzfs_types::VDev::Mirror { children, .. }
+        | libzfs_types::VDev::RaidZ { children, .. }
+        | libzfs_types::VDev::Replacing { children, .. } => {
+            children.iter().flat_map(get_vdev_paths).collect()
+        }
+        libzfs_types::VDev::Root {
+            children,
+            spares,
+            cache,
+            ..
+        } => vec![children, spares, cache]
+            .into_iter()
+            .flatten()
+            .flat_map(get_vdev_paths)
+            .collect(),
+    }
 }
 
 impl Ord for DevicePath {

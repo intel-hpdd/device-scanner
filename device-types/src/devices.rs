@@ -66,6 +66,8 @@ pub struct MdRaid {
 pub struct Mpath {
     pub devpath: PathBuf,
     pub serial: String,
+    pub scsi80: Option<String>,
+    pub dm_name: String,
     pub size: u64,
     pub major: String,
     pub minor: String,
@@ -111,7 +113,7 @@ pub struct Zpool {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Dataset {
-    pub guid: String,
+    pub guid: u64,
     pub name: String,
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,

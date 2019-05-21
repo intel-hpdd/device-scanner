@@ -196,6 +196,11 @@ fn get_mpaths(
                     .scsi83
                     .clone()
                     .ok_or_else(|| error::none_error("Expected serial"))?,
+                scsi80: x.scsi80.clone(),
+                dm_name: x
+                    .dm_name
+                    .clone()
+                    .ok_or_else(|| error::none_error("Mpath device did not have a name"))?,
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
                 major: x.major.clone(),
                 minor: x.minor.clone(),
@@ -281,7 +286,7 @@ fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
         .map(|x| {
             Ok(Device::Dataset(Dataset {
                 name: x.name.clone(),
-                guid: x.guid.clone(),
+                guid: x.guid.parse::<u64>()?,
                 kind: x.kind.clone(),
                 props: x.props.clone(),
             }))

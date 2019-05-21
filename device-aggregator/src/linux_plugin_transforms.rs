@@ -3,496 +3,498 @@
 // license that can be found in the LICENSE file.
 
 use device_types::{
-  devices::{
-    Dataset, Device, LogicalVolume, MdRaid, Mpath, Partition, Root, ScsiDevice, VolumeGroup, Zpool,
-  },
-  get_vdev_paths,
-  mount::{FsType, Mount, MountPoint},
-  DevicePath,
+    devices::{
+        Dataset, Device, LogicalVolume, MdRaid, Mpath, Partition, Root, ScsiDevice, VolumeGroup,
+        Zpool,
+    },
+    get_vdev_paths,
+    mount::{FsType, Mount, MountPoint},
+    DevicePath,
 };
 use std::{
-  cmp::Ordering,
-  collections::{BTreeMap, BTreeSet, HashMap},
-  fmt::Display,
-  hash::{Hash, Hasher},
+    cmp::Ordering,
+    collections::{BTreeMap, BTreeSet, HashMap},
+    fmt::Display,
+    hash::{Hash, Hasher},
 };
 
 #[derive(Debug, Clone, Eq, serde::Serialize)]
 pub struct MajorMinor(pub String);
 
 impl Ord for MajorMinor {
-  fn cmp(&self, other: &MajorMinor) -> Ordering {
-    self.0.partial_cmp(&other.0).unwrap()
-  }
+    fn cmp(&self, other: &MajorMinor) -> Ordering {
+        self.0.partial_cmp(&other.0).unwrap()
+    }
 }
 
 impl PartialOrd for MajorMinor {
-  fn partial_cmp(&self, other: &MajorMinor) -> Option<Ordering> {
-    Some(self.cmp(other))
-  }
+    fn partial_cmp(&self, other: &MajorMinor) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 impl PartialEq for MajorMinor {
-  fn eq(&self, other: &MajorMinor) -> bool {
-    self.0 == other.0
-  }
+    fn eq(&self, other: &MajorMinor) -> bool {
+        self.0 == other.0
+    }
 }
 
 impl Hash for MajorMinor {
-  fn hash<H: Hasher>(&self, h: &mut H) {
-    self.0.hash(h)
-  }
+    fn hash<H: Hasher>(&self, h: &mut H) {
+        self.0.hash(h)
+    }
 }
 
 impl<D1: Display, D2: Display> From<(D1, D2)> for MajorMinor {
-  fn from((major, minor): (D1, D2)) -> MajorMinor {
-    MajorMinor(format!("{}:{}", major, minor))
-  }
+    fn from((major, minor): (D1, D2)) -> MajorMinor {
+        MajorMinor(format!("{}:{}", major, minor))
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LinuxPluginMpathDevice<'a> {
-  name: String,
-  block_device: MajorMinor,
-  nodes: BTreeSet<LinuxPluginDevice<'a>>,
+    name: String,
+    block_device: MajorMinor,
+    nodes: BTreeSet<LinuxPluginDevice<'a>>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LinuxPluginVgDevice<'a> {
-  name: &'a str,
-  uuid: &'a str,
-  size: u64,
-  pvs_major_minor: BTreeSet<MajorMinor>,
+    name: &'a str,
+    uuid: &'a str,
+    size: u64,
+    pvs_major_minor: BTreeSet<MajorMinor>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LinuxPluginLvDevice<'a> {
-  block_device: MajorMinor,
-  size: u64,
-  uuid: &'a str,
-  name: &'a str,
+    block_device: MajorMinor,
+    size: u64,
+    uuid: &'a str,
+    name: &'a str,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct LinuxPluginDevice<'a> {
-  major_minor: MajorMinor,
-  parent: Option<MajorMinor>,
-  partition_number: Option<u64>,
-  path: &'a DevicePath,
-  paths: BTreeSet<&'a DevicePath>,
-  serial_83: Option<&'a str>,
-  serial_80: &'a Option<String>,
-  size: Option<u64>,
-  filesystem_type: &'a Option<String>,
+    major_minor: MajorMinor,
+    parent: Option<MajorMinor>,
+    partition_number: Option<u64>,
+    path: &'a DevicePath,
+    paths: BTreeSet<&'a DevicePath>,
+    serial_83: Option<&'a str>,
+    serial_80: &'a Option<String>,
+    size: Option<u64>,
+    filesystem_type: &'a Option<String>,
 }
 
 #[derive(Debug, Eq, PartialEq, Clone, serde::Serialize)]
 pub struct LinuxPluginZpool<'a> {
-  block_device: MajorMinor,
-  drives: BTreeSet<MajorMinor>,
-  name: &'a str,
-  path: &'a str,
-  size: u64,
-  uuid: u64,
+    block_device: MajorMinor,
+    drives: BTreeSet<MajorMinor>,
+    name: &'a str,
+    path: &'a str,
+    size: u64,
+    uuid: u64,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 #[serde(untagged)]
 pub enum LinuxPluginItem<'a> {
-  LinuxPluginDevice(LinuxPluginDevice<'a>),
-  LinuxPluginZpool(LinuxPluginZpool<'a>),
+    LinuxPluginDevice(LinuxPluginDevice<'a>),
+    LinuxPluginZpool(LinuxPluginZpool<'a>),
 }
 
 impl<'a> Ord for LinuxPluginDevice<'a> {
-  fn cmp(&self, other: &LinuxPluginDevice) -> Ordering {
-    self.major_minor.partial_cmp(&other.major_minor).unwrap()
-  }
+    fn cmp(&self, other: &LinuxPluginDevice) -> Ordering {
+        self.major_minor.partial_cmp(&other.major_minor).unwrap()
+    }
 }
 
 impl<'a> PartialOrd for LinuxPluginDevice<'a> {
-  fn partial_cmp(&self, other: &LinuxPluginDevice) -> Option<Ordering> {
-    Some(self.cmp(other))
-  }
+    fn partial_cmp(&self, other: &LinuxPluginDevice) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LinuxPluginData<'a> {
-  pub devs: BTreeMap<MajorMinor, LinuxPluginItem<'a>>,
-  pub local_fs: BTreeMap<MajorMinor, (&'a MountPoint, &'a FsType)>,
-  pub mpath: BTreeMap<String, LinuxPluginMpathDevice<'a>>,
-  pub vgs: BTreeMap<String, LinuxPluginVgDevice<'a>>,
-  pub lvs: BTreeMap<String, BTreeMap<String, LinuxPluginLvDevice<'a>>>,
-  pub zfspools: BTreeMap<u64, LinuxPluginZpool<'a>>,
-  pub zfsdatasets: BTreeMap<u64, LinuxPluginZpool<'a>>,
+    pub devs: BTreeMap<MajorMinor, LinuxPluginItem<'a>>,
+    pub local_fs: BTreeMap<MajorMinor, (&'a MountPoint, &'a FsType)>,
+    pub mpath: BTreeMap<String, LinuxPluginMpathDevice<'a>>,
+    pub vgs: BTreeMap<String, LinuxPluginVgDevice<'a>>,
+    pub lvs: BTreeMap<String, BTreeMap<String, LinuxPluginLvDevice<'a>>>,
+    pub zfspools: BTreeMap<u64, LinuxPluginZpool<'a>>,
+    pub zfsdatasets: BTreeMap<u64, LinuxPluginZpool<'a>>,
 }
 
 impl<'a> Default for LinuxPluginData<'a> {
-  fn default() -> LinuxPluginData<'a> {
-    LinuxPluginData {
-      devs: BTreeMap::new(),
-      local_fs: BTreeMap::new(),
-      mpath: BTreeMap::new(),
-      vgs: BTreeMap::new(),
-      lvs: BTreeMap::new(),
-      zfspools: BTreeMap::new(),
-      zfsdatasets: BTreeMap::new(),
+    fn default() -> LinuxPluginData<'a> {
+        LinuxPluginData {
+            devs: BTreeMap::new(),
+            local_fs: BTreeMap::new(),
+            mpath: BTreeMap::new(),
+            vgs: BTreeMap::new(),
+            lvs: BTreeMap::new(),
+            zfspools: BTreeMap::new(),
+            zfsdatasets: BTreeMap::new(),
+        }
     }
-  }
 }
 
 impl<'a> From<&'a ScsiDevice> for LinuxPluginDevice<'a> {
-  fn from(s: &ScsiDevice) -> LinuxPluginDevice {
-    LinuxPluginDevice {
-      major_minor: (&s.major, &s.minor).into(),
-      parent: None,
-      path: s.paths.get_min().unwrap(),
-      paths: s.paths.iter().collect(),
-      partition_number: None,
-      serial_83: Some(&s.serial),
-      serial_80: &s.scsi80,
-      size: Some(s.size),
-      filesystem_type: &s.filesystem_type,
+    fn from(s: &ScsiDevice) -> LinuxPluginDevice {
+        LinuxPluginDevice {
+            major_minor: (&s.major, &s.minor).into(),
+            parent: None,
+            path: s.paths.get_min().unwrap(),
+            paths: s.paths.iter().collect(),
+            partition_number: None,
+            serial_83: Some(&s.serial),
+            serial_80: &s.scsi80,
+            size: Some(s.size),
+            filesystem_type: &s.filesystem_type,
+        }
     }
-  }
 }
 
 impl<'a> From<(&'a Partition, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice<'a> {
-  fn from((x, p): (&'a Partition, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
-    LinuxPluginDevice {
-      major_minor: (&x.major, &x.minor).into(),
-      parent: p.map(|y| y.major_minor.clone()),
-      path: x.paths.get_min().unwrap(),
-      paths: x.paths.iter().collect(),
-      partition_number: Some(x.partition_number),
-      serial_83: None,
-      serial_80: &None,
-      size: Some(x.size),
-      filesystem_type: &x.filesystem_type,
+    fn from((x, p): (&'a Partition, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
+        LinuxPluginDevice {
+            major_minor: (&x.major, &x.minor).into(),
+            parent: p.map(|y| y.major_minor.clone()),
+            path: x.paths.get_min().unwrap(),
+            paths: x.paths.iter().collect(),
+            partition_number: Some(x.partition_number),
+            serial_83: None,
+            serial_80: &None,
+            size: Some(x.size),
+            filesystem_type: &x.filesystem_type,
+        }
     }
-  }
 }
 
 impl<'a> From<(&'a Mpath, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice<'a> {
-  fn from((x, _p): (&'a Mpath, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
-    LinuxPluginDevice {
-      major_minor: (&x.major, &x.minor).into(),
-      // @FIXME
-      // linux.py erroneously declares that
-      // only partitions should have a parent.
-      // To make interop work with this assumption
-      // we set the parent to `None`.
-      // https://github.com/whamcloud/integrated-manager-for-lustre/blob/841567bb99edde5b635fb1573a6485f6eb75428a/chroma_core/plugins/linux.py#L439
-      parent: None,
-      path: x.paths.get_min().unwrap(),
-      paths: x.paths.iter().collect(),
-      partition_number: None,
-      serial_83: Some(&x.serial),
-      serial_80: &x.scsi80,
-      size: Some(x.size),
-      filesystem_type: &x.filesystem_type,
+    fn from((x, _p): (&'a Mpath, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
+        LinuxPluginDevice {
+            major_minor: (&x.major, &x.minor).into(),
+            // @FIXME
+            // linux.py erroneously declares that
+            // only partitions should have a parent.
+            // To make interop work with this assumption
+            // we set the parent to `None`.
+            // https://github.com/whamcloud/integrated-manager-for-lustre/blob/841567bb99edde5b635fb1573a6485f6eb75428a/chroma_core/plugins/linux.py#L439
+            parent: None,
+            path: x.paths.get_min().unwrap(),
+            paths: x.paths.iter().collect(),
+            partition_number: None,
+            serial_83: Some(&x.serial),
+            serial_80: &x.scsi80,
+            size: Some(x.size),
+            filesystem_type: &x.filesystem_type,
+        }
     }
-  }
 }
 
 impl<'a> From<(&'a LogicalVolume, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice<'a> {
-  fn from((x, _p): (&'a LogicalVolume, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
-    LinuxPluginDevice {
-      major_minor: (&x.major, &x.minor).into(),
-      // @FIXME
-      // linux.py erroneously declares that
-      // only partitions should have a parent.
-      // To make interop work with this assumption
-      // we set the parent to `None`.
-      // https://github.com/whamcloud/integrated-manager-for-lustre/blob/841567bb99edde5b635fb1573a6485f6eb75428a/chroma_core/plugins/linux.py#L439
-      parent: None,
-      path: x.paths.get_min().unwrap(),
-      paths: x.paths.iter().collect(),
-      partition_number: None,
-      serial_83: None,
-      serial_80: &None,
-      size: Some(x.size),
-      filesystem_type: &x.filesystem_type,
+    fn from((x, _p): (&'a LogicalVolume, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
+        LinuxPluginDevice {
+            major_minor: (&x.major, &x.minor).into(),
+            // @FIXME
+            // linux.py erroneously declares that
+            // only partitions should have a parent.
+            // To make interop work with this assumption
+            // we set the parent to `None`.
+            // https://github.com/whamcloud/integrated-manager-for-lustre/blob/841567bb99edde5b635fb1573a6485f6eb75428a/chroma_core/plugins/linux.py#L439
+            parent: None,
+            path: x.paths.get_min().unwrap(),
+            paths: x.paths.iter().collect(),
+            partition_number: None,
+            serial_83: None,
+            serial_80: &None,
+            size: Some(x.size),
+            filesystem_type: &x.filesystem_type,
+        }
     }
-  }
 }
 
 impl<'a> From<&'a Zpool> for LinuxPluginZpool<'a> {
-  fn from(x: &'a Zpool) -> LinuxPluginZpool<'a> {
-    LinuxPluginZpool {
-      name: &x.name,
-      path: &x.name,
-      block_device: ("zfspool", &x.guid).into(),
-      size: x.size,
-      uuid: x.guid,
-      drives: BTreeSet::new(),
+    fn from(x: &'a Zpool) -> LinuxPluginZpool<'a> {
+        LinuxPluginZpool {
+            name: &x.name,
+            path: &x.name,
+            block_device: ("zfspool", &x.guid).into(),
+            size: x.size,
+            uuid: x.guid,
+            drives: BTreeSet::new(),
+        }
     }
-  }
 }
 
 impl<'a> From<(&'a Dataset, u64)> for LinuxPluginZpool<'a> {
-  fn from((x, size): (&'a Dataset, u64)) -> LinuxPluginZpool<'a> {
-    LinuxPluginZpool {
-      name: &x.name,
-      path: &x.name,
-      block_device: ("zfsset", &x.guid).into(),
-      size,
-      uuid: x.guid,
-      drives: BTreeSet::new(),
+    fn from((x, size): (&'a Dataset, u64)) -> LinuxPluginZpool<'a> {
+        LinuxPluginZpool {
+            name: &x.name,
+            path: &x.name,
+            block_device: ("zfsset", &x.guid).into(),
+            size,
+            uuid: x.guid,
+            drives: BTreeSet::new(),
+        }
     }
-  }
 }
 
 fn add_mount<'a>(
-  mount: &'a Mount,
-  d: &LinuxPluginDevice<'a>,
-  linux_plugin_data: &mut LinuxPluginData<'a>,
+    mount: &'a Mount,
+    d: &LinuxPluginDevice<'a>,
+    linux_plugin_data: &mut LinuxPluginData<'a>,
 ) {
-  linux_plugin_data
-    .local_fs
-    .insert(d.major_minor.clone(), (&mount.target, &mount.fs_type));
+    linux_plugin_data
+        .local_fs
+        .insert(d.major_minor.clone(), (&mount.target, &mount.fs_type));
 }
 
 pub fn populate_zpool<'a>(
-  x: &'a Zpool,
-  mm: MajorMinor,
-  linux_plugin_data: &mut LinuxPluginData<'a>,
+    x: &'a Zpool,
+    mm: MajorMinor,
+    linux_plugin_data: &mut LinuxPluginData<'a>,
 ) {
-  if x.children.is_empty() {
-    let pool = linux_plugin_data
-      .devs
-      .entry(("zfspool", x.guid).into())
-      .or_insert_with(|| LinuxPluginItem::LinuxPluginZpool(x.into()));
+    if x.children.is_empty() {
+        let pool = linux_plugin_data
+            .devs
+            .entry(("zfspool", x.guid).into())
+            .or_insert_with(|| LinuxPluginItem::LinuxPluginZpool(x.into()));
 
-    if let LinuxPluginItem::LinuxPluginZpool(p) = pool {
-      p.drives.insert(mm.clone());
+        if let LinuxPluginItem::LinuxPluginZpool(p) = pool {
+            p.drives.insert(mm.clone());
 
-      let p2 = linux_plugin_data
-        .zfspools
-        .entry(p.uuid)
-        .or_insert_with(|| p.clone());
+            let p2 = linux_plugin_data
+                .zfspools
+                .entry(p.uuid)
+                .or_insert_with(|| p.clone());
 
-      p2.drives.insert(mm);
-    };
-  } else {
-    for dev in &x.children {
-      if let Device::Dataset(d) = dev {
-        let dataset = linux_plugin_data
-          .devs
-          .entry(("zfsset", d.guid).into())
-          .or_insert_with(|| LinuxPluginItem::LinuxPluginZpool((d, x.size).into()));
-
-        if let LinuxPluginItem::LinuxPluginZpool(d) = dataset {
-          d.drives.insert(mm.clone());
-
-          let d2 = linux_plugin_data
-            .zfsdatasets
-            .entry(d.uuid)
-            .or_insert_with(|| d.clone());
-
-          d2.drives.insert(mm.clone());
+            p2.drives.insert(mm);
         };
-      }
+    } else {
+        for dev in &x.children {
+            if let Device::Dataset(d) = dev {
+                let dataset = linux_plugin_data
+                    .devs
+                    .entry(("zfsset", d.guid).into())
+                    .or_insert_with(|| LinuxPluginItem::LinuxPluginZpool((d, x.size).into()));
+
+                if let LinuxPluginItem::LinuxPluginZpool(d) = dataset {
+                    d.drives.insert(mm.clone());
+
+                    let d2 = linux_plugin_data
+                        .zfsdatasets
+                        .entry(d.uuid)
+                        .or_insert_with(|| d.clone());
+
+                    d2.drives.insert(mm.clone());
+                };
+            }
+        }
     }
-  }
 }
 
 pub fn devtree2linuxoutput<'a>(
-  device: &'a Device,
-  parent: Option<&LinuxPluginDevice<'a>>,
-  mut linux_plugin_data: &mut LinuxPluginData<'a>,
+    device: &'a Device,
+    parent: Option<&LinuxPluginDevice<'a>>,
+    mut linux_plugin_data: &mut LinuxPluginData<'a>,
 ) {
-  match device {
-    Device::Root(x) => {
-      for c in &x.children {
-        devtree2linuxoutput(c, None, &mut linux_plugin_data);
-      }
-    }
-    Device::ScsiDevice(x) => {
-      let d: LinuxPluginDevice = x.into();
+    match device {
+        Device::Root(x) => {
+            for c in &x.children {
+                devtree2linuxoutput(c, None, &mut linux_plugin_data);
+            }
+        }
+        Device::ScsiDevice(x) => {
+            let d: LinuxPluginDevice = x.into();
 
-      if let Some(mount) = &x.mount {
-        add_mount(mount, &d, linux_plugin_data);
-      }
+            if let Some(mount) = &x.mount {
+                add_mount(mount, &d, linux_plugin_data);
+            }
 
-      for c in &x.children {
-        devtree2linuxoutput(&c, Some(&d), &mut linux_plugin_data);
-      }
+            for c in &x.children {
+                devtree2linuxoutput(&c, Some(&d), &mut linux_plugin_data);
+            }
 
-      linux_plugin_data
-        .devs
-        .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
-    }
-    Device::Partition(x) => {
-      let d: LinuxPluginDevice = (x, parent).into();
+            linux_plugin_data
+                .devs
+                .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
+        }
+        Device::Partition(x) => {
+            let d: LinuxPluginDevice = (x, parent).into();
 
-      if let Some(mount) = &x.mount {
-        add_mount(mount, &d, linux_plugin_data);
-      }
+            if let Some(mount) = &x.mount {
+                add_mount(mount, &d, linux_plugin_data);
+            }
 
-      for c in &x.children {
-        devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
-      }
+            for c in &x.children {
+                devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
+            }
 
-      linux_plugin_data
-        .devs
-        .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
-    }
-    Device::Mpath(x) => {
-      let d: LinuxPluginDevice<'a> = (x, parent).into();
+            linux_plugin_data
+                .devs
+                .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
+        }
+        Device::Mpath(x) => {
+            let d: LinuxPluginDevice<'a> = (x, parent).into();
 
-      if let Some(mount) = &x.mount {
-        add_mount(mount, &d, linux_plugin_data);
-      }
+            if let Some(mount) = &x.mount {
+                add_mount(mount, &d, linux_plugin_data);
+            }
 
-      for c in &x.children {
-        devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
-      }
+            for c in &x.children {
+                devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
+            }
 
-      let block_device = d.major_minor.clone();
+            let block_device = d.major_minor.clone();
 
-      linux_plugin_data
-        .devs
-        .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
+            linux_plugin_data
+                .devs
+                .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
 
-      let name = x.dm_name.clone();
+            let name = x.dm_name.clone();
 
-      let mpath_device =
-        linux_plugin_data
-          .mpath
-          .entry(name.clone())
-          .or_insert(LinuxPluginMpathDevice {
-            block_device,
-            name,
-            nodes: BTreeSet::new(),
-          });
+            let mpath_device =
+                linux_plugin_data
+                    .mpath
+                    .entry(name.clone())
+                    .or_insert(LinuxPluginMpathDevice {
+                        block_device,
+                        name,
+                        nodes: BTreeSet::new(),
+                    });
 
-      if let Some(parent) = parent {
-        mpath_device.nodes.insert(parent.clone());
-      }
-    }
-    Device::VolumeGroup(x) => {
-      let vg_device = linux_plugin_data
-        .vgs
-        .entry(x.name.clone())
-        .or_insert(LinuxPluginVgDevice {
-          name: &x.name,
-          size: x.size,
-          uuid: &x.uuid,
-          pvs_major_minor: BTreeSet::new(),
-        });
+            if let Some(parent) = parent {
+                mpath_device.nodes.insert(parent.clone());
+            }
+        }
+        Device::VolumeGroup(x) => {
+            let vg_device =
+                linux_plugin_data
+                    .vgs
+                    .entry(x.name.clone())
+                    .or_insert(LinuxPluginVgDevice {
+                        name: &x.name,
+                        size: x.size,
+                        uuid: &x.uuid,
+                        pvs_major_minor: BTreeSet::new(),
+                    });
 
-      if let Some(parent) = parent {
-        vg_device.pvs_major_minor.insert(parent.major_minor.clone());
-      }
+            if let Some(parent) = parent {
+                vg_device.pvs_major_minor.insert(parent.major_minor.clone());
+            }
 
-      let vg_name = x.name.clone();
+            let vg_name = x.name.clone();
 
-      x.children
-        .iter()
-        .filter_map(|d| match d {
-          Device::LogicalVolume(lv) => Some(lv),
-          _ => None,
-        })
-        .for_each(|lv| {
-          let d: LinuxPluginDevice = (lv, parent).into();
+            x.children
+                .iter()
+                .filter_map(|d| match d {
+                    Device::LogicalVolume(lv) => Some(lv),
+                    _ => None,
+                })
+                .for_each(|lv| {
+                    let d: LinuxPluginDevice = (lv, parent).into();
 
-          if let Some(mount) = &lv.mount {
-            add_mount(mount, &d, linux_plugin_data);
-          }
+                    if let Some(mount) = &lv.mount {
+                        add_mount(mount, &d, linux_plugin_data);
+                    }
 
-          for c in &lv.children {
-            devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
-          }
+                    for c in &lv.children {
+                        devtree2linuxoutput(c, Some(&d), &mut linux_plugin_data);
+                    }
 
-          let block_device = d.major_minor.clone();
+                    let block_device = d.major_minor.clone();
 
-          linux_plugin_data
-            .devs
-            .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
+                    linux_plugin_data
+                        .devs
+                        .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
 
-          let vgs = linux_plugin_data
-            .lvs
-            .entry(vg_name.clone())
-            .or_insert_with(BTreeMap::new);
+                    let vgs = linux_plugin_data
+                        .lvs
+                        .entry(vg_name.clone())
+                        .or_insert_with(BTreeMap::new);
 
-          vgs.entry(x.name.clone()).or_insert(LinuxPluginLvDevice {
-            name: &x.name,
-            size: x.size,
-            uuid: &x.uuid,
-            block_device,
-          });
-        });
-    }
-    Device::Zpool(x) => {
-      populate_zpool(x, parent.unwrap().major_minor.clone(), linux_plugin_data);
-    }
-    _ => {}
-  };
+                    vgs.entry(x.name.clone()).or_insert(LinuxPluginLvDevice {
+                        name: &x.name,
+                        size: x.size,
+                        uuid: &x.uuid,
+                        block_device,
+                    });
+                });
+        }
+        Device::Zpool(x) => {
+            populate_zpool(x, parent.unwrap().major_minor.clone(), linux_plugin_data);
+        }
+        _ => {}
+    };
 }
 
 type PoolMap<'a> = BTreeMap<u64, (&'a Zpool, BTreeSet<DevicePath>)>;
 
 pub fn build_device_lookup<'a>(
-  dev_tree: &'a Device,
-  path_map: &mut BTreeMap<&'a DevicePath, MajorMinor>,
-  pool_map: &mut PoolMap<'a>,
+    dev_tree: &'a Device,
+    path_map: &mut BTreeMap<&'a DevicePath, MajorMinor>,
+    pool_map: &mut PoolMap<'a>,
 ) {
-  match dev_tree {
-    Device::Root(Root { children }) | Device::VolumeGroup(VolumeGroup { children, .. }) => {
-      for c in children {
-        build_device_lookup(c, path_map, pool_map);
-      }
-    }
-    Device::ScsiDevice(ScsiDevice {
-      children,
-      paths,
-      major,
-      minor,
-      ..
-    })
-    | Device::Partition(Partition {
-      children,
-      paths,
-      major,
-      minor,
-      ..
-    })
-    | Device::MdRaid(MdRaid {
-      children,
-      paths,
-      major,
-      minor,
-      ..
-    })
-    | Device::Mpath(Mpath {
-      children,
-      paths,
-      major,
-      minor,
-      ..
-    })
-    | Device::LogicalVolume(LogicalVolume {
-      children,
-      paths,
-      major,
-      minor,
-      ..
-    }) => {
-      for p in paths {
-        path_map.insert(p, (major, minor).into());
-      }
+    match dev_tree {
+        Device::Root(Root { children }) | Device::VolumeGroup(VolumeGroup { children, .. }) => {
+            for c in children {
+                build_device_lookup(c, path_map, pool_map);
+            }
+        }
+        Device::ScsiDevice(ScsiDevice {
+            children,
+            paths,
+            major,
+            minor,
+            ..
+        })
+        | Device::Partition(Partition {
+            children,
+            paths,
+            major,
+            minor,
+            ..
+        })
+        | Device::MdRaid(MdRaid {
+            children,
+            paths,
+            major,
+            minor,
+            ..
+        })
+        | Device::Mpath(Mpath {
+            children,
+            paths,
+            major,
+            minor,
+            ..
+        })
+        | Device::LogicalVolume(LogicalVolume {
+            children,
+            paths,
+            major,
+            minor,
+            ..
+        }) => {
+            for p in paths {
+                path_map.insert(p, (major, minor).into());
+            }
 
-      for c in children {
-        build_device_lookup(c, path_map, pool_map);
-      }
-    }
-    Device::Zpool(x) => {
-      let paths = get_vdev_paths(&x.vdev);
+            for c in children {
+                build_device_lookup(c, path_map, pool_map);
+            }
+        }
+        Device::Zpool(x) => {
+            let paths = get_vdev_paths(&x.vdev);
 
-      pool_map.entry(x.guid).or_insert_with(|| (x, paths));
+            pool_map.entry(x.guid).or_insert_with(|| (x, paths));
+        }
+        Device::Dataset(_) => {}
     }
-    Device::Dataset(_) => {}
-  }
 }
 
 /// In order for a pool to exist on > 1 node, *all* of it's backing
@@ -502,48 +504,48 @@ pub fn build_device_lookup<'a>(
 /// multiple hosts and if so, returns
 /// where they need to be inserted.
 pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
-  host: &str,
-  path_map: &'a BTreeMap<&'a DevicePath, MajorMinor>,
-  cluster_pools: &'a HashMap<&'a String, PoolMap<'a>, S>,
+    host: &str,
+    path_map: &'a BTreeMap<&'a DevicePath, MajorMinor>,
+    cluster_pools: &'a HashMap<&'a String, PoolMap<'a>, S>,
 ) -> Vec<(&'a Zpool, MajorMinor)> {
-  let mut shared_pools: Vec<_> = vec![];
+    let mut shared_pools: Vec<_> = vec![];
 
-  let paths: BTreeSet<&DevicePath> = path_map.keys().cloned().collect();
+    let paths: BTreeSet<&DevicePath> = path_map.keys().cloned().collect();
 
-  for (&h, ps) in cluster_pools.iter() {
-    if host == h {
-      continue;
+    for (&h, ps) in cluster_pools.iter() {
+        if host == h {
+            continue;
+        }
+
+        for v in ps.values() {
+            let ds = v.1.iter().collect();
+
+            if !paths.is_superset(&ds) {
+                continue;
+            };
+
+            log::debug!("pool is shared between {} and {}", h, host);
+
+            for d in ds {
+                let parent = path_map[&d].clone();
+
+                shared_pools.push((v.0, parent));
+            }
+        }
     }
 
-    for v in ps.values() {
-      let ds = v.1.iter().collect();
-
-      if !paths.is_superset(&ds) {
-        continue;
-      };
-
-      log::debug!("pool is shared between {} and {}", h, host);
-
-      for d in ds {
-        let parent = path_map[&d].clone();
-
-        shared_pools.push((v.0, parent));
-      }
-    }
-  }
-
-  shared_pools
+    shared_pools
 }
 
 #[cfg(test)]
 mod tests {
-  use super::{devtree2linuxoutput, LinuxPluginData};
-  use device_types::devices::Device;
-  use insta::assert_json_snapshot_matches;
+    use super::{devtree2linuxoutput, LinuxPluginData};
+    use device_types::devices::Device;
+    use insta::assert_json_snapshot_matches;
 
-  #[test]
-  fn test_devtree2linuxoutput() {
-    let device:Device = serde_json::from_str(r#"
+    #[test]
+    fn test_devtree2linuxoutput() {
+        let device:Device = serde_json::from_str(r#"
 {
   "Root": {
     "children": [
@@ -2258,16 +2260,16 @@ mod tests {
 }
     "#).unwrap();
 
-    let mut data = LinuxPluginData::default();
+        let mut data = LinuxPluginData::default();
 
-    devtree2linuxoutput(&device, None, &mut data);
+        devtree2linuxoutput(&device, None, &mut data);
 
-    assert_json_snapshot_matches!(data);
-  }
+        assert_json_snapshot_matches!(data);
+    }
 
-  #[test]
-  fn test_devtree2linuxoutput_zpool() {
-    let device:Device = serde_json::from_str(r#"
+    #[test]
+    fn test_devtree2linuxoutput_zpool() {
+        let device:Device = serde_json::from_str(r#"
       {
   "Root": {
     "children": [
@@ -2616,16 +2618,16 @@ mod tests {
 }
     "#).unwrap();
 
-    let mut data = LinuxPluginData::default();
+        let mut data = LinuxPluginData::default();
 
-    devtree2linuxoutput(&device, None, &mut data);
+        devtree2linuxoutput(&device, None, &mut data);
 
-    assert_json_snapshot_matches!(data);
-  }
+        assert_json_snapshot_matches!(data);
+    }
 
-  #[test]
-  fn test_devtree2linuxoutput_dataset() {
-    let device:Device = serde_json::from_str(r#"
+    #[test]
+    fn test_devtree2linuxoutput_dataset() {
+        let device:Device = serde_json::from_str(r#"
     {
   "Root": {
     "children": [
@@ -3502,10 +3504,10 @@ mod tests {
 }
     "#).unwrap();
 
-    let mut data = LinuxPluginData::default();
+        let mut data = LinuxPluginData::default();
 
-    devtree2linuxoutput(&device, None, &mut data);
+        devtree2linuxoutput(&device, None, &mut data);
 
-    assert_json_snapshot_matches!(data);
-  }
+        assert_json_snapshot_matches!(data);
+    }
 }

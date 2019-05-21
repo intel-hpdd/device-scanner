@@ -5,19 +5,21 @@
 use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},
-    linux_plugin_transforms::{devtree2linuxoutput, LinuxPluginData},
+    linux_plugin_transforms::{
+        build_device_lookup, devtree2linuxoutput, get_shared_pools, populate_zpool, LinuxPluginData,
+    },
 };
 use device_types::{devices::Device, message::Message};
 use futures::Future;
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashMap},
     env,
     sync::{Arc, Mutex},
 };
 use warp::Filter;
 
 fn main() -> Result<(), aggregator_error::Error> {
-    env_logger::init();
+    env_logger::builder().default_format_timestamp(false).init();
 
     let cache = Arc::new(Mutex::new(Cache::default()));
 
@@ -56,12 +58,9 @@ fn main() -> Result<(), aggregator_error::Error> {
         .map(|cache: Arc<Mutex<Cache>>| {
             let cache = cache.lock().unwrap();
 
-            // Build out top-level structure.
-            // Check for shared items and add where needed.
-
             let entries = cache.entries();
 
-            let xs: BTreeMap<&String, _> = entries
+            let mut xs: BTreeMap<&String, _> = entries
                 .iter()
                 .map(|(k, v)| {
                     let mut out = LinuxPluginData::default();
@@ -71,6 +70,27 @@ fn main() -> Result<(), aggregator_error::Error> {
                     (k, out)
                 })
                 .collect();
+
+            let (path_index, cluster_pools): (HashMap<&String, _>, HashMap<&String, _>) = entries
+                .iter()
+                .map(|(k, v)| {
+                    let mut path_to_mm = BTreeMap::new();
+                    let mut pools = BTreeMap::new();
+
+                    build_device_lookup(v, &mut path_to_mm, &mut pools);
+
+                    ((k, path_to_mm), (k, pools))
+                })
+                .unzip();
+
+            for (&h, x) in xs.iter_mut() {
+                let path_to_mm = &path_index[h];
+                let shared_pools = get_shared_pools(&h, path_to_mm, &cluster_pools);
+
+                for (a, b) in shared_pools {
+                    populate_zpool(a, b, x);
+                }
+            }
 
             serde_json::to_string(&xs).unwrap()
         });

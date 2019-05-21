@@ -1,5 +1,5 @@
 ---
-created: "2019-05-17T21:18:18.143303Z"
+created: "2019-05-21T14:59:13.551439Z"
 creator: insta@0.8.1
 source: device-aggregator/src/linux_plugin_transforms.rs
 expression: data
@@ -84,6 +84,8 @@ expression: data
         "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
         "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
         "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+        "/dev/disk/by-label/mgs",
+        "/dev/disk/by-uuid/3383432994541088053",
         "/dev/mgt",
         "/dev/sdb"
       ],
@@ -101,6 +103,8 @@ expression: data
         "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
         "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
         "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+        "/dev/disk/by-label/mgs",
+        "/dev/disk/by-uuid/3383432994541088053",
         "/dev/mgt",
         "/dev/sdc"
       ],
@@ -117,7 +121,9 @@ expression: data
       "paths": [
         "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
         "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
-        "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+        "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+        "/dev/disk/by-label/mds",
+        "/dev/disk/by-uuid/15259234345131681652",
         "/dev/mdt",
         "/dev/sdd"
       ],
@@ -134,7 +140,9 @@ expression: data
       "paths": [
         "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
         "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
-        "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+        "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+        "/dev/disk/by-label/mds",
+        "/dev/disk/by-uuid/15259234345131681652",
         "/dev/mdt",
         "/dev/sde"
       ],
@@ -143,17 +151,15 @@ expression: data
       "size": 5368709120,
       "filesystem_type": "mpath_member"
     },
-    "zfspool:3383432994541088300": {
-      "block_device": "zfspool:3383432994541088300",
+    "zfsset:16140917920099960924": {
+      "block_device": "zfsset:16140917920099960924",
       "drives": [
-        "253:0",
-        "8:16",
-        "8:32"
+        "253:0"
       ],
-      "name": "mgs",
-      "path": "mgs",
+      "name": "mgs/MGS",
+      "path": "mgs/MGS",
       "size": 520093696,
-      "uuid": 3383432994541088300
+      "uuid": 16140917920099960924
     }
   },
   "local_fs": {
@@ -176,6 +182,8 @@ expression: data
             "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
             "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
             "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+            "/dev/disk/by-label/mgs",
+            "/dev/disk/by-uuid/3383432994541088053",
             "/dev/mgt",
             "/dev/sdb"
           ],
@@ -193,6 +201,8 @@ expression: data
             "/dev/disk/by-id/scsi-36001405ecca605408894bc2aa708a09c",
             "/dev/disk/by-id/wwn-0x6001405ecca605408894bc2aa708a09c",
             "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-0",
+            "/dev/disk/by-label/mgs",
+            "/dev/disk/by-uuid/3383432994541088053",
             "/dev/mgt",
             "/dev/sdc"
           ],
@@ -215,7 +225,9 @@ expression: data
           "paths": [
             "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
             "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
-            "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/disk/by-label/mds",
+            "/dev/disk/by-uuid/15259234345131681652",
             "/dev/mdt",
             "/dev/sdd"
           ],
@@ -232,7 +244,9 @@ expression: data
           "paths": [
             "/dev/disk/by-id/scsi-36001405943dd5f394fb4b5ba71ec818f",
             "/dev/disk/by-id/wwn-0x6001405943dd5f394fb4b5ba71ec818f",
-            "/dev/disk/by-path/ip-10.73.40.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/disk/by-path/ip-10.73.50.10:3260-iscsi-iqn.2015-01.com.whamcloud.lu:mds-lun-1",
+            "/dev/disk/by-label/mds",
+            "/dev/disk/by-uuid/15259234345131681652",
             "/dev/mdt",
             "/dev/sde"
           ],
@@ -246,19 +260,17 @@ expression: data
   },
   "vgs": {},
   "lvs": {},
-  "zfspools": {
-    "3383432994541088300": {
-      "block_device": "zfspool:3383432994541088300",
+  "zfspools": {},
+  "zfsdatasets": {
+    "16140917920099960924": {
+      "block_device": "zfsset:16140917920099960924",
       "drives": [
-        "253:0",
-        "8:16",
-        "8:32"
+        "253:0"
       ],
-      "name": "mgs",
-      "path": "mgs",
+      "name": "mgs/MGS",
+      "path": "mgs/MGS",
       "size": 520093696,
-      "uuid": 3383432994541088300
+      "uuid": 16140917920099960924
     }
-  },
-  "zfsdatasets": {}
+  }
 }

@@ -113,7 +113,7 @@ pub struct Zpool {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Dataset {
-    pub guid: String,
+    pub guid: u64,
     pub name: String,
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,

@@ -1,5 +1,5 @@
 ---
-created: "2019-05-15T19:57:25.038635Z"
+created: "2019-05-17T21:18:18.146376Z"
 creator: insta@0.8.1
 source: device-aggregator/src/linux_plugin_transforms.rs
 expression: data
@@ -1805,5 +1805,6 @@ expression: data
       }
     }
   },
-  "zfspools": {}
+  "zfspools": {},
+  "zfsdatasets": {}
 }

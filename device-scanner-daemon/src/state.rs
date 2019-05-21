@@ -286,7 +286,7 @@ fn get_datasets(b: &Buckets, guid: u64) -> Result<HashSet<Device>> {
         .map(|x| {
             Ok(Device::Dataset(Dataset {
                 name: x.name.clone(),
-                guid: x.guid.clone(),
+                guid: x.guid.parse::<u64>()?,
                 kind: x.kind.clone(),
                 props: x.props.clone(),
             }))

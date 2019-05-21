@@ -7,6 +7,7 @@ Requires=iml-settings-populator.service
 
 [Service]
 Restart=always
+Environment=RUST_LOG=info
 ExecStart=/usr/bin/device-aggregator
 EnvironmentFile=/var/lib/chroma/iml-settings.conf
 StandardOutput=journal

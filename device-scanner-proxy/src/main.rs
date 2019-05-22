@@ -138,7 +138,10 @@ fn main() -> Result<(), Error> {
             }))
         });
 
-    let mut runtime = tokio::runtime::Runtime::new().expect("Tokio runtime start failed");
+    let mut runtime = tokio::runtime::Builder::new()
+        .panic_handler(|err| std::panic::resume_unwind(err))
+        .build()
+        .expect("Tokio runtime failed to start");
 
     runtime.spawn(stream);
     runtime.spawn(timer);
@@ -146,7 +149,7 @@ fn main() -> Result<(), Error> {
     runtime
         .shutdown_on_idle()
         .wait()
-        .expect("Failed waiting on runtime");
+        .expect("Failed to shutdown runtime");
 
     Ok(())
 }

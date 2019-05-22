@@ -163,10 +163,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
             let mount = find_mount(&x.paths, ys);
 
             Ok(Device::ScsiDevice(ScsiDevice {
-                serial: x
-                    .scsi83
-                    .clone()
-                    .ok_or_else(|| error::none_error("Expected serial"))?,
+                serial: x.scsi83.clone(),
                 scsi80: x.scsi80.clone(),
                 devpath: x.devpath.clone(),
                 major: x.major.clone(),
@@ -196,10 +193,7 @@ fn get_mpaths(
             let mount = find_mount(&x.paths, ys);
 
             Ok(Device::Mpath(Mpath {
-                serial: x
-                    .scsi83
-                    .clone()
-                    .ok_or_else(|| error::none_error("Expected serial"))?,
+                serial: x.scsi83.clone(),
                 scsi80: x.scsi80.clone(),
                 dm_name: x
                     .dm_name

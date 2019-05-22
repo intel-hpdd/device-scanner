@@ -25,7 +25,7 @@ impl Default for Root {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct ScsiDevice {
-    pub serial: String,
+    pub serial: Option<String>,
     pub scsi80: Option<String>,
     pub major: String,
     pub minor: String,
@@ -71,7 +71,7 @@ pub struct MdRaid {
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Mpath {
     pub devpath: PathBuf,
-    pub serial: String,
+    pub serial: Option<String>,
     pub scsi80: Option<String>,
     pub dm_name: String,
     pub size: u64,

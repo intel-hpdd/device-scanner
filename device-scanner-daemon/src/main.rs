@@ -61,6 +61,15 @@ fn processor(
 
                 Ok(Some(connection))
             }
+            Some((Command::GetMounts, socket)) => {
+                let connection = connections::Connection::new(socket);
+
+                message_tx
+                    .clone()
+                    .unbounded_send((Command::GetMounts, connection.tx.clone()))?;
+
+                Ok(Some(connection))
+            }
             Some((cmd, socket)) => {
                 socket.shutdown(Shutdown::Both)?;
 

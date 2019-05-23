@@ -9,6 +9,7 @@ After=scanner-proxy.path
 [Service]
 Restart=always
 EnvironmentFile=/etc/iml/manager-url.conf
+Environment=RUST_LOG=info
 Environment=PRIVATE_PEM_PATH=/etc/iml/private.pem
 Environment=CRT_PATH=/etc/iml/self.crt
 Environment=PFX_PATH=/etc/iml/identity.pfx

@@ -266,6 +266,7 @@ pub mod zed {
 #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Command {
     Stream,
+    GetMounts,
     PoolCommand(zed::PoolCommand),
     UdevCommand(udev::UdevCommand),
     MountCommand(mount::MountCommand),

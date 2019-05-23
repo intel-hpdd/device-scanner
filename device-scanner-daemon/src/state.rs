@@ -524,6 +524,23 @@ pub fn handler() -> (
              }: State,
              (cmd, connections_tx): (Command, connections::Tx)|
              -> Result<State> {
+                if let Command::GetMounts = cmd {
+                    let v = serde_json::to_string(&local_mounts)?;
+                    let b = bytes::BytesMut::from(v + "\n");
+                    let b = b.freeze();
+
+                    connections_tx.unbounded_send(b.clone()).is_ok();
+
+                    return Ok(State {
+                        conns,
+                        state: state::State {
+                            uevents,
+                            local_mounts,
+                            zed_events,
+                        },
+                    });
+                }
+
                 conns.push(connections_tx);
 
                 let (mut uevents, local_mounts, zed_events) = match cmd {

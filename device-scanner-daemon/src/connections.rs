@@ -83,6 +83,11 @@ where
         // executor to schedule the task again asap.
         const LINES_PER_TICK: usize = 10;
 
+        let mut c = self
+            .conn
+            .take()
+            .ok_or_else(|| error::none_error("Tried to take a connection from None"))?;
+
         for i in 0..LINES_PER_TICK {
             // Polling an `UnboundedReceiver` cannot fail, so `unwrap` here is
             // safe.
@@ -98,14 +103,16 @@ where
                         task::current().notify();
                     }
                 }
+                Async::Ready(None) => {
+                    // If the tx side is finished,
+                    // we have nothing more to do.
+                    // we resolve the future
+                    // which closes the connection
+                    return Ok(Async::Ready(c));
+                }
                 _ => break,
             }
         }
-
-        let mut c = self
-            .conn
-            .take()
-            .ok_or_else(|| error::none_error("Tried to take a connection from None"))?;
 
         // Flush the write buffer to the connection
         // As long as there is buffered data to write, try to write it.

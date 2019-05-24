@@ -1,5 +1,5 @@
 ---
-created: "2019-05-10T16:06:50.598295Z"
+created: "2019-05-24T20:45:19.979224Z"
 creator: insta@0.8.1
 source: mount-emitter/src/lib.rs
 expression: map_to_sorted_vec(line_to_hashmap(line))
@@ -7,18 +7,18 @@ expression: map_to_sorted_vec(line_to_hashmap(line))
 [
     (
         "FSTYPE",
-        "swap"
+        "swap",
     ),
     (
         "OPTIONS",
-        "defaults"
+        "defaults",
     ),
     (
         "SOURCE",
-        "/dev/mapper/centos-swap"
+        "/dev/mapper/centos-swap",
     ),
     (
         "TARGET",
-        "swap"
-    )
+        "swap",
+    ),
 ]

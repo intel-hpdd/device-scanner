@@ -14,8 +14,14 @@ pub fn into_zed_events(xs: Vec<libzfs_types::Pool>) -> state::ZedEvents {
     xs.into_iter().map(|p| (p.guid, p)).collect()
 }
 
-pub fn take_pool(zed_events: &mut state::ZedEvents, guid: u64) -> Result<libzfs_types::Pool> {
+pub fn remove_pool(zed_events: &mut state::ZedEvents, guid: u64) -> Result<libzfs_types::Pool> {
     zed_events.remove(&guid).ok_or_else(|| {
+        Error::LibZfsError(libzfs_types::LibZfsError::PoolNotFound(None, Some(guid)))
+    })
+}
+
+pub fn get_pool(zed_events: &mut state::ZedEvents, guid: u64) -> Result<&mut libzfs_types::Pool> {
+    zed_events.get_mut(&guid).ok_or_else(|| {
         Error::LibZfsError(libzfs_types::LibZfsError::PoolNotFound(None, Some(guid)))
     })
 }
@@ -39,6 +45,8 @@ pub fn update_zed_events(
     mut zed_events: state::ZedEvents,
     cmd: PoolCommand,
 ) -> Result<state::ZedEvents> {
+    log::info!("Processing Pool command: {:?}", cmd);
+
     match cmd {
         PoolCommand::AddPools(pools) => Ok(into_zed_events(pools)),
         PoolCommand::AddPool(pool) | PoolCommand::UpdatePool(pool) => {
@@ -47,48 +55,37 @@ pub fn update_zed_events(
         PoolCommand::RemovePool(guid) => {
             let guid = guid_to_u64(guid)?;
 
-            take_pool(&mut zed_events, guid)?;
+            remove_pool(&mut zed_events, guid)?;
 
             Ok(zed_events)
         }
         PoolCommand::AddDataset(guid, dataset) => {
             let guid = guid_to_u64(guid)?;
 
-            let mut pool = take_pool(&mut zed_events, guid)?;
+            let pool = get_pool(&mut zed_events, guid)?;
 
-            let mut ds: Vec<libzfs_types::Dataset> = pool
-                .datasets
-                .into_iter()
-                .filter(|d| d.name != dataset.name)
-                .collect();
+            pool.datasets.retain(|d| d.name != dataset.name);
+            pool.datasets.push(dataset);
 
-            ds.push(dataset);
-
-            pool.datasets = ds;
-
-            Ok(zed_events.update(pool.guid, pool))
+            Ok(zed_events)
         }
         PoolCommand::RemoveDataset(guid, zfs::Name(name)) => {
             let guid = guid_to_u64(guid)?;
 
-            let mut pool = take_pool(&mut zed_events, guid)?;
+            let pool = get_pool(&mut zed_events, guid)?;
 
-            pool.datasets = pool
-                .datasets
-                .into_iter()
-                .filter(|d| d.name != name)
-                .collect();
+            pool.datasets.retain(|d| d.name != name);
 
-            Ok(zed_events.update(pool.guid, pool))
+            Ok(zed_events)
         }
         PoolCommand::SetZpoolProp(guid, prop::Key(key), prop::Value(value)) => {
             let guid = guid_to_u64(guid)?;
 
-            let mut pool = take_pool(&mut zed_events, guid)?;
+            let pool = get_pool(&mut zed_events, guid)?;
 
             update_prop(&key, &value, &mut pool.props);
 
-            Ok(zed_events.update(pool.guid, pool))
+            Ok(zed_events)
         }
         PoolCommand::SetZfsProp(guid, zfs::Name(name), prop::Key(key), prop::Value(value)) => {
             let guid = guid_to_u64(guid)?;
@@ -103,12 +100,12 @@ pub fn update_zed_events(
                     .ok_or_else(|| Error::LibZfsError(libzfs_types::LibZfsError::ZfsNotFound(name)))
             }
 
-            let mut pool = take_pool(&mut zed_events, guid)?;
+            let mut pool = get_pool(&mut zed_events, guid)?;
             let dataset = get_dataset_in_pool(&mut pool, name)?;
 
             update_prop(&key, &value, &mut dataset.props);
 
-            Ok(zed_events.update(pool.guid, pool))
+            Ok(zed_events)
         }
     }
 }

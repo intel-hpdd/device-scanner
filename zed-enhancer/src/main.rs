@@ -26,7 +26,7 @@ fn main() {
         .incoming()
         .map_err(|e| log::error!("accept failed, {:?}", e))
         .for_each(move |socket| {
-            tokio::spawn(processor(socket).map_err(|e| log::error!("Unhandled Error: {:?}", e)))
+            processor(socket).map_err(|e| log::error!("Unhandled Error: {:?}", e))
         });
 
     log::info!("Server starting");

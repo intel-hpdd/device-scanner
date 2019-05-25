@@ -3,12 +3,12 @@
 // license that can be found in the LICENSE file.
 
 use device_types::zed::{zfs, zpool, PoolCommand, ZedCommand};
+use futures::{Future, Stream};
 use std::{error, fmt, io, io::BufReader, num, os::unix::net::UnixStream as NetUnixStream, result};
 use tokio::{
     io::lines,
     io::{AsyncRead, AsyncWrite},
     net::UnixStream,
-    prelude::*,
     reactor::Handle,
 };
 
@@ -115,7 +115,7 @@ pub fn processor(socket: UnixStream) -> impl Future<Item = (), Error = Error> {
         .map(device_types::Command::PoolCommand)
         .and_then(|x| serde_json::to_string(&x).map_err(Error::SerdeJson))
         .for_each(|x| {
-            log::debug!("sending out: {:?}", x);
+            log::debug!("Sending: {:?}", x);
 
             tokio::io::write_all(get_write_stream(), x)
                 .map(|_| ())

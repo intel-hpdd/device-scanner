@@ -51,7 +51,7 @@ fn guid_to_u64(guid: zpool::Guid) -> Result<u64> {
 
 /// Takes a ZedCommand and produces some PoolCommands.
 pub fn handle_zed_commands(cmd: ZedCommand) -> Result<PoolCommand> {
-    log::debug!("got cmd: {:?}", cmd);
+    log::debug!("Processing ZED event: {:?}", cmd);
 
     match cmd {
         ZedCommand::Init => {

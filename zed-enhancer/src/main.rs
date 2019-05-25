@@ -31,15 +31,7 @@ fn main() {
 
     log::info!("Server starting");
 
-    let mut runtime = tokio::runtime::Builder::new()
-        .panic_handler(|err| std::panic::resume_unwind(err))
-        .build()
-        .expect("Tokio runtime failed to start");
+    let mut runtime = tokio::runtime::current_thread::Runtime::new().unwrap();
 
-    runtime.spawn(server);
-
-    runtime
-        .shutdown_on_idle()
-        .wait()
-        .expect("Failed to shutdown runtime");
+    runtime.block_on(server).unwrap();
 }

@@ -248,6 +248,15 @@ fn add_mount<'a>(
     d: &LinuxPluginDevice<'a>,
     linux_plugin_data: &mut LinuxPluginData<'a>,
 ) {
+    // This check is working around one cause of https://github.com/whamcloud/integrated-manager-for-lustre/issues/895
+    // Once we persist device-scanner input directly in the IML database, we won't need this fn anymore,
+    // as device-scanner correctly reports that the mount is transient.
+    if mount.target.0.as_os_str().len() == 14
+        && mount.target.0.to_string_lossy().starts_with("/tmp/mnt")
+    {
+        return;
+    }
+
     linux_plugin_data
         .local_fs
         .insert(d.major_minor.clone(), (&mount.target, &mount.fs_type));
@@ -624,7 +633,12 @@ mod tests {
                   "/dev/dm-7"
                 ],
                 "children": [],
-                "mount": null
+                "mount": {
+                  "source": "/dev/dm-7",
+                  "target": "/tmp/mnt9aU7P6",
+                  "fs_type": "xfs",
+                  "opts": "rw,relatime,seclabel,attr2,inode64,noquota"
+                }
               }
             }
           ]

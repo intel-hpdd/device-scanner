@@ -1,5 +1,5 @@
 ---
-created: "2019-05-10T16:06:50.598296Z"
+created: "2019-05-24T20:45:19.979239Z"
 creator: insta@0.8.1
 source: mount-emitter/src/lib.rs
 expression: map_to_sorted_vec(line_to_hashmap(line))
@@ -7,30 +7,30 @@ expression: map_to_sorted_vec(line_to_hashmap(line))
 [
     (
         "ACTION",
-        "mount"
+        "mount",
     ),
     (
         "FSTYPE",
-        "ext4"
+        "ext4",
     ),
     (
         "OLD-OPTIONS",
-        ""
+        "",
     ),
     (
         "OLD-TARGET",
-        ""
+        "",
     ),
     (
         "OPTIONS",
-        "rw,relatime,data=ordered"
+        "rw,relatime,data=ordered",
     ),
     (
         "SOURCE",
-        "/dev/sde1"
+        "/dev/sde1",
     ),
     (
         "TARGET",
-        "/mnt/part1"
-    )
+        "/mnt/part1",
+    ),
 ]

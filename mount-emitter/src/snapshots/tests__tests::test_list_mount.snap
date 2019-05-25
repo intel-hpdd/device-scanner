@@ -1,20 +1,20 @@
 ---
-created: "2019-05-10T20:35:14.495803Z"
+created: "2019-05-24T20:45:19.979225Z"
 creator: insta@0.8.1
 source: mount-emitter/src/lib.rs
 expression: line_to_command(line)
 ---
 AddMount(
     MountPoint(
-        "/mnt/part1"
+        "/mnt/part1",
     ),
     DevicePath(
-        "/dev/sde1"
+        "/dev/sde1",
     ),
     FsType(
-        "ext4"
+        "ext4",
     ),
     MountOpts(
-        "rw,relatime,data=ordered"
-    )
+        "rw,relatime,data=ordered",
+    ),
 )

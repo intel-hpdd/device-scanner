@@ -1,5 +1,5 @@
 ---
-created: "2019-05-10T21:38:38.959050Z"
+created: "2019-05-24T20:43:50.163951Z"
 creator: insta@0.8.1
 source: device-scanner-daemon/src/reducers/mount.rs
 expression: mounts
@@ -7,16 +7,16 @@ expression: mounts
 {
     Mount {
         source: DevicePath(
-            "/dev/sde1"
+            "/dev/sde1",
         ),
         target: MountPoint(
-            "/mnt/part1"
+            "/mnt/part1",
         ),
         fs_type: FsType(
-            "ext4"
+            "ext4",
         ),
         opts: MountOpts(
-            "rw,relatime,data=ordered"
-        )
-    }
+            "rw,relatime,data=ordered",
+        ),
+    },
 }

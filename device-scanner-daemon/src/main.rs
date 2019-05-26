@@ -4,11 +4,7 @@
 
 use device_scanner_daemon::{connections, error, state};
 use device_types::Command;
-use futures::{
-    future::{self, Either},
-    sync::mpsc::UnboundedSender,
-    Future, Stream,
-};
+use futures::{sync::mpsc::UnboundedSender, Future, Stream};
 use std::{
     io::BufReader,
     net::Shutdown,
@@ -16,78 +12,59 @@ use std::{
 };
 use tokio::{io::lines, net::UnixListener, net::UnixStream, reactor::Handle};
 
-/// Takes an incoming socket and message tx handle
+/// Reads the first line off a `UnixStream` and converts it to a `Command`.
 ///
-/// Consumes the first line of the stream
-/// and parses it into a `Command`.
-///
-/// Wraps the socket into a `Connection` and pushes it's handle into the message tx
-/// so future messages can fanout to all connections.
-fn processor(
+/// Returns an `Option` of `(device_types::Command, UnixStream)` or `None`
+/// if there was no line to read.
+fn read_first_line(
     socket: UnixStream,
-    message_tx: UnboundedSender<(Command, connections::Tx)>,
-) -> impl Future<Item = (), Error = error::Error> {
+) -> impl Future<Item = Option<(device_types::Command, UnixStream)>, Error = error::Error> {
     lines(BufReader::new(socket))
         .into_future()
         .map_err(|(e, _)| e.into())
-        .and_then(|(x, socket_wrapped)| {
-            let x = x.and_then(|x| {
-                serde_json::from_str::<Command>(x.trim_end())
-                    .map_err(|e| {
-                        eprintln!("Could not parse command. Tried to parse: {}, got: {}", x, e);
-                        e
-                    })
-                    .ok()
-            });
+        .and_then(|(x, socket_wrapped)| match x {
+            Some(x) => {
+                let cmd = serde_json::from_str::<Command>(x.trim_end()).map_err(|e| {
+                    log::error!("Could not parse command. Tried to parse: {}, got: {}", x, e);
+                    e
+                })?;
 
-            let cmd = match x {
-                Some(x) => x,
-                None => return Either::A(future::ok(None)),
-            };
+                let socket = socket_wrapped.into_inner().into_inner();
 
-            let socket = socket_wrapped.into_inner().into_inner();
+                log::debug!("Incoming Command: {:?}", cmd);
 
-            let output = (cmd, socket);
-
-            Either::B(future::ok(Some(output)))
-        })
-        .and_then(move |x| match x {
-            Some((Command::Stream, socket)) => {
-                let connection = connections::Connection::new(socket);
-
-                message_tx
-                    .clone()
-                    .unbounded_send((Command::Stream, connection.tx.clone()))?;
-
-                Ok(Some(connection))
-            }
-            Some((Command::GetMounts, socket)) => {
-                let connection = connections::Connection::new(socket);
-
-                message_tx
-                    .clone()
-                    .unbounded_send((Command::GetMounts, connection.tx.clone()))?;
-
-                Ok(Some(connection))
-            }
-            Some((cmd, socket)) => {
-                socket.shutdown(Shutdown::Both)?;
-
-                let connection = connections::Connection::new(socket);
-
-                message_tx
-                    .clone()
-                    .unbounded_send((cmd, connection.tx.clone()))?;
-
-                Ok(Some(connection))
+                Ok(Some((cmd, socket)))
             }
             None => Ok(None),
         })
-        .and_then(|x| match x {
-            Some(connection) => Box::new(connection.map(|_| ()))
-                as Box<Future<Item = (), Error = error::Error> + Send>,
-            None => Box::new(futures::future::ok(())),
-        })
+}
+
+fn build_connection(
+    (cmd, socket): (device_types::Command, UnixStream),
+    message_tx: UnboundedSender<(Command, connections::Tx)>,
+) -> Result<connections::Connection<UnixStream>, error::Error> {
+    match cmd {
+        Command::Stream | Command::GetMounts => {
+            let connection = connections::Connection::new(socket);
+
+            message_tx
+                .clone()
+                .unbounded_send((cmd, connection.tx.clone()))?;
+
+            Ok(connection)
+        }
+        _ => {
+            socket.shutdown(Shutdown::Both)?;
+
+            let connection = connections::Connection::new(socket);
+
+            message_tx
+                .clone()
+                .unbounded_send((cmd, connection.tx.clone()))?;
+
+            Ok(connection)
+        }
+    }
 }
 
 fn main() {
@@ -102,10 +79,15 @@ fn main() {
 
     let server = listener
         .incoming()
-        .map_err(|e| eprintln!("accept failed, {:?}", e))
-        .for_each(move |socket| {
+        .from_err()
+        .and_then(read_first_line)
+        .filter_map(std::convert::identity)
+        .and_then(move |x| build_connection(x, message_tx.clone()))
+        .map_err(|e| log::error!("Unhandled Error: {:?}", e))
+        .for_each(move |connection| {
             tokio::spawn(
-                processor(socket, message_tx.clone())
+                connection
+                    .map(|_| ())
                     .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
             )
         });

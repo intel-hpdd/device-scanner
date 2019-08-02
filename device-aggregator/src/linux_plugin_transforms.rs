@@ -53,7 +53,7 @@ impl<D1: Display, D2: Display> From<(D1, D2)> for MajorMinor {
 
 #[derive(Debug, Clone, serde::Serialize)]
 pub struct LinuxPluginMpathDevice<'a> {
-    name: String,
+    name: &'a str,
     block_device: MajorMinor,
     nodes: BTreeSet<LinuxPluginDevice<'a>>,
 }
@@ -120,9 +120,9 @@ impl<'a> PartialOrd for LinuxPluginDevice<'a> {
 pub struct LinuxPluginData<'a> {
     pub devs: BTreeMap<MajorMinor, LinuxPluginItem<'a>>,
     pub local_fs: BTreeMap<MajorMinor, (&'a MountPoint, &'a FsType)>,
-    pub mpath: BTreeMap<String, LinuxPluginMpathDevice<'a>>,
-    pub vgs: BTreeMap<String, LinuxPluginVgDevice<'a>>,
-    pub lvs: BTreeMap<String, BTreeMap<String, LinuxPluginLvDevice<'a>>>,
+    pub mpath: BTreeMap<&'a str, LinuxPluginMpathDevice<'a>>,
+    pub vgs: BTreeMap<&'a str, LinuxPluginVgDevice<'a>>,
+    pub lvs: BTreeMap<&'a str, BTreeMap<&'a str, LinuxPluginLvDevice<'a>>>,
     pub zfspools: BTreeMap<u64, LinuxPluginZpool<'a>>,
     pub zfsdatasets: BTreeMap<u64, LinuxPluginZpool<'a>>,
 }
@@ -364,15 +364,13 @@ pub fn devtree2linuxoutput<'a>(
                 .devs
                 .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
 
-            let name = x.dm_name.clone();
-
             let mpath_device =
                 linux_plugin_data
                     .mpath
-                    .entry(name.clone())
+                    .entry(&x.dm_name)
                     .or_insert(LinuxPluginMpathDevice {
                         block_device,
-                        name,
+                        name: &x.dm_name,
                         nodes: BTreeSet::new(),
                     });
 
@@ -381,22 +379,19 @@ pub fn devtree2linuxoutput<'a>(
             }
         }
         Device::VolumeGroup(x) => {
-            let vg_device =
-                linux_plugin_data
-                    .vgs
-                    .entry(x.name.clone())
-                    .or_insert(LinuxPluginVgDevice {
-                        name: &x.name,
-                        size: x.size,
-                        uuid: &x.uuid,
-                        pvs_major_minor: BTreeSet::new(),
-                    });
+            let vg_device = linux_plugin_data
+                .vgs
+                .entry(&x.name)
+                .or_insert(LinuxPluginVgDevice {
+                    name: &x.name,
+                    size: x.size,
+                    uuid: &x.uuid,
+                    pvs_major_minor: BTreeSet::new(),
+                });
 
             if let Some(parent) = parent {
                 vg_device.pvs_major_minor.insert(parent.major_minor.clone());
             }
-
-            let vg_name = x.name.clone();
 
             x.children
                 .iter()
@@ -423,9 +418,9 @@ pub fn devtree2linuxoutput<'a>(
 
                     linux_plugin_data
                         .lvs
-                        .entry(vg_name.clone())
+                        .entry(&x.name)
                         .or_insert_with(BTreeMap::new)
-                        .entry(lv.name.clone())
+                        .entry(&lv.name)
                         .or_insert(LinuxPluginLvDevice {
                             name: &lv.name,
                             size: lv.size,
@@ -519,7 +514,7 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
 ) -> Vec<(&'a Zpool, MajorMinor)> {
     let mut shared_pools: Vec<_> = vec![];
 
-    let paths: BTreeSet<&DevicePath> = path_map.keys().cloned().collect();
+    let paths: BTreeSet<&DevicePath> = path_map.keys().copied().collect();
 
     for (&h, ps) in cluster_pools.iter() {
         if host == h {

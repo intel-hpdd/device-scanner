@@ -18,24 +18,18 @@ pub fn update_mount<S: ::std::hash::BuildHasher>(
             local_mounts.without(&Mount::new(target, source, fstype, opts))
         }
         MountCommand::ReplaceMount(target, source, fstype, opts, old_ops) => {
-            local_mounts.remove(&Mount::new(
-                target.clone(),
-                source.clone(),
-                fstype.clone(),
-                old_ops,
-            ));
+            let mount = Mount::new(target, source, fstype, old_ops);
 
-            local_mounts.update(Mount::new(target, source, fstype, opts))
+            local_mounts.remove(&mount);
+
+            local_mounts.update(Mount { opts, ..mount })
         }
         MountCommand::MoveMount(target, source, fstype, opts, old_target) => {
-            local_mounts.remove(&Mount::new(
-                old_target,
-                source.clone(),
-                fstype.clone(),
-                opts.clone(),
-            ));
+            let mount = Mount::new(old_target, source, fstype, opts);
 
-            local_mounts.update(Mount::new(target, source, fstype, opts))
+            local_mounts.remove(&mount);
+
+            local_mounts.update(Mount { target, ..mount })
         }
     }
 }

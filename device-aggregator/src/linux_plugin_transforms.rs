@@ -421,17 +421,17 @@ pub fn devtree2linuxoutput<'a>(
                         .devs
                         .insert(d.major_minor.clone(), LinuxPluginItem::LinuxPluginDevice(d));
 
-                    let vgs = linux_plugin_data
+                    linux_plugin_data
                         .lvs
                         .entry(vg_name.clone())
-                        .or_insert_with(BTreeMap::new);
-
-                    vgs.entry(x.name.clone()).or_insert(LinuxPluginLvDevice {
-                        name: &x.name,
-                        size: x.size,
-                        uuid: &x.uuid,
-                        block_device,
-                    });
+                        .or_insert_with(BTreeMap::new)
+                        .entry(lv.name.clone())
+                        .or_insert(LinuxPluginLvDevice {
+                            name: &lv.name,
+                            size: lv.size,
+                            uuid: &lv.uuid,
+                            block_device,
+                        });
                 });
         }
         Device::Zpool(x) => {

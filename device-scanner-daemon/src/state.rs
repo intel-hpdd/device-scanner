@@ -529,7 +529,7 @@ pub fn handler() -> (
                     let b = bytes::BytesMut::from(v + "\n");
                     let b = b.freeze();
 
-                    connections_tx.unbounded_send(b.clone()).is_ok();
+                    let _ = connections_tx.unbounded_send(b.clone()).is_ok();
 
                     return Ok(State {
                         conns,

@@ -50,9 +50,9 @@ fn get_authority_cert_path() -> String {
     required("AUTHORITY_CRT_PATH")
 }
 
-/// Gets the pfx file.
-/// If pfx is not found it will be created.
 lazy_static! {
+    // Gets the pfx file.
+    // If pfx is not found it will be created.
     pub static ref PFX: Vec<u8> = {
         let private_pem_path = get_private_pem_path();
 

@@ -1,5 +1,5 @@
 ---
-created: "2019-05-17T21:18:18.146376Z"
+created: "2019-08-03T19:52:12.667016Z"
 creator: insta@0.8.1
 source: device-aggregator/src/linux_plugin_transforms.rs
 expression: data
@@ -1797,11 +1797,11 @@ expression: data
   },
   "lvs": {
     "vg1": {
-      "vg1": {
+      "lv1": {
         "block_device": "253:20",
-        "size": 0,
-        "uuid": "UDIbPXrzaeBLNKim8kDOqcWfXbG2eRKt",
-        "name": "vg1"
+        "size": 67108864,
+        "uuid": "9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
+        "name": "lv1"
       }
     }
   },

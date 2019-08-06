@@ -46,16 +46,29 @@ fn find_sort_slot(DevicePath(p): &DevicePath) -> usize {
 
 pub fn get_vdev_paths(vdev: &libzfs_types::VDev) -> BTreeSet<DevicePath> {
     match vdev {
-        libzfs_types::VDev::Disk { dev_id, .. } => match dev_id {
-            Some(d) => {
-                let x = DevicePath(format!("/dev/disk/by-id/{}", d).into());
-                let mut b = BTreeSet::new();
-                b.insert(x);
+        libzfs_types::VDev::Disk { dev_id, path, .. } => {
+            let p = dev_id
+                .as_ref()
+                .map(|x| format!("/dev/disk/by-id/{}", x))
+                .map(std::convert::Into::into)
+                .or_else(|| {
+                    log::warn!(
+                        "VDev::Disk.dev_id not found, using VDev::Disk.path {:?}",
+                        path
+                    );
 
-                b
+                    Some(path.clone())
+                })
+                .map(DevicePath);
+
+            let mut b = BTreeSet::new();
+
+            if let Some(x) = p {
+                b.insert(x);
             }
-            None => BTreeSet::new(),
-        },
+
+            b
+        }
         libzfs_types::VDev::File { .. } => BTreeSet::new(),
         libzfs_types::VDev::Mirror { children, .. }
         | libzfs_types::VDev::RaidZ { children, .. }

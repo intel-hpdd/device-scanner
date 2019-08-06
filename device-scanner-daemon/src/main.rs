@@ -42,10 +42,19 @@ fn read_first_line(
 fn build_connection(
     (cmd, socket): (device_types::Command, UnixStream),
     message_tx: UnboundedSender<(Command, connections::Tx)>,
-) -> Result<connections::Connection<UnixStream>, error::Error> {
+) -> Result<connections::Connection, error::Error> {
     match cmd {
-        Command::Stream | Command::GetMounts => {
-            let connection = connections::Connection::new(socket);
+        Command::GetMounts => {
+            let connection = connections::Connection::new(socket, true);
+
+            message_tx
+                .clone()
+                .unbounded_send((cmd, connection.tx.clone()))?;
+
+            Ok(connection)
+        }
+        Command::Stream => {
+            let connection = connections::Connection::new(socket, false);
 
             message_tx
                 .clone()
@@ -56,7 +65,7 @@ fn build_connection(
         _ => {
             socket.shutdown(Shutdown::Both)?;
 
-            let connection = connections::Connection::new(socket);
+            let connection = connections::Connection::new(socket, false);
 
             message_tx
                 .clone()
@@ -87,7 +96,7 @@ fn main() {
         .for_each(move |connection| {
             tokio::spawn(
                 connection
-                    .map(|_| ())
+                    .map(drop)
                     .map_err(|e| log::error!("Unhandled Error: {:?}", e)),
             )
         });

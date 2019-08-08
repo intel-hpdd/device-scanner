@@ -34,7 +34,7 @@ jobs:
       language: generic
       script:
         - export OWNER=managerforlustre
-        - export PROJECT=device-scanner-devel
+        - export PROJECT=manager-for-lustre-devel
         - export PACKAGE=iml-device-scanner
         - export SPEC=iml-device-scanner.spec
         - docker run -it -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-zfs

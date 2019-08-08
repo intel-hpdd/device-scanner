@@ -20,7 +20,8 @@ use futures::{
     future::Future,
     sync::mpsc::{self, UnboundedReceiver, UnboundedSender},
 };
-use tokio::prelude::*;
+use std::net::Shutdown;
+use tokio::{net::UnixStream, prelude::*};
 
 pub type Tx = UnboundedSender<Bytes>;
 
@@ -30,23 +31,22 @@ pub type Tx = UnboundedSender<Bytes>;
 /// A mpsc is kept internally, the tx side can be cloned
 /// and used to fanout a single message to many connections.
 ///
-pub struct Connection<T> {
+pub struct Connection {
     pub tx: Tx,
     rx: UnboundedReceiver<Bytes>,
     wr: BytesMut,
-    pub conn: Option<T>,
+    oneshot: bool,
+    pub conn: Option<UnixStream>,
 }
 
-impl<T> Connection<T>
-where
-    T: AsyncWrite + Send,
-{
-    pub fn new(conn: T) -> Self {
+impl Connection {
+    pub fn new(conn: UnixStream, oneshot: bool) -> Self {
         let (tx, rx) = mpsc::unbounded();
 
         Connection {
             tx,
             rx,
+            oneshot,
             conn: Some(conn),
             wr: BytesMut::new(),
         }
@@ -63,14 +63,11 @@ where
     }
 }
 
-impl<T> Future for Connection<T>
-where
-    T: AsyncWrite + Send,
-{
-    type Item = T;
+impl Future for Connection {
+    type Item = UnixStream;
     type Error = error::Error;
 
-    fn poll(&mut self) -> Poll<T, error::Error> {
+    fn poll(&mut self) -> Poll<UnixStream, error::Error> {
         // Tokio (and futures) use cooperative scheduling without any
         // preemption. If a task never yields execution back to the executor,
         // then other tasks may be starved.
@@ -125,9 +122,19 @@ where
 
                     // This discards the first `n` bytes of the buffer.
                     self.wr.split_to(n);
+
+                    // If we've written all data on a oneshot connection,
+                    // Explicitly shut it down and return it.
+                    if self.wr.is_empty() && self.oneshot {
+                        c.shutdown(Shutdown::Both)?;
+
+                        return Ok(Async::Ready(c));
+                    }
                 }
                 Ok(Async::NotReady) => break,
                 Err(_) => {
+                    c.shutdown(Shutdown::Both)?;
+
                     // If we get *any* error on this socket, we resolve the future
                     // which closes the connection
                     return Ok(Async::Ready(c));

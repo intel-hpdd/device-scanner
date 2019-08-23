@@ -9,10 +9,10 @@ edition = "2018"
 [dependencies]
 serde = { version = "1", features = ["derive"] }
 libzfs-types = "0.1.1"
-im = { version = "12.3.4", features = ["serde"] }
+im = { version = "13.0", features = ["serde"] }
 log = "0.4"
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"
 serde_json = "1.0"
-insta = "0.8.1"
+insta = "0.10"

@@ -1,6 +1,6 @@
 ---
-created: "2019-05-24T20:45:19.979224Z"
-creator: insta@0.8.1
+created: "2019-08-25T21:49:38.325105Z"
+creator: insta@0.10.1
 source: mount-emitter/src/lib.rs
 expression: map_to_sorted_vec(line_to_hashmap(line))
 ---

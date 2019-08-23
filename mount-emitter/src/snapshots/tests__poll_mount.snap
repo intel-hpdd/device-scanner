@@ -1,12 +1,12 @@
 ---
-created: "2019-05-24T20:45:19.979224Z"
-creator: insta@0.8.1
+created: "2019-08-25T21:49:38.325140Z"
+creator: insta@0.10.1
 source: mount-emitter/src/lib.rs
 expression: line_to_command(line)
 ---
-MoveMount(
+AddMount(
     MountPoint(
-        "/mnt/part1a",
+        "/mnt/part1",
     ),
     DevicePath(
         "/dev/sde1",
@@ -16,8 +16,5 @@ MoveMount(
     ),
     MountOpts(
         "rw,relatime,data=ordered",
-    ),
-    MountPoint(
-        "/mnt/part1",
     ),
 )

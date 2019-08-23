@@ -21,24 +21,6 @@ Requires: socat
 device-scanner-daemon builds an in-memory representation of
 devices using udev, zed and findmnt.
 
-%package proxy
-Summary:    Forwards device-scanner updates to device-aggregator
-License:    MIT
-Group:      System Environment/Libraries
-Requires:   %{name} = %{version}-%{release}
-%description proxy
-scanner-proxy-daemon forwards device-scanner updates received
-
-
-%package aggregator
-Summary:    Assembles global device view from multiple device scanner instances.
-License:    MIT
-Group:      System Environment/Libraries
-Autoreq:    0
-%description aggregator
-device-aggregator aggregates data received from device
-scanner instances.
-
 %prep
 %setup -c
 
@@ -54,14 +36,6 @@ cp device-scanner.{target,socket,service} %{buildroot}%{_unitdir}
 cp block-device-populator.service %{buildroot}%{_unitdir}
 cp 00-device-scanner.preset %{buildroot}%{_presetdir}
 cp device-scanner-daemon %{buildroot}%{_bindir}
-
-cp scanner-proxy.{service,path} %{buildroot}%{_unitdir}
-cp 00-scanner-proxy.preset %{buildroot}%{_presetdir}
-cp device-scanner-proxy %{buildroot}%{_bindir}
-
-cp device-aggregator.service %{buildroot}%{_unitdir}
-cp 00-device-aggregator.preset %{buildroot}%{_presetdir}
-cp device-aggregator %{buildroot}%{_bindir}
 
 cp 99-iml-device-scanner.rules %{buildroot}%{_sysconfdir}/udev/rules.d
 cp uevent-listener %{buildroot}%{_bindir}
@@ -118,18 +92,6 @@ cp 99-iml-zed-enhancer.rules %{buildroot}%{_sysconfdir}/udev/rules.d
 %{_sysconfdir}/zfs/zed.d/*
 
 
-%files proxy
-%attr(0644,root,root)%{_unitdir}/scanner-proxy.service
-%attr(0644,root,root)%{_unitdir}/scanner-proxy.path
-%attr(0644,root,root)%{_presetdir}/00-scanner-proxy.preset
-%attr(0755,root,root)%{_bindir}/device-scanner-proxy
-
-%files aggregator
-%attr(0644,root,root)%{_unitdir}/device-aggregator.service
-%attr(0644,root,root)%{_presetdir}/00-device-aggregator.preset
-%attr(0755,root,root)%{_bindir}/device-aggregator
-
-
 %post
 systemctl preset device-scanner.socket
 systemctl preset mount-emitter.service
@@ -138,11 +100,6 @@ systemctl preset zed-populator.service
 systemctl preset zed-enhancer.socket
 systemctl preset zed-enhancer.service
 
-%post proxy
-systemctl preset scanner-proxy.path
-
-%post aggregator
-systemctl preset device-aggregator.service
 
 %preun
 %systemd_preun device-scanner.target
@@ -158,23 +115,10 @@ systemctl preset device-aggregator.service
 %systemd_preun zed-enhancer.service
 
 
-%preun proxy
-%systemd_preun scanner-proxy.path
-%systemd_preun scanner-proxy.service
-
-
-%preun aggregator
-%systemd_preun device-aggregator.service
-
 %postun
 %systemd_postun device-scanner.socket
 %systemd_postun zed-enhancer.socket
 
-%postun proxy
-%systemd_postun scanner-proxy.path
-
-%postun aggregator
-%systemd_postun device-aggregator.service
 
 %changelog
 * Thu Oct 18 2018 Joe Grund <jgrund@whamcloud.com> 2.0.0-1

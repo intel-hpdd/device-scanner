@@ -7,7 +7,6 @@ This repo provides:
 - a [persistent daemon](device-scanner-daemon) That holds block devices, ZFS devices, and device mounts in memory.
 - a [binary](uevent-listener) that emits UEvents for block-device changes as they occur.
 - a [binary](mount-emitter) that emits device mount changes as they occur.
-- a [proxy](device-scanner-proxy) that transforms the unix domain socket events to HTTPS POSTs.
 
 ## Architecture
 
@@ -54,19 +53,15 @@ This repo provides:
 
 - `cargo build`
 
-#### Vagrant
-
-- Running `vagrant up` will setup a complete environment. It will build `device-scanner`, `scanner-proxy`, and `device-aggregator`, package them as RPMs and install them on the correct nodes.
-
   To interact with the device-scanner in real time the following command can be used to keep the stream open such that updates can be seen as the data changes:
 
-  ```shell
+  ```sh
   cat - | ncat -U /var/run/device-scanner.sock | jq
   ```
 
   If interaction is not required, device info can be retrieved from the device-scanner by running the following command:
 
-  ```shell
+  ```sh
   echo '"Stream"' | socat - UNIX-CONNECT:/var/run/device-scanner.sock | jq
   ```
 

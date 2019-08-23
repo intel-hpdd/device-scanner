@@ -63,12 +63,6 @@ Vagrant.configure('2') do |config|
 
     configure_private_network(
       device_scanner1,
-      ['10.0.30.11'],
-      "device-aggregator-net#{NAME_SUFFIX}"
-    )
-
-    configure_private_network(
-      device_scanner1,
       ['10.0.40.11', '10.0.50.11'],
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
@@ -80,8 +74,6 @@ Vagrant.configure('2') do |config|
     device_scanner1.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
       yum install -y htop jq
-      mkdir -p /etc/iml
-      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       modprobe zfs
       genhostid
       zpool create test mirror mpatha mpathb cache mpathc spare mpathd mpathe
@@ -108,12 +100,6 @@ Vagrant.configure('2') do |config|
 
     configure_private_network(
       device_scanner2,
-      ['10.0.30.12'],
-      "device-aggregator-net#{NAME_SUFFIX}"
-    )
-
-    configure_private_network(
-      device_scanner2,
       ['10.0.40.12', '10.0.50.12'],
       "device-scanner-iscsi-net#{NAME_SUFFIX}"
     )
@@ -125,36 +111,8 @@ Vagrant.configure('2') do |config|
     device_scanner2.vm.provision 'setup', type: 'shell', inline: <<-SHELL
       yum install -y epel-release
       yum install -y htop jq
-      mkdir -p /etc/iml
-      echo 'IML_MANAGER_URL=https://device-aggregator.local' > /etc/iml/manager-url.conf
       genhostid
     SHELL
-  end
-
-  # Create aggregator node
-  AGGREGATOR_NAME = 'device-aggregator'.freeze
-  config.vm.define "#{AGGREGATOR_NAME}#{NAME_SUFFIX}" do |aggregator|
-    aggregator.vm.hostname = "#{AGGREGATOR_NAME}.local"
-
-    aggregator.vm.provider 'virtualbox' do |v|
-      v.name = "#{AGGREGATOR_NAME}#{NAME_SUFFIX}"
-      v.memory = 256
-      v.cpus = 4
-      v.customize ['modifyvm', :id, '--audio', 'none']
-    end
-
-    configure_private_network(
-      aggregator,
-      ['10.0.30.10'],
-      "device-aggregator-net#{NAME_SUFFIX}"
-    )
-
-    aggregator.vm.provision 'deps', type: 'shell', inline: <<-SHELL
-      yum install -y epel-release
-      yum install -y nginx htop jq
-    SHELL
-
-    write_nginx_conf(aggregator)
   end
 
   # Create test node
@@ -173,12 +131,6 @@ Vagrant.configure('2') do |config|
       test,
       ['10.0.10.12'],
       "device-scanner-net#{NAME_SUFFIX}"
-    )
-
-    configure_private_network(
-      test,
-      ['10.0.30.11'],
-      "device-aggregator-net#{NAME_SUFFIX}"
     )
 
     install_zfs(config)
@@ -200,15 +152,11 @@ Vagrant.configure('2') do |config|
       cargo package --no-verify --allow-dirty
       cd /vagrant/device-scanner-daemon
       cargo package --no-verify --allow-dirty
-      cd /vagrant/device-aggregator
-      cargo package --no-verify --allow-dirty
       cd /vagrant/uevent-listener
       cargo package --no-verify --allow-dirty
       cd /vagrant/mount-emitter
       cargo package --no-verify --allow-dirty
       cd /vagrant/device-scanner-zedlets
-      cargo package --no-verify --allow-dirty
-      cd /vagrant/device-scanner-proxy
       cargo package --no-verify --allow-dirty
       cd /vagrant/futures-failure
       cargo package --no-verify --allow-dirty
@@ -221,19 +169,11 @@ Vagrant.configure('2') do |config|
       rpmbuild --rebuild --define "_topdir /tmp/_topdir" --define="devel_build 1" /tmp/_topdir/SRPMS/iml-device-scanner-2.0.0-1.el7.src.rpm
     SHELL
 
-    distribute_certs(test)
-
     test.vm.provision 'deploy', type: 'shell', inline: <<-SHELL
-      pdsh -w device-scanner[1].local,device-aggregator.local 'yum remove -y iml-device-scanner-*' | dshbak
-
-      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-aggregator-*.rpm root@device-aggregator.local:/tmp
-      pdsh -w device-aggregator.local yum install -y /tmp/iml-device-scanner-aggregator-*.rpm
-      ssh root@device-aggregator.local systemctl enable --now device-aggregator.service nginx
+      pdsh -w device-scanner[1].local 'yum remove -y iml-device-scanner-*' | dshbak
 
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner1.local:/tmp
-      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner1.local:/tmp
       scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-[0-9]*.rpm root@device-scanner2.local:/tmp
-      scp /tmp/_topdir/RPMS/x86_64/iml-device-scanner-proxy-[0-9]*.rpm root@device-scanner2.local:/tmp
       pdsh -w device-scanner[1-2].local 'yum install -y /tmp/*.rpm' | dshbak
       pdsh -w device-scanner[1-2].local systemctl enable --now device-scanner.target | dshbak
     SHELL
@@ -264,7 +204,6 @@ def create_hostfile(config)
 
 10.0.10.10 device-scanner1.local device-scanner1
 10.0.10.11 device-scanner2.local device-scanner2
-10.0.30.10 device-aggregator.local device-aggregator
 10.0.40.10 iscsi.local iscsi
 10.0.50.10 iscsi2.local iscsi2
     __EOF
@@ -394,108 +333,4 @@ def install_zfs(config)
     yum-config-manager --enable zfs-kmod
     yum install -y zfs
   SHELL
-end
-
-# Create certs and distribute them
-# to device-scanner-proxy and nginx proxy
-def distribute_certs(config)
-  config.vm.provision 'distribute_certs', type: 'shell', inline: <<-SHELL
-    mkdir -p /tmp/certs
-    # Authority key and cert
-    openssl genrsa -out /tmp/certs/authority.pem 2048 -sha256
-    openssl req -new -sha256 -subj /C=AA/ST=AA/L=Location/O=Org/CN=x_local_authority -key /tmp/certs/authority.pem | openssl x509 -req -sha256 -signkey /tmp/certs/authority.pem -out /tmp/certs/authority.crt
-
-    # Manager key and cert
-    openssl genrsa -out /tmp/certs/manager.pem 2048 -sha256
-    openssl req -new -sha256 -key /tmp/certs/manager.pem -subj /C=/ST=/L=/O=/CN=device-aggregator.local | openssl x509 -req -sha256 -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -out /tmp/certs/manager.crt
-
-    # Send certs to aggregator
-    pdsh -w device-aggregator.local rm -rf /var/lib/chroma
-    pdsh -w device-aggregator.local mkdir -p /var/lib/chroma
-    scp /tmp/certs/* root@device-aggregator.local:/var/lib/chroma
-
-    pdsh -w device-scanner[1,2].local rm -rf /etc/iml/certificate.pfx
-
-    # Device-scanner client-cert pfx
-    openssl genrsa -out /tmp/certs/private.pem 2048
-    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner1.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
-    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
-
-    scp /tmp/certs/certificate.pfx root@device-scanner1.local:/etc/iml
-
-    rm -rf /tmp/certs/{private.pem, self.crt, certificate.pfx}
-
-    # Device-scanner client-cert pfx
-    openssl genrsa -out /tmp/certs/private.pem 2048
-    openssl req -new -subj /C=/ST=/L=/O=/CN=device-scanner2.local -key /tmp/certs/private.pem | openssl x509 -req -CAkey /tmp/certs/authority.pem -CA /tmp/certs/authority.crt -CAcreateserial -sha256 -out /tmp/certs/self.crt
-    openssl pkcs12 -export -out /tmp/certs/certificate.pfx -inkey /tmp/certs/private.pem -in /tmp/certs/self.crt -passout pass:
-
-    scp /tmp/certs/certificate.pfx root@device-scanner2.local:/etc/iml
-  SHELL
-end
-
-NGINX_CONF = <<-__EOF
-  map $ssl_client_s_dn $ssl_client_s_dn_cn {
-    default "";
-    ~CN=(?<CN>[^,]+) $CN;
-  }
-
-  error_log syslog:server=unix:/dev/log;
-  access_log syslog:server=unix:/dev/log;
-
-  server {
-      listen 80;
-
-      location /device-aggregator {
-        proxy_pass http://127.0.0.1:8008;
-      }
-  }
-
-  server {
-      listen 443 ssl http2;
-
-      error_page 497 https://$http_host$request_uri;
-
-      ssl_certificate /var/lib/chroma/manager.crt;
-      ssl_certificate_key /var/lib/chroma/manager.pem;
-      ssl_trusted_certificate /var/lib/chroma/authority.crt;
-      ssl_client_certificate /var/lib/chroma/authority.crt;
-      ssl_verify_client on;
-
-      ssl_protocols TLSv1.2;
-      ssl_prefer_server_ciphers on;
-      ssl_ciphers 'ECDHE-RSA-AES128-GCM-SHA256:!DH+3DES:!ADH:!AECDH:!RC4:!aNULL:!MD5';
-
-      ssl_session_cache shared:SSL:10m;
-
-
-      location /iml-device-aggregator {
-        if ($ssl_client_verify != SUCCESS) {
-          return 401;
-        }
-
-        proxy_set_header X-SSL-Client-On $ssl_client_verify;
-        proxy_set_header X-SSL-Client-Name $ssl_client_s_dn_cn;
-        proxy_set_header X-SSL-Client-Serial $ssl_client_serial;
-
-        proxy_set_header X-Forwarded-Host $host;
-        proxy_set_header X-Forwarded-Server $host;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Http-Host $http_host;
-
-        proxy_pass http://127.0.0.1:8008;
-      }
-  }
-__EOF
-             .freeze
-
-# Write out the proxy.conf needed
-# by device-aggregator for SSL termination
-# from device-scanner-proxy services.
-def write_nginx_conf(config)
-  config.vm.provision 'nginx',
-                      type: 'shell',
-                      inline: <<-SHELL
-                        echo '#{NGINX_CONF}' > /etc/nginx/conf.d/proxy.conf
-                      SHELL
 end

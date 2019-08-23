@@ -11,9 +11,9 @@ srpm: $(CARGO)
 	mkdir -p ${TMPDIR}/release/iml-device-scanner
 	rm -rf ${BUILDROOT}/_topdir
 	cargo build --release
-	cp {device-aggregator,device-scanner-daemon,device-scanner-proxy,mount-emitter,zed-enhancer}/systemd-units/* \
+	cp {device-scanner-daemon,mount-emitter,zed-enhancer}/systemd-units/* \
 		{zed-enhancer,uevent-listener}/udev-rules/* \
-		target/release/device-{aggregator,scanner-daemon,scanner-proxy} \
+		target/release/device-scanner-daemon \
 		target/release/{history_event,pool_create,pool_destroy,pool_export,pool_import,vdev_add}-scanner \
 		target/release/mount-emitter \
 		target/release/uevent-listener \

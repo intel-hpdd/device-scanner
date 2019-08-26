@@ -20,4 +20,4 @@ device-types = { path = "../device-types", version = "0.1.0" }
 [dev-dependencies]
 pretty_assertions = "0.6.1"
 tokio-mockstream = "1.1"
-insta = "0.8.1"
+insta = "0.10"

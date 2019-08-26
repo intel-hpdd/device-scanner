@@ -1,6 +1,6 @@
 ---
-created: "2019-08-03T19:52:12.667016Z"
-creator: insta@0.8.1
+created: "2019-08-25T21:51:04.635167Z"
+creator: insta@0.10.1
 source: device-aggregator/src/linux_plugin_transforms.rs
 expression: data
 ---

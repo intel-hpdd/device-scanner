@@ -31,7 +31,7 @@ impl<S: Into<PathBuf>> From<S> for DevicePath {
 
 fn find_sort_slot(DevicePath(p): &DevicePath) -> usize {
     let o = &[
-        Box::new(|p: &PathBuf| p.starts_with("/dev/mapper/")) as Box<Fn(&PathBuf) -> bool>,
+        Box::new(|p: &PathBuf| p.starts_with("/dev/mapper/")) as Box<dyn Fn(&PathBuf) -> bool>,
         Box::new(|p| p.starts_with("/dev/disk/by-id/")),
         Box::new(|p| p.starts_with("/dev/disk/by-path/")),
         Box::new(|p| p.starts_with("/dev/")),

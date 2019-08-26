@@ -15,10 +15,10 @@ serde_json = "1.0"
 log = "0.4"
 env_logger = "0.6"
 bytes = { version = "0.4", features = ["serde"] }
-im = { version = "12.3.4", features = ["serde"] }
+im = { version = "13.0", features = ["serde"] }
 device-types = { path = "../device-types", version = "0.1.0" }
 libzfs-types = "0.1.1"
 
 [dev-dependencies]
 pretty_assertions = "0.6.1"
-insta = "0.8.1"
+insta = "0.10"

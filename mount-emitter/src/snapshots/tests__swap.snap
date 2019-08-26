@@ -1,6 +1,6 @@
 ---
-created: "2019-05-24T20:45:20.014363Z"
-creator: insta@0.8.1
+created: "2019-08-25T21:49:38.325198Z"
+creator: insta@0.10.1
 source: mount-emitter/src/lib.rs
 expression: line_to_command(line)
 ---
@@ -9,7 +9,7 @@ AddMount(
         "swap",
     ),
     DevicePath(
-        "/dev/mapper/VolGroup00-LogVol01",
+        "/dev/mapper/centos-swap",
     ),
     FsType(
         "swap",

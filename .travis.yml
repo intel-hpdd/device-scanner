@@ -28,7 +28,7 @@ jobs:
       before_script:
         - rustup component add clippy
       script:
-        - cargo clippy --all-targets --all-features -- -D warnings'
+        - cargo clippy --all-targets --all-features -- -D warnings
     - stage: cd
       name: "Continuous Deployment"
       language: generic

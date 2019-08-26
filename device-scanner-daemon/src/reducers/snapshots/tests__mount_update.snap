@@ -1,6 +1,6 @@
 ---
-created: "2019-05-24T20:43:50.163951Z"
-creator: insta@0.8.1
+created: "2019-08-26T13:34:38.370345Z"
+creator: insta@0.10.1
 source: device-scanner-daemon/src/reducers/mount.rs
 expression: mounts
 ---

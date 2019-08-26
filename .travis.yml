@@ -24,11 +24,11 @@ jobs:
         - ((`find _topdir/RPMS -name *.rpm | wc -l` > 0))
     - stage: test
       name: "Linting Check"
-      language: generic
+      rust: 1.37.0
+      before_script:
+        - rustup component add clippy
       script:
-        - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
-        - docker exec -i libzfs bash -c 'yum install -y openssl-devel clippy'
-        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy --all-targets --all-features -- -D warnings'
+        - cargo clippy --all-targets --all-features -- -D warnings'
     - stage: cd
       name: "Continuous Deployment"
       language: generic

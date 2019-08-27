@@ -41,6 +41,8 @@ pub struct ScsiDevice {
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Partition {
+    pub serial: Option<String>,
+    pub scsi80: Option<String>,
     pub partition_number: u64,
     pub size: u64,
     pub major: String,

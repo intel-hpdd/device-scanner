@@ -332,7 +332,7 @@ dependencies = [
 name = "device-aggregator"
 version = "2.0.0"
 dependencies = [
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "insta 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -351,7 +351,7 @@ name = "device-scanner-daemon"
 version = "2.0.0"
 dependencies = [
  "bytes 0.4.12 (registry+https://github.com/rust-lang/crates.io-index)",
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "im 13.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -369,7 +369,7 @@ dependencies = [
 name = "device-scanner-proxy"
 version = "0.1.0"
 dependencies = [
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "failure 0.1.5 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures-failure 0.1.0",
@@ -389,13 +389,13 @@ dependencies = [
 name = "device-scanner-zedlets"
 version = "0.1.0"
 dependencies = [
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
 name = "device-types"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "im 13.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "insta 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -946,7 +946,7 @@ dependencies = [
 name = "mount-emitter"
 version = "0.1.0"
 dependencies = [
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "insta 0.10.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_assertions 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -1989,7 +1989,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "uevent-listener"
 version = "0.1.0"
 dependencies = [
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "im 13.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "pretty_assertions 0.6.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde_json 1.0.40 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -2203,7 +2203,7 @@ name = "zed-enhancer"
 version = "0.1.0"
 dependencies = [
  "derive_more 0.14.1 (registry+https://github.com/rust-lang/crates.io-index)",
- "device-types 0.1.0",
+ "device-types 0.1.1",
  "env_logger 0.6.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "futures 0.1.28 (registry+https://github.com/rust-lang/crates.io-index)",
  "libzfs 0.6.15 (registry+https://github.com/rust-lang/crates.io-index)",

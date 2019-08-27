@@ -1,6 +1,6 @@
 [package]
 name = "device-types"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["IML Team <iml@whamcloud.com>"]
 description = "shared device types used throughout device-scanner and IML"
 license = "MIT"

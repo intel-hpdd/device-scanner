@@ -8,7 +8,7 @@ use libzfs_types;
 use std::path::PathBuf;
 
 type Children = HashSet<Device>;
-type Paths = OrdSet<DevicePath>;
+pub type Paths = OrdSet<DevicePath>;
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
 pub struct Root {

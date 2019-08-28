@@ -42,7 +42,7 @@ mod tests {
         DevicePath,
     };
     use im::hashset;
-    use insta::assert_debug_snapshot_matches;
+    use insta::assert_debug_snapshot;
 
     #[test]
     fn test_mount_update() {
@@ -57,7 +57,7 @@ mod tests {
 
         let mounts = update_mount(mounts, add_cmd);
 
-        assert_debug_snapshot_matches!(mounts);
+        assert_debug_snapshot!(mounts);
 
         let mv_cmd = MountCommand::MoveMount(
             MountPoint("/mnt/part3".into()),

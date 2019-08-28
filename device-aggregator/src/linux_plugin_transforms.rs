@@ -545,7 +545,7 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
 mod tests {
     use super::{devtree2linuxoutput, LinuxPluginData};
     use device_types::devices::Device;
-    use insta::assert_json_snapshot_matches;
+    use insta::assert_json_snapshot;
 
     #[test]
     fn test_devtree2linuxoutput() {
@@ -2273,7 +2273,7 @@ mod tests {
 
         devtree2linuxoutput(&device, None, &mut data);
 
-        assert_json_snapshot_matches!(data);
+        assert_json_snapshot!(data);
     }
 
     #[test]
@@ -2631,7 +2631,7 @@ mod tests {
 
         devtree2linuxoutput(&device, None, &mut data);
 
-        assert_json_snapshot_matches!(data);
+        assert_json_snapshot!(data);
     }
 
     #[test]
@@ -3517,6 +3517,6 @@ mod tests {
 
         devtree2linuxoutput(&device, None, &mut data);
 
-        assert_json_snapshot_matches!(data);
+        assert_json_snapshot!(data);
     }
 }

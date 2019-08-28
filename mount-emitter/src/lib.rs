@@ -164,7 +164,7 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
-    use insta::assert_debug_snapshot_matches;
+    use insta::assert_debug_snapshot;
 
     type StableVec = Vec<(String, String)>;
 
@@ -180,62 +180,62 @@ mod tests {
     fn test_line_to_hashmap_swap() {
         let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
-        assert_debug_snapshot_matches!(map_to_sorted_vec(line_to_hashmap(line)))
+        assert_debug_snapshot!(map_to_sorted_vec(line_to_hashmap(line)))
     }
 
     #[test]
     fn test_line_to_hashmap_mount() {
         let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-        assert_debug_snapshot_matches!(map_to_sorted_vec(line_to_hashmap(line)))
+        assert_debug_snapshot!(map_to_sorted_vec(line_to_hashmap(line)))
     }
 
     #[test]
     fn test_swap() {
         let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/centos-swap\" FSTYPE=\"swap\" OPTIONS=\"defaults\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_poll_mount() {
         let line = b"ACTION=\"mount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_poll_umount() {
         let line = b"ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"\" OLD-OPTIONS=\"\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_poll_remount() {
         let line = b"ACTION=\"remount\" TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"ro,relatime,data=ordered\" OLD-TARGET=\"\" OLD-OPTIONS=\"rw,data=ordered\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_poll_move() {
         let line = b"ACTION=\"move\" TARGET=\"/mnt/part1a\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\" OLD-TARGET=\"/mnt/part1\" OLD-OPTIONS=\"\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_list_mount() {
         let line = b"TARGET=\"/mnt/part1\" SOURCE=\"/dev/sde1\" FSTYPE=\"ext4\" OPTIONS=\"rw,relatime,data=ordered\"\n";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 
     #[test]
     fn test_swap_extra() {
         let line = b"TARGET=\"swap\" SOURCE=\"/dev/mapper/VolGroup00-LogVol01\" FSTYPE=\"swap\" OPTIONS=\"defaults\"";
 
-        assert_debug_snapshot_matches!(line_to_command(line))
+        assert_debug_snapshot!(line_to_command(line))
     }
 }

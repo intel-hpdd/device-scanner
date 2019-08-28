@@ -106,6 +106,8 @@ fn get_partitions(
             let mount = find_mount(&x.paths, ys);
 
             Ok(Device::Partition(Partition {
+                serial: x.scsi83.clone(),
+                scsi80: x.scsi80.clone(),
                 partition_number: x
                     .part_entry_number
                     .ok_or_else(|| error::none_error("Expected part_entry_number"))?,

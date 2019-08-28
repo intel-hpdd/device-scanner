@@ -291,7 +291,7 @@ mod tests {
         mount, {Command, DevicePath},
     };
     use im::{ordset, OrdSet};
-    use insta::assert_debug_snapshot_matches;
+    use insta::assert_debug_snapshot;
 
     #[test]
     fn test_device_path_ordering() {
@@ -304,7 +304,7 @@ mod tests {
             "/dev/disk/by-id/dm-name-mpathd1".into()
         ];
 
-        assert_debug_snapshot_matches!(xs);
+        assert_debug_snapshot!(xs);
     }
 
     #[test]

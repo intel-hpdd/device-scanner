@@ -16,7 +16,7 @@ use std::{
     cmp::Ordering,
     collections::BTreeSet,
     hash::{Hash, Hasher},
-    path::PathBuf,
+    path::{Path, PathBuf},
 };
 
 #[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
@@ -26,6 +26,12 @@ pub struct DevicePath(pub PathBuf);
 impl<S: Into<PathBuf>> From<S> for DevicePath {
     fn from(s: S) -> DevicePath {
         DevicePath(s.into())
+    }
+}
+
+impl<'a> From<&'a DevicePath> for &'a Path {
+    fn from(s: &'a DevicePath) -> &'a Path {
+        Path::new(&s.0)
     }
 }
 

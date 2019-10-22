@@ -6,7 +6,6 @@
 //!
 //! By utilizing a separate thread for writing, we ensure that any writers are not bounded by the slowest reader.
 
-
 use futures::{channel::mpsc::UnboundedReceiver, future::join_all, StreamExt};
 use tokio::io::{AsyncWrite, AsyncWriteExt};
 

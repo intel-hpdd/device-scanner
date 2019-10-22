@@ -5,12 +5,12 @@ jobs:
   include:
     - stage: test
       name: "Unit Tests"
-      rust: 1.37.0
+      rust: beta
       script:
         - cargo test --exclude zed-enhancer --all
     - stage: test
       name: "Format Check"
-      rust: 1.37.0
+      rust: beta
       before_script:
         - rustup component add rustfmt
       script:

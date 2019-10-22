@@ -82,7 +82,6 @@ pub mod zpool {
             .map(zpool::State)
             .map_err(Error::Var)
     }
-
 }
 
 pub mod zfs {

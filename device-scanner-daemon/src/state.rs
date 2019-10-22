@@ -6,14 +6,8 @@
 //!
 //! `device-scanner` uses a persistent streaming strategy
 //! where Unix domain sockets can connect and be fed device-graph changes as they occur.
-//! This module is responsible for internally storing the current state and building the next device-graph
-//! after each "tick" (an incoming device event).
 
-use crate::{
-    connections,
-    error::{self, Result},
-    reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
-};
+use crate::error::{self, Result};
 use device_types::{
     devices::{
         Dataset, Device, LogicalVolume, MdRaid, Mpath, Partition, Root, ScsiDevice, VolumeGroup,
@@ -23,13 +17,9 @@ use device_types::{
     mount::Mount,
     state,
     uevent::UEvent,
-    Command, DevicePath,
+    DevicePath,
 };
-use futures::future::Future;
-use futures::sync::mpsc::{self, UnboundedSender};
 use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
-use std::{io, iter::IntoIterator};
-use tokio::prelude::*;
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
@@ -482,113 +472,19 @@ fn bucket_devices<'a>(xs: &Vector<&'a UEvent>, ys: &'a state::ZedEvents) -> Buck
     buckets
 }
 
-fn build_device_list(xs: &mut state::UEvents) -> Vector<&UEvent> {
+fn build_device_list(xs: &state::UEvents) -> Vector<&UEvent> {
     xs.values().filter(|y| keep_usable(y)).collect()
 }
 
-pub struct State {
-    conns: Vec<connections::Tx>,
-    state: state::State,
-}
+pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
+    let dev_list = build_device_list(&state.uevents);
+    let dev_list = bucket_devices(&dev_list, &state.zed_events);
 
-impl State {
-    fn new() -> Self {
-        State {
-            conns: vec![],
-            state: state::State::new(),
-        }
-    }
-}
+    let mut root = Device::Root(Root::default());
 
-pub fn handler() -> (
-    UnboundedSender<(Command, connections::Tx)>,
-    impl Future<Item = State, Error = error::Error>,
-) {
-    let (tx, rx) = mpsc::unbounded();
+    build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
 
-    let fut = rx
-        .map_err(|_| {
-            error::Error::Io(io::Error::new(
-                io::ErrorKind::Other,
-                "Could not consume rx stream",
-            ))
-        })
-        .fold(
-            State::new(),
-            |State {
-                 mut conns,
-                 state:
-                     state::State {
-                         uevents,
-                         zed_events,
-                         local_mounts,
-                     },
-             }: State,
-             (cmd, connections_tx): (Command, connections::Tx)|
-             -> Result<State> {
-                if let Command::GetMounts = cmd {
-                    let v = serde_json::to_string(&local_mounts)?;
-                    let b = bytes::BytesMut::from(v + "\n");
-                    let b = b.freeze();
-
-                    let _ = connections_tx.unbounded_send(b.clone()).is_ok();
-
-                    return Ok(State {
-                        conns,
-                        state: state::State {
-                            uevents,
-                            local_mounts,
-                            zed_events,
-                        },
-                    });
-                }
-
-                conns.push(connections_tx);
-
-                let (mut uevents, local_mounts, zed_events) = match cmd {
-                    Command::UdevCommand(x) => {
-                        let uevents = update_udev(&uevents, x);
-                        (uevents, local_mounts, zed_events)
-                    }
-                    Command::MountCommand(x) => {
-                        let local_mounts = update_mount(local_mounts, x);
-                        (uevents, local_mounts, zed_events)
-                    }
-                    Command::PoolCommand(x) => {
-                        let zed_events = update_zed_events(zed_events, x)?;
-                        (uevents, local_mounts, zed_events)
-                    }
-                    _ => (uevents, local_mounts, zed_events),
-                };
-
-                {
-                    let dev_list = build_device_list(&mut uevents);
-                    let dev_list = bucket_devices(&dev_list, &zed_events);
-
-                    let mut root = Device::Root(Root::default());
-
-                    build_device_graph(&mut root, &dev_list, &local_mounts)?;
-
-                    let v = serde_json::to_string(&root)?;
-                    let b = bytes::BytesMut::from(v + "\n");
-                    let b = b.freeze();
-
-                    conns = conns
-                        .into_iter()
-                        .filter(|c| c.unbounded_send(b.clone()).is_ok())
-                        .collect();
-                };
-
-                Ok(State {
-                    conns,
-                    state: state::State {
-                        uevents,
-                        local_mounts,
-                        zed_events,
-                    },
-                })
-            },
-        );
-
-    (tx, fut)
+    let v = serde_json::to_string(&root)?;
+    let b = bytes::BytesMut::from(v + "\n");
+    Ok(b.freeze())
 }

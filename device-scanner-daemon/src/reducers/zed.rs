@@ -45,7 +45,7 @@ pub fn update_zed_events(
     mut zed_events: state::ZedEvents,
     cmd: PoolCommand,
 ) -> Result<state::ZedEvents> {
-    log::info!("Processing Pool command: {:?}", cmd);
+    tracing::debug!("Processing Pool command: {:?}", cmd);
 
     match cmd {
         PoolCommand::AddPools(pools) => Ok(into_zed_events(pools)),

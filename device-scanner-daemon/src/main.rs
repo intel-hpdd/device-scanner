@@ -4,10 +4,10 @@
 
 use device_scanner_daemon::{
     reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
-    state,
+    state, writer,
 };
 use device_types::{state::State, Command};
-use futures::{future::join_all, StreamExt, TryStreamExt};
+use futures::{channel::mpsc, StreamExt, TryStreamExt};
 use std::{
     convert::TryFrom,
     os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
@@ -37,7 +37,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut state = State::new();
 
-    let mut writers = vec![];
+    let (tx, rx) = mpsc::unbounded();
+
+    writer::spawn_writer(rx);
 
     while let Some(sock) = listener.try_next().await? {
         let (reader, mut writer) = tokio::io::split(sock);
@@ -57,7 +59,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                     writer.write_all(&output).await?;
 
-                    writers.push(writer);
+                    tx.unbounded_send(writer::WriterCmd::Add(Box::new(writer)))?;
 
                     continue;
                 }
@@ -83,13 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             let output = state::produce_device_graph(&state)?;
 
-            let xs = join_all(writers.iter_mut().map(|writer| writer.write_all(&output))).await;
-
-            for (i, x) in xs.iter().enumerate() {
-                if x.is_err() {
-                    writers.remove(i);
-                }
-            }
+            tx.unbounded_send(writer::WriterCmd::Msg(output))?;
         }
     }
 

@@ -5,3 +5,4 @@
 pub mod error;
 pub mod reducers;
 pub mod state;
+pub mod writer;

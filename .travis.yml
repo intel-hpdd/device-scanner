@@ -16,19 +16,19 @@ jobs:
       script:
         - cargo fmt --all -- --check
     - stage: test
-      name: "Clippy"
-      rust: beta
-      before_script:
-        - rustup component add clippy
-      script:
-        - cargo clippy --all-targets --all-features -- -D warnings
-    - stage: test
       name: "copr build test"
       language: generic
       script:
         - export SPEC=iml-device-scanner.spec
         - docker run -it -e SPEC="$SPEC" -e LOCAL_ONLY="True" -v $(pwd):/build:rw imlteam/copr-zfs
         - ((`find _topdir/RPMS -name *.rpm | wc -l` > 0))
+    - stage: test
+      name: "Linting Check"
+      language: generic
+      script:
+        - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/copr-zfs
+        - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
+        - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy --all-targets --all-features -- -D warnings'
     - stage: cd
       name: "Continuous Deployment"
       language: generic

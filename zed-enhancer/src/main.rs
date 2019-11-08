@@ -41,7 +41,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let pool_command = handle_zed_commands(ZedCommand::Init)?;
 
-        send_to_device_scanner(&pool_command).await?;
+        send_to_device_scanner(pool_command).await?;
     }
 
     tracing::info!("Server starting");

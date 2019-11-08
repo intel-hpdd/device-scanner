@@ -100,10 +100,12 @@ pub async fn get_write_stream() -> Result<impl AsyncWrite> {
     Ok(UnixStream::connect("/var/run/device-scanner.sock").await?)
 }
 
-pub async fn processor(socket: UnixStream) -> Result<()> {
+pub async fn processor(mut socket: UnixStream) -> Result<()> {
     tracing::trace!("Incoming socket");
 
-    let mut line_stream = FramedRead::new(socket, LinesCodec::new());
+    let (r, _) = socket.split();
+
+    let mut line_stream = FramedRead::new(r, LinesCodec::new());
     while let Some(line) = line_stream.try_next().await? {
         let zed_command = serde_json::from_str::<device_types::zed::ZedCommand>(&line)?;
         let pool_command = handle_zed_commands(zed_command)?;

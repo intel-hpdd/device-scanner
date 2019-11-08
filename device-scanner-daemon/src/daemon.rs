@@ -40,7 +40,7 @@ pub async fn writer(mut rx: UnboundedReceiver<WriterCmd>) {
                     .into_iter()
                     .enumerate()
                     .filter(|(idx, _)| {
-                        if let Err(e) = xs[*idx].as_ref() {
+                        if let Err(e) = &xs[*idx] {
                             tracing::debug!("Error writing to client {}. Removing client", e);
 
                             false

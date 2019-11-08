@@ -5,12 +5,12 @@ jobs:
   include:
     - stage: test
       name: "Unit Tests"
-      rust: beta
+      rust: stable
       script:
         - cargo test --exclude zed-enhancer --all
     - stage: test
       name: "Rustfmt"
-      rust: beta
+      rust: stable
       before_script:
         - rustup component add rustfmt
       script:
@@ -28,7 +28,7 @@ jobs:
       script:
         - docker run -d -it --name libzfs -v $(pwd):/device-scanner:rw imlteam/zfs
         - docker exec -i libzfs bash -c 'yum install -y openssl-devel'
-        - docker exec -i libzfs bash -c 'rustup default beta; rustup component add clippy'
+        - docker exec -i libzfs bash -c 'rustup default stable; rustup component add clippy'
         - docker exec -i libzfs bash -c 'cd /device-scanner && cargo clippy --all-targets --all-features -- -D warnings'
     - stage: cd
       name: "Continuous Deployment"

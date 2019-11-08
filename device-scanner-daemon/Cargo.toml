@@ -19,4 +19,4 @@ device-types = { path = "../device-types", version = "0.1.0" }
 libzfs-types = "0.1.1"
 
 [dev-dependencies]
-insta = "0.11"
+insta = "0.12"

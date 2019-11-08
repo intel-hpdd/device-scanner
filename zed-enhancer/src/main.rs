@@ -10,28 +10,31 @@
 //! This crate receives events from device-scanner-zedlets and may enhance them with further data
 //! before passing onwards to device-scanner.
 
-use std::os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener};
-use tokio::{net::UnixListener, prelude::*, reactor::Handle};
+use std::{os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener}, convert::TryFrom};
+use tokio::net::UnixListener;
+use futures::TryStreamExt;
 use zed_enhancer::processor;
+use tracing_subscriber::{fmt::Subscriber, EnvFilter};
 
-fn main() {
-    env_logger::builder().default_format_timestamp(false).init();
+#[tokio::main(single_thread)]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let subscriber = Subscriber::builder()
+        .with_env_filter(EnvFilter::from_default_env())
+        .finish();
 
+    tracing::subscriber::set_global_default(subscriber).unwrap();
+
+    tracing::info!("Server started");
+    
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
-    let listener = UnixListener::from_std(addr, &Handle::default())
-        .expect("Unable to bind Unix Domain Socket fd");
+    let listener = UnixListener::try_from(addr)?;
 
-    let server = listener
-        .incoming()
-        .map_err(|e| log::error!("accept failed, {:?}", e))
-        .for_each(move |socket| {
-            processor(socket).map_err(|e| log::error!("Unhandled Error: {:?}", e))
-        });
+    let mut stream = listener.incoming();
 
-    log::info!("Server starting");
+    while let Some(socket) = stream.try_next().await? {
+        processor(socket).await?;
+    }
 
-    let mut runtime = tokio::runtime::current_thread::Runtime::new().unwrap();
-
-    runtime.block_on(server).unwrap();
+    Ok(())
 }

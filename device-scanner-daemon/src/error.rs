@@ -2,8 +2,10 @@
 // Use of this source code is governed by a MIT-style
 // license that can be found in the LICENSE file.
 
+use futures::channel::mpsc::TrySendError;
 use serde_json;
 use std::{error, fmt, io, num, result};
+use tokio::codec::LinesCodecError;
 
 pub type Result<T> = result::Result<T, Error>;
 
@@ -17,7 +19,9 @@ where
 #[derive(Debug)]
 pub enum Error {
     Io(io::Error),
+    TrySendError(Box<dyn error::Error + Send>),
     SerdeJson(serde_json::Error),
+    LinesCodecError(LinesCodecError),
     LibZfsError(libzfs_types::LibZfsError),
     ParseIntError(num::ParseIntError),
     NoneError(Box<dyn error::Error + Send + Sync>),
@@ -27,7 +31,9 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
             Error::Io(ref err) => write!(f, "{}", err),
+            Error::TrySendError(ref err) => write!(f, "{}", err),
             Error::SerdeJson(ref err) => write!(f, "{}", err),
+            Error::LinesCodecError(ref err) => write!(f, "{}", err),
             Error::LibZfsError(ref err) => write!(f, "{}", err),
             Error::ParseIntError(ref err) => write!(f, "{}", err),
             Error::NoneError(ref err) => write!(f, "{}", err),
@@ -39,7 +45,9 @@ impl error::Error for Error {
     fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::Io(ref err) => Some(err),
+            Error::TrySendError(_) => None,
             Error::SerdeJson(ref err) => Some(err),
+            Error::LinesCodecError(ref err) => Some(err),
             Error::LibZfsError(ref err) => Some(err),
             Error::ParseIntError(ref err) => Some(err),
             Error::NoneError(_) => None,
@@ -50,6 +58,21 @@ impl error::Error for Error {
 impl From<io::Error> for Error {
     fn from(err: io::Error) -> Self {
         Error::Io(err)
+    }
+}
+
+impl From<LinesCodecError> for Error {
+    fn from(err: LinesCodecError) -> Self {
+        Error::LinesCodecError(err)
+    }
+}
+
+impl<E> From<TrySendError<E>> for Error
+where
+    E: Send + 'static,
+{
+    fn from(err: TrySendError<E>) -> Self {
+        Error::TrySendError(Box::new(err))
     }
 }
 

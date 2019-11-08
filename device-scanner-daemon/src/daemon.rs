@@ -23,6 +23,16 @@ pub enum WriterCmd {
     Msg(bytes::Bytes),
 }
 
+fn is_error(xs: &[Result<(), std::io::Error>], idx: usize) -> bool {
+    if let Err(e) = &xs[idx] {
+        tracing::debug!("Error writing to client {}. Removing client", e);
+
+        false
+    } else {
+        true
+    }
+}
+
 pub async fn writer(mut rx: UnboundedReceiver<WriterCmd>) {
     let mut writers = vec![];
 
@@ -39,15 +49,7 @@ pub async fn writer(mut rx: UnboundedReceiver<WriterCmd>) {
                 writers = writers
                     .into_iter()
                     .enumerate()
-                    .filter(|(idx, _)| {
-                        if let Err(e) = &xs[*idx] {
-                            tracing::debug!("Error writing to client {}. Removing client", e);
-
-                            false
-                        } else {
-                            true
-                        }
-                    })
+                    .filter(|(idx, _)| is_error(&xs, *idx))
                     .map(|(_, w)| w)
                     .collect();
 

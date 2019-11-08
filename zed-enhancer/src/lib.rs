@@ -3,11 +3,11 @@
 // license that can be found in the LICENSE file.
 
 use device_types::zed::{zfs, zpool, PoolCommand, ZedCommand};
-use futures::{Future, Stream, StreamExt, TryStreamExt};
-use std::{error, fmt, io, io::BufReader, num, os::unix::net::UnixStream as NetUnixStream, result};
+use futures::TryStreamExt;
+use std::{error, fmt, io, num, result};
 use tokio::{
     codec::{FramedRead, LinesCodec, LinesCodecError},
-    io::{AsyncRead, AsyncWrite, AsyncWriteExt},
+    io::{AsyncWrite, AsyncWriteExt},
     net::UnixStream,
 };
 
@@ -113,7 +113,10 @@ pub async fn processor(mut socket: UnixStream) -> Result<()> {
 
         tracing::debug!("Sending: {:?}", pool_command_str);
 
-        get_write_stream().await?.write_all(pool_command_str.as_bytes()).await?;
+        get_write_stream()
+            .await?
+            .write_all(pool_command_str.as_bytes())
+            .await?;
     }
 
     Ok(())

@@ -10,11 +10,14 @@
 //! This crate receives events from device-scanner-zedlets and may enhance them with further data
 //! before passing onwards to device-scanner.
 
-use std::{os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener}, convert::TryFrom};
-use tokio::net::UnixListener;
 use futures::TryStreamExt;
-use zed_enhancer::processor;
+use std::{
+    convert::TryFrom,
+    os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
+};
+use tokio::net::UnixListener;
 use tracing_subscriber::{fmt::Subscriber, EnvFilter};
+use zed_enhancer::processor;
 
 #[tokio::main(single_thread)]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -25,7 +28,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
     tracing::info!("Server started");
-    
+
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
     let listener = UnixListener::try_from(addr)?;

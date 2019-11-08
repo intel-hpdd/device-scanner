@@ -1,7 +1,6 @@
 [Unit]
 Description=IML ZED Enhancer Socket
 DefaultDependencies=false
-Wants=zed-enhancer.socket
 After=zfs-zed.service
 After=device-scanner.socket
 PartOf=device-scanner.target

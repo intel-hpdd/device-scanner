@@ -44,8 +44,6 @@ pub async fn writer(mut rx: UnboundedReceiver<WriterCmd>) {
 
                 let xs = join_all(writers.iter_mut().map(|writer| writer.write_all(&x))).await;
 
-                tracing::trace!("Finished write to all clients");
-
                 writers = writers
                     .into_iter()
                     .enumerate()

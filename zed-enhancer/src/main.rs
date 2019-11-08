@@ -10,6 +10,7 @@
 //! This crate receives events from device-scanner-zedlets and may enhance them with further data
 //! before passing onwards to device-scanner.
 
+use device_types::zed::ZedCommand;
 use futures::TryStreamExt;
 use std::{
     convert::TryFrom,
@@ -17,7 +18,7 @@ use std::{
 };
 use tokio::net::UnixListener;
 use tracing_subscriber::{fmt::Subscriber, EnvFilter};
-use zed_enhancer::processor;
+use zed_enhancer::{handle_zed_commands, processor, send_to_device_scanner};
 
 #[tokio::main(single_thread)]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -34,6 +35,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let listener = UnixListener::try_from(addr)?;
 
     let mut stream = listener.incoming();
+
+    let pool_command = handle_zed_commands(ZedCommand::Init)?;
+
+    send_to_device_scanner(&pool_command).await?;
 
     while let Some(socket) = stream.try_next().await? {
         processor(socket).await?;

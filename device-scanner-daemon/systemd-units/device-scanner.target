@@ -6,14 +6,14 @@ After=device-scanner.socket
 Requires=block-device-populator.service
 Requires=swap-emitter.timer
 Requires=mount-emitter.service
-Wants=zed-populator.service
+Wants=zed-enhancer.socket
 Wants=scanner-proxy.path
 
 [Install]
 WantedBy=multi-user.target
 Also=device-scanner.socket
 Also=block-device-populator.service
-Also=zed-populator.service
+Also=zed-enhancer.socket
 Also=swap-emitter.timer
 Also=mount-emitter.service
 Also=scanner-proxy.path

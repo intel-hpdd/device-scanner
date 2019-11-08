@@ -17,6 +17,7 @@ use std::{
     os::unix::{io::FromRawFd, net::UnixListener as NetUnixListener},
 };
 use tokio::net::UnixListener;
+use tokio_net::process::Command;
 use tracing_subscriber::{fmt::Subscriber, EnvFilter};
 use zed_enhancer::{handle_zed_commands, processor, send_to_device_scanner};
 
@@ -28,17 +29,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     tracing::subscriber::set_global_default(subscriber).unwrap();
 
-    tracing::info!("Server started");
+    let zfs_loaded = Command::new("/usr/sbin/udevadm")
+        .args(&["info", "--path=/module/zfs"])
+        .output()
+        .await?
+        .status
+        .success();
+
+    if zfs_loaded {
+        tracing::debug!("Sending initial data");
+
+        let pool_command = handle_zed_commands(ZedCommand::Init)?;
+
+        send_to_device_scanner(&pool_command).await?;
+    }
+
+    tracing::info!("Server starting");
 
     let addr = unsafe { NetUnixListener::from_raw_fd(3) };
 
     let listener = UnixListener::try_from(addr)?;
 
     let mut stream = listener.incoming();
-
-    let pool_command = handle_zed_commands(ZedCommand::Init)?;
-
-    send_to_device_scanner(&pool_command).await?;
 
     while let Some(socket) = stream.try_next().await? {
         processor(socket).await?;

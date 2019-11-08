@@ -1,3 +1,2 @@
 enable zed-enhancer.*
 enable zed-populator.service
-enable zfs-zed.service

@@ -3,13 +3,12 @@
 // license that can be found in the LICENSE file.
 
 use device_types::zed::{zfs, zpool, PoolCommand, ZedCommand};
-use futures::{Future, Stream};
-use std::{error, fmt, io, io::BufReader, num, os::unix::net::UnixStream as NetUnixStream, result};
+use futures::TryStreamExt;
+use std::{error, fmt, io, num, result};
 use tokio::{
-    io::lines,
-    io::{AsyncRead, AsyncWrite},
+    codec::{FramedRead, LinesCodec, LinesCodecError},
+    io::{AsyncWrite, AsyncWriteExt},
     net::UnixStream,
-    reactor::Handle,
 };
 
 type Result<T> = result::Result<T, Error>;
@@ -20,6 +19,7 @@ pub enum Error {
     SerdeJson(serde_json::Error),
     LibZfsError(libzfs::LibZfsError),
     ParseIntError(num::ParseIntError),
+    LinesCodecError(LinesCodecError),
 }
 
 impl fmt::Display for Error {
@@ -29,6 +29,7 @@ impl fmt::Display for Error {
             Error::SerdeJson(ref err) => write!(f, "{}", err),
             Error::LibZfsError(ref err) => write!(f, "{}", err),
             Error::ParseIntError(ref err) => write!(f, "{}", err),
+            Error::LinesCodecError(ref err) => write!(f, "{}", err),
         }
     }
 }
@@ -40,6 +41,7 @@ impl error::Error for Error {
             Error::SerdeJson(ref err) => Some(err),
             Error::LibZfsError(ref err) => Some(err),
             Error::ParseIntError(ref err) => Some(err),
+            Error::LinesCodecError(ref err) => Some(err),
         }
     }
 }
@@ -51,7 +53,7 @@ fn guid_to_u64(guid: zpool::Guid) -> Result<u64> {
 
 /// Takes a ZedCommand and produces some PoolCommands.
 pub fn handle_zed_commands(cmd: ZedCommand) -> Result<PoolCommand> {
-    log::debug!("Processing ZED event: {:?}", cmd);
+    tracing::debug!("Processing ZED event: {:?}", cmd);
 
     match cmd {
         ZedCommand::Init => {
@@ -94,31 +96,28 @@ pub fn handle_zed_commands(cmd: ZedCommand) -> Result<PoolCommand> {
 /// Creates a stream that implements `AsyncWrite`
 /// In this case, we use `tokio::net::UnixStream`,
 /// But we can substitute this fn for integration testing
-pub fn get_write_stream() -> impl AsyncWrite {
-    let stream = NetUnixStream::connect("/var/run/device-scanner.sock")
-        .expect("Unable to connect to device-scanner.sock");
-
-    UnixStream::from_std(stream, &Handle::default()).expect("Unable to consume device-scanner.sock")
+pub async fn get_write_stream() -> Result<impl AsyncWrite> {
+    Ok(UnixStream::connect("/var/run/device-scanner.sock").await?)
 }
 
-pub fn processor(socket: UnixStream) -> impl Future<Item = (), Error = Error> {
-    log::trace!("Incoming socket");
+pub async fn processor(mut socket: UnixStream) -> Result<()> {
+    tracing::trace!("Incoming socket");
 
     let (r, _) = socket.split();
 
-    lines(BufReader::new(r))
-        .map_err(Error::Io)
-        .and_then(|x| {
-            serde_json::from_str::<device_types::zed::ZedCommand>(&x).map_err(Error::SerdeJson)
-        })
-        .and_then(handle_zed_commands)
-        .map(device_types::Command::PoolCommand)
-        .and_then(|x| serde_json::to_string(&x).map_err(Error::SerdeJson))
-        .for_each(|x| {
-            log::debug!("Sending: {:?}", x);
+    let mut line_stream = FramedRead::new(r, LinesCodec::new());
+    while let Some(line) = line_stream.try_next().await? {
+        let zed_command = serde_json::from_str::<device_types::zed::ZedCommand>(&line)?;
+        let pool_command = handle_zed_commands(zed_command)?;
+        let pool_command_str = serde_json::to_string(&pool_command)?;
 
-            tokio::io::write_all(get_write_stream(), x)
-                .map(|_| ())
-                .map_err(Error::Io)
-        })
+        tracing::debug!("Sending: {:?}", pool_command_str);
+
+        get_write_stream()
+            .await?
+            .write_all(pool_command_str.as_bytes())
+            .await?;
+    }
+
+    Ok(())
 }

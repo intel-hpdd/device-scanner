@@ -100,8 +100,9 @@ pub async fn get_write_stream() -> Result<impl AsyncWrite> {
     Ok(UnixStream::connect("/var/run/device-scanner.sock").await?)
 }
 
-pub async fn send_to_device_scanner(pool_command: &PoolCommand) -> Result<()> {
-    let pool_command_str = serde_json::to_string(&pool_command)?;
+pub async fn send_to_device_scanner(pool_command: PoolCommand) -> Result<()> {
+    let pool_command_str =
+        serde_json::to_string(&device_types::Command::PoolCommand(pool_command))?;
 
     tracing::debug!("Sending: {:?}", pool_command_str);
 
@@ -123,7 +124,7 @@ pub async fn processor(mut socket: UnixStream) -> Result<()> {
         let zed_command = serde_json::from_str::<device_types::zed::ZedCommand>(&line)?;
         let pool_command = handle_zed_commands(zed_command)?;
 
-        send_to_device_scanner(&pool_command).await?;
+        send_to_device_scanner(pool_command).await?;
     }
 
     Ok(())

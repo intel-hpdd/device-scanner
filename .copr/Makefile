@@ -12,6 +12,8 @@ build: $(CARGO)
 
 	rm -rf ${BUILDROOT}/_topdir
 
+	yum install -y gcc-c++
+
 	if ! rpm -q dotnet-sdk-2.1 2> /dev/null; then \
 		yum-config-manager --add-repo=https://packages.microsoft.com/rhel/7/prod; \
 		yum-config-manager --add-repo=http://download.mono-project.com/repo/centos7-stable.repo; \
@@ -39,7 +41,7 @@ build: $(CARGO)
 
 	cd ${TMPDIR}/scratch && \
 		npm i --ignore-scripts && \
-		npm i iltorb && \
+		npm i iltorb@2.0.5 && \
 		npm run restore && \
 		dotnet fable npm-run build && \
 		npm pack;

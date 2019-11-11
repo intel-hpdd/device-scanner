@@ -2,7 +2,7 @@
   "name": "@iml/device-scanner",
   "description": "Builds an in-memory representation of devices. Uses udev rules to handle change events.",
   "author": "IML Team",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

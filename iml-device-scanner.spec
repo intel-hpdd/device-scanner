@@ -7,7 +7,7 @@
 %define     aggregator_prefixed iml-%{aggregator_name}
 
 Name:       iml-%{base_name}
-Version:    2.2.1
+Version:    2.2.2
 # Release Start
 Release:    1%{?dist}
 # Release End
@@ -204,21 +204,10 @@ fi
 %systemd_preun %{aggregator_name}.socket
 %systemd_preun %{aggregator_name}.service
 
-%postun
-%systemd_postun_with_restart %{base_name}.socket
-
-if [ $1 -ge 1 ] ; then
-  udevadm trigger --action=change --subsystem-match=block
-  systemctl start %{mount_name}.service
-fi
-
-%postun proxy
-%systemd_postun_with_restart %{proxy_name}.path
-
-%postun aggregator
-%systemd_postun_with_restart %{aggregator_name}.socket
-
 %changelog
+* Sun Nov 10 2019 Joe Grund <jgrund@whamcloud.com> - 2.2.2-1
+- Remove postun scriptlets
+
 * Fri May 10 2019 Will Johnson <wjohnson@whamcloud.com> - 2.2.1-1
 - Fix device-scanner.socket to be wanted by iml-manager.target.
 

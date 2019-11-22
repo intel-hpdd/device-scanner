@@ -5,8 +5,6 @@ RUN cargo build -p device-aggregator --release
 
 FROM rust:1.39
 COPY --from=builder /build/target/release/device-aggregator /usr/local/bin
-RUN apt-get update \
-  && apt-get clean \
-  && rm -rf /var/lib/apt/lists/*
+RUN rm -rf /var/lib/apt/lists/*
 
 CMD ["device-aggregator"]

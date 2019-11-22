@@ -14,6 +14,7 @@ use futures::Future;
 use std::{
     collections::{BTreeMap, HashMap},
     env,
+    net::ToSocketAddrs,
     sync::{Arc, Mutex},
 };
 use warp::Filter;
@@ -30,10 +31,17 @@ fn main() -> Result<(), aggregator_error::Error> {
 
     let log = warp::log("device_aggregator");
 
+    let host = env::var("PROXY_HOST").expect("PROXY_HOST environment variable is required.");
     let port: u16 = env::var("DEVICE_AGGREGATOR_PORT")
         .expect("DEVICE_AGGREGATOR_PORT environment variable is required.")
         .parse()
         .expect("could not parse DEVICE_AGGREGATOR_PORT to u16");
+
+    let addr = format!("{}:{}", host, port)
+        .to_socket_addrs()
+        .expect("Couldn't parse address.")
+        .next()
+        .expect("Couldn't convert to a socket address.");
 
     let post = warp::post2()
         .and(warp::body::json())
@@ -97,7 +105,7 @@ fn main() -> Result<(), aggregator_error::Error> {
 
     let routes = post.or(get).with(log);
 
-    warp::serve(routes).run(([127, 0, 0, 1], port));
+    warp::serve(routes).run(addr);
 
     Ok(())
 }

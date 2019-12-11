@@ -45,6 +45,7 @@ mod tests {
             part_entry_number: Some(1),
             part_entry_mm: Some("253:13".to_string()),
             size: Some(100_651_008),
+            rotational: Some(false),
             scsi80: Some(
                 "SLIO-ORG ost12           50e41a84-1db2-44a9-92c3-1e7dfad48fce".to_string(),
             ),

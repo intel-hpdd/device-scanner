@@ -114,6 +114,7 @@ pub fn build_uevent() -> UEvent {
             .and_then(empty_str_to_none)
             .and_then(parse_to)
             .map(|x: u64| x * 512),
+        rotational: optional_field("IML_ROTATIONAL").map(is_one),
         scsi80: optional_field("IML_SCSI_80").map(|x| x.trim().to_string()),
         scsi83: optional_field("IML_SCSI_83").map(|x| x.trim().to_string()),
         read_only: optional_field("IML_IS_RO").map(is_one),

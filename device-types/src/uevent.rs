@@ -26,6 +26,7 @@ pub struct UEvent {
     pub part_entry_number: Option<u64>,
     pub part_entry_mm: Option<String>,
     pub size: Option<u64>,
+    pub rotational: Option<bool>,
     pub scsi80: Option<String>,
     pub scsi83: Option<String>,
     pub read_only: Option<bool>,

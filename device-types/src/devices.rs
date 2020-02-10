@@ -37,6 +37,7 @@ pub struct ScsiDevice {
     pub paths: Paths,
     pub mount: Option<mount::Mount>,
     pub children: Children,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -54,6 +55,7 @@ pub struct Partition {
     pub paths: Paths,
     pub mount: Option<mount::Mount>,
     pub children: Children,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -68,6 +70,7 @@ pub struct MdRaid {
     pub mount: Option<mount::Mount>,
     pub uuid: String,
     pub children: Children,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -85,6 +88,7 @@ pub struct Mpath {
     pub paths: Paths,
     pub children: Children,
     pub mount: Option<mount::Mount>,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -93,6 +97,7 @@ pub struct VolumeGroup {
     pub uuid: String,
     pub size: u64,
     pub children: Children,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -107,6 +112,7 @@ pub struct LogicalVolume {
     pub paths: Paths,
     pub filesystem_type: Option<String>,
     pub mount: Option<mount::Mount>,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -120,6 +126,7 @@ pub struct Zpool {
     pub props: Vec<libzfs_types::ZProp>,
     pub children: Children,
     pub mount: Option<mount::Mount>,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
@@ -129,6 +136,7 @@ pub struct Dataset {
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,
     pub mount: Option<mount::Mount>,
+    pub max_depth: usize,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]

@@ -75,6 +75,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .vg_uuid
                     .clone()
                     .ok_or_else(|| error::none_error("Expected vg_uuid"))?,
+                max_depth: 0,
             }))
         })
         .collect()
@@ -111,6 +112,7 @@ fn get_partitions(
                 fs_label: x.fs_label.clone(),
                 children: hashset![],
                 mount: mount.map(ToOwned::to_owned),
+                max_depth: 0,
             }))
         })
         .collect()
@@ -143,6 +145,7 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 mount: mount.map(ToOwned::to_owned),
                 filesystem_type: x.fs_type.clone(),
                 children: hashset![],
+                max_depth: 0,
             }))
         })
         .collect()
@@ -167,6 +170,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 paths: x.paths.clone(),
                 children: hashset![],
                 mount: mount.map(ToOwned::to_owned),
+                max_depth: 0,
             }))
         })
         .collect()
@@ -201,6 +205,7 @@ fn get_mpaths(
                 children: hashset![],
                 devpath: x.devpath.clone(),
                 mount: mount.map(ToOwned::to_owned),
+                max_depth: 0,
             }))
         })
         .collect()
@@ -231,6 +236,7 @@ fn get_mds(
                     .md_uuid
                     .clone()
                     .ok_or_else(|| error::none_error("Expected md_uuid"))?,
+                max_depth: 0,
             }))
         })
         .collect()
@@ -261,6 +267,7 @@ fn get_pools(
                 vdev: x.vdev.clone(),
                 size: x.size.parse()?,
                 children: hashset![],
+                max_depth: 0,
             }))
         })
         .collect()
@@ -289,6 +296,7 @@ fn get_datasets(b: &Buckets, ys: &HashSet<Mount>, guid: u64) -> Result<HashSet<D
                 guid: x.guid.parse::<u64>()?,
                 kind: x.kind.clone(),
                 props: x.props.clone(),
+                max_depth: 0,
             }))
         })
         .collect()

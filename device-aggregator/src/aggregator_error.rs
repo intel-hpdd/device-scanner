@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 use serde_json;
-use std::{error, fmt, io, str};
+use std::{error, fmt, io};
 use tokio::timer;
 
 #[derive(Debug)]
@@ -24,14 +24,6 @@ impl fmt::Display for Error {
 }
 
 impl error::Error for Error {
-    fn description(&self) -> &str {
-        match *self {
-            Error::Io(ref err) => err.description(),
-            Error::Timer(ref err) => err.description(),
-            Error::SerdeJsonError(ref err) => err.description(),
-        }
-    }
-
     fn cause(&self) -> Option<&dyn error::Error> {
         match *self {
             Error::Io(ref err) => Some(err),

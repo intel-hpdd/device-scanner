@@ -79,7 +79,7 @@ fn build_hashmap(mut acc: IntermediateMap, x: &str) -> IntermediateMap {
         _ => panic!("Expected two matches from: {:?}", xs),
     };
 
-    acc.insert(k.to_string(), v.to_string());
+    acc.insert((*k).to_string(), v.to_string());
 
     acc
 }

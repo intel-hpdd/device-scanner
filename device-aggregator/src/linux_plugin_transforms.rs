@@ -542,7 +542,7 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
 }
 
 /// Given some aggregated data
-/// Figure out what VGs can be shared between hosts and add them to the otehr hosts.
+/// Figure out what VGs can be shared between hosts and add them to the other hosts.
 pub fn update_vgs<'a>(
     mut xs: BTreeMap<&'a String, LinuxPluginData<'a>>,
 ) -> BTreeMap<&'a String, LinuxPluginData<'a>> {
@@ -572,7 +572,7 @@ pub fn update_vgs<'a>(
         acc
     });
 
-    for (from_host, to_host, vg_name) in shared_vgs.into_iter() {
+    for (from_host, to_host, vg_name) in shared_vgs {
         let from = xs.get(from_host).unwrap();
 
         let vg = from.vgs.get(vg_name).cloned().unwrap();

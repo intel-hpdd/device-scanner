@@ -541,6 +541,76 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
     shared_pools
 }
 
+/// Given some aggregated data
+/// Figure out what VGs can be shared between hosts and add them to the otehr hosts.
+pub fn update_vgs<'a>(
+    mut xs: BTreeMap<&'a String, LinuxPluginData<'a>>,
+) -> BTreeMap<&'a String, LinuxPluginData<'a>> {
+    let shared_vgs = xs.iter().fold(vec![], |mut acc, (from_host, x)| {
+        let mut others: Vec<_> = xs
+            .iter()
+            .filter(|(k, _)| k != &from_host)
+            .filter_map(|(to_host, y)| {
+                let shared_vgs: Vec<_> = x
+                    .vgs
+                    .iter()
+                    .filter(|(_, vg)| vg.pvs_major_minor.iter().all(|mm| y.devs.contains_key(mm)))
+                    .map(|(vg_name, _)| (from_host.clone(), to_host.clone(), vg_name.clone()))
+                    .collect();
+
+                if shared_vgs.is_empty() {
+                    None
+                } else {
+                    Some(shared_vgs)
+                }
+            })
+            .flatten()
+            .collect();
+
+        acc.append(&mut others);
+
+        acc
+    });
+
+    for (from_host, to_host, vg_name) in shared_vgs.into_iter() {
+        let from = xs.get(from_host).unwrap();
+
+        let vg = from.vgs.get(vg_name).cloned().unwrap();
+
+        let lvs = from.lvs.get(vg_name).cloned();
+
+        let lv_devs: Option<Vec<_>> = lvs.as_ref().map(|lvs| {
+            lvs.into_iter()
+                .map(|(_, lv)| {
+                    (
+                        lv.block_device.clone(),
+                        from.devs.get(&lv.block_device).cloned().expect(&format!(
+                            "Did not find lv block device {:?}",
+                            lv.block_device
+                        )),
+                    )
+                })
+                .collect()
+        });
+
+        let to = xs.get_mut(to_host).unwrap();
+
+        to.vgs.insert(vg_name, vg);
+
+        if let Some(lvs) = lvs {
+            to.lvs.insert(vg_name, lvs);
+        }
+
+        if let Some(lv_devs) = lv_devs {
+            for (mm, lv_dev) in lv_devs {
+                to.devs.insert(mm, lv_dev);
+            }
+        }
+    }
+
+    xs
+}
+
 #[cfg(test)]
 mod tests {
     use super::{devtree2linuxoutput, LinuxPluginData};

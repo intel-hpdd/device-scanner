@@ -6,7 +6,8 @@ use device_aggregator::{
     aggregator_error,
     cache::{Cache, CacheFlush},
     linux_plugin_transforms::{
-        build_device_lookup, devtree2linuxoutput, get_shared_pools, populate_zpool, LinuxPluginData,
+        build_device_lookup, devtree2linuxoutput, get_shared_pools, populate_zpool, update_vgs,
+        LinuxPluginData,
     },
 };
 use device_types::{devices::Device, message::Message};
@@ -105,6 +106,8 @@ fn main() -> Result<(), aggregator_error::Error> {
                     populate_zpool(a, b, x);
                 }
             }
+
+            let xs = update_vgs(xs);
 
             serde_json::to_string(&xs).unwrap()
         });

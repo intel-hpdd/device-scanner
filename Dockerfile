@@ -1,4 +1,4 @@
-FROM rust:1.39 as builder
+FROM rust:1.42 as builder
 WORKDIR /build
 COPY . .
 RUN cargo build -p device-aggregator --release

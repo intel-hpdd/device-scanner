@@ -198,7 +198,7 @@ impl<'a> From<(&'a Mpath, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice
 impl<'a> From<(&'a LogicalVolume, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice<'a> {
     fn from((x, _p): (&'a LogicalVolume, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
         LinuxPluginDevice {
-            major_minor: (&x.major, &x.minor).into(),
+            major_minor: ("lv", &x.uuid).into(),
             // @FIXME
             // linux.py erroneously declares that
             // only partitions should have a parent.
@@ -476,16 +476,23 @@ pub fn build_device_lookup<'a>(
             major,
             minor,
             ..
-        })
-        | Device::LogicalVolume(LogicalVolume {
-            children,
-            paths,
-            major,
-            minor,
-            ..
         }) => {
             for p in paths {
                 path_map.insert(p, (major, minor).into());
+            }
+
+            for c in children {
+                build_device_lookup(c, path_map, pool_map);
+            }
+        }
+        Device::LogicalVolume(LogicalVolume {
+            children,
+            paths,
+            uuid,
+            ..
+        }) => {
+            for p in paths {
+                path_map.insert(p, ("lv", uuid).into());
             }
 
             for c in children {

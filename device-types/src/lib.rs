@@ -99,12 +99,10 @@ impl Ord for DevicePath {
         let a_slot = find_sort_slot(self);
         let b_slot = find_sort_slot(other);
 
-        if a_slot > b_slot {
-            Ordering::Greater
-        } else if a_slot < b_slot {
-            Ordering::Less
-        } else {
-            self.0.partial_cmp(&other.0).unwrap()
+        match a_slot.cmp(&b_slot) {
+            Ordering::Greater => Ordering::Greater,
+            Ordering::Less => Ordering::Less,
+            Ordering::Equal => self.0.partial_cmp(&other.0).unwrap(),
         }
     }
 }

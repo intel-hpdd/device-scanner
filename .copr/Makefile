@@ -23,4 +23,4 @@ srpm: $(CARGO)
 	cp iml-device-scanner.spec ${TMPDIR}/_topdir/SPECS/
 	rpmbuild -bs -D "_topdir ${TMPDIR}/_topdir" ${TMPDIR}/_topdir/SPECS/iml-device-scanner.spec
 	cp -rf ${TMPDIR}/_topdir ${BUILDROOT}/
-	cp -f _topdir/SRPMS/*.rpm $(outdir)
+	cp -f ${TMPDIR}/_topdir/SRPMS/*.rpm $(outdir)

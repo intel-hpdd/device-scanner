@@ -81,9 +81,9 @@ mod tests {
 
         let uevents = update_udev(&uevents, change_cmd);
 
-        assert_eq!(hashmap! {ev.devpath.clone() => ev2.clone()}, uevents);
+        assert_eq!(hashmap! {ev.devpath => ev2.clone()}, uevents);
 
-        let remove_cmd = UdevCommand::Remove(ev2.clone());
+        let remove_cmd = UdevCommand::Remove(ev2);
 
         let uevents = update_udev(&uevents, remove_cmd);
 

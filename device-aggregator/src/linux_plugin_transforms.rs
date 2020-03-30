@@ -198,7 +198,7 @@ impl<'a> From<(&'a Mpath, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice
 impl<'a> From<(&'a LogicalVolume, Option<&LinuxPluginDevice<'a>>)> for LinuxPluginDevice<'a> {
     fn from((x, _p): (&'a LogicalVolume, Option<&LinuxPluginDevice>)) -> LinuxPluginDevice<'a> {
         LinuxPluginDevice {
-            major_minor: (&x.major, &x.minor).into(),
+            major_minor: ("lv", &x.uuid).into(),
             // @FIXME
             // linux.py erroneously declares that
             // only partitions should have a parent.
@@ -476,16 +476,23 @@ pub fn build_device_lookup<'a>(
             major,
             minor,
             ..
-        })
-        | Device::LogicalVolume(LogicalVolume {
-            children,
-            paths,
-            major,
-            minor,
-            ..
         }) => {
             for p in paths {
                 path_map.insert(p, (major, minor).into());
+            }
+
+            for c in children {
+                build_device_lookup(c, path_map, pool_map);
+            }
+        }
+        Device::LogicalVolume(LogicalVolume {
+            children,
+            paths,
+            uuid,
+            ..
+        }) => {
+            for p in paths {
+                path_map.insert(p, ("lv", uuid).into());
             }
 
             for c in children {
@@ -539,6 +546,104 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
     }
 
     shared_pools
+}
+
+/// Given a slice of major minors,
+/// figures out all cooresponding the device paths and returns them.
+fn major_minors_to_dev_paths<'a>(
+    xs: &BTreeSet<MajorMinor>,
+    path_map: &BTreeMap<&'a DevicePath, MajorMinor>,
+) -> BTreeSet<&'a DevicePath> {
+    xs.iter().fold(BTreeSet::new(), |acc, mm| {
+        let paths = path_map
+            .iter()
+            .filter(|(_, pmm)| &mm == pmm)
+            .map(|(p, _)| *p)
+            .collect();
+
+        acc.union(&paths).copied().collect()
+    })
+}
+
+/// Given some aggregated data
+/// Figure out what VGs can be shared between hosts and add them to the other hosts.
+pub fn update_vgs<'a>(
+    mut xs: BTreeMap<&'a String, LinuxPluginData<'a>>,
+    path_map: &HashMap<&'a String, BTreeMap<&'a DevicePath, MajorMinor>>,
+) -> BTreeMap<&'a String, LinuxPluginData<'a>> {
+    let shared_vgs = xs.iter().fold(vec![], |mut acc, (from_host, x)| {
+        let from_paths = &path_map[from_host];
+
+        let mut others: Vec<_> = xs
+            .iter()
+            .filter(|(k, _)| k != &from_host)
+            .filter_map(|(to_host, _)| {
+                let to_paths: BTreeSet<&DevicePath> =
+                    (&path_map[to_host]).keys().copied().collect();
+
+                let shared_vgs: Vec<_> = x
+                    .vgs
+                    .iter()
+                    .filter(|(_, vg)| {
+                        let p = major_minors_to_dev_paths(&vg.pvs_major_minor, &from_paths);
+
+                        to_paths.is_superset(&p)
+                    })
+                    .map(|(vg_name, _)| {
+                        (String::clone(from_host), String::clone(to_host), *vg_name)
+                    })
+                    .collect();
+
+                if shared_vgs.is_empty() {
+                    None
+                } else {
+                    Some(shared_vgs)
+                }
+            })
+            .flatten()
+            .collect();
+
+        acc.append(&mut others);
+
+        acc
+    });
+
+    for (from_host, to_host, vg_name) in shared_vgs {
+        let from = xs.get(&from_host).unwrap();
+
+        let vg = from.vgs.get(&vg_name).cloned().unwrap();
+
+        let lvs = from.lvs.get(&vg_name).cloned();
+
+        let lv_devs: Option<Vec<_>> = lvs.as_ref().map(|lvs| {
+            lvs.iter()
+                .map(|(_, lv)| {
+                    (
+                        lv.block_device.clone(),
+                        from.devs.get(&lv.block_device).cloned().unwrap_or_else(|| {
+                            panic!("Did not find lv block device {:?}", lv.block_device)
+                        }),
+                    )
+                })
+                .collect()
+        });
+
+        let to = xs.get_mut(&to_host).unwrap();
+
+        to.vgs.insert(vg_name, vg);
+
+        if let Some(lvs) = lvs {
+            to.lvs.insert(vg_name, lvs);
+        }
+
+        if let Some(lv_devs) = lv_devs {
+            for (mm, lv_dev) in lv_devs {
+                to.devs.insert(mm, lv_dev);
+            }
+        }
+    }
+
+    xs
 }
 
 #[cfg(test)]

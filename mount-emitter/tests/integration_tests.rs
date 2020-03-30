@@ -63,7 +63,7 @@ fn test_polling_cmd() {
         ACTION=\"umount\" TARGET=\"/testPool4\" SOURCE=\"testPool4\" FSTYPE=\"zfs\" OPTIONS=\"rw,xattr,noacl\" OLD-TARGET=\"/testPool4\" OLD-OPTIONS=\"rw,xattr,noacl\"";
 
     let expected = vec![
-        r#"{"MountCommand":{"AddMount":["/testPool4","testPool4","zfs","rw,xattr,noacl"]}}"#, 
+        r#"{"MountCommand":{"AddMount":["/testPool4","testPool4","zfs","rw,xattr,noacl"]}}"#,
         r#"{"MountCommand":{"AddMount":["/testPool4/home","testPool4/home","zfs","rw,xattr,noacl"]}}"#,
         r#"{"MountCommand":{"RemoveMount":["/testPool4/home","testPool4/home","zfs","rw,xattr,noacl"]}}"#,
         r#"{"MountCommand":{"RemoveMount":["/testPool4","testPool4","zfs","rw,xattr,noacl"]}}"#,

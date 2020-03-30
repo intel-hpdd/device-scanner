@@ -118,7 +118,7 @@ pub mod zed {
         let xs: Vec<&str> = x.split('=').collect();
 
         match &xs[..] {
-            [a, b] => Ok((prop::Key(a.to_string()), prop::Value(b.to_string()))),
+            [a, b] => Ok((prop::Key((*a).to_string()), prop::Value((*b).to_string()))),
             _ => Err(env::VarError::NotPresent),
         }
     }

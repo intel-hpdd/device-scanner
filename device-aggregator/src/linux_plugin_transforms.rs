@@ -548,20 +548,47 @@ pub fn get_shared_pools<'a, S: ::std::hash::BuildHasher>(
     shared_pools
 }
 
+/// Given a slice of major minors,
+/// figures out all cooresponding the device paths and returns them.
+fn major_minors_to_dev_paths<'a>(
+    xs: &BTreeSet<MajorMinor>,
+    path_map: &BTreeMap<&'a DevicePath, MajorMinor>,
+) -> BTreeSet<&'a DevicePath> {
+    xs.iter().fold(BTreeSet::new(), |acc, mm| {
+        let paths = path_map
+            .iter()
+            .filter(|(_, pmm)| &mm == pmm)
+            .map(|(p, _)| *p)
+            .collect();
+
+        acc.union(&paths).copied().collect()
+    })
+}
+
 /// Given some aggregated data
 /// Figure out what VGs can be shared between hosts and add them to the other hosts.
 pub fn update_vgs<'a>(
     mut xs: BTreeMap<&'a String, LinuxPluginData<'a>>,
+    path_map: &HashMap<&'a String, BTreeMap<&'a DevicePath, MajorMinor>>,
 ) -> BTreeMap<&'a String, LinuxPluginData<'a>> {
     let shared_vgs = xs.iter().fold(vec![], |mut acc, (from_host, x)| {
+        let from_paths = &path_map[from_host];
+
         let mut others: Vec<_> = xs
             .iter()
             .filter(|(k, _)| k != &from_host)
-            .filter_map(|(to_host, y)| {
+            .filter_map(|(to_host, _)| {
+                let to_paths: BTreeSet<&DevicePath> =
+                    (&path_map[to_host]).keys().copied().collect();
+
                 let shared_vgs: Vec<_> = x
                     .vgs
                     .iter()
-                    .filter(|(_, vg)| vg.pvs_major_minor.iter().all(|mm| y.devs.contains_key(mm)))
+                    .filter(|(_, vg)| {
+                        let p = major_minors_to_dev_paths(&vg.pvs_major_minor, &from_paths);
+
+                        to_paths.is_superset(&p)
+                    })
                     .map(|(vg_name, _)| (from_host.clone(), to_host.clone(), vg_name.clone()))
                     .collect();
 

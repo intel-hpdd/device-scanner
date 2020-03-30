@@ -107,7 +107,7 @@ fn main() -> Result<(), aggregator_error::Error> {
                 }
             }
 
-            let xs = update_vgs(xs);
+            let xs = update_vgs(xs, &path_index);
 
             serde_json::to_string(&xs).unwrap()
         });

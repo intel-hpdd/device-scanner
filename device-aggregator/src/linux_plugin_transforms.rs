@@ -589,7 +589,9 @@ pub fn update_vgs<'a>(
 
                         to_paths.is_superset(&p)
                     })
-                    .map(|(vg_name, _)| (from_host.clone(), to_host.clone(), vg_name.clone()))
+                    .map(|(vg_name, _)| {
+                        (String::clone(from_host), String::clone(to_host), *vg_name)
+                    })
                     .collect();
 
                 if shared_vgs.is_empty() {
@@ -607,27 +609,26 @@ pub fn update_vgs<'a>(
     });
 
     for (from_host, to_host, vg_name) in shared_vgs {
-        let from = xs.get(from_host).unwrap();
+        let from = xs.get(&from_host).unwrap();
 
-        let vg = from.vgs.get(vg_name).cloned().unwrap();
+        let vg = from.vgs.get(&vg_name).cloned().unwrap();
 
-        let lvs = from.lvs.get(vg_name).cloned();
+        let lvs = from.lvs.get(&vg_name).cloned();
 
         let lv_devs: Option<Vec<_>> = lvs.as_ref().map(|lvs| {
-            lvs.into_iter()
+            lvs.iter()
                 .map(|(_, lv)| {
                     (
                         lv.block_device.clone(),
-                        from.devs.get(&lv.block_device).cloned().expect(&format!(
-                            "Did not find lv block device {:?}",
-                            lv.block_device
-                        )),
+                        from.devs.get(&lv.block_device).cloned().unwrap_or_else(|| {
+                            panic!("Did not find lv block device {:?}", lv.block_device)
+                        }),
                     )
                 })
                 .collect()
         });
 
-        let to = xs.get_mut(to_host).unwrap();
+        let to = xs.get_mut(&to_host).unwrap();
 
         to.vgs.insert(vg_name, vg);
 

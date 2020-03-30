@@ -1,6 +1,4 @@
 ---
-created: "2019-08-25T21:51:04.635167Z"
-creator: insta@0.10.1
 source: device-aggregator/src/linux_plugin_transforms.rs
 expression: data
 ---
@@ -212,23 +210,6 @@ expression: data
       "serial_83": "3600140547e0ffe43b3f464789f1653cc",
       "serial_80": "SLIO-ORG ost11           47e0ffe4-3b3f-4647-89f1-653cc1b7c954",
       "size": 5368709120,
-      "filesystem_type": null
-    },
-    "253:20": {
-      "major_minor": "253:20",
-      "parent": null,
-      "partition_number": null,
-      "path": "/dev/mapper/vg1-lv1",
-      "paths": [
-        "/dev/mapper/vg1-lv1",
-        "/dev/disk/by-id/dm-name-vg1-lv1",
-        "/dev/disk/by-id/dm-uuid-LVM-UDIbPXrzaeBLNKim8kDOqcWfXbG2eRKt9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
-        "/dev/dm-20",
-        "/dev/vg1/lv1"
-      ],
-      "serial_83": null,
-      "serial_80": null,
-      "size": 67108864,
       "filesystem_type": null
     },
     "253:3": {
@@ -1015,6 +996,23 @@ expression: data
       "serial_80": "SLIO-ORG ost3            1ea57ad4-ffc2-43d6-bcab-8eb8c2a60bfb",
       "size": 5368709120,
       "filesystem_type": "mpath_member"
+    },
+    "lv:9rYEeS4U3eCNTgx1UovfQIXv16TTjel4": {
+      "major_minor": "lv:9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
+      "parent": null,
+      "partition_number": null,
+      "path": "/dev/mapper/vg1-lv1",
+      "paths": [
+        "/dev/mapper/vg1-lv1",
+        "/dev/disk/by-id/dm-name-vg1-lv1",
+        "/dev/disk/by-id/dm-uuid-LVM-UDIbPXrzaeBLNKim8kDOqcWfXbG2eRKt9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
+        "/dev/dm-20",
+        "/dev/vg1/lv1"
+      ],
+      "serial_83": null,
+      "serial_80": null,
+      "size": 67108864,
+      "filesystem_type": null
     }
   },
   "local_fs": {
@@ -1798,7 +1796,7 @@ expression: data
   "lvs": {
     "vg1": {
       "lv1": {
-        "block_device": "253:20",
+        "block_device": "lv:9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
         "size": 67108864,
         "uuid": "9rYEeS4U3eCNTgx1UovfQIXv16TTjel4",
         "name": "lv1"

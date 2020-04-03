@@ -1,7 +1,7 @@
 %define     base_name device-scanner
 
 Name:       iml-%{base_name}
-Version:    3.0.0
+Version:    3.0.1
 # Release Start
 Release:    1%{?dist}
 # Release End

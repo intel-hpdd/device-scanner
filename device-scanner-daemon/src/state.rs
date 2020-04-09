@@ -142,6 +142,8 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 paths: x.paths.clone(),
                 mount: mount.map(ToOwned::to_owned),
                 filesystem_type: x.fs_type.clone(),
+                fs_uuid: x.fs_uuid.clone(),
+                fs_label: x.fs_label.clone(),
                 children: hashset![],
             }))
         })

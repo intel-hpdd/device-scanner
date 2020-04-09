@@ -106,6 +106,8 @@ pub struct LogicalVolume {
     pub devpath: PathBuf,
     pub paths: Paths,
     pub filesystem_type: Option<String>,
+    pub fs_uuid: Option<String>,
+    pub fs_label: Option<String>,
     pub mount: Option<mount::Mount>,
 }
 

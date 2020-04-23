@@ -3,14 +3,16 @@
 // license that can be found in the LICENSE file.
 
 use crate::{mount, DevicePath};
-use im::{hashset, HashSet, OrdSet};
+use im::{ordset, OrdSet};
 use libzfs_types;
-use std::path::PathBuf;
+use std::{cmp::Ordering, path::PathBuf};
 
-type Children = HashSet<Device>;
+type Children = OrdSet<Device>;
 pub type Paths = OrdSet<DevicePath>;
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Root {
     pub children: Children,
 }
@@ -18,12 +20,14 @@ pub struct Root {
 impl Default for Root {
     fn default() -> Self {
         Self {
-            children: hashset![],
+            children: ordset![],
         }
     }
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct ScsiDevice {
     pub serial: Option<String>,
     pub scsi80: Option<String>,
@@ -39,7 +43,9 @@ pub struct ScsiDevice {
     pub children: Children,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Partition {
     pub serial: Option<String>,
     pub scsi80: Option<String>,
@@ -56,7 +62,9 @@ pub struct Partition {
     pub children: Children,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct MdRaid {
     pub size: u64,
     pub major: String,
@@ -70,7 +78,9 @@ pub struct MdRaid {
     pub children: Children,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Mpath {
     pub devpath: PathBuf,
     pub serial: Option<String>,
@@ -87,7 +97,9 @@ pub struct Mpath {
     pub mount: Option<mount::Mount>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct VolumeGroup {
     pub name: String,
     pub uuid: String,
@@ -95,7 +107,9 @@ pub struct VolumeGroup {
     pub children: Children,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct LogicalVolume {
     pub name: String,
     pub uuid: String,
@@ -111,7 +125,9 @@ pub struct LogicalVolume {
     pub mount: Option<mount::Mount>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+#[derive(
+    Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Zpool {
     pub guid: u64,
     pub name: String,
@@ -124,7 +140,21 @@ pub struct Zpool {
     pub mount: Option<mount::Mount>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+impl PartialOrd for Zpool {
+    fn partial_cmp(&self, other: &Zpool) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Zpool {
+    fn cmp(&self, other: &Zpool) -> Ordering {
+        self.guid.cmp(&other.guid)
+    }
+}
+
+#[derive(
+    Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub struct Dataset {
     pub guid: u64,
     pub name: String,
@@ -133,7 +163,21 @@ pub struct Dataset {
     pub mount: Option<mount::Mount>,
 }
 
-#[derive(Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone)]
+impl PartialOrd for Dataset {
+    fn partial_cmp(&self, other: &Dataset) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
+impl Ord for Dataset {
+    fn cmp(&self, other: &Dataset) -> Ordering {
+        self.guid.cmp(&other.guid)
+    }
+}
+
+#[derive(
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+)]
 pub enum Device {
     Root(Root),
     ScsiDevice(ScsiDevice),

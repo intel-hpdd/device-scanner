@@ -19,7 +19,7 @@ use device_types::{
     uevent::UEvent,
     DevicePath,
 };
-use im::{hashset, ordset, vector, HashSet, OrdSet, Vector};
+use im::{ordset, vector, HashSet, OrdSet, Vector};
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
@@ -67,7 +67,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .dm_vg_name
                     .clone()
                     .ok_or_else(|| error::none_error("Expected dm_vg_name"))?,
-                children: hashset![],
+                children: ordset![],
                 size: x
                     .dm_vg_size
                     .ok_or_else(|| error::none_error("Expected Size"))?,
@@ -109,7 +109,7 @@ fn get_partitions(
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: hashset![],
+                children: ordset![],
                 mount: mount.map(ToOwned::to_owned),
             }))
         })
@@ -144,7 +144,7 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: hashset![],
+                children: ordset![],
             }))
         })
         .collect()
@@ -167,7 +167,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
                 paths: x.paths.clone(),
-                children: hashset![],
+                children: ordset![],
                 mount: mount.map(ToOwned::to_owned),
             }))
         })
@@ -200,7 +200,7 @@ fn get_mpaths(
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: hashset![],
+                children: ordset![],
                 devpath: x.devpath.clone(),
                 mount: mount.map(ToOwned::to_owned),
             }))
@@ -228,7 +228,7 @@ fn get_mds(
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
-                children: hashset![],
+                children: ordset![],
                 uuid: x
                     .md_uuid
                     .clone()
@@ -262,7 +262,7 @@ fn get_pools(
                 state: x.state.clone(),
                 vdev: x.vdev.clone(),
                 size: x.size.parse()?,
-                children: hashset![],
+                children: ordset![],
             }))
         })
         .collect()

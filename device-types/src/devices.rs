@@ -5,7 +5,7 @@
 use crate::{mount, DevicePath};
 use im::{ordset, OrdSet};
 use libzfs_types;
-use std::{cmp::Ordering, path::PathBuf};
+use std::path::PathBuf;
 
 type Children = OrdSet<Device>;
 pub type Paths = OrdSet<DevicePath>;
@@ -126,7 +126,7 @@ pub struct LogicalVolume {
 }
 
 #[derive(
-    Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone,
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
 )]
 pub struct Zpool {
     pub guid: u64,
@@ -140,20 +140,8 @@ pub struct Zpool {
     pub mount: Option<mount::Mount>,
 }
 
-impl PartialOrd for Zpool {
-    fn partial_cmp(&self, other: &Zpool) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Zpool {
-    fn cmp(&self, other: &Zpool) -> Ordering {
-        self.guid.cmp(&other.guid)
-    }
-}
-
 #[derive(
-    Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize, Clone,
+    Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
 )]
 pub struct Dataset {
     pub guid: u64,
@@ -161,18 +149,6 @@ pub struct Dataset {
     pub kind: String,
     pub props: Vec<libzfs_types::ZProp>,
     pub mount: Option<mount::Mount>,
-}
-
-impl PartialOrd for Dataset {
-    fn partial_cmp(&self, other: &Dataset) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl Ord for Dataset {
-    fn cmp(&self, other: &Dataset) -> Ordering {
-        self.guid.cmp(&other.guid)
-    }
 }
 
 #[derive(

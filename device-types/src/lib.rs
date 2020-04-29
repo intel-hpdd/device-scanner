@@ -164,18 +164,26 @@ pub mod mount {
     use crate::DevicePath;
     use std::path::PathBuf;
 
-    #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize)]
+    #[derive(
+        Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+    )]
     #[serde(transparent)]
     pub struct MountPoint(pub PathBuf);
 
-    #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize)]
+    #[derive(
+        Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+    )]
     #[serde(transparent)]
     pub struct FsType(pub String);
 
-    #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize)]
+    #[derive(
+        Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize,
+    )]
     pub struct MountOpts(pub String);
 
-    #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone)]
+    #[derive(
+        Debug, PartialEq, Eq, PartialOrd, Ord, Hash, serde::Serialize, serde::Deserialize, Clone,
+    )]
     pub struct Mount {
         pub source: DevicePath,
         pub target: MountPoint,

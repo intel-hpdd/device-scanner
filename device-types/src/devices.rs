@@ -4,7 +4,6 @@
 
 use crate::{mount, DevicePath};
 use im::{ordset, OrdSet};
-use libzfs_types;
 use std::path::PathBuf;
 
 type Children = OrdSet<Device>;

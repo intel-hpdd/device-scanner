@@ -8,7 +8,7 @@ edition = "2018"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }
-libzfs-types = "0.1.1"
+libzfs-types = { git = "https://github.com/whamcloud/rust-libzfs.git", version = "0.1.2" }
 im = { version = "13.0", features = ["serde"] }
 log = "0.4"
 

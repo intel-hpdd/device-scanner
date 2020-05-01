@@ -3,10 +3,10 @@
 // license that can be found in the LICENSE file.
 
 use crate::{mount, DevicePath};
-use im::{ordset, OrdSet};
+use im::{OrdSet, vector, Vector};
 use std::path::PathBuf;
 
-type Children = OrdSet<Device>;
+type Children = Vector<Device>;
 pub type Paths = OrdSet<DevicePath>;
 
 #[derive(
@@ -19,7 +19,7 @@ pub struct Root {
 impl Default for Root {
     fn default() -> Self {
         Self {
-            children: ordset![],
+            children: vector![],
         }
     }
 }

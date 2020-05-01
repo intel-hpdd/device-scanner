@@ -67,7 +67,7 @@ fn get_vgs(b: &Buckets, major: &str, minor: &str) -> Result<HashSet<Device>> {
                     .dm_vg_name
                     .clone()
                     .ok_or_else(|| error::none_error("Expected dm_vg_name"))?,
-                children: ordset![],
+                children: vector![],
                 size: x
                     .dm_vg_size
                     .ok_or_else(|| error::none_error("Expected Size"))?,
@@ -109,7 +109,7 @@ fn get_partitions(
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: ordset![],
+                children: vector![],
                 mount: mount.map(ToOwned::to_owned),
             }))
         })
@@ -144,7 +144,7 @@ fn get_lvs(b: &Buckets, ys: &HashSet<Mount>, uuid: &str) -> Result<HashSet<Devic
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: ordset![],
+                children: vector![],
             }))
         })
         .collect()
@@ -167,7 +167,7 @@ fn get_scsis(b: &Buckets, ys: &HashSet<Mount>) -> Result<HashSet<Device>> {
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
                 paths: x.paths.clone(),
-                children: ordset![],
+                children: vector![],
                 mount: mount.map(ToOwned::to_owned),
             }))
         })
@@ -200,7 +200,7 @@ fn get_mpaths(
                 filesystem_type: x.fs_type.clone(),
                 fs_uuid: x.fs_uuid.clone(),
                 fs_label: x.fs_label.clone(),
-                children: ordset![],
+                children: vector![],
                 devpath: x.devpath.clone(),
                 mount: mount.map(ToOwned::to_owned),
             }))
@@ -228,7 +228,7 @@ fn get_mds(
                 major: x.major.clone(),
                 minor: x.minor.clone(),
                 size: x.size.ok_or_else(|| error::none_error("Expected size"))?,
-                children: ordset![],
+                children: vector![],
                 uuid: x
                     .md_uuid
                     .clone()
@@ -262,7 +262,7 @@ fn get_pools(
                 state: x.state.clone(),
                 vdev: x.vdev.clone(),
                 size: x.size.parse()?,
-                children: ordset![],
+                children: vector![],
             }))
         })
         .collect()
@@ -304,7 +304,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in ss {
                 build_device_graph(&mut x, b, ys)?;
 
-                r.children.insert(x);
+                r.children.insert_ord(x);
             }
 
             Ok(())
@@ -327,7 +327,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())
@@ -360,7 +360,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![xs, ms, vs, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())
@@ -371,7 +371,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in lvs {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())
@@ -390,7 +390,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![ps, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())
@@ -413,7 +413,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())
@@ -424,7 +424,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in ds {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert(x);
+                children.insert_ord(x);
             }
 
             Ok(())

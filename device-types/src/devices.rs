@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 use crate::{mount, DevicePath};
-use im::{OrdSet, vector, Vector};
+use im::{vector, OrdSet, Vector};
 use std::path::PathBuf;
 
 type Children = Vector<Device>;

@@ -304,7 +304,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in ss {
                 build_device_graph(&mut x, b, ys)?;
 
-                r.children.insert_ord(x);
+                insert_if_missing(&mut r.children, x);
             }
 
             Ok(())
@@ -327,7 +327,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
@@ -360,7 +360,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![xs, ms, vs, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
@@ -371,7 +371,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in lvs {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
@@ -390,7 +390,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![ps, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
@@ -413,7 +413,7 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in HashSet::unions(vec![vs, ps, mds, pools]) {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
@@ -424,12 +424,21 @@ fn build_device_graph<'a>(ptr: &mut Device, b: &Buckets<'a>, ys: &HashSet<Mount>
             for mut x in ds {
                 build_device_graph(&mut x, b, ys)?;
 
-                children.insert_ord(x);
+                insert_if_missing(children, x);
             }
 
             Ok(())
         }
         Device::Dataset { .. } => Ok(()),
+    }
+}
+
+fn insert_if_missing(children: &mut Vector<Device>, item: Device) {
+    let result = children.binary_search(&item);
+    if let Err(index) = result {
+        children.insert(index, item);
+    } else {
+        children.insert_ord(item);
     }
 }
 

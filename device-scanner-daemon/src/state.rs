@@ -7,6 +7,7 @@
 //! `device-scanner` uses a persistent streaming strategy
 //! where Unix domain sockets can connect and be fed device-graph changes as they occur.
 
+use chrono::prelude::*;
 use crate::error::{self, Result};
 use device_types::{
     devices::{
@@ -492,8 +493,18 @@ pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
     let dev_list = bucket_devices(&dev_list, &state.zed_events);
 
     let mut root = Device::Root(Root::default());
+    let begin: DateTime<Local> = Local::now();
 
     build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
+
+    let end: DateTime<Local> = Local::now();
+
+    tracing::info!(
+        "Start: {}, end: {}, duration: {:3} ms",
+        begin,
+        end,
+        (end - begin).num_milliseconds(),
+    );
 
     let v = serde_json::to_string(&root)?;
     let b = bytes::BytesMut::from(v + "\n");

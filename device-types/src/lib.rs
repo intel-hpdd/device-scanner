@@ -137,6 +137,7 @@ pub mod state {
     use crate::{mount, uevent};
     use im::{HashMap, HashSet};
     use std::path::PathBuf;
+    use serde_json::Value;
 
     pub type UEvents = HashMap<PathBuf, uevent::UEvent>;
 
@@ -147,6 +148,7 @@ pub mod state {
         pub uevents: UEvents,
         pub zed_events: ZedEvents,
         pub local_mounts: HashSet<mount::Mount>,
+        pub previous_dag: Option<Value>,
     }
 
     impl State {
@@ -155,6 +157,7 @@ pub mod state {
                 uevents: HashMap::new(),
                 zed_events: HashMap::new(),
                 local_mounts: HashSet::new(),
+                previous_dag: None,
             }
         }
     }

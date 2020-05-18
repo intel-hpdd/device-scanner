@@ -20,6 +20,10 @@ use device_types::{
     DevicePath,
 };
 use im::{ordset, vector, HashSet, OrdSet, Vector};
+use treediff::diff;
+use treediff::tools::ChangeType::*;
+use treediff::tools::Recorder;
+use treediff::value::Key;
 
 /// Filter out any devices that are not suitable for mounting a filesystem.
 fn keep_usable(x: &UEvent) -> bool {
@@ -486,7 +490,13 @@ pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
 
     build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
 
-    let v = serde_json::to_string(&root)?;
+    let v2 = serde_json::to_value(&root)?;
+    let mut d = Recorder::default();
+    if let Some(v1) = &state.previous_dag {
+        diff(v1, &v2, &mut d);
+    }
+
+    let v = serde_json::to_string(&v2)?;
     let b = bytes::BytesMut::from(v + "\n");
     Ok(b.freeze())
 }

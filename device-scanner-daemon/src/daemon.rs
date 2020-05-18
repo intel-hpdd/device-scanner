@@ -23,6 +23,11 @@ pub enum WriterCmd {
     Msg(bytes::Bytes),
 }
 
+pub enum Msg {
+    Initial(bytes::Bytes),
+    Update(()),
+}
+
 fn is_error(xs: &[Result<(), std::io::Error>], idx: usize) -> bool {
     if let Err(e) = &xs[idx] {
         tracing::debug!("Error writing to client {}. Removing client", e);

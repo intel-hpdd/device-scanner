@@ -28,6 +28,14 @@ jobs:
         - export PACKAGE=iml-device-scanner
         - export SPEC=iml-device-scanner.spec
         - docker run -it -e PROD="true" -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-zfs
+    - stage: deploy-copr-r6.1
+      name: "Copr 6.1 deploy"
+      script:
+        - export OWNER=managerforlustre
+        - export PROJECT=manager-for-lustre-6.1
+        - export PACKAGE=iml-device-scanner
+        - export SPEC=iml-device-scanner.spec
+        - docker run -it -e PROD="true" -e OWNER="$OWNER" -e PROJECT="$PROJECT" -e PACKAGE="$PACKAGE" -e SPEC="$SPEC" -e KEY="$encrypted_253525cedcf6_key" -e IV="$encrypted_253525cedcf6_iv" -v $(pwd):/build:rw imlteam/copr-zfs
 stages:
   - test
   - name: cd
@@ -36,3 +44,5 @@ stages:
     if: branch =~ ^v\d+\.\d+\.\d+-.+-r5\.1$
   - name: deploy-copr-r6.0
     if: branch =~ ^v\d+\.\d+\.\d+-.+-r6\.0$
+  - name: deploy-copr-r6.1
+    if: branch =~ ^v\d+\.\d+\.\d+-.+-r6\.1$

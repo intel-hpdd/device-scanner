@@ -12,13 +12,13 @@ pub mod uevent;
 #[macro_use]
 extern crate pretty_assertions;
 
+use devices::Device;
 use std::{
     cmp::Ordering,
     collections::BTreeSet,
     hash::{Hash, Hasher},
     path::{Path, PathBuf},
 };
-use devices::Device;
 
 #[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(transparent)]
@@ -208,7 +208,7 @@ pub mod mount {
         }
     }
 
-    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+    #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum MountCommand {
         AddMount(MountPoint, DevicePath, FsType, MountOpts),
         RemoveMount(MountPoint, DevicePath, FsType, MountOpts),
@@ -219,7 +219,7 @@ pub mod mount {
 
 pub mod zed {
 
-    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+    #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum PoolCommand {
         AddPools(Vec<libzfs_types::Pool>),
         AddPool(libzfs_types::Pool),
@@ -232,10 +232,10 @@ pub mod zed {
     }
 
     pub mod zpool {
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Name(pub String);
 
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Guid(pub String);
 
         impl From<u64> for Guid {
@@ -251,7 +251,7 @@ pub mod zed {
             }
         }
 
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct State(pub String);
 
         impl From<State> for String {
@@ -262,19 +262,19 @@ pub mod zed {
     }
 
     pub mod zfs {
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Name(pub String);
     }
 
     pub mod prop {
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Key(pub String);
 
-        #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+        #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
         pub struct Value(pub String);
     }
 
-    #[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+    #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
     pub enum ZedCommand {
         Init,
         CreateZpool(zpool::Name, zpool::Guid, zpool::State),
@@ -289,7 +289,7 @@ pub mod zed {
     }
 }
 
-#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum Command {
     Stream,
     GetMounts,
@@ -298,6 +298,7 @@ pub enum Command {
     MountCommand(mount::MountCommand),
 }
 
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum MyOutput {
     Command(Command),
     Device(Device),

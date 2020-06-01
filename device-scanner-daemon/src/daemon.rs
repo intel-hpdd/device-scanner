@@ -83,6 +83,15 @@ pub async fn reader(
 
                     sock.write_all(&output).await?;
 
+                    let buffer = &mut state.event_buffer;
+                    for e in buffer.drain(..) {
+                        let output = MyOutput::Command(e);
+                        let v = serde_json::to_string(&output)?;
+                        let b = bytes::BytesMut::from(v + "\n");
+
+                        sock.write_all(&b).await?;
+                    }
+
                     tx.unbounded_send(WriterCmd::Add(sock))?;
 
                     continue;
@@ -101,30 +110,27 @@ pub async fn reader(
                 Command::UdevCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
 
-                    let output = MyOutput::Command(Command::UdevCommand(x.clone()));
-                    let v = serde_json::to_string(&output)?;
-                    let b = bytes::BytesMut::from(v + "\n");
-                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
+                    let buffer = &mut state.event_buffer;
+                    buffer.push(Command::UdevCommand(x.clone()));
+                    tracing::info!("Saving UdevCommand");
 
                     state.uevents = update_udev(&state.uevents, x);
                 }
                 Command::MountCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
 
-                    let output = MyOutput::Command(Command::MountCommand(x.clone()));
-                    let v = serde_json::to_string(&output)?;
-                    let b = bytes::BytesMut::from(v + "\n");
-                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
+                    let buffer = &mut state.event_buffer;
+                    buffer.push(Command::MountCommand(x.clone()));
+                    tracing::info!("Saving MountCommand");
 
                     state.local_mounts = update_mount(state.local_mounts, x);
                 }
                 Command::PoolCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
 
-                    let output = MyOutput::Command(Command::PoolCommand(x.clone()));
-                    let v = serde_json::to_string(&output)?;
-                    let b = bytes::BytesMut::from(v + "\n");
-                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
+                    let buffer = &mut state.event_buffer;
+                    buffer.push(Command::PoolCommand(x.clone()));
+                    tracing::info!("Saving PoolCommand");
 
                     state.zed_events = update_zed_events(state.zed_events, x)?
                 }

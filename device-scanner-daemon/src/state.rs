@@ -17,7 +17,7 @@ use device_types::{
     mount::Mount,
     state,
     uevent::UEvent,
-    DevicePath,
+    DevicePath, MyOutput,
 };
 use im::{ordset, vector, HashSet, OrdSet, Vector};
 
@@ -486,7 +486,8 @@ pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
 
     build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
 
-    let v = serde_json::to_string(&root)?;
+    let output = MyOutput::Device(root);
+    let v = serde_json::to_string(&output)?;
     let b = bytes::BytesMut::from(v + "\n");
     Ok(b.freeze())
 }

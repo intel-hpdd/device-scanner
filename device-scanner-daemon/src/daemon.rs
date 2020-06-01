@@ -7,7 +7,7 @@ use crate::{
     reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
     state,
 };
-use device_types::{state::State, Command};
+use device_types::{state::State, Command, MyOutput};
 use futures::{
     channel::mpsc::UnboundedReceiver, channel::mpsc::UnboundedSender, future::join_all, StreamExt,
     TryStreamExt,
@@ -101,15 +101,30 @@ pub async fn reader(
                 Command::UdevCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
 
+                    let output = MyOutput::Command(Command::UdevCommand(x.clone()));
+                    let v = serde_json::to_string(&output)?;
+                    let b = bytes::BytesMut::from(v + "\n");
+                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
+
                     state.uevents = update_udev(&state.uevents, x);
                 }
                 Command::MountCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
 
+                    let output = MyOutput::Command(Command::MountCommand(x.clone()));
+                    let v = serde_json::to_string(&output)?;
+                    let b = bytes::BytesMut::from(v + "\n");
+                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
+
                     state.local_mounts = update_mount(state.local_mounts, x);
                 }
                 Command::PoolCommand(x) => {
                     sock.shutdown(std::net::Shutdown::Both)?;
+
+                    let output = MyOutput::Command(Command::PoolCommand(x.clone()));
+                    let v = serde_json::to_string(&output)?;
+                    let b = bytes::BytesMut::from(v + "\n");
+                    tx.unbounded_send(WriterCmd::Msg(b.freeze()))?;
 
                     state.zed_events = update_zed_events(state.zed_events, x)?
                 }

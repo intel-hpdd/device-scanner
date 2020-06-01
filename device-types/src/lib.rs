@@ -298,7 +298,7 @@ pub enum Command {
     MountCommand(mount::MountCommand),
 }
 
-enum MyOutput {
+pub enum MyOutput {
     Command(Command),
     Device(Device),
 }

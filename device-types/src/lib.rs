@@ -18,6 +18,7 @@ use std::{
     hash::{Hash, Hasher},
     path::{Path, PathBuf},
 };
+use devices::Device;
 
 #[derive(Debug, Clone, Eq, serde::Serialize, serde::Deserialize)]
 #[serde(transparent)]
@@ -295,6 +296,11 @@ pub enum Command {
     PoolCommand(zed::PoolCommand),
     UdevCommand(udev::UdevCommand),
     MountCommand(mount::MountCommand),
+}
+
+enum MyOutput {
+    Command(Command),
+    Device(Device),
 }
 
 #[cfg(test)]

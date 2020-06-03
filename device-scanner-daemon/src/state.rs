@@ -478,7 +478,7 @@ fn build_device_list(xs: &state::UEvents) -> Vector<&UEvent> {
     xs.values().filter(|y| keep_usable(y)).collect()
 }
 
-pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
+pub fn produce_device_graph(state: &state::State) -> Result<MyOutput> {
     let dev_list = build_device_list(&state.uevents);
     let dev_list = bucket_devices(&dev_list, &state.zed_events);
 
@@ -487,7 +487,5 @@ pub fn produce_device_graph(state: &state::State) -> Result<bytes::Bytes> {
     build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
 
     let output = MyOutput::Device(root);
-    let v = serde_json::to_string(&output)?;
-    let b = bytes::BytesMut::from(v + "\n");
-    Ok(b.freeze())
+    Ok(output)
 }

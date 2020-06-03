@@ -81,16 +81,13 @@ pub async fn reader(
                 Command::Stream => {
                     let output = state::produce_device_graph(&state)?;
 
-                    sock.write_all(&output).await?;
+                    let mut buffer = std::mem::replace(&mut state.event_buffer, Vec::new());
+                    buffer.push(output);
 
-                    let buffer = &mut state.event_buffer;
-                    for e in buffer.drain(..) {
-                        let output = MyOutput::Command(e);
-                        let v = serde_json::to_string(&output)?;
-                        let b = bytes::BytesMut::from(v + "\n");
+                    let v = serde_json::to_string(&buffer)?;
+                    let b = bytes::BytesMut::from(v + "\n");
 
-                        sock.write_all(&b).await?;
-                    }
+                    sock.write_all(&b).await?;
 
                     tx.unbounded_send(WriterCmd::Add(sock))?;
 
@@ -111,7 +108,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(Command::UdevCommand(x.clone()));
+                    buffer.push(MyOutput::Command(Command::UdevCommand(x.clone())));
                     tracing::info!("Saving UdevCommand");
 
                     state.uevents = update_udev(&state.uevents, x);
@@ -120,7 +117,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(Command::MountCommand(x.clone()));
+                    buffer.push(MyOutput::Command(Command::MountCommand(x.clone())));
                     tracing::info!("Saving MountCommand");
 
                     state.local_mounts = update_mount(state.local_mounts, x);
@@ -129,7 +126,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(Command::PoolCommand(x.clone()));
+                    buffer.push(MyOutput::Command(Command::PoolCommand(x.clone())));
                     tracing::info!("Saving PoolCommand");
 
                     state.zed_events = update_zed_events(state.zed_events, x)?
@@ -138,7 +135,13 @@ pub async fn reader(
 
             let output = state::produce_device_graph(&state)?;
 
-            tx.unbounded_send(WriterCmd::Msg(output))?;
+            let mut buffer = std::mem::replace(&mut state.event_buffer, Vec::new());
+            buffer.push(output);
+
+            let v = serde_json::to_string(&buffer)?;
+            let b = bytes::Bytes::from(v + "\n");
+
+            tx.unbounded_send(WriterCmd::Msg(b))?;
 
             tracing::debug!("sent new output");
         }

@@ -135,7 +135,7 @@ pub mod message {
 }
 
 pub mod state {
-    use crate::{mount, uevent, Command};
+    use crate::{mount, uevent, MyOutput};
     use im::{HashMap, HashSet};
     use std::path::PathBuf;
 
@@ -148,7 +148,7 @@ pub mod state {
         pub uevents: UEvents,
         pub zed_events: ZedEvents,
         pub local_mounts: HashSet<mount::Mount>,
-        pub event_buffer: Vec<Command>,
+        pub event_buffer: Vec<MyOutput>,
     }
 
     impl State {

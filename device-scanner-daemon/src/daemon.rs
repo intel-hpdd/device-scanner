@@ -7,7 +7,7 @@ use crate::{
     reducers::{mount::update_mount, udev::update_udev, zed::update_zed_events},
     state,
 };
-use device_types::{state::State, Command, MyOutput};
+use device_types::{state::State, Command, Output};
 use futures::{
     channel::mpsc::UnboundedReceiver, channel::mpsc::UnboundedSender, future::join_all, StreamExt,
     TryStreamExt,
@@ -87,6 +87,7 @@ pub async fn reader(
                     let v = serde_json::to_string(&buffer)?;
                     let b = bytes::BytesMut::from(v + "\n");
 
+                    tracing::info!("Writing buffer of {} items to socket, size: {} (new client)", buffer.len(), b.len());
                     sock.write_all(&b).await?;
 
                     tx.unbounded_send(WriterCmd::Add(sock))?;
@@ -108,7 +109,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(MyOutput::Command(Command::UdevCommand(x.clone())));
+                    buffer.push(Output::Command(Command::UdevCommand(x.clone())));
                     tracing::info!("Saving UdevCommand");
 
                     state.uevents = update_udev(&state.uevents, x);
@@ -117,7 +118,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(MyOutput::Command(Command::MountCommand(x.clone())));
+                    buffer.push(Output::Command(Command::MountCommand(x.clone())));
                     tracing::info!("Saving MountCommand");
 
                     state.local_mounts = update_mount(state.local_mounts, x);
@@ -126,7 +127,7 @@ pub async fn reader(
                     sock.shutdown(std::net::Shutdown::Both)?;
 
                     let buffer = &mut state.event_buffer;
-                    buffer.push(MyOutput::Command(Command::PoolCommand(x.clone())));
+                    buffer.push(Output::Command(Command::PoolCommand(x.clone())));
                     tracing::info!("Saving PoolCommand");
 
                     state.zed_events = update_zed_events(state.zed_events, x)?

@@ -135,7 +135,7 @@ pub mod message {
 }
 
 pub mod state {
-    use crate::{mount, uevent, MyOutput};
+    use crate::{mount, uevent, Output};
     use im::{HashMap, HashSet};
     use std::path::PathBuf;
 
@@ -148,7 +148,7 @@ pub mod state {
         pub uevents: UEvents,
         pub zed_events: ZedEvents,
         pub local_mounts: HashSet<mount::Mount>,
-        pub event_buffer: Vec<MyOutput>,
+        pub event_buffer: Vec<Output>,
     }
 
     impl State {
@@ -301,7 +301,7 @@ pub enum Command {
 }
 
 #[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
-pub enum MyOutput {
+pub enum Output {
     Command(Command),
     Device(Device),
 }

@@ -17,7 +17,7 @@ use device_types::{
     mount::Mount,
     state,
     uevent::UEvent,
-    DevicePath, MyOutput,
+    DevicePath, Output,
 };
 use im::{ordset, vector, HashSet, OrdSet, Vector};
 
@@ -478,7 +478,7 @@ fn build_device_list(xs: &state::UEvents) -> Vector<&UEvent> {
     xs.values().filter(|y| keep_usable(y)).collect()
 }
 
-pub fn produce_device_graph(state: &state::State) -> Result<MyOutput> {
+pub fn produce_device_graph(state: &state::State) -> Result<Output> {
     let dev_list = build_device_list(&state.uevents);
     let dev_list = bucket_devices(&dev_list, &state.zed_events);
 
@@ -486,6 +486,6 @@ pub fn produce_device_graph(state: &state::State) -> Result<MyOutput> {
 
     build_device_graph(&mut root, &dev_list, &state.local_mounts)?;
 
-    let output = MyOutput::Device(root);
+    let output = Output::Device(root);
     Ok(output)
 }

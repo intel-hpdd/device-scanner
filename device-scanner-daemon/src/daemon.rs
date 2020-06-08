@@ -87,7 +87,11 @@ pub async fn reader(
                     let v = serde_json::to_string(&buffer)?;
                     let b = bytes::BytesMut::from(v + "\n");
 
-                    tracing::debug!("Writing buffer of {} items to socket, size: {} (new client)", buffer.len(), b.len());
+                    tracing::debug!(
+                        "Writing buffer of {} items to socket, size: {} (new client)",
+                        buffer.len(),
+                        b.len()
+                    );
                     sock.write_all(&b).await?;
 
                     tx.unbounded_send(WriterCmd::Add(sock))?;

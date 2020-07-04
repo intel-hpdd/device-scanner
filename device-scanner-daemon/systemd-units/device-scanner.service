@@ -11,6 +11,6 @@ OnFailure=block-device-populator.service zed-populator.service mount-populator.s
 [Service]
 Restart=always
 Environment=RUST_LOG=info
-ExecStart=/usr/bin/device-scanner-daemon
+ExecStart=/usr/bin/device-scanner-daemon --systemd
 StandardOutput=journal
 StandardError=journal

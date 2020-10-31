@@ -4,7 +4,7 @@
 
 use crate::uevent;
 
-#[derive(Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub enum UdevCommand {
     Add(uevent::UEvent),
     Change(uevent::UEvent),
